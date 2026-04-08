@@ -242,8 +242,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.editingSettings.racedayColumns = result.columns;
     this.editingSettings.columnLayouts = result.columnLayouts;
     this.editingSettings.columnVisibility = result.columnVisibility;
-    this.showReorderModal = false;
-    this.reorderModalData = null;
     this.captureState();
     if (!this.isDestroyed) {
       this.cdr.detectChanges();

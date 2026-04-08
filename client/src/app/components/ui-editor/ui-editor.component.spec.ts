@@ -208,12 +208,50 @@ describe('UIEditorComponent', () => {
     };
     component.onReorderSave(result as any);
     expect(component.editingSettings.racedayColumns).toEqual(['lapCount']);
-    expect(component.showReorderModal).toBeFalse();
+    // Should NOT close automatically on save (auto-save)
+    expect(component.showReorderModal).toBeTrue();
 
-    component.openReorderDialog();
     component.onReorderCancel();
     expect(component.showReorderModal).toBeFalse();
   });
+
+  it('should keep reorder dialog open after multiple auto-saves and persist settings', fakeAsync(() => {
+    component.openReorderDialog();
+    expect(component.showReorderModal).toBeTrue();
+
+    // First edit (auto-save)
+    const result1 = {
+      columns: ['col1'],
+      columnLayouts: { 'col1': { [AnchorPoint.CenterCenter]: 'col1' } },
+      columnVisibility: { 'col1': 'Always' }
+    };
+    component.onReorderSave(result1 as any);
+    expect(component.showReorderModal).toBeTrue();
+    expect(component.editingSettings.racedayColumns).toEqual(['col1']);
+    
+    // Auto-save should be triggered by captureState() -> stateCommitted$ -> autoSaveSettings()
+    tick(600); 
+    expect(mockSettingsService.saveSettings).toHaveBeenCalled();
+    mockSettingsService.saveSettings.calls.reset();
+
+    // Second edit (auto-save)
+    const result2 = {
+      columns: ['col1', 'col2'],
+      columnLayouts: { 'col1': { [AnchorPoint.CenterCenter]: 'col1' }, 'col2': { [AnchorPoint.CenterCenter]: 'col2' } },
+      columnVisibility: { 'col1': 'Always', 'col2': 'Always' }
+    };
+    component.onReorderSave(result2 as any);
+    expect(component.showReorderModal).toBeTrue();
+    expect(component.editingSettings.racedayColumns).toEqual(['col1', 'col2']);
+
+    tick(600);
+    expect(mockSettingsService.saveSettings).toHaveBeenCalled();
+
+    // Final close
+    component.onReorderCancel();
+    expect(component.showReorderModal).toBeFalse();
+    expect(component.reorderModalData).toBeNull();
+  }));
 
   it('should handle sortByStandings change', () => {
     component.editingSettings.sortByStandings = false;
