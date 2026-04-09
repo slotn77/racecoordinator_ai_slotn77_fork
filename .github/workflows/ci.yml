@@ -54,6 +54,8 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: 'maven'
+      - name: Install Protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
       - name: Generate Protobufs
         # Match local environment exactly by running the generation script first
         run: |
