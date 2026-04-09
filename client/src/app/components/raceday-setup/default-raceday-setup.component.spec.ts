@@ -114,6 +114,10 @@ describe('DefaultRacedaySetupComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    fixture.destroy();
+  });
+
   beforeEach(async () => {
     harness = await TestbedHarnessEnvironment.harnessForFixture(fixture, DefaultRacedaySetupHarness);
   });
@@ -123,30 +127,37 @@ describe('DefaultRacedaySetupComponent', () => {
   });
 
   it('should toggle driver selection', fakeAsync(() => {
+    // Flush the ngOnInit translations and help walkthrough timers
+    tick(1000);
+    fixture.detectChanges();
+
     const driverToSelect = component.filteredUnselectedParticipants.find((d: any) => d.entity_id === 'd2')!;
     component.toggleParticipantSelection(driverToSelect, false);
-    flush();
+    tick(); // updateListWithRefresh
+    fixture.detectChanges();
 
     expect(component.selectedParticipants.length).toBe(1);
     expect(component.selectedParticipants[0].entity_id).toBe('d2');
 
     const driverToUnselect = component.selectedParticipants[0];
     component.toggleParticipantSelection(driverToUnselect, true);
-    flush();
+    tick(); // updateListWithRefresh
+    fixture.detectChanges();
 
     expect(component.selectedParticipants.length).toBe(0);
     expect(component.filteredUnselectedParticipants.length).toBe(3);
   }));
 
   it('should toggle team selection', fakeAsync(() => {
-    mockDataService.getDrivers.and.returnValue(of([]));
-    mockDataService.getTeams.and.returnValue(of([
-      { entity_id: 't1', name: 'Team 1', driverIds: ['d1'] } as any
-    ]));
+    // Note: ngOnInit has already run in beforeEach. To test with specific data, 
+    // we must re-trigger ngOnInit or handle the initialization logic manually.
+    // For this test, we verify that the team already exists from the initial setup.
+
     expect(component.filteredUnselectedParticipants.length).toBe(3);
     const teamToSelect = component.filteredUnselectedParticipants.find((d: any) => d.entity_id === 't1')!;
     component.toggleParticipantSelection(teamToSelect, false);
-    flush();
+    tick(); // Wait for updateListWithRefresh setTimeout
+    fixture.detectChanges();
 
     expect(component.selectedParticipants.length).toBe(1);
     expect(component.selectedParticipants[0].entity_id).toBe('t1');
@@ -193,7 +204,7 @@ describe('DefaultRacedaySetupComponent', () => {
     expect(savedSettings.selectedRaceId).toBe('r2');
   });
 
-  it('should update quick start races when starting a race', () => {
+  it('should update quick start races when starting a race', fakeAsync(() => {
     const raceToSelect = component.races.find((r: any) => r.entity_id === 'r2')!;
     component.selectRace(raceToSelect);
     // Must have participants to start a race
@@ -203,15 +214,17 @@ describe('DefaultRacedaySetupComponent', () => {
     mockDataService.initializeRace.and.returnValue(of(response));
 
     component.startRace(false);
+    tick(); // startRace calls getSavedRaces and proceedWithStart
+    fixture.detectChanges();
 
     // After starting, r2 should be the first in quickStartRaces
     expect(component.quickStartRaces[0].entity_id).toBe('r2');
     // Settings should be saved with updated recentRaceIds
     const savedSettings = mockSettingsService.saveSettings.calls.mostRecent().args[0];
     expect(savedSettings.recentRaceIds[0]).toBe('r2');
-  });
+  }));
 
-  it('should start race normally without autosave file', () => {
+  it('should start race normally without autosave file', fakeAsync(() => {
     component.selectedRace = component.races[0];
     component.selectedParticipants = [component.unselectedParticipants[0]];
     const response = com.antigravity.InitializeRaceResponse.fromObject({ success: true });
@@ -219,10 +232,12 @@ describe('DefaultRacedaySetupComponent', () => {
     mockDataService.getSavedRaces.and.returnValue(of([])); // no autosave
 
     component.startRace(false);
+    tick();
+    fixture.detectChanges();
 
     expect(mockDataService.initializeRace).toHaveBeenCalled();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/raceday']);
-  });
+  }));
 
   it('should prompt to load autosave and load it if confirmed', fakeAsync(() => {
     component.selectedRace = component.races[0]; // entity_id: 'r1'
@@ -270,16 +285,18 @@ describe('DefaultRacedaySetupComponent', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/raceday']);
   }));
 
-  it('should start demo race', () => {
+  it('should start demo race', fakeAsync(() => {
     component.selectedRace = component.races[0];
     component.selectedParticipants = [component.unselectedParticipants[0]];
     const response = com.antigravity.InitializeRaceResponse.fromObject({ success: true });
     mockDataService.initializeRace.and.returnValue(of(response));
 
     component.startRace(true);
+    tick();
+    fixture.detectChanges();
 
     expect(mockDataService.initializeRace).toHaveBeenCalledWith(jasmine.any(String), jasmine.any(Array), true);
-  });
+  }));
 
   it('should add all drivers', fakeAsync(() => {
     expect(component.filteredUnselectedParticipants.length).toBe(3);

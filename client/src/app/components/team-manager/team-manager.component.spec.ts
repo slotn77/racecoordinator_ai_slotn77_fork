@@ -71,7 +71,7 @@ describe('TeamManagerComponent', () => {
     mockSettingsService.getSettings.and.returnValue({ teamManagerHelpShown: true } as any);
 
     await TestBed.configureTestingModule({
-      declarations: [TeamManagerComponent, AvatarUrlPipe],
+      declarations: [TeamManagerComponent],
       imports: [SharedModule],
       providers: [
         { provide: DataService, useValue: mockDataService },
@@ -108,7 +108,7 @@ describe('TeamManagerComponent', () => {
       expect(await harness.getSelectedTeamName()).toBe('Team Alpha');
     });
 
-    it('should select team from query param', fakeAsync(async () => {
+    it('should select team from query param', async () => {
       fixture.destroy();
       TestBed.resetTestingModule();
       mockActivatedRoute.snapshot.queryParamMap.get.and.returnValue('t2');
@@ -134,16 +134,16 @@ describe('TeamManagerComponent', () => {
       fixture.detectChanges();
 
       expect(await harness.getSelectedTeamName()).toBe('Team Beta');
-    }));
+    });
   });
 
   describe('Create New Team', () => {
-    it('should create a team with unique name and navigate to editor', fakeAsync(async () => {
+    it('should create a team with unique name and navigate to editor', async () => {
       const createdTeam = { entity_id: 't-new', name: 'New Team' };
       mockDataService.createTeam.and.returnValue(of(createdTeam));
       
       await harness.clickNewTeam();
-      tick();
+
 
       expect(mockDataService.createTeam).toHaveBeenCalledWith(jasmine.objectContaining({
         name: 'TMM_DEFAULT_TEAM_NAME',
@@ -151,9 +151,9 @@ describe('TeamManagerComponent', () => {
         avatarUrl: undefined
       }));
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/team-editor'], { queryParams: { id: 't-new' } });
-    }));
+    });
 
-    it('should generate a unique name if conflict exists', fakeAsync(async () => {
+    it('should generate a unique name if conflict exists', async () => {
       const teamWithDefaultName = new Team('t3', 'TMM_DEFAULT_TEAM_NAME', '', []);
       component.teams.push(teamWithDefaultName);
 
@@ -161,12 +161,12 @@ describe('TeamManagerComponent', () => {
       mockDataService.createTeam.and.returnValue(of(createdTeam));
 
       await harness.clickNewTeam();
-      tick();
+
 
       expect(mockDataService.createTeam).toHaveBeenCalledWith(jasmine.objectContaining({
         name: 'TMM_DEFAULT_TEAM_NAME_1'
       }));
-    }));
+    });
   });
 
   describe('Guided Help', () => {
@@ -177,7 +177,7 @@ describe('TeamManagerComponent', () => {
       mockSettingsService.getSettings.and.returnValue({ teamManagerHelpShown: false } as any);
 
       TestBed.configureTestingModule({
-        declarations: [TeamManagerComponent, AvatarUrlPipe],
+        declarations: [TeamManagerComponent],
         imports: [SharedModule],
         providers: [
           { provide: DataService, useValue: mockDataService },
@@ -222,16 +222,13 @@ describe('TeamManagerComponent', () => {
       expect(component.showDeleteConfirmation).toBeTrue();
     });
 
-    it('should delete team if confirmed', fakeAsync(async () => {
+    it('should delete team if confirmed', async () => {
       mockDataService.deleteTeam.and.returnValue(of({}));
       await harness.selectTeam(0);
       await harness.clickDelete();
-      
       component.onConfirmDelete();
-      tick();
-
       expect(component.showDeleteConfirmation).toBeFalse();
       expect(mockDataService.deleteTeam).toHaveBeenCalledWith('t1');
-    }));
+    });
   });
 });

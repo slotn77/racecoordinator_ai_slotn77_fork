@@ -534,10 +534,6 @@ export class DefaultRacedaySetupComponent implements OnInit, AfterViewInit {
             this.errorMessage = translatedMessage + '\n\n' + fixDescription;
             // Clear messageParams since we've already done the translation for the main part
             this.errorMessageParams = {};
-            // Set the message directly to the translated one
-            this.errorMessage = this.errorMessage; 
-            // Actually, cleaner to keep it as raw keys if possible, but the modal takes one message.
-            // I'll stick to a manual translated string for complexity.
           }
 
           this.showErrorModal = true;

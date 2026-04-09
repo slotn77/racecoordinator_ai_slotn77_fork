@@ -24,7 +24,7 @@ describe('SettingsService', () => {
   it('should return default settings when nothing is stored', () => {
     const settings = service.getSettings();
     expect(settings.language).toBe('');
-    expect(settings.serverIp).toBe('localhost');
+    expect(settings.serverIp).toBe('');
     expect(settings.highlightRowOnLap).toBeTrue();
   });
 

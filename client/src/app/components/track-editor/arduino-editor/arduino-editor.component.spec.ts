@@ -92,6 +92,10 @@ describe('ArduinoEditorComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    fixture.destroy();
+  });
+
   // --- Existing Tests ---
 
   it('should create', () => {
