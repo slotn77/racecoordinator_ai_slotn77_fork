@@ -15,10 +15,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: cd client && npm ci
       - name: Run client tests
-        # CI environment has Chrome already, so we can ignore any local Mac path hacks in karma.conf
         run: cd client && npm run test --watch=false
 
   test-visual:
@@ -29,12 +30,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: cd client && npm ci
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('client/package-lock.json') }}
       - name: Install Playwright Browsers
         run: cd client && npx playwright install --with-deps
       - name: Run visual tests
-        # We run npx playwright test directly to use the browsers installed globally in the previous step
         run: cd client && npx playwright test
 
   test-server:
@@ -46,6 +53,17 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
+          cache: 'maven'
+      - name: Generate Protobufs
+        # Match local environment exactly by running the generation script first
+        run: |
+          cd server
+          chmod +x generate_protos.sh
+          ./generate_protos.sh
       - name: Build and test with Maven
-        # Set skipProtobuf=false because Linux runner can compile protos successfully, unlike Mac which required the script
-        run: cd server && mvn test -DskipProtobuf=false
+        # skipProtobuf=true since we just generated them with the script
+        run: |
+          cd server
+          mvn test -DskipProtobuf=true \
+                   -Dde.flapdoodle.embed.mongo.artifacts=/tmp/.embedmongo \
+                   -Djava.io.tmpdir=/tmp
