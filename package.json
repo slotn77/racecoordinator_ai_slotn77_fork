@@ -15,9 +15,9 @@
     "lint:client": "cd client && npx eslint --fix \"src/**/*.{ts,html}\"",
     "lint:server": "cd server && mvn spotless:check",
     "test": "npm run test:client && npm run test:visual && npm run test:server",
-    "test:client": "cd client && npm run test",
-    "test:visual": "cd client && npm run test:visual",
-    "test:server": "cd server && mvn test"
+    "test:client": "./run_client_unit_tests.sh",
+    "test:visual": "./run_client_screendiff_tests.sh",
+    "test:server": "./run_server_tests.sh"
   },
   "lint-staged": {
     "client/**/*.{ts,tsx,js,jsx,html}": [
