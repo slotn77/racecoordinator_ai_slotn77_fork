@@ -12,8 +12,7 @@ public class RaceStatistics {
   private int yellowFlagCount;
   private int restartCount;
 
-  public RaceStatistics() {
-  }
+  public RaceStatistics() {}
 
   @JsonProperty("startTime")
   public String getStartTime() {

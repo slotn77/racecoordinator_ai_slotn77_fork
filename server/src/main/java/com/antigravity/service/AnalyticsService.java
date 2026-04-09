@@ -30,7 +30,8 @@ public class AnalyticsService {
     this.mapper = new ObjectMapper();
 
     Properties props = new Properties();
-    try (InputStream input = getClass().getClassLoader().getResourceAsStream("analytics.properties")) {
+    try (InputStream input =
+        getClass().getClassLoader().getResourceAsStream("analytics.properties")) {
       if (input != null) {
         props.load(input);
         this.measurementId = props.getProperty("ga.measurement.id");
@@ -43,8 +44,12 @@ public class AnalyticsService {
     this.configService = new ServerConfigService();
     this.userEnabled = configService.isShareAnalyticsEnabled();
 
-    if (this.measurementId != null && !this.measurementId.contains("XXXXX") && !this.measurementId.isEmpty() &&
-        this.apiSecret != null && !this.apiSecret.contains("your_api_secret") && !this.apiSecret.isEmpty()) {
+    if (this.measurementId != null
+        && !this.measurementId.contains("XXXXX")
+        && !this.measurementId.isEmpty()
+        && this.apiSecret != null
+        && !this.apiSecret.contains("your_api_secret")
+        && !this.apiSecret.isEmpty()) {
       this.enabled = true;
       logger.info("Google Analytics Measurement Protocol configured and enabled.");
     } else {
@@ -106,12 +111,17 @@ public class AnalyticsService {
     }
 
     Map<String, Object> eventParams = new HashMap<>();
-    eventParams.put("number_of_lanes",
-        race.getTrack() != null && race.getTrack().getLanes() != null ? race.getTrack().getLanes().size() : 0);
+    eventParams.put(
+        "number_of_lanes",
+        race.getTrack() != null && race.getTrack().getLanes() != null
+            ? race.getTrack().getLanes().size()
+            : 0);
     eventParams.put("driver_count", race.getDrivers() != null ? race.getDrivers().size() : 0);
     eventParams.put("is_demo", race.isDemoMode());
     eventParams.put("engagement_time_msec", "1"); // Required for GA4 Realtime reports
-    eventParams.put("session_id", String.valueOf(System.currentTimeMillis())); // Forces GA4 to create a session for
+    eventParams.put(
+        "session_id",
+        String.valueOf(System.currentTimeMillis())); // Forces GA4 to create a session for
     // Realtime processing
 
     Map<String, Object> event = new HashMap<>();
@@ -126,31 +136,33 @@ public class AnalyticsService {
   }
 
   private void sendPayload(Map<String, Object> payload) {
-    CompletableFuture.runAsync(() -> {
-      try {
-        String jsonPayload = mapper.writeValueAsString(payload);
-        String urlString = String.format(
-            "https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s",
-            measurementId, apiSecret);
+    CompletableFuture.runAsync(
+        () -> {
+          try {
+            String jsonPayload = mapper.writeValueAsString(payload);
+            String urlString =
+                String.format(
+                    "https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s",
+                    measurementId, apiSecret);
 
-        URL url = new URL(urlString);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
 
-        try (OutputStream os = conn.getOutputStream()) {
-          byte[] input = jsonPayload.getBytes("utf-8");
-          os.write(input, 0, input.length);
-        }
+            try (OutputStream os = conn.getOutputStream()) {
+              byte[] input = jsonPayload.getBytes("utf-8");
+              os.write(input, 0, input.length);
+            }
 
-        int statusCode = conn.getResponseCode();
-        if (statusCode >= 400) {
-          logger.warn("Failed to send GA telemetry. Status: {}", statusCode);
-        }
-      } catch (Exception e) {
-        logger.warn("Error sending GA telemetry: {}", e.getMessage());
-      }
-    });
+            int statusCode = conn.getResponseCode();
+            if (statusCode >= 400) {
+              logger.warn("Failed to send GA telemetry. Status: {}", statusCode);
+            }
+          } catch (Exception e) {
+            logger.warn("Error sending GA telemetry: {}", e.getMessage());
+          }
+        });
   }
 }

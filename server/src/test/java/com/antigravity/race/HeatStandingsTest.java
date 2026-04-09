@@ -34,8 +34,14 @@ public class HeatStandingsTest {
     data.add(d1);
     data.add(d2);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap,
+                0,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.FASTEST_LAP_TIME));
     List<String> results = standings.getStandings();
 
     assertEquals(d1.getObjectId(), results.get(0));
@@ -60,8 +66,14 @@ public class HeatStandingsTest {
     data.add(d1);
     data.add(d2);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap,
+                0,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.FASTEST_LAP_TIME));
     List<String> results = standings.getStandings();
 
     assertEquals(d2.getObjectId(), results.get(0));
@@ -85,8 +97,14 @@ public class HeatStandingsTest {
     data.add(d1);
     data.add(d2);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.AVERAGE_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap,
+                0,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.AVERAGE_LAP_TIME));
     assertEquals(d1.getObjectId(), standings.getStandings().get(0));
   }
 
@@ -109,8 +127,11 @@ public class HeatStandingsTest {
     data.add(d1);
     data.add(d2);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.MEDIAN_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap, 0, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.MEDIAN_LAP_TIME));
     List<String> results = standings.getStandings();
 
     assertEquals(d1.getObjectId(), results.get(0));
@@ -138,8 +159,14 @@ public class HeatStandingsTest {
     data.add(d2);
     data.add(d3);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap,
+                0,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.FASTEST_LAP_TIME));
 
     standings.getStandings(); // Triggers calculateStandings -> calculateGaps
 
@@ -172,8 +199,14 @@ public class HeatStandingsTest {
     data.add(d1);
     data.add(d2);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Timed, 300, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Timed,
+                300,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.FASTEST_LAP_TIME));
 
     standings.getStandings(); // Triggers calculateStandings -> calculateGaps
 
@@ -202,8 +235,14 @@ public class HeatStandingsTest {
     data.add(d2);
     data.add(d1);
 
-    HeatStandings standings = new HeatStandings(data, new HeatScoring(FinishMethod.Lap, 0, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME));
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                FinishMethod.Lap,
+                0,
+                HeatRanking.LAP_COUNT,
+                HeatRankingTiebreaker.FASTEST_LAP_TIME));
     List<String> results = standings.getStandings();
 
     assertEquals(d1.getObjectId(), results.get(0));

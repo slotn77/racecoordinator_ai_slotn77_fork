@@ -46,8 +46,7 @@ public class MockProtocolListener implements ProtocolListener {
   }
 
   @Override
-  public void onCallbutton(int lane) {
-  }
+  public void onCallbutton(int lane) {}
 
   @Override
   public void onInterfaceStatus(InterfaceStatus status) {

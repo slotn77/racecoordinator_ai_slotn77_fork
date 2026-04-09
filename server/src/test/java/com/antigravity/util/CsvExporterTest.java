@@ -61,20 +61,26 @@ public class CsvExporterTest {
 
     String csv = CsvExporter.export(mockRace);
 
-    assertTrue("Csv output should contain Section Title for Track", csv.contains("#Section,Track Information"));
+    assertTrue(
+        "Csv output should contain Section Title for Track",
+        csv.contains("#Section,Track Information"));
     assertTrue("Csv output should contain Track Name", csv.contains("Name,Mock Track"));
 
     // Verify Lap data contains historical segments columns (max is 3 from current)
-    assertTrue("Csv output should contain Lap header with Segment titles",
+    assertTrue(
+        "Csv output should contain Lap header with Segment titles",
         csv.contains("#Lap,Driver,Nickname,Lap Time,Segment 1,Segment 2,Segment 3"));
     // Verify first lap row data includes its own historical segment values (size 2)
     // and empty padding
-    assertTrue("Csv output should render completed lap values with historical segments",
+    assertTrue(
+        "Csv output should render completed lap values with historical segments",
         csv.contains("1,Driver 1,,5.5,1.2,2.3,"));
 
     // Verify Current Lap isolated sub-section
-    assertTrue("Csv output should contains isolated Current Lap header", csv.contains("#Current Lap"));
-    assertTrue("Csv output should contains Current Lap labels with spaces",
+    assertTrue(
+        "Csv output should contains isolated Current Lap header", csv.contains("#Current Lap"));
+    assertTrue(
+        "Csv output should contains Current Lap labels with spaces",
         csv.contains("#Segment 1, Segment 2, Segment 3"));
     assertTrue("Csv output should render current segment values list", csv.contains("1.5,1.8,2.0"));
   }

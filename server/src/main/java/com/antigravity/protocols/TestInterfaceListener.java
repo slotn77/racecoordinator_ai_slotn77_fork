@@ -17,45 +17,47 @@ public class TestInterfaceListener implements ProtocolListener {
 
   @Override
   public void onLap(int lane, double lapTime, int interfaceId) {
-    InterfaceEvent event = InterfaceEvent.newBuilder()
-        .setLap(LapEvent.newBuilder()
-            .setLane(lane)
-            .setLapTime(lapTime)
-            .setInterfaceId(interfaceId)
-            .build())
-        .build();
+    InterfaceEvent event =
+        InterfaceEvent.newBuilder()
+            .setLap(
+                LapEvent.newBuilder()
+                    .setLane(lane)
+                    .setLapTime(lapTime)
+                    .setInterfaceId(interfaceId)
+                    .build())
+            .build();
     ClientSubscriptionManager.getInstance().broadcastInterfaceEvent(event);
   }
 
   @Override
   public void onSegment(int lane, double segmentTime, int interfaceId) {
-    InterfaceEvent event = InterfaceEvent.newBuilder()
-        .setSegment(SegmentEvent.newBuilder()
-            .setLane(lane)
-            .setSegmentTime(segmentTime)
-            .setInterfaceId(interfaceId)
-            .build())
-        .build();
+    InterfaceEvent event =
+        InterfaceEvent.newBuilder()
+            .setSegment(
+                SegmentEvent.newBuilder()
+                    .setLane(lane)
+                    .setSegmentTime(segmentTime)
+                    .setInterfaceId(interfaceId)
+                    .build())
+            .build();
     ClientSubscriptionManager.getInstance().broadcastInterfaceEvent(event);
   }
 
   @Override
   public void onCallbutton(int lane) {
-    InterfaceEvent event = InterfaceEvent.newBuilder()
-        .setCallbutton(CallbuttonEvent.newBuilder()
-            .setLane(lane)
-            .build())
-        .build();
+    InterfaceEvent event =
+        InterfaceEvent.newBuilder()
+            .setCallbutton(CallbuttonEvent.newBuilder().setLane(lane).build())
+            .build();
     ClientSubscriptionManager.getInstance().broadcastInterfaceEvent(event);
   }
 
   @Override
   public void onInterfaceStatus(InterfaceStatus status) {
-    InterfaceEvent event = InterfaceEvent.newBuilder()
-        .setStatus(InterfaceStatusEvent.newBuilder()
-            .setStatus(status)
-            .build())
-        .build();
+    InterfaceEvent event =
+        InterfaceEvent.newBuilder()
+            .setStatus(InterfaceStatusEvent.newBuilder().setStatus(status).build())
+            .build();
     ClientSubscriptionManager.getInstance().broadcastInterfaceEvent(event);
   }
 

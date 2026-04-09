@@ -17,13 +17,18 @@ public class ConstructorTest {
     Race model = mock(Race.class);
     when(model.getHeatRotationType()).thenReturn(HeatRotationType.RoundRobin);
     List<RaceParticipant> drivers = new ArrayList<>();
-    drivers.add(new RaceParticipant(new com.antigravity.models.Driver("d1", "Driver 1", null, null, null, null, null, null, null, null, null, "d1", null), "p1"));
+    drivers.add(
+        new RaceParticipant(
+            new com.antigravity.models.Driver(
+                "d1", "Driver 1", null, null, null, null, null, null, null, null, null, "d1", null),
+            "p1"));
     Track track = mock(Track.class);
-    com.antigravity.race.Race race = new com.antigravity.race.Race.Builder()
-        .model(model)
-        .drivers(drivers)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    com.antigravity.race.Race race =
+        new com.antigravity.race.Race.Builder()
+            .model(model)
+            .drivers(drivers)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 }

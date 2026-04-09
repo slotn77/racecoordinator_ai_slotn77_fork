@@ -52,8 +52,10 @@ public class AssetService {
   private static final List<DefaultAsset> DEFAULT_IMAGE_ASSETS = new ArrayList<>();
 
   static {
-    DEFAULT_IMAGE_ASSETS.add(new DefaultAsset("default_avatar_helmet_4.png", "Helmet Futuristic 1"));
-    DEFAULT_IMAGE_ASSETS.add(new DefaultAsset("default_avatar_helmet_5.png", "Helmet Futuristic 2"));
+    DEFAULT_IMAGE_ASSETS.add(
+        new DefaultAsset("default_avatar_helmet_4.png", "Helmet Futuristic 1"));
+    DEFAULT_IMAGE_ASSETS.add(
+        new DefaultAsset("default_avatar_helmet_5.png", "Helmet Futuristic 2"));
     DEFAULT_IMAGE_ASSETS.add(new DefaultAsset("green-white.png", "Helmet Green-White"));
     DEFAULT_IMAGE_ASSETS.add(new DefaultAsset("grey-black-gold.png", "Helmet Grey-Black-Gold"));
     DEFAULT_IMAGE_ASSETS.add(new DefaultAsset("grey-red-white.png", "Helmet Grey-Red-White"));
@@ -110,11 +112,15 @@ public class AssetService {
     this.assetDir = assetDir;
     File directory = new File(assetDir);
     System.out.println(
-        "Path DEBUG: AssetService constructor. assetDir=" + assetDir + " absolute=" + directory.getAbsolutePath());
+        "Path DEBUG: AssetService constructor. assetDir="
+            + assetDir
+            + " absolute="
+            + directory.getAbsolutePath());
     if (!directory.exists()) {
       boolean created = directory.mkdirs();
       if (!created) {
-        System.err.println("CRITICAL: Failed to create asset directory: " + directory.getAbsolutePath());
+        System.err.println(
+            "CRITICAL: Failed to create asset directory: " + directory.getAbsolutePath());
       } else {
         System.out.println("Created asset directory: " + directory.getAbsolutePath());
       }
@@ -145,14 +151,16 @@ public class AssetService {
     }
 
     String sizeStr = humanReadableByteCountBin(data.length);
-    String url = "/assets/" + filename; // Assuming static file serving is set up or we add a handler
+    String url =
+        "/assets/" + filename; // Assuming static file serving is set up or we add a handler
 
-    Document doc = new Document("_id", id)
-        .append("name", name)
-        .append("type", type)
-        .append("size", sizeStr)
-        .append("filename", filename) // Store internal filename
-        .append("url", url);
+    Document doc =
+        new Document("_id", id)
+            .append("name", name)
+            .append("type", type)
+            .append("size", sizeStr)
+            .append("filename", filename) // Store internal filename
+            .append("url", url);
 
     collection.insertOne(doc);
 
@@ -204,7 +212,8 @@ public class AssetService {
     return modifiedCount > 0;
   }
 
-  public AssetMessage saveImageSet(String id, String name, List<SaveImageSetEntry> entries) throws IOException {
+  public AssetMessage saveImageSet(String id, String name, List<SaveImageSetEntry> entries)
+      throws IOException {
     boolean isNew = (id == null || id.isEmpty());
     if (isNew) {
       id = UUID.randomUUID().toString();
@@ -245,19 +254,21 @@ public class AssetService {
         }
       }
 
-      imageDocs.add(new Document()
-          .append("url", url)
-          .append("percentage", percentage)
-          .append("name", entryName)
-          .append("size", sizeStr));
+      imageDocs.add(
+          new Document()
+              .append("url", url)
+              .append("percentage", percentage)
+              .append("name", entryName)
+              .append("size", sizeStr));
     }
 
-    Document doc = new Document("_id", id)
-        .append("name", name)
-        .append("type", "image_set")
-        .append("size", humanReadableByteCountBin(totalSize))
-        .append("url", imageDocs.isEmpty() ? "" : imageDocs.get(0).getString("url"))
-        .append("images", imageDocs);
+    Document doc =
+        new Document("_id", id)
+            .append("name", name)
+            .append("type", "image_set")
+            .append("size", humanReadableByteCountBin(totalSize))
+            .append("url", imageDocs.isEmpty() ? "" : imageDocs.get(0).getString("url"))
+            .append("images", imageDocs);
 
     if (isNew) {
       collection.insertOne(doc);
@@ -269,23 +280,25 @@ public class AssetService {
   }
 
   private AssetMessage documentToAsset(Document doc) {
-    AssetMessage.Builder builder = AssetMessage.newBuilder()
-        .setModel(Model.newBuilder().setEntityId(doc.getString("_id")).build())
-        .setName(doc.getString("name"))
-        .setType(doc.getString("type"))
-        .setSize(doc.getString("size"))
-        .setUrl(doc.getString("url") != null ? doc.getString("url") : "");
+    AssetMessage.Builder builder =
+        AssetMessage.newBuilder()
+            .setModel(Model.newBuilder().setEntityId(doc.getString("_id")).build())
+            .setName(doc.getString("name"))
+            .setType(doc.getString("type"))
+            .setSize(doc.getString("size"))
+            .setUrl(doc.getString("url") != null ? doc.getString("url") : "");
 
     @SuppressWarnings("unchecked")
     List<Document> imagesList = (List<Document>) doc.get("images");
     if (imagesList != null) {
       for (Document imageDoc : imagesList) {
-        builder.addImages(ImageSetEntry.newBuilder()
-            .setUrl(imageDoc.getString("url"))
-            .setPercentage(imageDoc.getInteger("percentage"))
-            .setName(imageDoc.getString("name"))
-            .setSize(imageDoc.getString("size"))
-            .build());
+        builder.addImages(
+            ImageSetEntry.newBuilder()
+                .setUrl(imageDoc.getString("url"))
+                .setPercentage(imageDoc.getInteger("percentage"))
+                .setName(imageDoc.getString("name"))
+                .setSize(imageDoc.getString("size"))
+                .build());
       }
     }
 
@@ -349,7 +362,8 @@ public class AssetService {
         byte[] data = readResource("/defaults/" + asset.filename);
         saveAsset(asset.displayName, "image", data);
       } catch (IOException | NumberFormatException e) {
-        System.err.println("Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        System.err.println(
+            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
       }
     }
 
@@ -367,15 +381,17 @@ public class AssetService {
         String url = "/assets/" + internalFilename;
         String sizeStr = humanReadableByteCountBin(data.length);
 
-        fuelImages.add(ImageSetEntry.newBuilder()
-            .setUrl(url)
-            .setPercentage(asset.percentage)
-            .setName(asset.displayName)
-            .setSize(sizeStr)
-            .build());
+        fuelImages.add(
+            ImageSetEntry.newBuilder()
+                .setUrl(url)
+                .setPercentage(asset.percentage)
+                .setName(asset.displayName)
+                .setSize(sizeStr)
+                .build());
         fuelTotalSize += data.length;
       } catch (IOException | NumberFormatException e) {
-        System.err.println("Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        System.err.println(
+            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
       }
     }
 
@@ -387,19 +403,21 @@ public class AssetService {
       String id = "fuel-gauge-builtin";
       List<Document> imageDocs = new ArrayList<>();
       for (ImageSetEntry entry : fuelImages) {
-        imageDocs.add(new Document()
-            .append("url", entry.getUrl())
-            .append("percentage", entry.getPercentage())
-            .append("name", entry.getName())
-            .append("size", entry.getSize()));
+        imageDocs.add(
+            new Document()
+                .append("url", entry.getUrl())
+                .append("percentage", entry.getPercentage())
+                .append("name", entry.getName())
+                .append("size", entry.getSize()));
       }
 
-      Document doc = new Document("_id", id)
-          .append("name", "Fuel Gauge")
-          .append("type", "image_set")
-          .append("size", humanReadableByteCountBin(fuelTotalSize))
-          .append("url", fuelImages.get(0).getUrl()) // Use 100% (now at index 0) as thumbnail
-          .append("images", imageDocs);
+      Document doc =
+          new Document("_id", id)
+              .append("name", "Fuel Gauge")
+              .append("type", "image_set")
+              .append("size", humanReadableByteCountBin(fuelTotalSize))
+              .append("url", fuelImages.get(0).getUrl()) // Use 100% (now at index 0) as thumbnail
+              .append("images", imageDocs);
 
       collection.insertOne(doc);
     }
@@ -408,7 +426,8 @@ public class AssetService {
       try {
         saveAsset(asset.displayName, "sound", readResource("/defaults/" + asset.filename));
       } catch (IOException e) {
-        System.err.println("Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        System.err.println(
+            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
       }
     }
   }

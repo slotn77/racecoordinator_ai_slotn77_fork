@@ -29,13 +29,12 @@ public class Common {
         sentObjectIds.add(HeatConverter.PARTICIPANT_PREFIX + p.getObjectId());
       }
 
-      com.antigravity.proto.Race raceProto = com.antigravity.proto.Race.newBuilder()
-          .setCurrentHeat(HeatConverter.toProto(race.getCurrentHeat(), sentObjectIds))
-          .build();
+      com.antigravity.proto.Race raceProto =
+          com.antigravity.proto.Race.newBuilder()
+              .setCurrentHeat(HeatConverter.toProto(race.getCurrentHeat(), sentObjectIds))
+              .build();
 
-      race.broadcast(RaceData.newBuilder()
-          .setRace(raceProto)
-          .build());
+      race.broadcast(RaceData.newBuilder().setRace(raceProto).build());
     } else {
       race.changeState(new RaceOver());
     }

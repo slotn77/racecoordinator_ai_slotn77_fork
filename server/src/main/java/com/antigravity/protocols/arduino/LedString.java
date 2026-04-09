@@ -36,7 +36,8 @@ public class LedString {
     this.leds = leds != null ? leds : new ArrayList<>();
     this.brightness = brightness;
     this.yellowFlagFlashRate = yellowFlagFlashRate;
-    this.ledLaneColorOverrides = ledLaneColorOverrides != null ? ledLaneColorOverrides : new ArrayList<>();
+    this.ledLaneColorOverrides =
+        ledLaneColorOverrides != null ? ledLaneColorOverrides : new ArrayList<>();
 
     this.numUsedLeds = 0;
     this.addressableLeds = 0;
@@ -58,11 +59,11 @@ public class LedString {
       return false;
     }
     LedString that = (LedString) o;
-    return stringNum == that.stringNum &&
-        brightness == that.brightness &&
-        Double.compare(that.yellowFlagFlashRate, yellowFlagFlashRate) == 0 &&
-        Objects.equals(leds, that.leds) &&
-        Objects.equals(ledLaneColorOverrides, that.ledLaneColorOverrides);
+    return stringNum == that.stringNum
+        && brightness == that.brightness
+        && Double.compare(that.yellowFlagFlashRate, yellowFlagFlashRate) == 0
+        && Objects.equals(leds, that.leds)
+        && Objects.equals(ledLaneColorOverrides, that.ledLaneColorOverrides);
   }
 
   @Override

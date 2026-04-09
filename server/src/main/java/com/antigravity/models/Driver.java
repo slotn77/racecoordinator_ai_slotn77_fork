@@ -16,7 +16,8 @@ public class Driver extends Model {
   private final AudioConfig bestLapAudio;
 
   @BsonCreator
-  public Driver(@BsonProperty("name") @JsonProperty("name") String name,
+  public Driver(
+      @BsonProperty("name") @JsonProperty("name") String name,
       @BsonProperty("nickname") @JsonProperty("nickname") String nickname,
       @BsonProperty("avatarUrl") @JsonProperty("avatarUrl") String avatarUrl,
       @BsonProperty("lapAudio") @JsonProperty("lapAudio") AudioConfig lapAudio,
@@ -90,7 +91,8 @@ public class Driver extends Model {
     private final String text;
 
     @BsonCreator
-    public AudioConfig(@BsonProperty("type") @JsonProperty("type") String type,
+    public AudioConfig(
+        @BsonProperty("type") @JsonProperty("type") String type,
         @BsonProperty("url") @JsonProperty("url") String url,
         @BsonProperty("text") @JsonProperty("text") String text) {
       this.type = type != null ? type : "preset";

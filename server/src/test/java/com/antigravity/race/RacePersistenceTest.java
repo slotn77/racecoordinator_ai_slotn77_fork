@@ -19,7 +19,8 @@ import org.junit.Test;
 // or test the logic flow without DB if we suspect logic.
 // But issue is likely persistence.
 // We can use a real Mongo connection or just test the PojoCodecImpl if accessible,
-// strictly speaking we don't have easy access to the configured CodecRegistry here without spinning up the app.
+// strictly speaking we don't have easy access to the configured CodecRegistry here without spinning
+// up the app.
 // Instead, let's verify HeatBuilder logic first.
 
 public class RacePersistenceTest {
@@ -27,8 +28,12 @@ public class RacePersistenceTest {
   @Test
   public void testHeatBuilderAssignsActualDriver() {
     // Setup
-    Driver d1 = new Driver("D1", "Driver One", null, null, null, null, null, null, null, null, null, "d1", null);
-    Driver d2 = new Driver("D2", "Driver Two", null, null, null, null, null, null, null, null, null, "d2", null);
+    Driver d1 =
+        new Driver(
+            "D1", "Driver One", null, null, null, null, null, null, null, null, null, "d1", null);
+    Driver d2 =
+        new Driver(
+            "D2", "Driver Two", null, null, null, null, null, null, null, null, null, "d2", null);
     List<String> driverIds = new ArrayList<>();
     driverIds.add("d1");
     driverIds.add("d2");
@@ -50,20 +55,22 @@ public class RacePersistenceTest {
 
     Track track = new Track("Track", lanes, "track1", null);
 
-    Race raceModel = new Race.Builder()
-        .withName("Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(new HeatScoring())
-        .withOverallScoring(new OverallScoring())
-        .withEntityId("race1")
-        .build();
-    com.antigravity.race.Race race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(drivers)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(new HeatScoring())
+            .withOverallScoring(new OverallScoring())
+            .withEntityId("race1")
+            .build();
+    com.antigravity.race.Race race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(drivers)
+            .track(track)
+            .isDemoMode(true)
+            .build();
 
     // Execute
     List<Heat> heats = HeatBuilder.buildHeats(race, drivers);
@@ -80,19 +87,21 @@ public class RacePersistenceTest {
     Heat h2 = heats.get(1);
 
     // Find the team in h1
-    DriverHeatData dhd1 = h1.getDrivers().stream()
-        .filter(d -> d.getDriver().getTeam() != null)
-        .findFirst()
-        .orElse(null);
+    DriverHeatData dhd1 =
+        h1.getDrivers().stream()
+            .filter(d -> d.getDriver().getTeam() != null)
+            .findFirst()
+            .orElse(null);
     assertNotNull(dhd1);
     assertNotNull(dhd1.getActualDriver());
     System.out.println("Heat 1 Driver: " + dhd1.getActualDriver().getName());
 
     // Find the team in h2
-    DriverHeatData dhd2 = h2.getDrivers().stream()
-        .filter(d -> d.getDriver().getTeam() != null)
-        .findFirst()
-        .orElse(null);
+    DriverHeatData dhd2 =
+        h2.getDrivers().stream()
+            .filter(d -> d.getDriver().getTeam() != null)
+            .findFirst()
+            .orElse(null);
     assertNotNull(dhd2);
     assertNotNull(dhd2.getActualDriver());
     System.out.println("Heat 2 Driver: " + dhd2.getActualDriver().getName());

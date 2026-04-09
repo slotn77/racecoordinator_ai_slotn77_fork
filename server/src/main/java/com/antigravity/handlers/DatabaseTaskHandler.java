@@ -276,26 +276,37 @@ public class DatabaseTaskHandler {
       MongoCollection<Driver> col = getDriverCollection();
 
       // Uniqueness check
-      Driver existing = col.find(Filters.or(
-          Filters.eq("name", driver.getName()),
-          Filters.eq("nickname", driver.getNickname()))).first();
+      Driver existing =
+          col.find(
+                  Filters.or(
+                      Filters.eq("name", driver.getName()),
+                      Filters.eq("nickname", driver.getNickname())))
+              .first();
 
       if (existing != null) {
         ctx.status(409).result("Driver name or nickname already exists");
         return;
       }
 
-      if (driver.getEntityId() == null || driver.getEntityId().isEmpty() || "new".equals(driver.getEntityId())) {
+      if (driver.getEntityId() == null
+          || driver.getEntityId().isEmpty()
+          || "new".equals(driver.getEntityId())) {
         String nextId = getNextSequence("drivers");
-        driver = new Driver(
-            driver.getName(),
-            driver.getNickname(),
-            driver.getAvatarUrl(),
-            driver.getLapAudio(),
-            driver.getBestLapAudio(),
-            null, null, null, null, null, null,
-            nextId,
-            null);
+        driver =
+            new Driver(
+                driver.getName(),
+                driver.getNickname(),
+                driver.getAvatarUrl(),
+                driver.getLapAudio(),
+                driver.getBestLapAudio(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                nextId,
+                null);
       }
       col.insertOne(driver);
       ctx.status(201).json(driver);
@@ -311,12 +322,14 @@ public class DatabaseTaskHandler {
       Driver driver = bodyAsClassWithId(ctx.body(), Driver.class);
       MongoCollection<Driver> col = getDriverCollection();
 
-      Driver existing = col.find(Filters.and(
-          Filters.ne("entity_id", id),
-          Filters.or(
-              Filters.eq("name", driver.getName()),
-              Filters.eq("nickname", driver.getNickname()))))
-          .first();
+      Driver existing =
+          col.find(
+                  Filters.and(
+                      Filters.ne("entity_id", id),
+                      Filters.or(
+                          Filters.eq("name", driver.getName()),
+                          Filters.eq("nickname", driver.getNickname()))))
+              .first();
 
       if (existing != null) {
         ctx.status(409).result("Driver name or nickname already exists");
@@ -365,21 +378,17 @@ public class DatabaseTaskHandler {
     MongoCollection<Team> col = getTeamCollection();
 
     // Uniqueness check
-    Team existing = col.find(
-        Filters.eq("name", team.getName())).first();
+    Team existing = col.find(Filters.eq("name", team.getName())).first();
 
     if (existing != null) {
       throw new IllegalArgumentException("Team name already exists");
     }
 
-    if (team.getEntityId() == null || team.getEntityId().isEmpty() || "new".equals(team.getEntityId())) {
+    if (team.getEntityId() == null
+        || team.getEntityId().isEmpty()
+        || "new".equals(team.getEntityId())) {
       String nextId = getNextSequence("teams");
-      team = new Team(
-          team.getName(),
-          team.getAvatarUrl(),
-          team.getDriverIds(),
-          nextId,
-          null);
+      team = new Team(team.getName(), team.getAvatarUrl(), team.getDriverIds(), nextId, null);
     }
     col.insertOne(team);
     return team;
@@ -402,10 +411,9 @@ public class DatabaseTaskHandler {
   public Team updateTeam(String id, Team team) {
     MongoCollection<Team> col = getTeamCollection();
 
-    Team existing = col.find(Filters.and(
-        Filters.ne("entity_id", id),
-        Filters.eq("name", team.getName())))
-        .first();
+    Team existing =
+        col.find(Filters.and(Filters.ne("entity_id", id), Filters.eq("name", team.getName())))
+            .first();
 
     if (existing != null) {
       throw new IllegalArgumentException("Team name or nickname already exists");
@@ -413,12 +421,7 @@ public class DatabaseTaskHandler {
 
     // Preservation of IDs is handled by maintaining original entity_id
     // However, we construct a new object to ensure it has the correct ID
-    team = new Team(
-        team.getName(),
-        team.getAvatarUrl(),
-        team.getDriverIds(),
-        id,
-        team.getId());
+    team = new Team(team.getName(), team.getAvatarUrl(), team.getDriverIds(), id, team.getId());
 
     UpdateResult result = col.replaceOne(Filters.eq("entity_id", id), team);
     if (result.getMatchedCount() == 0) {
@@ -455,14 +458,12 @@ public class DatabaseTaskHandler {
         return;
       }
 
-      if (track.getEntityId() == null || track.getEntityId().isEmpty() || "new".equals(track.getEntityId())) {
+      if (track.getEntityId() == null
+          || track.getEntityId().isEmpty()
+          || "new".equals(track.getEntityId())) {
         String nextId = getNextSequence("tracks");
-        track = new Track(
-            track.getName(),
-            track.getLanes(),
-            track.getArduinoConfigs(),
-            nextId,
-            null);
+        track =
+            new Track(track.getName(), track.getLanes(), track.getArduinoConfigs(), nextId, null);
       }
       col.insertOne(track);
       ctx.status(201).json(track);
@@ -478,27 +479,23 @@ public class DatabaseTaskHandler {
       Track track = bodyAsClassWithId(ctx.body(), Track.class);
       MongoCollection<Track> col = getTrackCollection();
 
-      Track existing = col.find(Filters.and(
-          Filters.ne("entity_id", id),
-          Filters.eq("name", track.getName())))
-          .first();
+      Track existing =
+          col.find(Filters.and(Filters.ne("entity_id", id), Filters.eq("name", track.getName())))
+              .first();
 
       if (existing != null) {
         ctx.status(409).result("Track name already exists");
         return;
       }
 
-      track = new Track(
-          track.getName(),
-          track.getLanes(),
-          track.getArduinoConfigs(),
-          id,
-          track.getId());
+      track =
+          new Track(
+              track.getName(), track.getLanes(), track.getArduinoConfigs(), id, track.getId());
 
       System.out.println("DEBUG: updateTrack for " + id);
       if (track.getArduinoConfigs() != null && !track.getArduinoConfigs().isEmpty()) {
-        System.out
-            .println("DEBUG: Saving config with Digitals: " + track.getArduinoConfigs().get(0).digitalIds);
+        System.out.println(
+            "DEBUG: Saving config with Digitals: " + track.getArduinoConfigs().get(0).digitalIds);
       } else {
         System.out.println("DEBUG: Saving configs is NULL or empty");
       }
@@ -546,24 +543,27 @@ public class DatabaseTaskHandler {
       throw new IllegalArgumentException("Race name already exists");
     }
 
-    if (race.getEntityId() == null || race.getEntityId().isEmpty() || "new".equals(race.getEntityId())) {
+    if (race.getEntityId() == null
+        || race.getEntityId().isEmpty()
+        || "new".equals(race.getEntityId())) {
       String nextId = getNextSequence("races");
-      race = new Race.Builder()
-          .withName(race.getName())
-          .withTrackEntityId(race.getTrackEntityId())
-          .withHeatRotationType(race.getHeatRotationType())
-          .withHeatScoring(race.getHeatScoring())
-          .withOverallScoring(race.getOverallScoring())
-          .withMinLapTime(race.getMinLapTime())
-          .withFuelOptions(race.getFuelOptions())
-          .withDigitalFuelOptions(race.getDigitalFuelOptions())
-          .withTeamOptions(race.getTeamOptions())
-          .withAutoAdvanceTime(race.getAutoAdvanceTime())
-          .withAutoStartTime(race.getAutoStartTime())
-          .withAutoAdvanceWarmupTime(race.getAutoAdvanceWarmupTime())
-          .withAutoStartWarmupTime(race.getAutoStartWarmupTime())
-          .withEntityId(nextId)
-          .build();
+      race =
+          new Race.Builder()
+              .withName(race.getName())
+              .withTrackEntityId(race.getTrackEntityId())
+              .withHeatRotationType(race.getHeatRotationType())
+              .withHeatScoring(race.getHeatScoring())
+              .withOverallScoring(race.getOverallScoring())
+              .withMinLapTime(race.getMinLapTime())
+              .withFuelOptions(race.getFuelOptions())
+              .withDigitalFuelOptions(race.getDigitalFuelOptions())
+              .withTeamOptions(race.getTeamOptions())
+              .withAutoAdvanceTime(race.getAutoAdvanceTime())
+              .withAutoStartTime(race.getAutoStartTime())
+              .withAutoAdvanceWarmupTime(race.getAutoAdvanceWarmupTime())
+              .withAutoStartWarmupTime(race.getAutoStartWarmupTime())
+              .withEntityId(nextId)
+              .build();
     }
     col.insertOne(race);
     return race;
@@ -592,32 +592,32 @@ public class DatabaseTaskHandler {
   public Race updateRace(String id, Race race) {
     MongoCollection<Race> col = getRaceCollection();
 
-    Race existing = col.find(Filters.and(
-        Filters.ne("entity_id", id),
-        Filters.eq("name", race.getName())))
-        .first();
+    Race existing =
+        col.find(Filters.and(Filters.ne("entity_id", id), Filters.eq("name", race.getName())))
+            .first();
 
     if (existing != null) {
       throw new IllegalArgumentException("Race name already exists");
     }
 
-    race = new Race.Builder()
-        .withName(race.getName())
-        .withTrackEntityId(race.getTrackEntityId())
-        .withHeatRotationType(race.getHeatRotationType())
-        .withHeatScoring(race.getHeatScoring())
-        .withOverallScoring(race.getOverallScoring())
-        .withMinLapTime(race.getMinLapTime())
-        .withFuelOptions(race.getFuelOptions())
-        .withDigitalFuelOptions(race.getDigitalFuelOptions())
-        .withTeamOptions(race.getTeamOptions())
-        .withAutoAdvanceTime(race.getAutoAdvanceTime())
-        .withAutoStartTime(race.getAutoStartTime())
-        .withAutoAdvanceWarmupTime(race.getAutoAdvanceWarmupTime())
-        .withAutoStartWarmupTime(race.getAutoStartWarmupTime())
-        .withEntityId(id)
-        .withId(race.getId())
-        .build();
+    race =
+        new Race.Builder()
+            .withName(race.getName())
+            .withTrackEntityId(race.getTrackEntityId())
+            .withHeatRotationType(race.getHeatRotationType())
+            .withHeatScoring(race.getHeatScoring())
+            .withOverallScoring(race.getOverallScoring())
+            .withMinLapTime(race.getMinLapTime())
+            .withFuelOptions(race.getFuelOptions())
+            .withDigitalFuelOptions(race.getDigitalFuelOptions())
+            .withTeamOptions(race.getTeamOptions())
+            .withAutoAdvanceTime(race.getAutoAdvanceTime())
+            .withAutoStartTime(race.getAutoStartTime())
+            .withAutoAdvanceWarmupTime(race.getAutoAdvanceWarmupTime())
+            .withAutoStartWarmupTime(race.getAutoStartWarmupTime())
+            .withEntityId(id)
+            .withId(race.getId())
+            .build();
 
     UpdateResult result = col.replaceOne(Filters.eq("entity_id", id), race);
     if (result.getMatchedCount() == 0) {
@@ -650,11 +650,11 @@ public class DatabaseTaskHandler {
 
   private String getNextSequence(String collectionName) {
     MongoCollection<Document> counters = databaseContext.getDatabase().getCollection("counters");
-    Document counter = counters.findOneAndUpdate(
-        Filters.eq("_id", collectionName),
-        Updates.inc("seq", 1),
-        new FindOneAndUpdateOptions().upsert(true)
-            .returnDocument(ReturnDocument.AFTER));
+    Document counter =
+        counters.findOneAndUpdate(
+            Filters.eq("_id", collectionName),
+            Updates.inc("seq", 1),
+            new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
     return String.valueOf(counter.getInteger("seq"));
   }
 
@@ -680,8 +680,8 @@ public class DatabaseTaskHandler {
 
     List<Map<String, Object>> response = new ArrayList<>();
     for (Race race : races) {
-      Track track = getTrackCollection()
-          .find(Filters.eq("entity_id", race.getTrackEntityId())).first();
+      Track track =
+          getTrackCollection().find(Filters.eq("entity_id", race.getTrackEntityId())).first();
       Map<String, Object> raceMap = new HashMap<>();
       raceMap.put("name", race.getName());
       raceMap.put("entity_id", race.getEntityId());
@@ -715,16 +715,15 @@ public class DatabaseTaskHandler {
     }
 
     // Find the race
-    Race race = getRaceCollection()
-        .find(Filters.eq("entity_id", raceId)).first();
+    Race race = getRaceCollection().find(Filters.eq("entity_id", raceId)).first();
     if (race == null) {
       ctx.status(404).result("Race not found");
       return;
     }
 
     // Find the track to get lane count
-    Track track = getTrackCollection()
-        .find(Filters.eq("entity_id", race.getTrackEntityId())).first();
+    Track track =
+        getTrackCollection().find(Filters.eq("entity_id", race.getTrackEntityId())).first();
     if (track == null) {
       ctx.status(404).result("Track not found for race");
       return;
@@ -733,19 +732,18 @@ public class DatabaseTaskHandler {
     // Create mock RaceParticipant list
     List<RaceParticipant> mockDrivers = new ArrayList<>();
     for (int i = 0; i < driverCount; i++) {
-      Driver mockDriver = new Driver(
-          "Driver " + (i + 1),
-          "Driver " + (i + 1));
+      Driver mockDriver = new Driver("Driver " + (i + 1), "Driver " + (i + 1));
       mockDrivers.add(new RaceParticipant(mockDriver));
     }
 
     // Create a temporary Race object for heat building
-    com.antigravity.race.Race tempRace = new com.antigravity.race.Race.Builder()
-        .model(race)
-        .drivers(mockDrivers)
-        .track(track)
-        .isDemoMode(true) // Use demo mode to avoid protocol initialization
-        .build();
+    com.antigravity.race.Race tempRace =
+        new com.antigravity.race.Race.Builder()
+            .model(race)
+            .drivers(mockDrivers)
+            .track(track)
+            .isDemoMode(true) // Use demo mode to avoid protocol initialization
+            .build();
 
     // Get the generated heats
     List<Heat> heats = tempRace.getHeats();
@@ -808,8 +806,7 @@ public class DatabaseTaskHandler {
     }
 
     // Find the track to get lane count
-    Track track = getTrackCollection()
-        .find(Filters.eq("entity_id", trackId)).first();
+    Track track = getTrackCollection().find(Filters.eq("entity_id", trackId)).first();
     if (track == null) {
       ctx.status(404).result("Track not found");
       return;
@@ -825,42 +822,43 @@ public class DatabaseTaskHandler {
     }
 
     // Create a default HeatScoring and OverallScoring for heat generation preview
-    HeatScoring defaultHeatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        10, // default 10 laps
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring defaultHeatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            10, // default 10 laps
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
     OverallScoring defaultOverallScoring = new OverallScoring();
 
     // Create a temporary race configuration
-    Race tempRaceConfig = new Race.Builder()
-        .withName("Preview")
-        .withTrackEntityId(trackId)
-        .withHeatRotationType(rotationTypeEnum)
-        .withHeatScoring(defaultHeatScoring)
-        .withOverallScoring(defaultOverallScoring)
-        .withAutoAdvanceTime(0.0)
-        .withAutoStartTime(0.0)
-        .withAutoAdvanceWarmupTime(0.0)
-        .withAutoStartWarmupTime(0.0)
-        .build();
+    Race tempRaceConfig =
+        new Race.Builder()
+            .withName("Preview")
+            .withTrackEntityId(trackId)
+            .withHeatRotationType(rotationTypeEnum)
+            .withHeatScoring(defaultHeatScoring)
+            .withOverallScoring(defaultOverallScoring)
+            .withAutoAdvanceTime(0.0)
+            .withAutoStartTime(0.0)
+            .withAutoAdvanceWarmupTime(0.0)
+            .withAutoStartWarmupTime(0.0)
+            .build();
 
     // Create mock RaceParticipant list
     List<RaceParticipant> mockDrivers = new ArrayList<>();
     for (int i = 0; i < driverCount; i++) {
-      Driver mockDriver = new Driver(
-          "Driver " + (i + 1),
-          "Driver " + (i + 1));
+      Driver mockDriver = new Driver("Driver " + (i + 1), "Driver " + (i + 1));
       mockDrivers.add(new RaceParticipant(mockDriver));
     }
 
     // Create a temporary Race object for heat building
-    com.antigravity.race.Race tempRace = new com.antigravity.race.Race.Builder()
-        .model(tempRaceConfig)
-        .drivers(mockDrivers)
-        .track(track)
-        .isDemoMode(true) // Use demo mode to avoid protocol initialization
-        .build();
+    com.antigravity.race.Race tempRace =
+        new com.antigravity.race.Race.Builder()
+            .model(tempRaceConfig)
+            .drivers(mockDrivers)
+            .track(track)
+            .isDemoMode(true) // Use demo mode to avoid protocol initialization
+            .build();
 
     // Get the generated heats
     List<Heat> heats = tempRace.getHeats();
@@ -906,20 +904,23 @@ public class DatabaseTaskHandler {
     }
     ObjectMapper mapper = new ObjectMapper();
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(ObjectId.class, new JsonDeserializer<ObjectId>() {
-      @Override
-      public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        String value = p.getValueAsString();
-        if (value == null || value.isEmpty()) {
-          return null;
-        }
-        try {
-          return new ObjectId(value);
-        } catch (IllegalArgumentException e) {
-          return null;
-        }
-      }
-    });
+    module.addDeserializer(
+        ObjectId.class,
+        new JsonDeserializer<ObjectId>() {
+          @Override
+          public ObjectId deserialize(JsonParser p, DeserializationContext ctxt)
+              throws IOException {
+            String value = p.getValueAsString();
+            if (value == null || value.isEmpty()) {
+              return null;
+            }
+            try {
+              return new ObjectId(value);
+            } catch (IllegalArgumentException e) {
+              return null;
+            }
+          }
+        });
     mapper.registerModule(module);
     return mapper.readValue(body, clazz);
   }

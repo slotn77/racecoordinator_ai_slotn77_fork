@@ -18,34 +18,30 @@ public class TestDemoProtocol {
 
     final AtomicInteger statusUpdates = new AtomicInteger(0);
 
-    ProtocolListener mockListener = new ProtocolListener() {
-      @Override
-      public void onLap(int lane, double lapTime, int interfaceId) {
-      }
+    ProtocolListener mockListener =
+        new ProtocolListener() {
+          @Override
+          public void onLap(int lane, double lapTime, int interfaceId) {}
 
-      @Override
-      public void onSegment(int lane, double segmentTime, int interfaceId) {
-      }
+          @Override
+          public void onSegment(int lane, double segmentTime, int interfaceId) {}
 
-      @Override
-      public void onCallbutton(int lane) {
-      }
+          @Override
+          public void onCallbutton(int lane) {}
 
-      @Override
-      public void onCarData(CarData carData) {
-      }
+          @Override
+          public void onCarData(CarData carData) {}
 
-      @Override
-      public void onInterfaceStatus(InterfaceStatus status) {
-        if (status == InterfaceStatus.CONNECTED) {
-          statusUpdates.incrementAndGet();
-        }
-      }
+          @Override
+          public void onInterfaceStatus(InterfaceStatus status) {
+            if (status == InterfaceStatus.CONNECTED) {
+              statusUpdates.incrementAndGet();
+            }
+          }
 
-      @Override
-      public void onInterfaceEvent(InterfaceEvent event) {
-      }
-    };
+          @Override
+          public void onInterfaceEvent(InterfaceEvent event) {}
+        };
 
     demo.setListener(mockListener);
 

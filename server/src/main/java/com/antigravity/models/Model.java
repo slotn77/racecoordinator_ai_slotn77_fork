@@ -16,7 +16,8 @@ public class Model extends ServerToClientObject {
   private final String entityId;
 
   @BsonCreator
-  public Model(@BsonId @BsonProperty("_id") @JsonProperty("_id") ObjectId id,
+  public Model(
+      @BsonId @BsonProperty("_id") @JsonProperty("_id") ObjectId id,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId) {
     super(entityId);
     this.id = id;

@@ -79,12 +79,14 @@ public class AssetTaskHandler {
       if (currentDbName == null) {
         currentDbName = "Race Coordinator AI DB";
       }
-      AssetService service = new AssetService(databaseContext.getDatabase(),
-          databaseContext.getDataRoot() + currentDbName + "/assets"); // Instantiate AssetService per request
+      AssetService service =
+          new AssetService(
+              databaseContext.getDatabase(),
+              databaseContext.getDataRoot()
+                  + currentDbName
+                  + "/assets"); // Instantiate AssetService per request
       List<AssetMessage> assets = service.getAllAssets();
-      ListAssetsResponse response = ListAssetsResponse.newBuilder()
-          .addAllAssets(assets)
-          .build();
+      ListAssetsResponse response = ListAssetsResponse.newBuilder().addAllAssets(assets).build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
       ctx.status(500).result("Error listing assets: " + e.getMessage());
@@ -99,22 +101,29 @@ public class AssetTaskHandler {
       if (currentDbName == null) {
         currentDbName = "Race Coordinator AI DB";
       }
-      AssetService service = new AssetService(databaseContext.getDatabase(),
-          databaseContext.getDataRoot() + currentDbName + "/assets"); // Instantiate AssetService per request
-      AssetMessage asset = service.saveAsset(request.getName(), request.getType(), request.getData().toByteArray());
+      AssetService service =
+          new AssetService(
+              databaseContext.getDatabase(),
+              databaseContext.getDataRoot()
+                  + currentDbName
+                  + "/assets"); // Instantiate AssetService per request
+      AssetMessage asset =
+          service.saveAsset(request.getName(), request.getType(), request.getData().toByteArray());
 
-      UploadAssetResponse response = UploadAssetResponse.newBuilder()
-          .setSuccess(true)
-          .setMessage("Asset uploaded successfully")
-          .setAsset(asset)
-          .build();
+      UploadAssetResponse response =
+          UploadAssetResponse.newBuilder()
+              .setSuccess(true)
+              .setMessage("Asset uploaded successfully")
+              .setAsset(asset)
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
       e.printStackTrace();
-      UploadAssetResponse response = UploadAssetResponse.newBuilder()
-          .setSuccess(false)
-          .setMessage("Error uploading asset: " + e.getMessage())
-          .build();
+      UploadAssetResponse response =
+          UploadAssetResponse.newBuilder()
+              .setSuccess(false)
+              .setMessage("Error uploading asset: " + e.getMessage())
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     }
   }
@@ -126,21 +135,27 @@ public class AssetTaskHandler {
       if (currentDbName == null) {
         currentDbName = "Race Coordinator AI DB";
       }
-      AssetService service = new AssetService(databaseContext.getDatabase(),
-          databaseContext.getDataRoot() + currentDbName + "/assets"); // Instantiate AssetService per request
+      AssetService service =
+          new AssetService(
+              databaseContext.getDatabase(),
+              databaseContext.getDataRoot()
+                  + currentDbName
+                  + "/assets"); // Instantiate AssetService per request
       boolean success = service.deleteAsset(request.getId()); // Used local service
 
-      DeleteAssetResponse response = DeleteAssetResponse.newBuilder()
-          .setSuccess(success)
-          .setMessage(success ? "Asset deleted" : "Asset not found or could not be deleted")
-          .build();
+      DeleteAssetResponse response =
+          DeleteAssetResponse.newBuilder()
+              .setSuccess(success)
+              .setMessage(success ? "Asset deleted" : "Asset not found or could not be deleted")
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
       e.printStackTrace();
-      DeleteAssetResponse response = DeleteAssetResponse.newBuilder()
-          .setSuccess(false)
-          .setMessage("Error deleting asset: " + e.getMessage())
-          .build();
+      DeleteAssetResponse response =
+          DeleteAssetResponse.newBuilder()
+              .setSuccess(false)
+              .setMessage("Error deleting asset: " + e.getMessage())
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     }
   }
@@ -152,21 +167,28 @@ public class AssetTaskHandler {
       if (currentDbName == null) {
         currentDbName = "Race Coordinator AI DB";
       }
-      AssetService service = new AssetService(databaseContext.getDatabase(),
-          databaseContext.getDataRoot() + currentDbName + "/assets"); // Instantiate AssetService per request
-      boolean success = service.renameAsset(request.getId(), request.getNewName()); // Used local service
+      AssetService service =
+          new AssetService(
+              databaseContext.getDatabase(),
+              databaseContext.getDataRoot()
+                  + currentDbName
+                  + "/assets"); // Instantiate AssetService per request
+      boolean success =
+          service.renameAsset(request.getId(), request.getNewName()); // Used local service
 
-      RenameAssetResponse response = RenameAssetResponse.newBuilder()
-          .setSuccess(success)
-          .setMessage(success ? "Asset renamed" : "Asset not found")
-          .build();
+      RenameAssetResponse response =
+          RenameAssetResponse.newBuilder()
+              .setSuccess(success)
+              .setMessage(success ? "Asset renamed" : "Asset not found")
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
       e.printStackTrace();
-      RenameAssetResponse response = RenameAssetResponse.newBuilder()
-          .setSuccess(false)
-          .setMessage("Error renaming asset: " + e.getMessage())
-          .build();
+      RenameAssetResponse response =
+          RenameAssetResponse.newBuilder()
+              .setSuccess(false)
+              .setMessage("Error renaming asset: " + e.getMessage())
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     }
   }
@@ -178,22 +200,27 @@ public class AssetTaskHandler {
       if (currentDbName == null) {
         currentDbName = "Race Coordinator AI DB";
       }
-      AssetService service = new AssetService(databaseContext.getDatabase(),
-          databaseContext.getDataRoot() + currentDbName + "/assets");
-      AssetMessage asset = service.saveImageSet(request.getId(), request.getName(), request.getEntriesList());
+      AssetService service =
+          new AssetService(
+              databaseContext.getDatabase(),
+              databaseContext.getDataRoot() + currentDbName + "/assets");
+      AssetMessage asset =
+          service.saveImageSet(request.getId(), request.getName(), request.getEntriesList());
 
-      SaveImageSetResponse response = SaveImageSetResponse.newBuilder()
-          .setSuccess(true)
-          .setMessage("Image set saved successfully")
-          .setAsset(asset)
-          .build();
+      SaveImageSetResponse response =
+          SaveImageSetResponse.newBuilder()
+              .setSuccess(true)
+              .setMessage("Image set saved successfully")
+              .setAsset(asset)
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
       e.printStackTrace();
-      SaveImageSetResponse response = SaveImageSetResponse.newBuilder()
-          .setSuccess(false)
-          .setMessage("Error saving image set: " + e.getMessage())
-          .build();
+      SaveImageSetResponse response =
+          SaveImageSetResponse.newBuilder()
+              .setSuccess(false)
+              .setMessage("Error saving image set: " + e.getMessage())
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     }
   }

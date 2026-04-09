@@ -17,13 +17,25 @@ public class HeatBuilder {
     HeatRotationType rotationType = race.getRaceModel().getHeatRotationType();
     switch (rotationType) {
       case RoundRobin:
-        return getRoundRobinHeats(drivers, numLanes, getRoundRobinRotationSequence(numLanes), false,
+        return getRoundRobinHeats(
+            drivers,
+            numLanes,
+            getRoundRobinRotationSequence(numLanes),
+            false,
             race.getRaceModel().getHeatScoring());
       case FriendlyRoundRobin:
-        return getRoundRobinHeats(drivers, numLanes, getRoundRobinRotationSequence(numLanes), true,
+        return getRoundRobinHeats(
+            drivers,
+            numLanes,
+            getRoundRobinRotationSequence(numLanes),
+            true,
             race.getRaceModel().getHeatScoring());
       case EuropeanRoundRobin:
-        return getRoundRobinHeats(drivers, numLanes, getEuroRoundRobinRotationSequence(numLanes), false,
+        return getRoundRobinHeats(
+            drivers,
+            numLanes,
+            getEuroRoundRobinRotationSequence(numLanes),
+            false,
             race.getRaceModel().getHeatScoring());
       default:
         throw new IllegalArgumentException("Unknown HeatRotationType: " + rotationType);
@@ -101,25 +113,35 @@ public class HeatBuilder {
               }
               RaceParticipant participant = drivers.get(idx);
               DriverHeatData data = new DriverHeatData(participant);
-              if (participant.isTeamParticipant() && participant.getTeam() != null
+              if (participant.isTeamParticipant()
+                  && participant.getTeam() != null
                   && participant.getTeamDrivers() != null
                   && !participant.getTeamDrivers().isEmpty()) {
                 // Rotate drivers based on heat number
                 int driverIdx = h % participant.getTeamDrivers().size();
-                Driver assignedDriver = participant.getTeamDrivers()
-                    .get(driverIdx);
-                logToFile("HeatBuilder: Heat " + h + ", Team "
-                    + participant.getTeam().getName() + " -> Assigning driver: "
-                    + assignedDriver.getName() + " (Index: " + driverIdx + ")");
+                Driver assignedDriver = participant.getTeamDrivers().get(driverIdx);
+                logToFile(
+                    "HeatBuilder: Heat "
+                        + h
+                        + ", Team "
+                        + participant.getTeam().getName()
+                        + " -> Assigning driver: "
+                        + assignedDriver.getName()
+                        + " (Index: "
+                        + driverIdx
+                        + ")");
                 data.setActualDriver(assignedDriver);
               } else {
                 if (participant.getTeam() != null) {
-                  logToFile("HeatBuilder: Heat " + h + ", Team "
-                      + participant.getTeam().getName() + " -> No team drivers found!");
+                  logToFile(
+                      "HeatBuilder: Heat "
+                          + h
+                          + ", Team "
+                          + participant.getTeam().getName()
+                          + " -> No team drivers found!");
                 }
               }
               heatDrivers.set(lane, data);
-
             }
           }
         }
@@ -133,8 +155,11 @@ public class HeatBuilder {
     try {
       String tmpDir = System.getProperty("java.io.tmpdir");
       Path logPath = Paths.get(tmpDir, "race_debug.log");
-      Files.write(logPath, (message + "\n").getBytes(),
-          StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+      Files.write(
+          logPath,
+          (message + "\n").getBytes(),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.APPEND);
     } catch (Exception e) {
       // Ignore
     }

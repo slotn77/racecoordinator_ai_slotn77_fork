@@ -21,16 +21,20 @@ public class Track extends Model {
 
   @BsonCreator
   @JsonCreator
-  public Track(@BsonProperty("name") @JsonProperty("name") String name,
+  public Track(
+      @BsonProperty("name") @JsonProperty("name") String name,
       @BsonProperty("lanes") @JsonProperty("lanes") List<Lane> lanes,
-      @BsonProperty("arduino_configs") @JsonProperty("arduino_configs") List<ArduinoConfig> arduinoConfigs,
+      @BsonProperty("arduino_configs") @JsonProperty("arduino_configs")
+          List<ArduinoConfig> arduinoConfigs,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
       @BsonId @JsonProperty("_id") ObjectId id) {
     super(id, entityId);
     this.name = name;
     this.lanes = lanes != null ? Collections.unmodifiableList(lanes) : Collections.emptyList();
-    this.arduinoConfigs = arduinoConfigs != null ? Collections.unmodifiableList(arduinoConfigs)
-        : Collections.emptyList();
+    this.arduinoConfigs =
+        arduinoConfigs != null
+            ? Collections.unmodifiableList(arduinoConfigs)
+            : Collections.emptyList();
   }
 
   public Track(String name, List<Lane> lanes, String entityId, ObjectId id) {

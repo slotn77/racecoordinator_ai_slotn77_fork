@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 public class DatabaseService {
 
@@ -49,21 +48,23 @@ public class DatabaseService {
     resetSequence(database, "drivers");
 
     // Fetch assets
-    AssetService assetService = new AssetService(database,
-        context.getDataRoot() + database.getName() + "/assets");
+    AssetService assetService =
+        new AssetService(database, context.getDataRoot() + database.getName() + "/assets");
     List<AssetMessage> allAssets = assetService.getAllAssets();
 
-    List<AssetMessage> helmetAssets = allAssets.stream()
-        .filter(a -> a.getName().toLowerCase().contains("helmet"))
-        .collect(Collectors.toList());
+    List<AssetMessage> helmetAssets =
+        allAssets.stream()
+            .filter(a -> a.getName().toLowerCase().contains("helmet"))
+            .collect(Collectors.toList());
 
-    AssetMessage beepSound = allAssets.stream()
-        .filter(a -> a.getName().toLowerCase().contains("beep"))
-        .findFirst().orElse(null);
+    AssetMessage beepSound =
+        allAssets.stream()
+            .filter(a -> a.getName().toLowerCase().contains("beep"))
+            .findFirst()
+            .orElse(null);
 
-    AssetMessage drivebySound = allAssets.stream()
-        .filter(a -> a.getName().equals("Lap Driveby"))
-        .findFirst().orElse(null);
+    AssetMessage drivebySound =
+        allAssets.stream().filter(a -> a.getName().equals("Lap Driveby")).findFirst().orElse(null);
 
     String lapSoundUrl = beepSound != null ? beepSound.getUrl() : null;
     String bestLapSoundUrl = drivebySound != null ? drivebySound.getUrl() : null;
@@ -71,36 +72,109 @@ public class DatabaseService {
     Driver.AudioConfig bestLapAudio = new Driver.AudioConfig("preset", bestLapSoundUrl, null);
 
     List<Driver> initialDrivers = new ArrayList<>();
-    initialDrivers.add(createDriver("Abby", "Abs", helmetAssets, 1, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Andrea", "The Pants", helmetAssets, 2, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Austin", "Fart Goblin", helmetAssets, 3, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Christine", "Peo Fuente", helmetAssets, 4, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Dave", "Olden McGroin", helmetAssets, 5, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Gene", "Swamper Gene", helmetAssets, 6, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Meyer", "Bull Dog", helmetAssets, 7, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
-    initialDrivers.add(createDriver("Noah Jack", "Boy Wonder", helmetAssets, 8, lapAudio, bestLapAudio,
-        getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Abby",
+            "Abs",
+            helmetAssets,
+            1,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Andrea",
+            "The Pants",
+            helmetAssets,
+            2,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Austin",
+            "Fart Goblin",
+            helmetAssets,
+            3,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Christine",
+            "Peo Fuente",
+            helmetAssets,
+            4,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Dave",
+            "Olden McGroin",
+            helmetAssets,
+            5,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Gene",
+            "Swamper Gene",
+            helmetAssets,
+            6,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Meyer",
+            "Bull Dog",
+            helmetAssets,
+            7,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
+    initialDrivers.add(
+        createDriver(
+            "Noah Jack",
+            "Boy Wonder",
+            helmetAssets,
+            8,
+            lapAudio,
+            bestLapAudio,
+            getNextSequence(database, "drivers")));
 
     driverCollection.insertMany(initialDrivers);
     System.out.println("Drivers reset.");
   }
 
-  private Driver createDriver(String name, String nickname, List<AssetMessage> helmetAssets, int index,
-      Driver.AudioConfig lapAudio, Driver.AudioConfig bestLapAudio, String sequenceId) {
+  private Driver createDriver(
+      String name,
+      String nickname,
+      List<AssetMessage> helmetAssets,
+      int index,
+      Driver.AudioConfig lapAudio,
+      Driver.AudioConfig bestLapAudio,
+      String sequenceId) {
     String avatarUrl = null;
     if (!helmetAssets.isEmpty()) {
       avatarUrl = helmetAssets.get((index - 1) % helmetAssets.size()).getUrl();
     }
-    return new Driver(name, nickname, avatarUrl, lapAudio, bestLapAudio,
-        null, null, null, null, null, null,
-        sequenceId, null);
+    return new Driver(
+        name,
+        nickname,
+        avatarUrl,
+        lapAudio,
+        bestLapAudio,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        sequenceId,
+        null);
   }
 
   private Track resetTracks(MongoDatabase database) {
@@ -129,8 +203,8 @@ public class DatabaseService {
     ArduinoConfig config = new ArduinoConfig();
     List<ArduinoConfig> configs = new ArrayList<>();
     configs.add(config);
-    Track track = new Track("The Heights", lanes, configs, getNextSequence(database, "tracks"),
-        null);
+    Track track =
+        new Track("The Heights", lanes, configs, getNextSequence(database, "tracks"), null);
 
     trackCollection.insertOne(track);
     System.out.println("Tracks reset.");
@@ -145,49 +219,47 @@ public class DatabaseService {
     resetSequence(database, "races");
 
     // Basic Round Robin race
-    HeatScoring heatScoring = new HeatScoring(
-        FinishMethod.Timed,
-        60,
-        HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 60, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.FASTEST_LAP_TIME);
     OverallScoring overallScoring = new OverallScoring();
 
-    Race race = new Race.Builder()
-        .withName("Time Based")
-        .withTrackEntityId(track.getEntityId())
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withMinLapTime(3.0)
-        .withAutoAdvanceTime(0.0)
-        .withAutoStartTime(0.0)
-        .withAutoAdvanceWarmupTime(0.0)
-        .withAutoStartWarmupTime(0.0)
-        .withEntityId(getNextSequence(database, "races"))
-        .build();
+    Race race =
+        new Race.Builder()
+            .withName("Time Based")
+            .withTrackEntityId(track.getEntityId())
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withMinLapTime(3.0)
+            .withAutoAdvanceTime(0.0)
+            .withAutoStartTime(0.0)
+            .withAutoAdvanceWarmupTime(0.0)
+            .withAutoStartWarmupTime(0.0)
+            .withEntityId(getNextSequence(database, "races"))
+            .build();
 
     raceCollection.insertOne(race);
 
     // Race 2
-    heatScoring = new HeatScoring(
-        FinishMethod.Lap,
-        15,
-        HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    heatScoring =
+        new HeatScoring(
+            FinishMethod.Lap, 15, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.FASTEST_LAP_TIME);
 
-    race = new Race.Builder()
-        .withName("Lap Based")
-        .withTrackEntityId(track.getEntityId())
-        .withHeatRotationType(HeatRotationType.FriendlyRoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withMinLapTime(3.0)
-        .withAutoAdvanceTime(0.0)
-        .withAutoStartTime(0.0)
-        .withAutoAdvanceWarmupTime(0.0)
-        .withAutoStartWarmupTime(0.0)
-        .withEntityId(getNextSequence(database, "races"))
-        .build();
+    race =
+        new Race.Builder()
+            .withName("Lap Based")
+            .withTrackEntityId(track.getEntityId())
+            .withHeatRotationType(HeatRotationType.FriendlyRoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withMinLapTime(3.0)
+            .withAutoAdvanceTime(0.0)
+            .withAutoStartTime(0.0)
+            .withAutoAdvanceWarmupTime(0.0)
+            .withAutoStartWarmupTime(0.0)
+            .withEntityId(getNextSequence(database, "races"))
+            .build();
 
     raceCollection.insertOne(race);
 
@@ -195,8 +267,7 @@ public class DatabaseService {
   }
 
   private void resetTeams(DatabaseContext context, MongoDatabase database) {
-    MongoCollection<Team> teamCollection = database.getCollection("teams",
-        Team.class);
+    MongoCollection<Team> teamCollection = database.getCollection("teams", Team.class);
     teamCollection.drop();
     resetSequence(database, "teams");
 
@@ -222,12 +293,13 @@ public class DatabaseService {
     }
 
     // Fetch assets
-    AssetService assetService = new AssetService(database,
-        context.getDataRoot() + database.getName() + "/assets");
+    AssetService assetService =
+        new AssetService(database, context.getDataRoot() + database.getName() + "/assets");
     List<AssetMessage> allAssets = assetService.getAllAssets();
-    List<AssetMessage> helmetAssets = allAssets.stream()
-        .filter(a -> a.getName().toLowerCase().contains("helmet"))
-        .collect(Collectors.toList());
+    List<AssetMessage> helmetAssets =
+        allAssets.stream()
+            .filter(a -> a.getName().toLowerCase().contains("helmet"))
+            .collect(Collectors.toList());
 
     String boysAvatar = "";
     String girlsAvatar = "";
@@ -241,10 +313,9 @@ public class DatabaseService {
     }
 
     List<Team> teams = new ArrayList<>();
-    teams.add(new Team("The Boys", boysAvatar, boysIds,
-        getNextSequence(database, "teams"), null));
-    teams.add(new Team("The Girls", girlsAvatar, girlsIds,
-        getNextSequence(database, "teams"), null));
+    teams.add(new Team("The Boys", boysAvatar, boysIds, getNextSequence(database, "teams"), null));
+    teams.add(
+        new Team("The Girls", girlsAvatar, girlsIds, getNextSequence(database, "teams"), null));
 
     teamCollection.insertMany(teams);
     System.out.println("Teams reset.");
@@ -252,11 +323,11 @@ public class DatabaseService {
 
   private String getNextSequence(MongoDatabase database, String collectionName) {
     MongoCollection<Document> counters = database.getCollection("counters");
-    Document counter = counters.findOneAndUpdate(
-        Filters.eq("_id", collectionName),
-        Updates.inc("seq", 1),
-        new FindOneAndUpdateOptions().upsert(true)
-            .returnDocument(ReturnDocument.AFTER));
+    Document counter =
+        counters.findOneAndUpdate(
+            Filters.eq("_id", collectionName),
+            Updates.inc("seq", 1),
+            new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
     return String.valueOf(counter.getInteger("seq"));
   }
 
@@ -285,23 +356,19 @@ public class DatabaseService {
     List<Driver> drivers = new ArrayList<>();
     // Using $in filter would be more efficient, but looping is fine for small
     // numbers
-    driverCollection.find(Filters.in("entity_id", entityIds))
-        .into(drivers);
+    driverCollection.find(Filters.in("entity_id", entityIds)).into(drivers);
     return drivers;
   }
 
   public List<Team> getTeams(MongoDatabase database, List<String> entityIds) {
-    MongoCollection<Team> teamCollection = database.getCollection("teams",
-        Team.class);
+    MongoCollection<Team> teamCollection = database.getCollection("teams", Team.class);
     List<Team> teams = new ArrayList<>();
-    teamCollection.find(Filters.in("entity_id", entityIds))
-        .into(teams);
+    teamCollection.find(Filters.in("entity_id", entityIds)).into(teams);
     return teams;
   }
 
   public List<Team> getAllTeams(MongoDatabase database) {
-    MongoCollection<Team> teamCollection = database.getCollection("teams",
-        Team.class);
+    MongoCollection<Team> teamCollection = database.getCollection("teams", Team.class);
     List<Team> teams = new ArrayList<>();
     teamCollection.find().into(teams);
     return teams;

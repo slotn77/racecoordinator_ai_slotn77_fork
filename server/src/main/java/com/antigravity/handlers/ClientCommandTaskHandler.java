@@ -31,8 +31,6 @@ import com.antigravity.protocols.IProtocol;
 import com.antigravity.protocols.ProtocolDelegate;
 import com.antigravity.protocols.TestInterfaceListener;
 import com.antigravity.protocols.arduino.ArduinoProtocol;
-import com.antigravity.service.DatabaseService;
-import io.javalin.http.Context;
 import com.antigravity.protocols.interfaces.SerialConnection;
 import com.antigravity.race.ClientSubscriptionManager;
 import com.antigravity.race.DriverHeatData;
@@ -42,6 +40,7 @@ import com.antigravity.race.RaceParticipant;
 import com.antigravity.race.RaceSaveData;
 import com.antigravity.race.states.Racing;
 import com.antigravity.service.AnalyticsService;
+import com.antigravity.service.DatabaseService;
 import com.antigravity.util.CsvExporter;
 import com.antigravity.util.NetworkUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -56,6 +55,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -108,8 +108,11 @@ public class ClientCommandTaskHandler {
   private void initializeRace(Context ctx) {
     try {
       InitializeRaceRequest request = InitializeRaceRequest.parseFrom(ctx.bodyAsBytes());
-      System.out.println("InitializeRaceRequest received: race_id=" + request.getRaceId() + ", driver_ids="
-          + request.getDriverIdsList());
+      System.out.println(
+          "InitializeRaceRequest received: race_id="
+              + request.getRaceId()
+              + ", driver_ids="
+              + request.getDriverIdsList());
 
       TaskResult result = handleInitializeRace(request);
 
@@ -159,8 +162,7 @@ public class ClientCommandTaskHandler {
   // Visible for testing
   TaskResult handleInitializeRace(InitializeRaceRequest request) throws Exception {
     DatabaseService dbService = new DatabaseService();
-    Race raceModel = dbService.getRace(databaseContext.getDatabase(),
-        request.getRaceId());
+    Race raceModel = dbService.getRace(databaseContext.getDatabase(), request.getRaceId());
 
     if (raceModel == null) {
       return TaskResult.error(404, "Race not found");
@@ -174,14 +176,13 @@ public class ClientCommandTaskHandler {
 
     // Create the runtime race instance
     List<String> participantIds = request.getDriverIdsList();
-    List<String> rawIds = participantIds.stream()
-        .map(id -> id.startsWith("d_") || id.startsWith("t_") ? id.substring(2) : id)
-        .collect(Collectors.toList());
+    List<String> rawIds =
+        participantIds.stream()
+            .map(id -> id.startsWith("d_") || id.startsWith("t_") ? id.substring(2) : id)
+            .collect(Collectors.toList());
 
-    List<Driver> drivers = dbService.getDrivers(databaseContext.getDatabase(),
-        rawIds);
-    List<Team> teams = dbService.getTeams(databaseContext.getDatabase(),
-        rawIds);
+    List<Driver> drivers = dbService.getDrivers(databaseContext.getDatabase(), rawIds);
+    List<Team> teams = dbService.getTeams(databaseContext.getDatabase(), rawIds);
 
     // Map IDs back to objects maintaining order
     List<RaceParticipant> participants = new ArrayList<>();
@@ -196,8 +197,8 @@ public class ClientCommandTaskHandler {
       if (pid.startsWith("d_")) {
         individualDriverIds.add(rawId);
       } else if (pid.startsWith("t_")) {
-        Team team = teams.stream()
-            .filter(t -> t.getEntityId().equals(rawId)).findFirst().orElse(null);
+        Team team =
+            teams.stream().filter(t -> t.getEntityId().equals(rawId)).findFirst().orElse(null);
         if (team != null) {
           for (String dId : team.getDriverIds()) {
             driverToTeamNames.computeIfAbsent(dId, k -> new ArrayList<>()).add(team.getName());
@@ -209,16 +210,16 @@ public class ClientCommandTaskHandler {
     // Rule 1: Individual vs Team
     for (String dId : individualDriverIds) {
       if (driverToTeamNames.containsKey(dId)) {
-        Driver d = drivers.stream()
-            .filter(drv -> drv.getEntityId().equals(dId)).findFirst().orElse(null);
+        Driver d =
+            drivers.stream().filter(drv -> drv.getEntityId().equals(dId)).findFirst().orElse(null);
         String dName = d != null ? d.getName() : dId;
-        InitializeRaceResponse response = InitializeRaceResponse
-            .newBuilder()
-            .setSuccess(false)
-            .setErrorCode("DUPE_INDIVIDUAL_TEAM")
-            .setDriverName(dName)
-            .addAllTeamNames(driverToTeamNames.get(dId))
-            .build();
+        InitializeRaceResponse response =
+            InitializeRaceResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorCode("DUPE_INDIVIDUAL_TEAM")
+                .setDriverName(dName)
+                .addAllTeamNames(driverToTeamNames.get(dId))
+                .build();
         return TaskResult.success(response.toByteArray());
       }
     }
@@ -228,19 +229,19 @@ public class ClientCommandTaskHandler {
       if (entry.getValue().size() > 1) {
         String dId = entry.getKey();
         // Driver might not be in the explicit 'drivers' list if they were only in teams
-        Driver d = drivers.stream()
-            .filter(drv -> drv.getEntityId().equals(dId)).findFirst().orElse(null);
+        Driver d =
+            drivers.stream().filter(drv -> drv.getEntityId().equals(dId)).findFirst().orElse(null);
         if (d == null) {
           d = dbService.getDriver(databaseContext.getDatabase(), dId);
         }
         String dName = d != null ? d.getName() : dId;
-        InitializeRaceResponse response = InitializeRaceResponse
-            .newBuilder()
-            .setSuccess(false)
-            .setErrorCode("DUPE_MULTIPLE_TEAMS")
-            .setDriverName(dName)
-            .addAllTeamNames(entry.getValue())
-            .build();
+        InitializeRaceResponse response =
+            InitializeRaceResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorCode("DUPE_MULTIPLE_TEAMS")
+                .setDriverName(dName)
+                .addAllTeamNames(entry.getValue())
+                .build();
         return TaskResult.success(response.toByteArray());
       }
     }
@@ -253,16 +254,18 @@ public class ClientCommandTaskHandler {
 
       // Try finding in drivers
       if (!isExplicitTeam) {
-        Driver driver = drivers.stream().filter(d -> d.getEntityId().equals(rawId))
-            .findFirst().orElse(null);
+        Driver driver =
+            drivers.stream().filter(d -> d.getEntityId().equals(rawId)).findFirst().orElse(null);
         if (driver != null) {
           // Find if driver belongs to a team (always check, even if explicitly asked for
           // driver)
           Team driverTeam = null;
           if (!isExplicitDriver) {
-            driverTeam = allTeams.stream()
-                .filter(t -> t.getDriverIds().contains(rawId))
-                .findFirst().orElse(null);
+            driverTeam =
+                allTeams.stream()
+                    .filter(t -> t.getDriverIds().contains(rawId))
+                    .findFirst()
+                    .orElse(null);
           }
 
           if (driverTeam != null) {
@@ -276,14 +279,13 @@ public class ClientCommandTaskHandler {
 
       // Try finding in teams
       if (!isExplicitDriver) {
-        Team team = teams.stream().filter(t -> t.getEntityId().equals(rawId))
-            .findFirst()
-            .orElse(null);
+        Team team =
+            teams.stream().filter(t -> t.getEntityId().equals(rawId)).findFirst().orElse(null);
         if (team != null) {
           RaceParticipant rp = new RaceParticipant(team);
           // Populate team drivers
-          List<Driver> teamDrivers = dbService
-              .getDrivers(databaseContext.getDatabase(), team.getDriverIds());
+          List<Driver> teamDrivers =
+              dbService.getDrivers(databaseContext.getDatabase(), team.getDriverIds());
 
           logToFile("Hydrating team " + team.getName() + " with IDs: " + team.getDriverIds());
           logToFile("Found " + teamDrivers.size() + " drivers in DB.");
@@ -293,15 +295,16 @@ public class ClientCommandTaskHandler {
         }
       }
     }
-    Track raceTrack = new DatabaseService()
-        .getTrack(databaseContext.getDatabase(), raceModel.getTrackEntityId());
+    Track raceTrack =
+        new DatabaseService().getTrack(databaseContext.getDatabase(), raceModel.getTrackEntityId());
 
-    com.antigravity.race.Race runtimeRace = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(raceTrack)
-        .isDemoMode(request.getIsDemoMode())
-        .build();
+    com.antigravity.race.Race runtimeRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(raceTrack)
+            .isDemoMode(request.getIsDemoMode())
+            .build();
 
     try {
       ClientSubscriptionManager.getInstance().setRace(runtimeRace);
@@ -320,10 +323,7 @@ public class ClientCommandTaskHandler {
     RaceData raceDataSnapshot = runtimeRace.createSnapshot();
     runtimeRace.broadcast(raceDataSnapshot);
 
-    InitializeRaceResponse response = InitializeRaceResponse
-        .newBuilder()
-        .setSuccess(true)
-        .build();
+    InitializeRaceResponse response = InitializeRaceResponse.newBuilder().setSuccess(true).build();
     return TaskResult.success(response.toByteArray());
   }
 
@@ -338,12 +338,15 @@ public class ClientCommandTaskHandler {
       try {
         race.startRace();
 
-        StartRaceResponse response = StartRaceResponse.newBuilder()
-            .setSuccess(true).setMessage("Race started successfully").build();
+        StartRaceResponse response =
+            StartRaceResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Race started successfully")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (IllegalStateException e) {
-        StartRaceResponse response = StartRaceResponse.newBuilder()
-            .setSuccess(false).setMessage(e.getMessage()).build();
+        StartRaceResponse response =
+            StartRaceResponse.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
 
@@ -365,12 +368,15 @@ public class ClientCommandTaskHandler {
       try {
         race.pauseRace();
 
-        PauseRaceResponse response = PauseRaceResponse.newBuilder()
-            .setSuccess(true).setMessage("Race paused successfully").build();
+        PauseRaceResponse response =
+            PauseRaceResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Race paused successfully")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (IllegalStateException e) {
-        PauseRaceResponse response = PauseRaceResponse.newBuilder()
-            .setSuccess(false).setMessage(e.getMessage()).build();
+        PauseRaceResponse response =
+            PauseRaceResponse.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -392,12 +398,15 @@ public class ClientCommandTaskHandler {
         race.moveToNextHeat();
         ClientSubscriptionManager.getInstance().autoSave(race);
 
-        NextHeatResponse response = NextHeatResponse.newBuilder()
-            .setSuccess(true).setMessage("Moved to next heat successfully").build();
+        NextHeatResponse response =
+            NextHeatResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Moved to next heat successfully")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (Exception e) {
-        NextHeatResponse response = NextHeatResponse.newBuilder()
-            .setSuccess(false).setMessage(e.getMessage()).build();
+        NextHeatResponse response =
+            NextHeatResponse.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -419,12 +428,15 @@ public class ClientCommandTaskHandler {
         race.restartHeat();
         ClientSubscriptionManager.getInstance().autoSave(race);
 
-        RestartHeatResponse response = RestartHeatResponse
-            .newBuilder().setSuccess(true).setMessage("Heat restarted successfully").build();
+        RestartHeatResponse response =
+            RestartHeatResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Heat restarted successfully")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (IllegalStateException e) {
-        RestartHeatResponse response = RestartHeatResponse
-            .newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
+        RestartHeatResponse response =
+            RestartHeatResponse.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -446,12 +458,15 @@ public class ClientCommandTaskHandler {
         race.skipHeat();
         ClientSubscriptionManager.getInstance().autoSave(race);
 
-        SkipHeatResponse response = SkipHeatResponse.newBuilder()
-            .setSuccess(true).setMessage("Heat skipped successfully").build();
+        SkipHeatResponse response =
+            SkipHeatResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Heat skipped successfully")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (IllegalStateException e) {
-        SkipHeatResponse response = SkipHeatResponse.newBuilder()
-            .setSuccess(false).setMessage(e.getMessage()).build();
+        SkipHeatResponse response =
+            SkipHeatResponse.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -473,12 +488,10 @@ public class ClientCommandTaskHandler {
         race.deferHeat();
         ClientSubscriptionManager.getInstance().autoSave(race);
 
-        DeferHeatResponse response = DeferHeatResponse.newBuilder()
-            .setSuccess(true).build();
+        DeferHeatResponse response = DeferHeatResponse.newBuilder().setSuccess(true).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } catch (IllegalStateException e) {
-        DeferHeatResponse response = DeferHeatResponse.newBuilder()
-            .setSuccess(false).build();
+        DeferHeatResponse response = DeferHeatResponse.newBuilder().setSuccess(false).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -490,10 +503,10 @@ public class ClientCommandTaskHandler {
 
   private void updateInterfaceConfig(Context ctx) {
     try {
-      UpdateInterfaceConfigRequest request = UpdateInterfaceConfigRequest
-          .parseFrom(ctx.bodyAsBytes());
-      com.antigravity.protocols.arduino.ArduinoConfig config = ArduinoConfigConverter
-          .fromProto(request.getConfig());
+      UpdateInterfaceConfigRequest request =
+          UpdateInterfaceConfigRequest.parseFrom(ctx.bodyAsBytes());
+      com.antigravity.protocols.arduino.ArduinoConfig config =
+          ArduinoConfigConverter.fromProto(request.getConfig());
       int interfaceIndex = request.getInterfaceIndex();
 
       ProtocolDelegate current = ClientSubscriptionManager.getInstance().getProtocol();
@@ -512,18 +525,21 @@ public class ClientCommandTaskHandler {
       if (target != null) {
         target.updateConfig(config);
 
-        UpdateInterfaceConfigResponse response = UpdateInterfaceConfigResponse
-            .newBuilder()
-            .setSuccess(true)
-            .setMessage("Configuration updated")
-            .build();
+        UpdateInterfaceConfigResponse response =
+            UpdateInterfaceConfigResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Configuration updated")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } else {
-        UpdateInterfaceConfigResponse response = UpdateInterfaceConfigResponse
-            .newBuilder()
-            .setSuccess(false)
-            .setMessage("Target interface index " + interfaceIndex + " is invalid or not an ArduinoProtocol")
-            .build();
+        UpdateInterfaceConfigResponse response =
+            UpdateInterfaceConfigResponse.newBuilder()
+                .setSuccess(false)
+                .setMessage(
+                    "Target interface index "
+                        + interfaceIndex
+                        + " is invalid or not an ArduinoProtocol")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -539,7 +555,8 @@ public class ClientCommandTaskHandler {
 
       List<IProtocol> protocols = new ArrayList<>();
       for (ArduinoConfig protoConfig : request.getConfigsList()) {
-        com.antigravity.protocols.arduino.ArduinoConfig config = ArduinoConfigConverter.fromProto(protoConfig);
+        com.antigravity.protocols.arduino.ArduinoConfig config =
+            ArduinoConfigConverter.fromProto(protoConfig);
         ArduinoProtocol arduino = new ArduinoProtocol(config, request.getLaneCount());
         arduino.setListener(new TestInterfaceListener());
         protocols.add(arduino);
@@ -556,10 +573,14 @@ public class ClientCommandTaskHandler {
       ClientSubscriptionManager.getInstance().setProtocol(finalProtocol);
 
       boolean success = finalProtocol.open();
-      InitializeInterfaceResponse response = InitializeInterfaceResponse.newBuilder()
-          .setSuccess(success)
-          .setMessage(success ? "Interfaces initialized successfully" : "Failed to open one or more interfaces")
-          .build();
+      InitializeInterfaceResponse response =
+          InitializeInterfaceResponse.newBuilder()
+              .setSuccess(success)
+              .setMessage(
+                  success
+                      ? "Interfaces initialized successfully"
+                      : "Failed to open one or more interfaces")
+              .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (IllegalStateException e) {
       ctx.status(409).result(e.getMessage());
@@ -574,8 +595,7 @@ public class ClientCommandTaskHandler {
 
   private void getSerialPorts(Context ctx) {
     try {
-      List<String> ports = SerialConnection
-          .getAvailableSerialPorts();
+      List<String> ports = SerialConnection.getAvailableSerialPorts();
       ctx.json(ports);
     } catch (Exception e) {
       System.err.println("Error getting serial ports: " + e.getMessage());
@@ -586,8 +606,8 @@ public class ClientCommandTaskHandler {
 
   private void setInterfacePinState(Context ctx) {
     try {
-      SetInterfacePinStateRequest request = SetInterfacePinStateRequest
-          .parseFrom(ctx.bodyAsBytes());
+      SetInterfacePinStateRequest request =
+          SetInterfacePinStateRequest.parseFrom(ctx.bodyAsBytes());
       int interfaceIndex = request.getInterfaceIndex();
 
       ProtocolDelegate current = ClientSubscriptionManager.getInstance().getProtocol();
@@ -606,18 +626,21 @@ public class ClientCommandTaskHandler {
       if (target != null) {
         target.setPinState(request.getIsDigital(), request.getPin(), request.getIsHigh());
 
-        SetInterfacePinStateResponse response = SetInterfacePinStateResponse
-            .newBuilder()
-            .setSuccess(true)
-            .setMessage("Pin state command sent")
-            .build();
+        SetInterfacePinStateResponse response =
+            SetInterfacePinStateResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Pin state command sent")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } else {
-        SetInterfacePinStateResponse response = SetInterfacePinStateResponse
-            .newBuilder()
-            .setSuccess(false)
-            .setMessage("Target interface index " + interfaceIndex + " is invalid or not an ArduinoProtocol")
-            .build();
+        SetInterfacePinStateResponse response =
+            SetInterfacePinStateResponse.newBuilder()
+                .setSuccess(false)
+                .setMessage(
+                    "Target interface index "
+                        + interfaceIndex
+                        + " is invalid or not an ArduinoProtocol")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -629,8 +652,8 @@ public class ClientCommandTaskHandler {
 
   private void setInterfaceRgbLedState(Context ctx) {
     try {
-      SetInterfaceRgbLedStateRequest request = SetInterfaceRgbLedStateRequest
-          .parseFrom(ctx.bodyAsBytes());
+      SetInterfaceRgbLedStateRequest request =
+          SetInterfaceRgbLedStateRequest.parseFrom(ctx.bodyAsBytes());
       int interfaceIndex = request.getInterfaceIndex();
 
       ProtocolDelegate current = ClientSubscriptionManager.getInstance().getProtocol();
@@ -649,18 +672,21 @@ public class ClientCommandTaskHandler {
       if (target != null) {
         target.setStringRgbLedValues(request.getStringIndex(), request.getLedsList());
 
-        SetInterfaceRgbLedStateResponse response = SetInterfaceRgbLedStateResponse
-            .newBuilder()
-            .setSuccess(true)
-            .setMessage("RGB LED state command sent")
-            .build();
+        SetInterfaceRgbLedStateResponse response =
+            SetInterfaceRgbLedStateResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("RGB LED state command sent")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } else {
-        SetInterfaceRgbLedStateResponse response = SetInterfaceRgbLedStateResponse
-            .newBuilder()
-            .setSuccess(false)
-            .setMessage("Target interface index " + interfaceIndex + " is invalid or not an ArduinoProtocol")
-            .build();
+        SetInterfaceRgbLedStateResponse response =
+            SetInterfaceRgbLedStateResponse.newBuilder()
+                .setSuccess(false)
+                .setMessage(
+                    "Target interface index "
+                        + interfaceIndex
+                        + " is invalid or not an ArduinoProtocol")
+                .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
@@ -674,8 +700,11 @@ public class ClientCommandTaskHandler {
     try {
       String tmpDir = System.getProperty("java.io.tmpdir");
       Path logPath = Paths.get(tmpDir, "race_debug.log");
-      Files.write(logPath, (message + "\n").getBytes(),
-          StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+      Files.write(
+          logPath,
+          (message + "\n").getBytes(),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.APPEND);
     } catch (Exception e) {
       // Ignore
     }
@@ -709,19 +738,24 @@ public class ClientCommandTaskHandler {
       if (lane >= 0 && lane < drivers.size()) {
         DriverHeatData dhd = drivers.get(lane);
         DatabaseService dbService = new DatabaseService();
-        List<Driver> driversList = dbService.getDrivers(databaseContext.getDatabase(),
-            Collections.singletonList(driverId));
+        List<Driver> driversList =
+            dbService.getDrivers(
+                databaseContext.getDatabase(), Collections.singletonList(driverId));
         Driver driver = driversList.isEmpty() ? null : driversList.get(0);
 
         if (driver != null) {
           TeamOptions options = race.getRaceModel().getTeamOptions();
-          if (options != null && options.isRequirePitStopChangeDriver()
+          if (options != null
+              && options.isRequirePitStopChangeDriver()
               && race.getState() instanceof Racing) {
             CarLocation loc = dhd.getCurrentLocation();
-            boolean inPit = loc == CarLocation.PitRow
-                || (loc != null && loc.getValue() >= CarLocation.PitBayBase.getValue()
-                    && loc.getValue() < CarLocation.PitBayBase.getValue()
-                        + race.getTrack().getLanes().size());
+            boolean inPit =
+                loc == CarLocation.PitRow
+                    || (loc != null
+                        && loc.getValue() >= CarLocation.PitBayBase.getValue()
+                        && loc.getValue()
+                            < CarLocation.PitBayBase.getValue()
+                                + race.getTrack().getLanes().size());
             if (!inPit) {
               ctx.status(403).result("RD_ERR_DRIVER_CHANGE_NOT_IN_PIT");
               return;
@@ -751,9 +785,9 @@ public class ClientCommandTaskHandler {
 
       String csv;
       synchronized (race) {
-        OverallStandings standings = new OverallStandings(
-            race.getRaceModel().getHeatScoring(),
-            race.getRaceModel().getOverallScoring());
+        OverallStandings standings =
+            new OverallStandings(
+                race.getRaceModel().getHeatScoring(), race.getRaceModel().getOverallScoring());
         standings.recalculate(race.getDrivers(), race.getHeats());
         csv = CsvExporter.export(race);
       }
@@ -889,8 +923,9 @@ public class ClientCommandTaskHandler {
 
       // Compare Track
       Track savedTrack = saveData.getTrack();
-      Track dbTrack = new DatabaseService().getTrack(databaseContext.getDatabase(),
-          saveData.getModel().getTrackEntityId());
+      Track dbTrack =
+          new DatabaseService()
+              .getTrack(databaseContext.getDatabase(), saveData.getModel().getTrackEntityId());
 
       Track trackToUse = savedTrack;
       if (dbTrack != null && dbTrack.getLanes().size() == savedTrack.getLanes().size()) {
@@ -905,20 +940,21 @@ public class ClientCommandTaskHandler {
       }
 
       // Recreate Race
-      com.antigravity.race.Race race = new com.antigravity.race.Race.Builder()
-          .model(saveData.getModel())
-          .drivers(saveData.getDrivers())
-          .track(trackToUse)
-          .heats(saveData.getHeats())
-          .currentHeatIndex(saveData.getCurrentHeatIndex())
-          .accumulatedRaceTime(saveData.getAccumulatedRaceTime())
-          .hasRacedInCurrentHeat(saveData.isHasRacedInCurrentHeat())
-          .autoStartFired(saveData.isAutoStartFired())
-          .autoAdvanceFired(saveData.isAutoAdvanceFired())
-          .stateClassName(saveData.getStateClassName())
-          .isDemoMode(saveData.isDemoMode())
-          .statistics(saveData.getStatistics())
-          .build();
+      com.antigravity.race.Race race =
+          new com.antigravity.race.Race.Builder()
+              .model(saveData.getModel())
+              .drivers(saveData.getDrivers())
+              .track(trackToUse)
+              .heats(saveData.getHeats())
+              .currentHeatIndex(saveData.getCurrentHeatIndex())
+              .accumulatedRaceTime(saveData.getAccumulatedRaceTime())
+              .hasRacedInCurrentHeat(saveData.isHasRacedInCurrentHeat())
+              .autoStartFired(saveData.isAutoStartFired())
+              .autoAdvanceFired(saveData.isAutoAdvanceFired())
+              .stateClassName(saveData.getStateClassName())
+              .isDemoMode(saveData.isDemoMode())
+              .statistics(saveData.getStatistics())
+              .build();
 
       ClientSubscriptionManager.getInstance().setRace(race);
       race.init(); // Open protocols
@@ -947,14 +983,17 @@ public class ClientCommandTaskHandler {
 
     if (!isLocalhost) {
       setStatus(ctx, 403);
-      setResult(ctx, "Analytics settings can only be changed from a local connection. Detected: " + remoteAddr);
+      setResult(
+          ctx,
+          "Analytics settings can only be changed from a local connection. Detected: "
+              + remoteAddr);
       return;
     }
 
     try {
       ObjectMapper mapper = getObjectMapper();
-      AnalyticsToggleRequest request = mapper.readValue(getBodyBytes(ctx),
-          AnalyticsToggleRequest.class);
+      AnalyticsToggleRequest request =
+          mapper.readValue(getBodyBytes(ctx), AnalyticsToggleRequest.class);
       if (request == null) {
         setStatus(ctx, 400);
         setResult(ctx, "Invalid request body. Expected JSON with 'enabled' field.");
@@ -1001,19 +1040,21 @@ public class ClientCommandTaskHandler {
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     SimpleModule module = new SimpleModule();
-    module.addSerializer(ObjectId.class,
+    module.addSerializer(
+        ObjectId.class,
         new JsonSerializer<ObjectId>() {
           @Override
-          public void serialize(ObjectId value, JsonGenerator gen,
-              SerializerProvider serializers) throws IOException {
+          public void serialize(ObjectId value, JsonGenerator gen, SerializerProvider serializers)
+              throws IOException {
             gen.writeString(value.toHexString());
           }
         });
-    module.addDeserializer(ObjectId.class,
+    module.addDeserializer(
+        ObjectId.class,
         new JsonDeserializer<ObjectId>() {
           @Override
-          public ObjectId deserialize(JsonParser p,
-              DeserializationContext ctxt) throws IOException {
+          public ObjectId deserialize(JsonParser p, DeserializationContext ctxt)
+              throws IOException {
             String value = p.getValueAsString();
             if (value == null || value.isEmpty()) {
               return null;

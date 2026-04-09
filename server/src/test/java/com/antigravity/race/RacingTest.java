@@ -1,6 +1,5 @@
 package com.antigravity.race;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,27 +34,30 @@ public class RacingTest {
 
   @Before
   public void setUp() {
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     participants = new ArrayList<>();
     participants.add(new RaceParticipant(new Driver("Driver 1", "D1", "d1", new ObjectId()), "p1"));
@@ -64,15 +66,21 @@ public class RacingTest {
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
     lanes.add(new Lane("blue", "black", 100));
-    track = new Track("Test Track", lanes, Collections.singletonList(mock(ArduinoConfig.class)), "track1",
-        new ObjectId());
+    track =
+        new Track(
+            "Test Track",
+            lanes,
+            Collections.singletonList(mock(ArduinoConfig.class)),
+            "track1",
+            new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 
   @After
@@ -101,25 +109,28 @@ public class RacingTest {
 
   @Test
   public void testTimedRace_NoAllowFinish_EndsOnTime() throws InterruptedException {
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Timed,
-        1L, // 1 second
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Timed,
+            1L, // 1 second
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(new Race.Builder()
-            .withName("Test Race")
-            .withTrackEntityId("track1")
-            .withHeatScoring(heatScoring)
-            .withOverallScoring(race.getRaceModel().getOverallScoring())
-            .withEntityId("race1")
-            .build())
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(
+                new Race.Builder()
+                    .withName("Test Race")
+                    .withTrackEntityId("track1")
+                    .withHeatScoring(heatScoring)
+                    .withOverallScoring(race.getRaceModel().getOverallScoring())
+                    .withEntityId("race1")
+                    .build())
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
 
     Racing racing = new Racing();
     race.changeState(racing);
@@ -136,12 +147,13 @@ public class RacingTest {
     Racing racing = new Racing();
     com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
     Race mockModel = mock(Race.class);
-    HeatScoring allowFinishScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.Allow);
+    HeatScoring allowFinishScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.Allow);
 
     when(mockRace.getRaceModel()).thenReturn(mockModel);
     when(mockModel.getHeatScoring()).thenReturn(allowFinishScoring);
@@ -190,9 +202,8 @@ public class RacingTest {
     // Set refueling state in race
     race.getHeatExecutionManager().getIsRefueling()[0] = true;
 
-    CarData carData = new CarData(
-        0, 1.0, 0.5, 0.5, false, CarLocation.PitRow,
-        CarLocation.PitRow, -1);
+    CarData carData =
+        new CarData(0, 1.0, 0.5, 0.5, false, CarLocation.PitRow, CarLocation.PitRow, -1);
 
     // Mock broadcast tracker or just verify it doesn't crash
     racing.onCarData(carData);

@@ -58,19 +58,23 @@ public class HeatScoring {
     this.allowFinish = AllowFinish.None;
   }
 
-  public HeatScoring(@BsonProperty("finish_method") @JsonProperty("finish_method") FinishMethod finishMethod,
+  public HeatScoring(
+      @BsonProperty("finish_method") @JsonProperty("finish_method") FinishMethod finishMethod,
       @BsonProperty("finish_value") @JsonProperty("finish_value") long finishValue,
       @BsonProperty("heat_ranking") @JsonProperty("heat_ranking") HeatRanking heatRanking,
-      @BsonProperty("heat_ranking_tiebreaker") @JsonProperty("heat_ranking_tiebreaker") HeatRankingTiebreaker heatRankingTiebreaker) {
+      @BsonProperty("heat_ranking_tiebreaker") @JsonProperty("heat_ranking_tiebreaker")
+          HeatRankingTiebreaker heatRankingTiebreaker) {
     this(finishMethod, finishValue, heatRanking, heatRankingTiebreaker, AllowFinish.None);
   }
 
   @BsonCreator
   @JsonCreator
-  public HeatScoring(@BsonProperty("finish_method") @JsonProperty("finish_method") FinishMethod finishMethod,
+  public HeatScoring(
+      @BsonProperty("finish_method") @JsonProperty("finish_method") FinishMethod finishMethod,
       @BsonProperty("finish_value") @JsonProperty("finish_value") long finishValue,
       @BsonProperty("heat_ranking") @JsonProperty("heat_ranking") HeatRanking heatRanking,
-      @BsonProperty("heat_ranking_tiebreaker") @JsonProperty("heat_ranking_tiebreaker") HeatRankingTiebreaker heatRankingTiebreaker,
+      @BsonProperty("heat_ranking_tiebreaker") @JsonProperty("heat_ranking_tiebreaker")
+          HeatRankingTiebreaker heatRankingTiebreaker,
       @BsonProperty("allow_finish") @JsonProperty("allow_finish") AllowFinish allowFinish) {
     this.finishMethod = finishMethod;
     this.finishValue = finishValue;

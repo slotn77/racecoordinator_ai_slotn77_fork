@@ -7,7 +7,6 @@ import com.antigravity.race.DriverHeatData;
 import com.antigravity.race.Heat;
 import com.antigravity.race.HeatExecutionManager;
 import com.antigravity.race.Race;
-import com.antigravity.race.RaceParticipant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +61,8 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void nextHeat(Race race) {
-    throw new IllegalStateException("Cannot move to next heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot move to next heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -137,16 +137,16 @@ public class NotStarted implements IRaceState {
 
     // Broadcast partial update
     Set<String> sentObjectIds = new HashSet<>();
-    com.antigravity.proto.Race raceUpdate = com.antigravity.proto.Race.newBuilder()
-        .addAllHeats(heats.stream()
-            .map(h -> HeatConverter.toProto(h, sentObjectIds))
-            .collect(Collectors.toList()))
-        .setCurrentHeat(HeatConverter.toProto(race.getCurrentHeat(), sentObjectIds))
-        .build();
+    com.antigravity.proto.Race raceUpdate =
+        com.antigravity.proto.Race.newBuilder()
+            .addAllHeats(
+                heats.stream()
+                    .map(h -> HeatConverter.toProto(h, sentObjectIds))
+                    .collect(Collectors.toList()))
+            .setCurrentHeat(HeatConverter.toProto(race.getCurrentHeat(), sentObjectIds))
+            .build();
 
-    RaceData raceDataMsg = RaceData.newBuilder()
-        .setRace(raceUpdate)
-        .build();
+    RaceData raceDataMsg = RaceData.newBuilder().setRace(raceUpdate).build();
 
     race.broadcast(raceDataMsg);
   }
@@ -163,7 +163,8 @@ public class NotStarted implements IRaceState {
 
     if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
       System.out.println("NotStarted: Warmup lap detected, delegating to executor.");
-      executionManager.onLap(lane, lapTime, interfaceId, true, false); // ignoreTeamLimits = true, checkFinish = false
+      executionManager.onLap(
+          lane, lapTime, interfaceId, true, false); // ignoreTeamLimits = true, checkFinish = false
     }
   }
 
@@ -201,13 +202,14 @@ public class NotStarted implements IRaceState {
 
       int lane = carData.getLane();
       // Broadcast the CarData to clients
-      com.antigravity.proto.CarData.Builder dataBuilder = com.antigravity.proto.CarData.newBuilder()
-          .setLane(carData.getLane())
-          .setControllerThrottlePct(carData.getControllerThrottlePCT())
-          .setCarThrottlePct(carData.getCarThrottlePCT())
-          .setLocation(carData.getLocation().getValue())
-          .setLocationId(carData.getLocationId())
-          .setIsRefueling(executionManager.getIsRefueling()[lane]);
+      com.antigravity.proto.CarData.Builder dataBuilder =
+          com.antigravity.proto.CarData.newBuilder()
+              .setLane(carData.getLane())
+              .setControllerThrottlePct(carData.getControllerThrottlePCT())
+              .setCarThrottlePct(carData.getCarThrottlePCT())
+              .setLocation(carData.getLocation().getValue())
+              .setLocationId(carData.getLocationId())
+              .setIsRefueling(executionManager.getIsRefueling()[lane]);
 
       if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
         if (lane >= 0 && lane < race.getCurrentHeat().getDrivers().size()) {
@@ -222,9 +224,7 @@ public class NotStarted implements IRaceState {
       }
 
       com.antigravity.proto.CarData protoCarData = dataBuilder.build();
-      RaceData raceDataMsg = RaceData.newBuilder()
-          .setCarData(protoCarData)
-          .build();
+      RaceData raceDataMsg = RaceData.newBuilder().setCarData(protoCarData).build();
 
       race.broadcast(raceDataMsg);
     }
@@ -232,65 +232,67 @@ public class NotStarted implements IRaceState {
 
   private void startAutoStartTimer(final Race race) {
     scheduler = Executors.newScheduledThreadPool(1);
-    final Runnable ticker = new Runnable() {
-      long lastTime = 0;
+    final Runnable ticker =
+        new Runnable() {
+          long lastTime = 0;
 
-      @Override
-      public void run() {
-        try {
-          long now = System.nanoTime();
-          if (lastTime == 0) {
-            lastTime = now;
-            return;
-          }
-
-          double delta = (now - lastTime) / 1_000_000_000.0;
-          lastTime = now;
-
-          double remaining = race.getAutoStartRemaining() - delta;
-
-          // Handle warmup time power logic and refueling
-          double autoStartTime = race.getRaceModel().getAutoStartTime();
-          double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
-          double elapsed = autoStartTime - Math.max(0, remaining);
-
-          if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
-            // During warmup, process refueling and fuel usage
-            executionManager.processTicker((float) delta);
-          }
-
-          if (remaining <= 0) {
-            remaining = 0;
-            race.setAutoStartRemaining(0);
-            broadcastTime(race);
-            stopTimer();
-            race.setAutoStartFired(true);
-            race.startRace();
-          } else {
-            race.setAutoStartRemaining(remaining);
-
-            if (autoStartWarmupTime > 0) {
-              if (elapsed <= autoStartWarmupTime) {
-                if (!race.isMainPower()) {
-                  race.setMainPower(true);
-                }
-              } else {
-                if (race.isMainPower()) {
-                  // Warmup just ended
-                  System.out.println("NotStarted: Warmup ended. Turning off power and resetting heat.");
-                  race.setMainPower(false);
-                  race.resetCurrentHeat();
-                }
+          @Override
+          public void run() {
+            try {
+              long now = System.nanoTime();
+              if (lastTime == 0) {
+                lastTime = now;
+                return;
               }
-            }
 
-            broadcastTime(race);
+              double delta = (now - lastTime) / 1_000_000_000.0;
+              lastTime = now;
+
+              double remaining = race.getAutoStartRemaining() - delta;
+
+              // Handle warmup time power logic and refueling
+              double autoStartTime = race.getRaceModel().getAutoStartTime();
+              double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
+              double elapsed = autoStartTime - Math.max(0, remaining);
+
+              if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
+                // During warmup, process refueling and fuel usage
+                executionManager.processTicker((float) delta);
+              }
+
+              if (remaining <= 0) {
+                remaining = 0;
+                race.setAutoStartRemaining(0);
+                broadcastTime(race);
+                stopTimer();
+                race.setAutoStartFired(true);
+                race.startRace();
+              } else {
+                race.setAutoStartRemaining(remaining);
+
+                if (autoStartWarmupTime > 0) {
+                  if (elapsed <= autoStartWarmupTime) {
+                    if (!race.isMainPower()) {
+                      race.setMainPower(true);
+                    }
+                  } else {
+                    if (race.isMainPower()) {
+                      // Warmup just ended
+                      System.out.println(
+                          "NotStarted: Warmup ended. Turning off power and resetting heat.");
+                      race.setMainPower(false);
+                      race.resetCurrentHeat();
+                    }
+                  }
+                }
+
+                broadcastTime(race);
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    };
+        };
     timerHandle = scheduler.scheduleAtFixedRate(ticker, 0, 100, TimeUnit.MILLISECONDS);
   }
 

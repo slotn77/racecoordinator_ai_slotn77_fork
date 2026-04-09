@@ -51,12 +51,7 @@ public class RaceStateTest {
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
 
-    Track realTrack = new Track(
-        "Test Track",
-        lanes,
-        mockConfig,
-        "track1",
-        new ObjectId());
+    Track realTrack = new Track("Test Track", lanes, mockConfig, "track1", new ObjectId());
 
     HeatScoring mockHeatScoring = mock(HeatScoring.class);
     when(mockHeatScoring.getHeatRanking()).thenReturn(HeatScoring.HeatRanking.LAP_COUNT);
@@ -66,32 +61,33 @@ public class RaceStateTest {
     when(mockHeatScoring.getFinishValue()).thenReturn(100L); // 100 seconds
 
     OverallScoring mockOverallScoring = mock(OverallScoring.class);
-    when(mockOverallScoring.getRankingMethod())
-        .thenReturn(OverallScoring.OverallRanking.LAP_COUNT);
+    when(mockOverallScoring.getRankingMethod()).thenReturn(OverallScoring.OverallRanking.LAP_COUNT);
     when(mockOverallScoring.getTiebreaker())
         .thenReturn(OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race realRaceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(mockHeatScoring)
-        .withOverallScoring(mockOverallScoring)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race realRaceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(mockHeatScoring)
+            .withOverallScoring(mockOverallScoring)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     List<RaceParticipant> drivers = new ArrayList<>();
     Driver realDriver = new Driver("Test Driver", "D1", "driver1", new ObjectId());
     RaceParticipant participant = new RaceParticipant(realDriver, "participant1");
     drivers.add(participant);
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(realRaceModel)
-        .drivers(drivers)
-        .track(realTrack)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(realRaceModel)
+            .drivers(drivers)
+            .track(realTrack)
+            .isDemoMode(true)
+            .build();
     ClientSubscriptionManager.getInstance().setRace(race);
   }
 
@@ -118,8 +114,9 @@ public class RaceStateTest {
     injectSession(currentMockWsContext, mockSession);
 
     ClientSubscriptionManager.getInstance().addSession(currentMockWsContext);
-    ClientSubscriptionManager.getInstance().handleRaceSubscription(currentMockWsContext,
-        RaceSubscriptionRequest.newBuilder().setSubscribe(true).build());
+    ClientSubscriptionManager.getInstance()
+        .handleRaceSubscription(
+            currentMockWsContext, RaceSubscriptionRequest.newBuilder().setSubscribe(true).build());
   }
 
   private void injectSession(WsContext ctx, Session session) throws Exception {
@@ -178,8 +175,7 @@ public class RaceStateTest {
     try {
       Field sessionField = WsContext.class.getDeclaredField("session");
       sessionField.setAccessible(true);
-      Session session = (Session) sessionField
-          .get(currentMockWsContext);
+      Session session = (Session) sessionField.get(currentMockWsContext);
       RemoteEndpoint remote = session.getRemote();
 
       ArgumentCaptor<ByteBuffer> captor = ArgumentCaptor.forClass(ByteBuffer.class);
@@ -216,7 +212,9 @@ public class RaceStateTest {
         }
       }
       if (!found) {
-        assertEquals("Expected state broadcast not found. Captured: " + capturedStates, expectedState.name(),
+        assertEquals(
+            "Expected state broadcast not found. Captured: " + capturedStates,
+            expectedState.name(),
             "NOT_FOUND");
       }
 

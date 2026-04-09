@@ -33,7 +33,8 @@ public class Racing implements IRaceState {
       race.getStatistics().setStartTime(OffsetDateTime.now().toString());
       race.getStatistics().setStartMillis(System.currentTimeMillis());
     }
-    if (race.getCurrentHeat() != null && race.getCurrentHeat().getStatistics().getStartTime() == null) {
+    if (race.getCurrentHeat() != null
+        && race.getCurrentHeat().getStatistics().getStartTime() == null) {
       race.getCurrentHeat().getStatistics().setStartTime(OffsetDateTime.now().toString());
       race.getCurrentHeat().getStatistics().setStartMillis(System.currentTimeMillis());
     }
@@ -64,103 +65,98 @@ public class Racing implements IRaceState {
 
     race.startProtocols();
     scheduler = Executors.newScheduledThreadPool(1);
-    final Runnable ticker = new Runnable() {
-      long lastTime = 0;
+    final Runnable ticker =
+        new Runnable() {
+          long lastTime = 0;
 
-      @Override
-      public void run() {
-        try {
-          long now = System.nanoTime();
-          if (lastTime == 0) {
-            lastTime = now;
-            return;
-          }
-
-          float delta = (now - lastTime) / 1_000_000_000.0f;
-          lastTime = now;
-
-          HeatScoring scoring = race.getRaceModel().getHeatScoring();
-          boolean isTimed = scoring != null
-              && scoring.getFinishMethod() == FinishMethod.Timed;
-
-          if (isTimed) {
-            race.addRaceTime(-delta);
-          } else {
-            race.addRaceTime(delta);
-          }
-
-          // Handle refueling and fuel usage via the execution manager
-          executionManager.processTicker(delta);
-
-          // Check finish conditions
-          boolean allFinished = false;
-          AllowFinish allowFinish = scoring != null
-              ? scoring.getAllowFinish()
-              : AllowFinish.None;
-
-          if (scoring != null) {
-            Set<Integer> finishedLanes = executionManager.getFinishedLanes();
-            if (isTimed) {
-              if (race.getRaceTime() <= 0) {
-                race.resetRaceTime();
-                if (allowFinish == AllowFinish.None) {
-                  allFinished = true;
-                } else {
-                  // Timed race with Allow Finish: Heat ends when everyone has crossed the line
-                  // once after time expired
-                  if (finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
-                    allFinished = true;
-                  }
-                }
+          @Override
+          public void run() {
+            try {
+              long now = System.nanoTime();
+              if (lastTime == 0) {
+                lastTime = now;
+                return;
               }
-            } else {
-              // Lap based
-              long limit = scoring.getFinishValue();
-              if (allowFinish == AllowFinish.None) {
-                for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
-                  if (driver.getLapCount() >= limit) {
-                    allFinished = true;
-                    break;
-                  }
-                }
+
+              float delta = (now - lastTime) / 1_000_000_000.0f;
+              lastTime = now;
+
+              HeatScoring scoring = race.getRaceModel().getHeatScoring();
+              boolean isTimed = scoring != null && scoring.getFinishMethod() == FinishMethod.Timed;
+
+              if (isTimed) {
+                race.addRaceTime(-delta);
               } else {
-                // Lap based with Allow Finish: Heat ends when everyone has reached the lap
-                // limit
-                if (finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
-                  allFinished = true;
+                race.addRaceTime(delta);
+              }
+
+              // Handle refueling and fuel usage via the execution manager
+              executionManager.processTicker(delta);
+
+              // Check finish conditions
+              boolean allFinished = false;
+              AllowFinish allowFinish =
+                  scoring != null ? scoring.getAllowFinish() : AllowFinish.None;
+
+              if (scoring != null) {
+                Set<Integer> finishedLanes = executionManager.getFinishedLanes();
+                if (isTimed) {
+                  if (race.getRaceTime() <= 0) {
+                    race.resetRaceTime();
+                    if (allowFinish == AllowFinish.None) {
+                      allFinished = true;
+                    } else {
+                      // Timed race with Allow Finish: Heat ends when everyone has crossed the line
+                      // once after time expired
+                      if (finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
+                        allFinished = true;
+                      }
+                    }
+                  }
+                } else {
+                  // Lap based
+                  long limit = scoring.getFinishValue();
+                  if (allowFinish == AllowFinish.None) {
+                    for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
+                      if (driver.getLapCount() >= limit) {
+                        allFinished = true;
+                        break;
+                      }
+                    }
+                  } else {
+                    // Lap based with Allow Finish: Heat ends when everyone has reached the lap
+                    // limit
+                    if (finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
+                      allFinished = true;
+                    }
+                  }
                 }
               }
+
+              // Broadcast RaceTime message wrapped in RaceData
+              // Ensure we don't send negative time for display if finished
+              float displayTime = Math.max(0, race.getRaceTime());
+
+              RaceTime raceTimeMsg = RaceTime.newBuilder().setTime(displayTime).build();
+
+              RaceData raceDataMsg = RaceData.newBuilder().setRaceTime(raceTimeMsg).build();
+
+              race.broadcast(raceDataMsg);
+
+              if (allFinished) {
+                if (race.isLastHeat()) {
+                  race.changeState(new RaceOver());
+                } else {
+                  race.changeState(new HeatOver());
+                }
+              }
+
+            } catch (Exception e) {
+              System.err.println("Error in Racing timer: " + e.getMessage());
+              e.printStackTrace();
             }
           }
-
-          // Broadcast RaceTime message wrapped in RaceData
-          // Ensure we don't send negative time for display if finished
-          float displayTime = Math.max(0, race.getRaceTime());
-
-          RaceTime raceTimeMsg = RaceTime.newBuilder()
-              .setTime(displayTime)
-              .build();
-
-          RaceData raceDataMsg = RaceData.newBuilder()
-              .setRaceTime(raceTimeMsg)
-              .build();
-
-          race.broadcast(raceDataMsg);
-
-          if (allFinished) {
-            if (race.isLastHeat()) {
-              race.changeState(new RaceOver());
-            } else {
-              race.changeState(new HeatOver());
-            }
-          }
-
-        } catch (Exception e) {
-          System.err.println("Error in Racing timer: " + e.getMessage());
-          e.printStackTrace();
-        }
-      }
-    };
+        };
     timerHandle = scheduler.scheduleAtFixedRate(ticker, 0, 100, TimeUnit.MILLISECONDS);
   }
 
@@ -178,7 +174,8 @@ public class Racing implements IRaceState {
 
   @Override
   public void nextHeat(Race race) {
-    throw new IllegalStateException("Cannot move to next heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot move to next heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -202,12 +199,14 @@ public class Racing implements IRaceState {
 
   @Override
   public void skipHeat(Race race) {
-    throw new IllegalStateException("Cannot skip heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot skip heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
   public void deferHeat(Race race) {
-    throw new IllegalStateException("Cannot defer heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot defer heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -229,13 +228,14 @@ public class Racing implements IRaceState {
 
     int lane = carData.getLane();
     // Broadcast the CarData to clients
-    CarData.Builder dataBuilder = CarData.newBuilder()
-        .setLane(carData.getLane())
-        .setControllerThrottlePct(carData.getControllerThrottlePCT())
-        .setCarThrottlePct(carData.getCarThrottlePCT())
-        .setLocation(carData.getLocation().getValue())
-        .setLocationId(carData.getLocationId())
-        .setIsRefueling(executionManager.getIsRefueling()[lane]);
+    CarData.Builder dataBuilder =
+        CarData.newBuilder()
+            .setLane(carData.getLane())
+            .setControllerThrottlePct(carData.getControllerThrottlePCT())
+            .setCarThrottlePct(carData.getCarThrottlePCT())
+            .setLocation(carData.getLocation().getValue())
+            .setLocationId(carData.getLocationId())
+            .setIsRefueling(executionManager.getIsRefueling()[lane]);
 
     if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
       if (lane >= 0 && lane < race.getCurrentHeat().getDrivers().size()) {
@@ -250,9 +250,7 @@ public class Racing implements IRaceState {
     }
 
     CarData protoCarData = dataBuilder.build();
-    RaceData raceDataMsg = RaceData.newBuilder()
-        .setCarData(protoCarData)
-        .build();
+    RaceData raceDataMsg = RaceData.newBuilder().setCarData(protoCarData).build();
 
     race.broadcast(raceDataMsg);
   }

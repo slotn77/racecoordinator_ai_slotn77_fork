@@ -45,8 +45,7 @@ public class DatabaseContextTest {
   private DatabaseContext databaseContext;
   private ServerConfigService configService;
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder(new File("/tmp/racecoordinator"));
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder(new File("/tmp/racecoordinator"));
 
   @Before
   public void setup() throws Exception {
@@ -62,21 +61,28 @@ public class DatabaseContextTest {
 
     File mongoArtifactDir = tempFolder.newFolder(".embedmongo");
 
-    mongodProcess = new CustomMongod(mongoArtifactDir, mongoDataDir, bindIp, port)
-        .start(Version.Main.V6_0);
+    mongodProcess =
+        new CustomMongod(mongoArtifactDir, mongoDataDir, bindIp, port).start(Version.Main.V6_0);
 
-    CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-        fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+    CodecRegistry pojoCodecRegistry =
+        fromRegistries(
+            MongoClientSettings.getDefaultCodecRegistry(),
+            fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-    MongoClientSettings settings = MongoClientSettings.builder()
-        .applyConnectionString(new ConnectionString("mongodb://" + bindIp + ":" + port))
-        .codecRegistry(pojoCodecRegistry)
-        .build();
+    MongoClientSettings settings =
+        MongoClientSettings.builder()
+            .applyConnectionString(new ConnectionString("mongodb://" + bindIp + ":" + port))
+            .codecRegistry(pojoCodecRegistry)
+            .build();
 
     mongoClient = MongoClients.create(settings);
 
-    databaseContext = new DatabaseContext(mongoClient, "TEST_DB", configService,
-        tempFolder.getRoot().getAbsolutePath() + "/data/");
+    databaseContext =
+        new DatabaseContext(
+            mongoClient,
+            "TEST_DB",
+            configService,
+            tempFolder.getRoot().getAbsolutePath() + "/data/");
   }
 
   @After
@@ -155,7 +161,8 @@ public class DatabaseContextTest {
     assertEquals(dbName, databaseContext.getDatabase().getName());
 
     // Verify Config Service was updated
-    assertEquals("Config service should have last active DB", dbName, configService.getLastActiveDatabase());
+    assertEquals(
+        "Config service should have last active DB", dbName, configService.getLastActiveDatabase());
   }
 
   @Test
@@ -169,7 +176,10 @@ public class DatabaseContextTest {
 
     // Reload config service to verify file persistence
     ServerConfigService newConfigService = new ServerConfigService();
-    assertEquals("Persisted config should have last active DB", dbName, newConfigService.getLastActiveDatabase());
+    assertEquals(
+        "Persisted config should have last active DB",
+        dbName,
+        newConfigService.getLastActiveDatabase());
   }
 
   @Test
@@ -269,7 +279,9 @@ public class DatabaseContextTest {
     databaseContext.switchDatabase(dbName);
 
     // Add some data
-    databaseContext.getDatabase().getCollection("test_collection", Document.class)
+    databaseContext
+        .getDatabase()
+        .getCollection("test_collection", Document.class)
         .insertOne(new Document("key", "value"));
 
     // Add an asset
@@ -310,7 +322,9 @@ public class DatabaseContextTest {
     databaseContext.switchDatabase(sourceDb);
 
     // Add some data
-    databaseContext.getDatabase().getCollection("imp_coll", Document.class)
+    databaseContext
+        .getDatabase()
+        .getCollection("imp_coll", Document.class)
         .insertOne(new Document("foo", "bar"));
 
     // Add an asset
@@ -330,12 +344,14 @@ public class DatabaseContextTest {
 
     // Verify data
     databaseContext.switchDatabase(targetDb);
-    Document doc = databaseContext.getDatabase().getCollection("imp_coll", Document.class).find().first();
+    Document doc =
+        databaseContext.getDatabase().getCollection("imp_coll", Document.class).find().first();
     assertNotNull(doc);
     assertEquals("bar", doc.getString("foo"));
 
     // Verify asset
-    File targetAssetFile = new File(tempFolder.getRoot(), "data/" + targetDb + "/assets/imp_test.txt");
+    File targetAssetFile =
+        new File(tempFolder.getRoot(), "data/" + targetDb + "/assets/imp_test.txt");
     assertTrue("Imported asset should exist", targetAssetFile.exists());
     assertEquals("import test", new String(Files.readAllBytes(targetAssetFile.toPath())));
   }
@@ -355,20 +371,17 @@ public class DatabaseContextTest {
 
     @Override
     public Transition<PersistentDir> persistentBaseDir() {
-      return Start.to(PersistentDir.class)
-          .initializedWith(PersistentDir.of(artifactDir.toPath()));
+      return Start.to(PersistentDir.class).initializedWith(PersistentDir.of(artifactDir.toPath()));
     }
 
     @Override
     public Transition<DatabaseDir> databaseDir() {
-      return Start.to(DatabaseDir.class)
-          .initializedWith(DatabaseDir.of(databaseDir.toPath()));
+      return Start.to(DatabaseDir.class).initializedWith(DatabaseDir.of(databaseDir.toPath()));
     }
 
     @Override
     public Transition<Net> net() {
-      return Start.to(Net.class)
-          .initializedWith(Net.of(bindIp, port, false));
+      return Start.to(Net.class).initializedWith(Net.of(bindIp, port, false));
     }
   }
 }

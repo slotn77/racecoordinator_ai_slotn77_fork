@@ -50,7 +50,8 @@ public class PowerManagerTest {
   @Test
   public void testSetMainPower() {
     // Setup delegate with all types
-    List<IProtocol> protocols = Arrays.asList(mainOnlyProtocol, laneOnlyProtocol, bothProtocol, neitherProtocol);
+    List<IProtocol> protocols =
+        Arrays.asList(mainOnlyProtocol, laneOnlyProtocol, bothProtocol, neitherProtocol);
     ProtocolDelegate delegate = new ProtocolDelegate(protocols);
     powerManager = new PowerManager(delegate);
 

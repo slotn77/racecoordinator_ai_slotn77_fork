@@ -24,7 +24,8 @@ public class DriverHeatData extends ServerToClientObject {
     private ArrayList<Double> segments = new ArrayList<>();
 
     @BsonCreator
-    public LapData(@BsonProperty("lapTime") double lapTime,
+    public LapData(
+        @BsonProperty("lapTime") double lapTime,
         @BsonProperty("driverId") String driverId,
         @BsonProperty("segments") ArrayList<Double> segments) {
       this.lapTime = lapTime;
@@ -34,8 +35,7 @@ public class DriverHeatData extends ServerToClientObject {
       }
     }
 
-    public LapData() {
-    }
+    public LapData() {}
 
     public double getLapTime() {
       return lapTime;
@@ -64,15 +64,19 @@ public class DriverHeatData extends ServerToClientObject {
     try {
       String tmpDir = System.getProperty("java.io.tmpdir");
       Path logPath = Paths.get(tmpDir, "race_debug.log");
-      Files.write(logPath, (message + "\n").getBytes(),
-          StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+      Files.write(
+          logPath,
+          (message + "\n").getBytes(),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.APPEND);
     } catch (Exception e) {
       // Ignore
     }
   }
 
   @BsonCreator
-  public DriverHeatData(@BsonProperty("driver") RaceParticipant driver,
+  public DriverHeatData(
+      @BsonProperty("driver") RaceParticipant driver,
       @BsonProperty("actualDriver") Driver actualDriver) {
     super();
     this.driver = driver;
@@ -112,7 +116,11 @@ public class DriverHeatData extends ServerToClientObject {
   }
 
   public void addLap(double lapTime) {
-    laps.add(new LapData(lapTime, actualDriver != null ? actualDriver.getEntityId() : "", new ArrayList<>(segments)));
+    laps.add(
+        new LapData(
+            lapTime,
+            actualDriver != null ? actualDriver.getEntityId() : "",
+            new ArrayList<>(segments)));
     if (bestLapTime == 0.0f || lapTime < bestLapTime) {
       bestLapTime = lapTime;
     }

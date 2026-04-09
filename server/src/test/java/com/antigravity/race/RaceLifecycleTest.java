@@ -46,39 +46,42 @@ public class RaceLifecycleTest {
     when(mockHeatScoring.getFinishValue()).thenReturn(100L);
 
     OverallScoring mockOverallScoring = mock(OverallScoring.class);
-    when(mockOverallScoring.getRankingMethod())
-        .thenReturn(OverallScoring.OverallRanking.LAP_COUNT);
+    when(mockOverallScoring.getRankingMethod()).thenReturn(OverallScoring.OverallRanking.LAP_COUNT);
     when(mockOverallScoring.getTiebreaker())
         .thenReturn(OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race realRaceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(mockHeatScoring)
-        .withOverallScoring(mockOverallScoring)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race realRaceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(mockHeatScoring)
+            .withOverallScoring(mockOverallScoring)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     List<RaceParticipant> drivers = new ArrayList<>();
-    drivers.add(new RaceParticipant(new Driver("Test Driver", "D1", "driver1", new ObjectId()),
-        "participant1"));
+    drivers.add(
+        new RaceParticipant(
+            new Driver("Test Driver", "D1", "driver1", new ObjectId()), "participant1"));
 
     // Initialize the race. Note: this will call createProtocols() internally.
-    race = new com.antigravity.race.Race.Builder()
-        .model(realRaceModel)
-        .drivers(drivers)
-        .track(realTrack)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(realRaceModel)
+            .drivers(drivers)
+            .track(realTrack)
+            .isDemoMode(true)
+            .build();
 
     // Swap the internal protocols with a mock so we can verify the close() call.
     mockProtocols = mock(ProtocolDelegate.class);
     injectProtocols(race, mockProtocols);
   }
 
-  private void injectProtocols(com.antigravity.race.Race race, ProtocolDelegate protocols) throws Exception {
+  private void injectProtocols(com.antigravity.race.Race race, ProtocolDelegate protocols)
+      throws Exception {
     Field protocolsField = com.antigravity.race.Race.class.getDeclaredField("protocols");
     protocolsField.setAccessible(true);
     protocolsField.set(race, protocols);

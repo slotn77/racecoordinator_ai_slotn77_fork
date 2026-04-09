@@ -16,6 +16,7 @@
     "src/**/*_test.ts",
     "src/**/*.mock.ts",
     "src/**/*.harness.ts",
+    "src/**/*.e2e.ts",
     "src/**/*.d.ts"
   ]
 }

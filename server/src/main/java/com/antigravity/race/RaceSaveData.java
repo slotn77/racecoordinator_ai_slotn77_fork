@@ -19,8 +19,7 @@ public class RaceSaveData {
   private boolean autoAdvanceFired;
   private RaceStatistics statistics;
 
-  public RaceSaveData() {
-  }
+  public RaceSaveData() {}
 
   public RaceStatistics getStatistics() {
     return statistics;

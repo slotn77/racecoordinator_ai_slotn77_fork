@@ -67,8 +67,12 @@ public class Demo extends DefaultProtocol {
             pitEntryOffset = 500 + random.nextInt(501);
             pitExitOffset = pitEntryOffset + pitDuration;
             lapsUntilNextPit = 3 + random.nextInt(5);
-            System.out.println("Demo: Lane scheduled for pit stop. Duration: " + pitDuration + "ms, Lap Total: "
-                + targetLapDuration + "ms");
+            System.out.println(
+                "Demo: Lane scheduled for pit stop. Duration: "
+                    + pitDuration
+                    + "ms, Lap Total: "
+                    + targetLapDuration
+                    + "ms");
           } else {
             isPitLap = false;
             targetLapDuration = lapDuration;
@@ -129,15 +133,20 @@ public class Demo extends DefaultProtocol {
     if (statusScheduler == null || statusScheduler.isShutdown()) {
       statusScheduler = createScheduler();
     }
-    statusFuture = statusScheduler.scheduleAtFixedRate(() -> {
-      try {
-        if (listener != null) {
-          listener.onInterfaceStatus(InterfaceStatus.CONNECTED);
-        }
-      } catch (Exception e) {
-        System.err.println("Demo: Error reporting status: " + e.getMessage());
-      }
-    }, 0, 1, TimeUnit.SECONDS);
+    statusFuture =
+        statusScheduler.scheduleAtFixedRate(
+            () -> {
+              try {
+                if (listener != null) {
+                  listener.onInterfaceStatus(InterfaceStatus.CONNECTED);
+                }
+              } catch (Exception e) {
+                System.err.println("Demo: Error reporting status: " + e.getMessage());
+              }
+            },
+            0,
+            1,
+            TimeUnit.SECONDS);
   }
 
   @Override
@@ -153,76 +162,92 @@ public class Demo extends DefaultProtocol {
       state.currentLapStartTime = nowMs - state.currentLapElapsedTime;
     }
 
-    Runnable lapGenerator = new Runnable() {
-      @Override
-      public void run() {
-        try {
-          long nowMs = now();
-          for (int i = 0; i < laneStates.length; i++) {
-            LaneState state = laneStates[i];
-            long totalElapsed = nowMs - state.currentLapStartTime;
+    Runnable lapGenerator =
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              long nowMs = now();
+              for (int i = 0; i < laneStates.length; i++) {
+                LaneState state = laneStates[i];
+                long totalElapsed = nowMs - state.currentLapStartTime;
 
-            if (state.isPitLap) {
-              if (totalElapsed >= state.pitEntryOffset && !state.pitEntrySent) {
-                state.pitEntrySent = true;
-                if (listener != null) {
-                  CarData carData = new CarData(
-                      i, totalElapsed / 1000.0, 0.0, 0.0, true,
-                      CarLocation.PitRow,
-                      CarLocation.Main, 0);
-                  listener.onCarData(carData);
-                }
-              }
-              if (totalElapsed >= state.pitExitOffset && !state.pitExitSent) {
-                state.pitExitSent = true;
-                if (listener != null) {
-                  CarData carData = new CarData(
-                      i, totalElapsed / 1000.0, 0.5, 0.5, false,
-                      CarLocation.Main,
-                      CarLocation.PitRow, 0);
-                  listener.onCarData(carData);
-                }
-              }
-            }
-
-            // Handle segment hits
-            if (!state.isFirstLap) {
-              for (int j = 0; j < state.segmentOffsets.length; j++) {
-                if (state.segmentOffsets[j] > 0 && totalElapsed >= state.segmentOffsets[j] && !state.segmentSent[j]) {
-                  state.segmentSent[j] = true;
-                  if (listener != null) {
-                    int segmentId = 101 + i;
-                    long prevOffset = (j == 0) ? 0 : state.segmentOffsets[j - 1];
-                    listener.onSegment(i, (state.segmentOffsets[j] - prevOffset) / 1000.0, segmentId);
+                if (state.isPitLap) {
+                  if (totalElapsed >= state.pitEntryOffset && !state.pitEntrySent) {
+                    state.pitEntrySent = true;
+                    if (listener != null) {
+                      CarData carData =
+                          new CarData(
+                              i,
+                              totalElapsed / 1000.0,
+                              0.0,
+                              0.0,
+                              true,
+                              CarLocation.PitRow,
+                              CarLocation.Main,
+                              0);
+                      listener.onCarData(carData);
+                    }
+                  }
+                  if (totalElapsed >= state.pitExitOffset && !state.pitExitSent) {
+                    state.pitExitSent = true;
+                    if (listener != null) {
+                      CarData carData =
+                          new CarData(
+                              i,
+                              totalElapsed / 1000.0,
+                              0.5,
+                              0.5,
+                              false,
+                              CarLocation.Main,
+                              CarLocation.PitRow,
+                              0);
+                      listener.onCarData(carData);
+                    }
                   }
                 }
+
+                // Handle segment hits
+                if (!state.isFirstLap) {
+                  for (int j = 0; j < state.segmentOffsets.length; j++) {
+                    if (state.segmentOffsets[j] > 0
+                        && totalElapsed >= state.segmentOffsets[j]
+                        && !state.segmentSent[j]) {
+                      state.segmentSent[j] = true;
+                      if (listener != null) {
+                        int segmentId = 101 + i;
+                        long prevOffset = (j == 0) ? 0 : state.segmentOffsets[j - 1];
+                        listener.onSegment(
+                            i, (state.segmentOffsets[j] - prevOffset) / 1000.0, segmentId);
+                      }
+                    }
+                  }
+                }
+
+                if (totalElapsed >= state.targetLapDuration) {
+                  double lapTime = totalElapsed / 1000.0;
+
+                  if (listener != null) {
+                    int laneInterfaceId = DemoPinId.DEMO_PIN_ID_LANE_BASE_VALUE.getNumber() + i;
+                    listener.onLap(i, lapTime, laneInterfaceId);
+                  }
+
+                  // Reset for next lap
+                  state.currentLapElapsedTime = 0;
+                  // The start time for the next lap is effectively "now"
+                  // but closely aligned to when the previous one finished to avoid drift?
+                  // For simplicity in this demo, just resetting to now is fine,
+                  // or we could add the overshoot to the next lap if we wanted perfect precision.
+                  // Let's stick to "now" for simple restart logic.
+                  state.currentLapStartTime = nowMs;
+                  state.setNextTarget();
+                }
               }
-            }
-
-            if (totalElapsed >= state.targetLapDuration) {
-              double lapTime = totalElapsed / 1000.0;
-
-              if (listener != null) {
-                int laneInterfaceId = DemoPinId.DEMO_PIN_ID_LANE_BASE_VALUE.getNumber() + i;
-                listener.onLap(i, lapTime, laneInterfaceId);
-              }
-
-              // Reset for next lap
-              state.currentLapElapsedTime = 0;
-              // The start time for the next lap is effectively "now"
-              // but closely aligned to when the previous one finished to avoid drift?
-              // For simplicity in this demo, just resetting to now is fine,
-              // or we could add the overshoot to the next lap if we wanted perfect precision.
-              // Let's stick to "now" for simple restart logic.
-              state.currentLapStartTime = nowMs;
-              state.setNextTarget();
+            } catch (Exception e) {
+              e.printStackTrace();
             }
           }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    };
+        };
 
     timerHandle = scheduler.scheduleAtFixedRate(lapGenerator, 0, 50, TimeUnit.MILLISECONDS);
   }

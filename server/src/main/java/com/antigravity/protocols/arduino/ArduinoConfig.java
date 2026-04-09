@@ -62,7 +62,8 @@ public class ArduinoConfig {
       PIN_MODE_MAP.put(PinBehavior.BEHAVIOR_RELAY_BASE.getNumber() + i, PinMode.WRITE);
       PIN_MODE_MAP.put(PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber() + i, PinMode.READ);
       PIN_MODE_MAP.put(PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() + i, PinMode.READ);
-      PIN_MODE_MAP.put(PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE.getNumber() + i, PinMode.READ_ANALOG);
+      PIN_MODE_MAP.put(
+          PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE.getNumber() + i, PinMode.READ_ANALOG);
       PIN_MODE_MAP.put(PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE.getNumber() + i, PinMode.READ);
     }
   }
@@ -98,7 +99,7 @@ public class ArduinoConfig {
   public List<Integer> analogIds;
   public List<LedString> ledStrings;
 
-  @JsonAlias({ "voltage_configs", "voltageConfigs" })
+  @JsonAlias({"voltage_configs", "voltageConfigs"})
   public Map<String, Integer> voltageConfigs = new HashMap<>();
 
   @JsonIgnore
@@ -151,7 +152,8 @@ public class ArduinoConfig {
       @JsonProperty("digitalIds") List<Integer> digitalIds,
       @JsonProperty("analogIds") List<Integer> analogIds,
       @JsonProperty("ledStrings") List<LedString> ledStrings,
-      @JsonProperty("voltageConfigs") @JsonAlias("voltage_configs") Map<String, Integer> voltageConfigs) {
+      @JsonProperty("voltageConfigs") @JsonAlias("voltage_configs")
+          Map<String, Integer> voltageConfigs) {
     this.name = name;
     this.commPort = commPort;
     this.baudRate = baudRate;

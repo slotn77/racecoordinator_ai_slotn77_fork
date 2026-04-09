@@ -25,35 +25,32 @@ public class Starting implements IRaceState {
     race.setAutoStartFired(true);
 
     scheduler = Executors.newScheduledThreadPool(1);
-    final Runnable ticker = new Runnable() {
-      int countdown = 50; // 5 seconds * 10 (100ms interval)
+    final Runnable ticker =
+        new Runnable() {
+          int countdown = 50; // 5 seconds * 10 (100ms interval)
 
-      @Override
-      public void run() {
-        try {
-          float displayTime = countdown / 10.0f;
+          @Override
+          public void run() {
+            try {
+              float displayTime = countdown / 10.0f;
 
-          RaceTime raceTimeMsg = RaceTime.newBuilder()
-              .setTime(displayTime)
-              .build();
+              RaceTime raceTimeMsg = RaceTime.newBuilder().setTime(displayTime).build();
 
-          RaceData raceDataMsg = RaceData.newBuilder()
-              .setRaceTime(raceTimeMsg)
-              .build();
+              RaceData raceDataMsg = RaceData.newBuilder().setRaceTime(raceTimeMsg).build();
 
-          race.broadcast(raceDataMsg);
+              race.broadcast(raceDataMsg);
 
-          countdown--;
+              countdown--;
 
-          if (countdown < 0) {
-            race.changeState(new Racing());
+              if (countdown < 0) {
+                race.changeState(new Racing());
+              }
+            } catch (Exception e) {
+              System.err.println("Error in Starting timer: " + e.getMessage());
+              e.printStackTrace();
+            }
           }
-        } catch (Exception e) {
-          System.err.println("Error in Starting timer: " + e.getMessage());
-          e.printStackTrace();
-        }
-      }
-    };
+        };
     timerHandle = scheduler.scheduleAtFixedRate(ticker, 0, 100, TimeUnit.MILLISECONDS);
   }
 
@@ -70,7 +67,8 @@ public class Starting implements IRaceState {
 
   @Override
   public void nextHeat(Race race) {
-    throw new IllegalStateException("Cannot move to next heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot move to next heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -91,17 +89,20 @@ public class Starting implements IRaceState {
 
   @Override
   public void restartHeat(Race race) {
-    throw new IllegalStateException("Cannot restart heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot restart heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
   public void skipHeat(Race race) {
-    throw new IllegalStateException("Cannot skip heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot skip heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
   public void deferHeat(Race race) {
-    throw new IllegalStateException("Cannot defer heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot defer heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override

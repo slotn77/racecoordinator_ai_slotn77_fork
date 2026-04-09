@@ -110,7 +110,10 @@ public class Race implements ProtocolListener {
         Class<?> clazz = Class.forName(builder.stateClassName);
         this.state = (IRaceState) clazz.getDeclaredConstructor().newInstance();
       } catch (Exception e) {
-        System.err.println("Failed to restore race state: " + builder.stateClassName + ", falling back to NotStarted");
+        System.err.println(
+            "Failed to restore race state: "
+                + builder.stateClassName
+                + ", falling back to NotStarted");
         this.state = new NotStarted();
       }
     } else {
@@ -246,7 +249,8 @@ public class Race implements ProtocolListener {
         }
       } else {
         throw new IllegalArgumentException(
-            "Race created in Real Mode, but no ArduinoConfig found for track: " + this.track.getName());
+            "Race created in Real Mode, but no ArduinoConfig found for track: "
+                + this.track.getName());
       }
     }
     this.protocols = new ProtocolDelegate(protocols_list);
@@ -307,15 +311,14 @@ public class Race implements ProtocolListener {
 
   public void broadcastRaceTime(double autoAdvanceRemaining, double autoStartRemaining) {
     float displayTime = Math.max(0, this.getRaceTime());
-    RaceTime raceTimeMsg = RaceTime.newBuilder()
-        .setTime(displayTime)
-        .setAutoAdvanceRemaining(autoAdvanceRemaining)
-        .setAutoStartRemaining(autoStartRemaining)
-        .build();
+    RaceTime raceTimeMsg =
+        RaceTime.newBuilder()
+            .setTime(displayTime)
+            .setAutoAdvanceRemaining(autoAdvanceRemaining)
+            .setAutoStartRemaining(autoStartRemaining)
+            .build();
 
-    RaceData raceDataMsg = RaceData.newBuilder()
-        .setRaceTime(raceTimeMsg)
-        .build();
+    RaceData raceDataMsg = RaceData.newBuilder().setRaceTime(raceTimeMsg).build();
 
     this.broadcast(raceDataMsg);
   }
@@ -359,15 +362,14 @@ public class Race implements ProtocolListener {
   }
 
   public void broadcastTime() {
-    RaceTime raceTimeMsg = RaceTime.newBuilder()
-        .setTime(this.getRaceTime())
-        .setAutoStartRemaining(this.getAutoStartRemaining())
-        .setAutoAdvanceRemaining(this.getAutoAdvanceRemaining())
-        .build();
+    RaceTime raceTimeMsg =
+        RaceTime.newBuilder()
+            .setTime(this.getRaceTime())
+            .setAutoStartRemaining(this.getAutoStartRemaining())
+            .setAutoAdvanceRemaining(this.getAutoAdvanceRemaining())
+            .build();
 
-    RaceData raceDataMsg = RaceData.newBuilder()
-        .setRaceTime(raceTimeMsg)
-        .build();
+    RaceData raceDataMsg = RaceData.newBuilder().setRaceTime(raceTimeMsg).build();
 
     this.broadcast(raceDataMsg);
   }
@@ -389,9 +391,7 @@ public class Race implements ProtocolListener {
 
     RaceState protoState = getProtoState(state);
 
-    RaceData raceData = RaceData.newBuilder()
-        .setRaceState(protoState)
-        .build();
+    RaceData raceData = RaceData.newBuilder().setRaceState(protoState).build();
     broadcast(raceData);
   }
 
@@ -484,7 +484,9 @@ public class Race implements ProtocolListener {
 
     for (DriverHeatData heatData : currentHeat.getDrivers()) {
       RaceParticipant participant = heatData.getDriver();
-      if (participant == null || participant.getDriver() == null || participant.getDriver().getEntityId() == null) {
+      if (participant == null
+          || participant.getDriver() == null
+          || participant.getDriver().getEntityId() == null) {
         continue;
       }
 
@@ -540,13 +542,12 @@ public class Race implements ProtocolListener {
         sentObjectIds.add(HeatConverter.PARTICIPANT_PREFIX + p.getObjectId());
       }
 
-      com.antigravity.proto.Race raceProto = com.antigravity.proto.Race.newBuilder()
-          .setCurrentHeat(HeatConverter.toProto(currentHeat, sentObjectIds))
-          .build();
+      com.antigravity.proto.Race raceProto =
+          com.antigravity.proto.Race.newBuilder()
+              .setCurrentHeat(HeatConverter.toProto(currentHeat, sentObjectIds))
+              .build();
 
-      broadcast(RaceData.newBuilder()
-          .setRace(raceProto)
-          .build());
+      broadcast(RaceData.newBuilder().setRace(raceProto).build());
 
       // Also broadcast time reset
       broadcastTime();
@@ -565,13 +566,10 @@ public class Race implements ProtocolListener {
       }
     }
 
-    OverallStandingsUpdate update = OverallStandingsUpdate.newBuilder()
-        .addAllParticipants(participants)
-        .build();
+    OverallStandingsUpdate update =
+        OverallStandingsUpdate.newBuilder().addAllParticipants(participants).build();
 
-    RaceData raceData = RaceData.newBuilder()
-        .setOverallStandingsUpdate(update)
-        .build();
+    RaceData raceData = RaceData.newBuilder().setOverallStandingsUpdate(update).build();
 
     broadcast(raceData);
   }
@@ -597,11 +595,10 @@ public class Race implements ProtocolListener {
 
   @Override
   public void onInterfaceStatus(InterfaceStatus status) {
-    InterfaceEvent event = InterfaceEvent.newBuilder()
-        .setStatus(InterfaceStatusEvent.newBuilder()
-            .setStatus(status)
-            .build())
-        .build();
+    InterfaceEvent event =
+        InterfaceEvent.newBuilder()
+            .setStatus(InterfaceStatusEvent.newBuilder().setStatus(status).build())
+            .build();
     // Since this is an InterfaceEvent, we use broadcastInterfaceEvent if available
     // or just broadcast it if it's a generic message.
     // InterfaceEvent is generated from proto.
@@ -626,33 +623,30 @@ public class Race implements ProtocolListener {
   // the race object while we're creating the snapshot.
   public synchronized RaceData createSnapshot() {
     Set<String> sentObjectIds = new HashSet<>();
-    RaceModel raceProto = RaceConverter.toProto(model, track,
-        sentObjectIds);
+    RaceModel raceProto = RaceConverter.toProto(model, track, sentObjectIds);
 
     List<com.antigravity.proto.RaceParticipant> driverModels = new ArrayList<>();
     for (RaceParticipant participant : drivers) {
       if (participant.getDriver() != Driver.EMPTY_DRIVER) {
-        driverModels
-            .add(RaceParticipantConverter.toProto(participant, sentObjectIds));
+        driverModels.add(RaceParticipantConverter.toProto(participant, sentObjectIds));
       }
     }
 
-    List<com.antigravity.proto.Heat> heatProtos = heats.stream()
-        .map(h -> HeatConverter.toProto(h, sentObjectIds))
-        .collect(Collectors.toList());
+    List<com.antigravity.proto.Heat> heatProtos =
+        heats.stream()
+            .map(h -> HeatConverter.toProto(h, sentObjectIds))
+            .collect(Collectors.toList());
 
-    com.antigravity.proto.Race raceUpdate = com.antigravity.proto.Race.newBuilder()
-        .setRace(raceProto)
-        .addAllDrivers(driverModels)
-        .addAllHeats(heatProtos)
-        .setCurrentHeat(
-            HeatConverter.toProto(currentHeat, sentObjectIds))
-        .setState(getProtoState(state))
-        .build();
+    com.antigravity.proto.Race raceUpdate =
+        com.antigravity.proto.Race.newBuilder()
+            .setRace(raceProto)
+            .addAllDrivers(driverModels)
+            .addAllHeats(heatProtos)
+            .setCurrentHeat(HeatConverter.toProto(currentHeat, sentObjectIds))
+            .setState(getProtoState(state))
+            .build();
 
-    return RaceData.newBuilder()
-        .setRace(raceUpdate)
-        .build();
+    return RaceData.newBuilder().setRace(raceUpdate).build();
   }
 
   public void moveToNextHeat() {

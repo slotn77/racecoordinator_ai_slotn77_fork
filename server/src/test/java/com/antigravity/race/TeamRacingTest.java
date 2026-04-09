@@ -30,27 +30,30 @@ public class TeamRacingTest {
 
   @Before
   public void setUp() {
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Team Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Team Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     participants = new ArrayList<>();
 
@@ -75,15 +78,21 @@ public class TeamRacingTest {
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
     lanes.add(new Lane("blue", "black", 100));
-    track = new Track("Test Track", lanes, Collections.singletonList(mock(ArduinoConfig.class)), "track1",
-        new ObjectId());
+    track =
+        new Track(
+            "Test Track",
+            lanes,
+            Collections.singletonList(mock(ArduinoConfig.class)),
+            "track1",
+            new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 
   @Test

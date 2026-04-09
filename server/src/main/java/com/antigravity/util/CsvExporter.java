@@ -33,10 +33,14 @@ public class CsvExporter {
       sb.append("#Lane,Color,Foreground,Length\n");
       for (int i = 0; i < track.getLanes().size(); i++) {
         Lane lane = track.getLanes().get(i);
-        sb.append(i + 1).append(",")
-            .append(escape(lane.getBackground_color())).append(",")
-            .append(escape(lane.getForeground_color())).append(",")
-            .append(lane.getLength()).append("\n");
+        sb.append(i + 1)
+            .append(",")
+            .append(escape(lane.getBackground_color()))
+            .append(",")
+            .append(escape(lane.getForeground_color()))
+            .append(",")
+            .append(lane.getLength())
+            .append("\n");
       }
       sb.append("\n");
     }
@@ -71,7 +75,8 @@ public class CsvExporter {
       sb.append("Start Time,").append(escape(stats.getStartTime())).append("\n");
       String endTime = stats.getEndTime() != null ? stats.getEndTime() : "N/A";
       sb.append("End Time,").append(escape(endTime)).append("\n");
-      String duration = stats.getEndTime() != null ? String.valueOf(stats.getDurationMillis()) : "N/A";
+      String duration =
+          stats.getEndTime() != null ? String.valueOf(stats.getDurationMillis()) : "N/A";
       sb.append("Duration (ms),").append(duration).append("\n");
       sb.append("Yellow Flags,").append(stats.getYellowFlagCount()).append("\n");
       sb.append("Total Paused Time (ms),").append(stats.getTotalPausedTimeMillis()).append("\n");
@@ -94,20 +99,34 @@ public class CsvExporter {
         gapLeader = Math.abs(leader.getRankValue() - p.getRankValue());
         gapPosition = Math.abs(prev.getRankValue() - p.getRankValue());
       }
-      sb.append(p.getRank()).append(",")
-          .append(p.getSeed()).append(",")
-          .append(escape(p.getDriver() != null ? p.getDriver().getName() : "N/A")).append(",")
-          .append(
-              escape(p.getDriver() != null && p.getDriver().getNickname() != null ? p.getDriver().getNickname() : ""))
+      sb.append(p.getRank())
           .append(",")
-          .append(p.getTotalLaps()).append(",")
-          .append(p.getTotalTime()).append(",")
-          .append(p.getRankValue()).append(",")
-          .append(gapLeader).append(",")
-          .append(gapPosition).append(",")
-          .append(p.getBestLapTime()).append(",")
-          .append(p.getAverageLapTime()).append(",")
-          .append(p.getMedianLapTime()).append("\n");
+          .append(p.getSeed())
+          .append(",")
+          .append(escape(p.getDriver() != null ? p.getDriver().getName() : "N/A"))
+          .append(",")
+          .append(
+              escape(
+                  p.getDriver() != null && p.getDriver().getNickname() != null
+                      ? p.getDriver().getNickname()
+                      : ""))
+          .append(",")
+          .append(p.getTotalLaps())
+          .append(",")
+          .append(p.getTotalTime())
+          .append(",")
+          .append(p.getRankValue())
+          .append(",")
+          .append(gapLeader)
+          .append(",")
+          .append(gapPosition)
+          .append(",")
+          .append(p.getBestLapTime())
+          .append(",")
+          .append(p.getAverageLapTime())
+          .append(",")
+          .append(p.getMedianLapTime())
+          .append("\n");
     }
     sb.append("\n");
 
@@ -127,13 +146,18 @@ public class CsvExporter {
         if (hStats != null) {
           hStartTime = hStats.getStartTime() != null ? hStats.getStartTime() : "N/A";
           hEndTime = hStats.getEndTime() != null ? hStats.getEndTime() : "N/A";
-          hDuration = hStats.getEndTime() != null ? String.valueOf(hStats.getDurationMillis()) : "N/A";
+          hDuration =
+              hStats.getEndTime() != null ? String.valueOf(hStats.getDurationMillis()) : "N/A";
         }
 
-        sb.append(hIdx + 1).append(",")
-            .append(escape(hStartTime)).append(",")
-            .append(escape(hEndTime)).append(",")
-            .append(hDuration).append("\n\n");
+        sb.append(hIdx + 1)
+            .append(",")
+            .append(escape(hStartTime))
+            .append(",")
+            .append(escape(hEndTime))
+            .append(",")
+            .append(hDuration)
+            .append("\n\n");
         sb.append(
             "#Lane,Driver,Nickname,Reaction Time,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Total Laps\n");
         for (int lIdx = 0; lIdx < heat.getDrivers().size(); lIdx++) {
@@ -145,22 +169,37 @@ public class CsvExporter {
             nickname = "N/A";
           } else if (dhd.getActualDriver() != null) {
             driverName = dhd.getActualDriver().getName();
-            nickname = dhd.getActualDriver().getNickname() != null ? dhd.getActualDriver().getNickname() : "";
+            nickname =
+                dhd.getActualDriver().getNickname() != null
+                    ? dhd.getActualDriver().getNickname()
+                    : "";
           } else if (dhd.getDriver() != null && dhd.getDriver().getDriver() != null) {
             driverName = dhd.getDriver().getDriver().getName();
-            nickname = dhd.getDriver().getDriver().getNickname() != null ? dhd.getDriver().getDriver().getNickname()
-                : "";
+            nickname =
+                dhd.getDriver().getDriver().getNickname() != null
+                    ? dhd.getDriver().getDriver().getNickname()
+                    : "";
           }
-          sb.append(lIdx + 1).append(",")
-              .append(escape(driverName)).append(",")
-              .append(escape(nickname)).append(",")
-              .append(dhd.getReactionTime()).append(",")
-              .append(dhd.getGapLeader()).append(",")
-              .append(dhd.getGapPosition()).append(",")
-              .append(dhd.getBestLapTime()).append(",")
-              .append(dhd.getAverageLapTime()).append(",")
-              .append(dhd.getMedianLapTime()).append(",")
-              .append(dhd.getLapCount()).append("\n");
+          sb.append(lIdx + 1)
+              .append(",")
+              .append(escape(driverName))
+              .append(",")
+              .append(escape(nickname))
+              .append(",")
+              .append(dhd.getReactionTime())
+              .append(",")
+              .append(dhd.getGapLeader())
+              .append(",")
+              .append(dhd.getGapPosition())
+              .append(",")
+              .append(dhd.getBestLapTime())
+              .append(",")
+              .append(dhd.getAverageLapTime())
+              .append(",")
+              .append(dhd.getMedianLapTime())
+              .append(",")
+              .append(dhd.getLapCount())
+              .append("\n");
 
           // Lap Data
           int maxSegments = dhd.getSegments().size();
@@ -180,7 +219,8 @@ public class CsvExporter {
             Map<String, Driver> driverLookup = new HashMap<>();
             if (dhd.getDriver() != null) {
               if (dhd.getDriver().getDriver() != null) {
-                driverLookup.put(dhd.getDriver().getDriver().getEntityId(), dhd.getDriver().getDriver());
+                driverLookup.put(
+                    dhd.getDriver().getDriver().getEntityId(), dhd.getDriver().getDriver());
               }
               if (dhd.getDriver().getTeamDrivers() != null) {
                 for (Driver td : dhd.getDriver().getTeamDrivers()) {
@@ -204,11 +244,17 @@ public class CsvExporter {
                 LapData lap = dhd.getLaps().get(lapIdx);
                 Driver lapDriver = driverLookup.get(lap.getDriverId());
                 String lapDriverName = lapDriver != null ? lapDriver.getName() : "Unknown";
-                String lapNickname = (lapDriver != null && lapDriver.getNickname() != null) ? lapDriver.getNickname() : "";
+                String lapNickname =
+                    (lapDriver != null && lapDriver.getNickname() != null)
+                        ? lapDriver.getNickname()
+                        : "";
 
-                sb.append(lapIdx + 1).append(",")
-                    .append(escape(lapDriverName)).append(",")
-                    .append(escape(lapNickname)).append(",")
+                sb.append(lapIdx + 1)
+                    .append(",")
+                    .append(escape(lapDriverName))
+                    .append(",")
+                    .append(escape(lapNickname))
+                    .append(",")
                     .append(lap.getLapTime());
 
                 if (hasSegments) {

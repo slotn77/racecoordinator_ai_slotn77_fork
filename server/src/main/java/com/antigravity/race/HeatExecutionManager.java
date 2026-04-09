@@ -55,8 +55,10 @@ public class HeatExecutionManager {
     handleRefueling(delta);
   }
 
-  public void onLap(int lane, double lapTime, int interfaceId, boolean ignoreTeamLimits, boolean checkFinish) {
-    System.out.println("HeatExecutionManager: Received onLap for lane " + lane + " time " + lapTime);
+  public void onLap(
+      int lane, double lapTime, int interfaceId, boolean ignoreTeamLimits, boolean checkFinish) {
+    System.out.println(
+        "HeatExecutionManager: Received onLap for lane " + lane + " time " + lapTime);
 
     DriverHeatData driverData = validateInput(lane);
     if (driverData == null) {
@@ -77,8 +79,15 @@ public class HeatExecutionManager {
     if (minLapTime > 0) {
       driverData.addPendingLapTime(lapTime);
       if (driverData.getPendingLapTime() < minLapTime) {
-        System.out.println("HeatExecutionManager: Lane " + lane + " lap time " + lapTime
-            + " is below min " + minLapTime + ". Accumulated: " + driverData.getPendingLapTime());
+        System.out.println(
+            "HeatExecutionManager: Lane "
+                + lane
+                + " lap time "
+                + lapTime
+                + " is below min "
+                + minLapTime
+                + ". Accumulated: "
+                + driverData.getPendingLapTime());
         return;
       }
       double finalLapTime = driverData.getPendingLapTime();
@@ -103,17 +112,22 @@ public class HeatExecutionManager {
         } else {
           if (driverData.getLapCount() >= scoring.getFinishValue()) {
             driverFinished = true;
-          } else if (scoring.getAllowFinish() == AllowFinish.SingleLap && !finishedLanes.isEmpty()) {
+          } else if (scoring.getAllowFinish() == AllowFinish.SingleLap
+              && !finishedLanes.isEmpty()) {
             driverFinished = true;
           }
         }
 
         if (driverFinished) {
           finishedLanes.add(lane);
-          System.out
-              .println("HeatExecutionManager: Driver " + driverData.getDriver().getDriver().getName()
+          System.out.println(
+              "HeatExecutionManager: Driver "
+                  + driverData.getDriver().getDriver().getName()
                   + " finished on lane "
-                  + lane + " (" + driverData.getLapCount() + " laps)");
+                  + lane
+                  + " ("
+                  + driverData.getLapCount()
+                  + " laps)");
 
           if (allowFinish == AllowFinish.None
               || finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
@@ -133,7 +147,8 @@ public class HeatExecutionManager {
   }
 
   public void onSegment(int lane, double segmentTime, int interfaceId) {
-    System.out.println("HeatExecutionManager: Received onSegment for lane " + lane + " time " + segmentTime);
+    System.out.println(
+        "HeatExecutionManager: Received onSegment for lane " + lane + " time " + segmentTime);
 
     DriverHeatData driverData = validateInput(lane);
     if (driverData == null) {
@@ -141,23 +156,24 @@ public class HeatExecutionManager {
     }
 
     if (driverData.getReactionTime() == 0.0f) {
-      System.out
-          .println("HeatExecutionManager: Ignored onSegment - Driver on lane " + lane + " has not set reaction time");
+      System.out.println(
+          "HeatExecutionManager: Ignored onSegment - Driver on lane "
+              + lane
+              + " has not set reaction time");
       return;
     }
 
     driverData.addSegment(segmentTime);
 
-    Segment segmentMsg = Segment.newBuilder()
-        .setObjectId(driverData.getObjectId())
-        .setSegmentTime(segmentTime)
-        .setSegmentNumber(driverData.getSegments().size())
-        .setInterfaceId(interfaceId)
-        .build();
+    Segment segmentMsg =
+        Segment.newBuilder()
+            .setObjectId(driverData.getObjectId())
+            .setSegmentTime(segmentTime)
+            .setSegmentNumber(driverData.getSegments().size())
+            .setInterfaceId(interfaceId)
+            .build();
 
-    RaceData segmentDataMsg = RaceData.newBuilder()
-        .setSegment(segmentMsg)
-        .build();
+    RaceData segmentDataMsg = RaceData.newBuilder().setSegment(segmentMsg).build();
 
     this.race.broadcast(segmentDataMsg);
   }
@@ -174,7 +190,10 @@ public class HeatExecutionManager {
       return;
     }
 
-    if (finishedLanes == null || refuelDelayRemaining == null || isRefueling == null || accumulatedRefuelTime == null) {
+    if (finishedLanes == null
+        || refuelDelayRemaining == null
+        || isRefueling == null
+        || accumulatedRefuelTime == null) {
       return;
     }
 
@@ -212,15 +231,10 @@ public class HeatExecutionManager {
           participant.setFuelLevel(newFuel);
 
           // Broadcast fuel update using CarData instead of Lap
-          CarData fuelMsg = CarData.newBuilder()
-              .setLane(i)
-              .setFuelLevel(newFuel)
-              .setIsRefueling(true)
-              .build();
+          CarData fuelMsg =
+              CarData.newBuilder().setLane(i).setFuelLevel(newFuel).setIsRefueling(true).build();
 
-          RaceData fuelDataMsg = RaceData.newBuilder()
-              .setCarData(fuelMsg)
-              .build();
+          RaceData fuelDataMsg = RaceData.newBuilder().setCarData(fuelMsg).build();
 
           race.broadcast(fuelDataMsg);
 
@@ -253,10 +267,11 @@ public class HeatExecutionManager {
     }
 
     CarLocation loc = carData.getLocation();
-    boolean inPit = loc == CarLocation.PitRow
-        || (loc.getValue() >= CarLocation.PitBayBase.getValue()
-            && loc.getValue() < CarLocation.PitBayBase.getValue()
-                + race.getTrack().getLanes().size());
+    boolean inPit =
+        loc == CarLocation.PitRow
+            || (loc.getValue() >= CarLocation.PitBayBase.getValue()
+                && loc.getValue()
+                    < CarLocation.PitBayBase.getValue() + race.getTrack().getLanes().size());
     boolean canRefuel = carData.getCanRefuel();
 
     if (inPit && canRefuel) {
@@ -265,8 +280,11 @@ public class HeatExecutionManager {
         DriverHeatData driverData = race.getCurrentHeat().getDrivers().get(lane);
         if (driverData.getDriver().getFuelLevel() < fuelOptions.getCapacity()) {
           refuelDelayRemaining[lane] = fuelOptions.getPitStopDelay();
-          System.out.println("HeatExecutionManager: Lane " + lane + " in pit and can refuel. Starting delay: "
-              + refuelDelayRemaining[lane]);
+          System.out.println(
+              "HeatExecutionManager: Lane "
+                  + lane
+                  + " in pit and can refuel. Starting delay: "
+                  + refuelDelayRemaining[lane]);
         }
       }
     } else {
@@ -274,7 +292,10 @@ public class HeatExecutionManager {
       if (isRefueling[lane] || refuelDelayRemaining[lane] >= 0) {
         isRefueling[lane] = false;
         refuelDelayRemaining[lane] = -1.0;
-        System.out.println("HeatExecutionManager: Lane " + lane + " refueling stopped (left pit or canRefuel=false).");
+        System.out.println(
+            "HeatExecutionManager: Lane "
+                + lane
+                + " refueling stopped (left pit or canRefuel=false).");
       }
     }
   }
@@ -309,7 +330,8 @@ public class HeatExecutionManager {
         break;
     }
 
-    double finalUsagePerSec = Double.isNaN(val) || Double.isInfinite(val) ? 0.0 : Math.max(0.0, Math.min(val, 100.0));
+    double finalUsagePerSec =
+        Double.isNaN(val) || Double.isInfinite(val) ? 0.0 : Math.max(0.0, Math.min(val, 100.0));
     double consumed = finalUsagePerSec * carData.getTime();
 
     double currentFuel = driverData.getDriver().getFuelLevel();
@@ -318,20 +340,31 @@ public class HeatExecutionManager {
 
     if (consumed > 0) {
       System.out.println(
-          "HeatExecutionManager: Lane " + lane + " (digital) consumed " + consumed + " fuel. Throttle: " + throttle
-              + " UsageRate: " + usageRate + " New level: " + newFuel);
+          "HeatExecutionManager: Lane "
+              + lane
+              + " (digital) consumed "
+              + consumed
+              + " fuel. Throttle: "
+              + throttle
+              + " UsageRate: "
+              + usageRate
+              + " New level: "
+              + newFuel);
     }
 
     if (newFuel <= 0 && fuelOptions.isEndHeatOnOutOfFuel()) {
-      System.out.println("HeatExecutionManager: Lane " + lane + " (digital) out of fuel. Turning off power.");
+      System.out.println(
+          "HeatExecutionManager: Lane " + lane + " (digital) out of fuel. Turning off power.");
       this.race.setLanePower(false, lane);
     }
   }
 
   private DriverHeatData validateInput(int lane) {
     if (finishedLanes.contains(lane)) {
-      System.out
-          .println("HeatExecutionManager: Ignored onLap/onSegment - Driver on lane " + lane + " already finished");
+      System.out.println(
+          "HeatExecutionManager: Ignored onLap/onSegment - Driver on lane "
+              + lane
+              + " already finished");
       return null;
     }
 
@@ -341,8 +374,10 @@ public class HeatExecutionManager {
       if (heat != null && lane >= 0 && lane < heat.getDrivers().size()) {
         DriverHeatData driverData = heat.getDrivers().get(lane);
         if (driverData.getDriver().getFuelLevel() <= 0) {
-          System.out
-              .println("HeatExecutionManager: Ignored onLap/onSegment - Driver on lane " + lane + " is out of fuel");
+          System.out.println(
+              "HeatExecutionManager: Ignored onLap/onSegment - Driver on lane "
+                  + lane
+                  + " is out of fuel");
           return null;
         }
       }
@@ -361,7 +396,9 @@ public class HeatExecutionManager {
     }
 
     DriverHeatData driverData = drivers.get(lane);
-    if (driverData == null || driverData.getDriver() == null || driverData.getDriver().getDriver() == null
+    if (driverData == null
+        || driverData.getDriver() == null
+        || driverData.getDriver().getDriver() == null
         || driverData.getDriver().getDriver().getEntityId() == null) {
       System.out.println("HeatExecutionManager: Ignored onLap/onSegment - Invalid driver/entity");
       return null;
@@ -398,11 +435,13 @@ public class HeatExecutionManager {
       }
 
       if (options.getHeatLapLimit() > 0 && heatLaps >= options.getHeatLapLimit()) {
-        System.out.println("HeatExecutionManager: Team limits - Heat Lap Limit reached for " + driverId);
+        System.out.println(
+            "HeatExecutionManager: Team limits - Heat Lap Limit reached for " + driverId);
         return true;
       }
       if (options.getHeatTimeLimit() > 0 && (heatTime + lapTime) > options.getHeatTimeLimit()) {
-        System.out.println("HeatExecutionManager: Team limits - Heat Time Limit reached for " + driverId);
+        System.out.println(
+            "HeatExecutionManager: Team limits - Heat Time Limit reached for " + driverId);
         return true;
       }
     }
@@ -424,11 +463,14 @@ public class HeatExecutionManager {
       }
 
       if (options.getOverallLapLimit() > 0 && overallLaps >= options.getOverallLapLimit()) {
-        System.out.println("HeatExecutionManager: Team limits - Overall Lap Limit reached for " + driverId);
+        System.out.println(
+            "HeatExecutionManager: Team limits - Overall Lap Limit reached for " + driverId);
         return true;
       }
-      if (options.getOverallTimeLimit() > 0 && (overallTime + lapTime) > options.getOverallTimeLimit()) {
-        System.out.println("HeatExecutionManager: Team limits - Overall Time Limit reached for " + driverId);
+      if (options.getOverallTimeLimit() > 0
+          && (overallTime + lapTime) > options.getOverallTimeLimit()) {
+        System.out.println(
+            "HeatExecutionManager: Team limits - Overall Time Limit reached for " + driverId);
         return true;
       }
     }
@@ -436,30 +478,29 @@ public class HeatExecutionManager {
     return false;
   }
 
-  private boolean handleReactionTime(DriverHeatData driverData, double lapTime, int lane,
-      int interfaceId) {
+  private boolean handleReactionTime(
+      DriverHeatData driverData, double lapTime, int lane, int interfaceId) {
     if (driverData.getReactionTime() == 0.0f) {
       driverData.setReactionTime(lapTime);
 
-      ReactionTime rtMsg = ReactionTime.newBuilder()
-          .setObjectId(driverData.getObjectId())
-          .setReactionTime(lapTime)
-          .setInterfaceId(interfaceId)
-          .build();
+      ReactionTime rtMsg =
+          ReactionTime.newBuilder()
+              .setObjectId(driverData.getObjectId())
+              .setReactionTime(lapTime)
+              .setInterfaceId(interfaceId)
+              .build();
 
-      RaceData rtDataMsg = RaceData.newBuilder()
-          .setReactionTime(rtMsg)
-          .build();
+      RaceData rtDataMsg = RaceData.newBuilder().setReactionTime(rtMsg).build();
 
       this.race.broadcast(rtDataMsg);
-      System.out.println("HeatExecutionManager: Broadcasted reaction time for lane " + lane + ": " + lapTime);
+      System.out.println(
+          "HeatExecutionManager: Broadcasted reaction time for lane " + lane + ": " + lapTime);
 
-      StandingsUpdate standingsUpdate = this.race.getCurrentHeat().getHeatStandings()
-          .updateStandings();
+      StandingsUpdate standingsUpdate =
+          this.race.getCurrentHeat().getHeatStandings().updateStandings();
       if (standingsUpdate != null) {
-        RaceData standingsDataMsg = RaceData.newBuilder()
-            .setStandingsUpdate(standingsUpdate)
-            .build();
+        RaceData standingsDataMsg =
+            RaceData.newBuilder().setStandingsUpdate(standingsUpdate).build();
         this.race.broadcast(standingsDataMsg);
       }
 
@@ -468,8 +509,7 @@ public class HeatExecutionManager {
     return false;
   }
 
-  private void handleLapTime(DriverHeatData driverData, double lapTime, int lane,
-      int interfaceId) {
+  private void handleLapTime(DriverHeatData driverData, double lapTime, int lane, int interfaceId) {
     double effectiveLapTime = lapTime;
     if (driverData.getLapCount() == 0) {
       effectiveLapTime += driverData.getReactionTime();
@@ -481,31 +521,30 @@ public class HeatExecutionManager {
     // high if the driver has technical issues at the start of the heat.
     handleAnalogFuelLapTime(driverData, effectiveLapTime - driverData.getReactionTime(), lane);
 
-    Lap lapMsg = Lap.newBuilder()
-        .setObjectId(driverData.getObjectId())
-        .setLapTime(effectiveLapTime)
-        .setLapNumber(driverData.getLapCount())
-        .setAverageLapTime(driverData.getAverageLapTime())
-        .setMedianLapTime(driverData.getMedianLapTime())
-        .setBestLapTime(driverData.getBestLapTime())
-        .setInterfaceId(interfaceId)
-        .setDriverId(driverData.getActualDriver() != null ? driverData.getActualDriver().getEntityId() : "")
-        .setFuelLevel(driverData.getDriver().getFuelLevel())
-        .build();
+    Lap lapMsg =
+        Lap.newBuilder()
+            .setObjectId(driverData.getObjectId())
+            .setLapTime(effectiveLapTime)
+            .setLapNumber(driverData.getLapCount())
+            .setAverageLapTime(driverData.getAverageLapTime())
+            .setMedianLapTime(driverData.getMedianLapTime())
+            .setBestLapTime(driverData.getBestLapTime())
+            .setInterfaceId(interfaceId)
+            .setDriverId(
+                driverData.getActualDriver() != null
+                    ? driverData.getActualDriver().getEntityId()
+                    : "")
+            .setFuelLevel(driverData.getDriver().getFuelLevel())
+            .build();
 
-    RaceData lapDataMsg = RaceData.newBuilder()
-        .setLap(lapMsg)
-        .build();
+    RaceData lapDataMsg = RaceData.newBuilder().setLap(lapMsg).build();
 
     this.race.broadcast(lapDataMsg);
 
-    StandingsUpdate standingsUpdate = this.race.getCurrentHeat().getHeatStandings().onLap(
-        lane,
-        effectiveLapTime);
+    StandingsUpdate standingsUpdate =
+        this.race.getCurrentHeat().getHeatStandings().onLap(lane, effectiveLapTime);
     if (standingsUpdate != null) {
-      RaceData standingsDataMsg = RaceData.newBuilder()
-          .setStandingsUpdate(standingsUpdate)
-          .build();
+      RaceData standingsDataMsg = RaceData.newBuilder().setStandingsUpdate(standingsUpdate).build();
       this.race.broadcast(standingsDataMsg);
     }
 
@@ -561,7 +600,14 @@ public class HeatExecutionManager {
     double newFuel = Math.max(0, currentFuel - lapFuelUsed);
     driverData.getDriver().setFuelLevel(newFuel);
 
-    System.out.println("HeatExecutionManager: Lane " + lane + " fuel level: " + newFuel + " (used " + lapFuelUsed + ")");
+    System.out.println(
+        "HeatExecutionManager: Lane "
+            + lane
+            + " fuel level: "
+            + newFuel
+            + " (used "
+            + lapFuelUsed
+            + ")");
 
     if (newFuel <= 0 && fuelOptions.isEndHeatOnOutOfFuel()) {
       System.out.println("HeatExecutionManager: Lane " + lane + " out of fuel. Turning off power.");

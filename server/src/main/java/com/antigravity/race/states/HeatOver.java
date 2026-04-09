@@ -55,7 +55,8 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void start(Race race) {
-    throw new IllegalStateException("Cannot start race: Race is not in NotStarted or Paused state.");
+    throw new IllegalStateException(
+        "Cannot start race: Race is not in NotStarted or Paused state.");
   }
 
   @Override
@@ -75,70 +76,69 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void deferHeat(Race race) {
-    throw new IllegalStateException("Cannot defer heat: Race is not in NotStarted or Paused state.");
+    throw new IllegalStateException(
+        "Cannot defer heat: Race is not in NotStarted or Paused state.");
   }
 
   @Override
-  public void onLap(int lane, double lapTime, int interfaceId) {
-  }
+  public void onLap(int lane, double lapTime, int interfaceId) {}
 
   @Override
-  public void onSegment(int lane, double segmentTime, int interfaceId) {
-  }
+  public void onSegment(int lane, double segmentTime, int interfaceId) {}
 
   @Override
-  public void onCarData(CarData carData) {
-  }
+  public void onCarData(CarData carData) {}
 
   private void startAutoAdvanceTimer(final Race race) {
     scheduler = Executors.newScheduledThreadPool(1);
-    final Runnable ticker = new Runnable() {
-      long lastTime = 0;
+    final Runnable ticker =
+        new Runnable() {
+          long lastTime = 0;
 
-      @Override
-      public void run() {
-        try {
-          long now = System.nanoTime();
-          if (lastTime == 0) {
-            lastTime = now;
-            return;
-          }
-
-          double delta = (now - lastTime) / 1_000_000_000.0;
-          lastTime = now;
-
-          double remaining = race.getAutoAdvanceRemaining() - delta;
-          if (remaining <= 0) {
-            remaining = 0;
-            race.setAutoAdvanceRemaining(0);
-            broadcastTime(race);
-            stopTimer();
-            race.setAutoAdvanceFired(true);
-            race.moveToNextHeat();
-          } else {
-            race.setAutoAdvanceRemaining(remaining);
-
-            // Handle warmup time power logic
-            double warmupTime = race.getRaceModel().getAutoAdvanceWarmupTime();
-            if (warmupTime > 0) {
-              if (remaining <= warmupTime) {
-                if (!race.isMainPower()) {
-                  race.setMainPower(true);
-                }
-              } else {
-                if (race.isMainPower()) {
-                  race.setMainPower(false);
-                }
+          @Override
+          public void run() {
+            try {
+              long now = System.nanoTime();
+              if (lastTime == 0) {
+                lastTime = now;
+                return;
               }
-            }
 
-            broadcastTime(race);
+              double delta = (now - lastTime) / 1_000_000_000.0;
+              lastTime = now;
+
+              double remaining = race.getAutoAdvanceRemaining() - delta;
+              if (remaining <= 0) {
+                remaining = 0;
+                race.setAutoAdvanceRemaining(0);
+                broadcastTime(race);
+                stopTimer();
+                race.setAutoAdvanceFired(true);
+                race.moveToNextHeat();
+              } else {
+                race.setAutoAdvanceRemaining(remaining);
+
+                // Handle warmup time power logic
+                double warmupTime = race.getRaceModel().getAutoAdvanceWarmupTime();
+                if (warmupTime > 0) {
+                  if (remaining <= warmupTime) {
+                    if (!race.isMainPower()) {
+                      race.setMainPower(true);
+                    }
+                  } else {
+                    if (race.isMainPower()) {
+                      race.setMainPower(false);
+                    }
+                  }
+                }
+
+                broadcastTime(race);
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    };
+        };
     timerHandle = scheduler.scheduleAtFixedRate(ticker, 0, 100, TimeUnit.MILLISECONDS);
   }
 

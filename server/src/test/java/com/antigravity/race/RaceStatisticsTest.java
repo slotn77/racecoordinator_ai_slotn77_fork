@@ -34,26 +34,29 @@ public class RaceStatisticsTest {
 
   @Before
   public void setUp() {
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        1L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            1L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race1")
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race1")
+            .build();
 
     participants = new ArrayList<>();
     participants.add(new RaceParticipant(new Driver("Driver 1", "D1", "d1", new ObjectId()), "p1"));
@@ -62,12 +65,13 @@ public class RaceStatisticsTest {
     lanes.add(new Lane("red", "black", 100));
     track = new Track("Test Track", lanes, new ArrayList<>(), "track1", new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 
   @Test
@@ -120,7 +124,8 @@ public class RaceStatisticsTest {
     assertTrue(csv.contains("Start Time," + stats.getStartTime()));
     assertTrue(csv.contains("End Time," + stats.getEndTime()));
     assertTrue(csv.contains("Duration (ms)," + stats.getDurationMillis()));
-    assertFalse("Race duration in CSV should not be N/A",
+    assertFalse(
+        "Race duration in CSV should not be N/A",
         csv.contains("End Time," + stats.getEndTime() + "\nDuration (ms),N/A"));
     assertTrue(csv.contains("Yellow Flags,1"));
     assertTrue(csv.contains("Total Paused Time (ms)," + stats.getTotalPausedTimeMillis()));
@@ -128,9 +133,13 @@ public class RaceStatisticsTest {
 
     // Heat stats in CSV
     assertTrue(csv.contains("#Heat, Start Time, End Time, Duration\n"));
-    String heatStats = "1," + escape(race.getCurrentHeat().getStatistics().getStartTime()) + ","
-        + escape(race.getCurrentHeat().getStatistics().getEndTime()) + ","
-        + race.getCurrentHeat().getStatistics().getDurationMillis();
+    String heatStats =
+        "1,"
+            + escape(race.getCurrentHeat().getStatistics().getStartTime())
+            + ","
+            + escape(race.getCurrentHeat().getStatistics().getEndTime())
+            + ","
+            + race.getCurrentHeat().getStatistics().getDurationMillis();
     assertTrue(csv.contains(heatStats));
   }
 
@@ -179,7 +188,8 @@ public class RaceStatisticsTest {
     // Transition back to Racing state as if we're starting again
     race.changeState(new Racing());
 
-    assertEquals("Heat start time should be preserved after restart",
+    assertEquals(
+        "Heat start time should be preserved after restart",
         initialHeatStart,
         race.getCurrentHeat().getStatistics().getStartTime());
   }
@@ -204,16 +214,17 @@ public class RaceStatisticsTest {
     saveData.setStateClassName(race.getState().getClass().getName());
 
     // 3. Simulate Restore
-    com.antigravity.race.Race restoredRace = new com.antigravity.race.Race.Builder()
-        .model(saveData.getModel())
-        .track(saveData.getTrack())
-        .drivers(saveData.getDrivers())
-        .heats(saveData.getHeats())
-        .statistics(saveData.getStatistics())
-        .currentHeatIndex(saveData.getCurrentHeatIndex())
-        .stateClassName(saveData.getStateClassName())
-        .isDemoMode(true)
-        .build();
+    com.antigravity.race.Race restoredRace =
+        new com.antigravity.race.Race.Builder()
+            .model(saveData.getModel())
+            .track(saveData.getTrack())
+            .drivers(saveData.getDrivers())
+            .heats(saveData.getHeats())
+            .statistics(saveData.getStatistics())
+            .currentHeatIndex(saveData.getCurrentHeatIndex())
+            .stateClassName(saveData.getStateClassName())
+            .isDemoMode(true)
+            .build();
 
     // 4. Verify
     assertNotNull(restoredRace.getStatistics());
@@ -236,16 +247,17 @@ public class RaceStatisticsTest {
     saveData.setStateClassName(NotStarted.class.getName());
 
     // 2. Restore
-    com.antigravity.race.Race restoredRace = new com.antigravity.race.Race.Builder()
-        .model(saveData.getModel())
-        .track(saveData.getTrack())
-        .drivers(saveData.getDrivers())
-        .heats(saveData.getHeats())
-        .statistics(saveData.getStatistics())
-        .currentHeatIndex(saveData.getCurrentHeatIndex())
-        .stateClassName(saveData.getStateClassName())
-        .isDemoMode(true)
-        .build();
+    com.antigravity.race.Race restoredRace =
+        new com.antigravity.race.Race.Builder()
+            .model(saveData.getModel())
+            .track(saveData.getTrack())
+            .drivers(saveData.getDrivers())
+            .heats(saveData.getHeats())
+            .statistics(saveData.getStatistics())
+            .currentHeatIndex(saveData.getCurrentHeatIndex())
+            .stateClassName(saveData.getStateClassName())
+            .isDemoMode(true)
+            .build();
 
     // 3. Verify it doesn't crash and has default statistics
     assertNotNull(restoredRace.getStatistics());

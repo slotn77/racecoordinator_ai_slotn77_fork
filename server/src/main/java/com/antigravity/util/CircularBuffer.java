@@ -2,9 +2,7 @@ package com.antigravity.util;
 
 import java.nio.BufferOverflowException;
 
-/**
- * A thread-safe circular buffer for bytes.
- */
+/** A thread-safe circular buffer for bytes. */
 public class CircularBuffer {
 
   private final byte[] buffer;
@@ -56,37 +54,27 @@ public class CircularBuffer {
     return b;
   }
 
-  /**
-   * Returns the number of bytes currently in the buffer.
-   */
+  /** Returns the number of bytes currently in the buffer. */
   public synchronized int size() {
     return count;
   }
 
-  /**
-   * Returns the total capacity of the buffer.
-   */
+  /** Returns the total capacity of the buffer. */
   public synchronized int capacity() {
     return capacity;
   }
 
-  /**
-   * Returns true if the buffer is empty.
-   */
+  /** Returns true if the buffer is empty. */
   public synchronized boolean isEmpty() {
     return count == 0;
   }
 
-  /**
-   * Returns true if the buffer is full.
-   */
+  /** Returns true if the buffer is full. */
   public synchronized boolean isFull() {
     return count == capacity;
   }
 
-  /**
-   * Clears the buffer.
-   */
+  /** Clears the buffer. */
   public synchronized void clear() {
     head = 0;
     tail = 0;

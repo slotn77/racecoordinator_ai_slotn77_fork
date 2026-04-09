@@ -9,9 +9,7 @@ public class LaneConverter {
   public static LaneModel toProto(Lane lane, Set<String> sentObjectIds) {
     String key = "Lane_" + lane.getObjectId();
     if (sentObjectIds.contains(key)) {
-      return LaneModel.newBuilder()
-          .setObjectId(lane.getObjectId())
-          .build();
+      return LaneModel.newBuilder().setObjectId(lane.getObjectId()).build();
     } else {
       sentObjectIds.add(key);
       return LaneModel.newBuilder()

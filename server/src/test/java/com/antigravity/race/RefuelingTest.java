@@ -39,56 +39,67 @@ public class RefuelingTest {
 
   @Before
   public void setUp() {
-    fuelOptions = new AnalogFuelOptions(
-        true, // enabled
-        false, // resetFuelAtStart
-        false, // endHeatOnOutOfFuel
-        100.0, // capacity
-        AnalogFuelOptions.FuelUsageType.LINEAR,
-        4.0, // usageRate
-        100.0, // startLevel
-        20.0, // refuelRate (20 units per second)
-        1.0, // pitStopDelay (1 second)
-        6.0 // referenceTime
-    );
+    fuelOptions =
+        new AnalogFuelOptions(
+            true, // enabled
+            false, // resetFuelAtStart
+            false, // endHeatOnOutOfFuel
+            100.0, // capacity
+            AnalogFuelOptions.FuelUsageType.LINEAR,
+            4.0, // usageRate
+            100.0, // startLevel
+            20.0, // refuelRate (20 units per second)
+            1.0, // pitStopDelay (1 second)
+            6.0 // referenceTime
+            );
 
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        10L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            10L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withFuelOptions(fuelOptions)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withFuelOptions(fuelOptions)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     participants = new ArrayList<>();
     participants.add(new RaceParticipant(new Driver("Driver 1", "D1", "d1", new ObjectId()), "p1"));
 
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
-    track = new Track("Test Track", lanes, Collections.singletonList(mock(ArduinoConfig.class)), "track1",
-        new ObjectId());
+    track =
+        new Track(
+            "Test Track",
+            lanes,
+            Collections.singletonList(mock(ArduinoConfig.class)),
+            "track1",
+            new ObjectId());
 
-    race = spy(new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build());
+    race =
+        spy(
+            new com.antigravity.race.Race.Builder()
+                .model(raceModel)
+                .drivers(participants)
+                .track(track)
+                .isDemoMode(true)
+                .build());
     race.getHeatExecutionManager().setRace(race);
     racing = new Racing();
     race.changeState(racing);
@@ -96,7 +107,7 @@ public class RefuelingTest {
     // Ensure starting fuel is less than capacity for refueling tests
     race.getCurrentHeat().getDrivers().get(0).getDriver().setFuelLevel(50.0);
   }
-  
+
   @After
   public void tearDown() {
     if (racing != null) {
@@ -122,7 +133,8 @@ public class RefuelingTest {
     // Wait another 0.6s - total 1.1s, refueling should have started (delay was 1.0s)
     // At 20 units/sec, in 0.1s it should have added ~2 units.
     race.getHeatExecutionManager().processTicker(0.6f);
-    double fuelAfterRefuelStart = race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel();
+    double fuelAfterRefuelStart =
+        race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel();
     assertTrue("Fuel should have increased", fuelAfterRefuelStart > 50.0);
 
     // Verify broadcast occurred
@@ -143,8 +155,11 @@ public class RefuelingTest {
     double fuelAtExit = race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel();
 
     race.getHeatExecutionManager().processTicker(0.5f);
-    assertEquals("Fuel should stop increasing after leaving pit", fuelAtExit,
-        race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(), 0.001);
+    assertEquals(
+        "Fuel should stop increasing after leaving pit",
+        fuelAtExit,
+        race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(),
+        0.001);
 
     // 3. Stop refueling by canRefuel = false
     racing.onCarData(pitEntry); // Re-enter
@@ -152,13 +167,17 @@ public class RefuelingTest {
     double fuelReEntry = race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel();
     assertTrue(fuelReEntry > fuelAtExit);
 
-    CarData cannotRefuel = new CarData(0, 4.0, 0.0, 0.0, false, CarLocation.PitRow, CarLocation.PitRow, 0);
+    CarData cannotRefuel =
+        new CarData(0, 4.0, 0.0, 0.0, false, CarLocation.PitRow, CarLocation.PitRow, 0);
     racing.onCarData(cannotRefuel);
     double fuelAtDisable = race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel();
 
     race.getHeatExecutionManager().processTicker(0.5f);
-    assertEquals("Fuel should stop increasing when canRefuel is false", fuelAtDisable,
-        race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(), 0.001);
+    assertEquals(
+        "Fuel should stop increasing when canRefuel is false",
+        fuelAtDisable,
+        race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(),
+        0.001);
   }
 
   @Test
@@ -170,6 +189,7 @@ public class RefuelingTest {
     // 1.0s delay + 0.5s refueling @ 20/s = 10 units. Total should be capped at 100.
     race.getHeatExecutionManager().processTicker(1.5f);
 
-    assertEquals(100.0, race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(), 0.001);
+    assertEquals(
+        100.0, race.getCurrentHeat().getDrivers().get(0).getDriver().getFuelLevel(), 0.001);
   }
 }

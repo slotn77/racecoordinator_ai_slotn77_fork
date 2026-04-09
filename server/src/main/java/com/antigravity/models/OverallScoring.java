@@ -41,7 +41,8 @@ public class OverallScoring {
 
   @BsonCreator
   @JsonCreator
-  public OverallScoring(@BsonProperty("dropped_heats") @JsonProperty("dropped_heats") int droppedHeats,
+  public OverallScoring(
+      @BsonProperty("dropped_heats") @JsonProperty("dropped_heats") int droppedHeats,
       @BsonProperty("ranking_method") @JsonProperty("ranking_method") OverallRanking rankingMethod,
       @BsonProperty("tiebreaker") @JsonProperty("tiebreaker") OverallRankingTiebreaker tiebreaker) {
     this.droppedHeats = droppedHeats;

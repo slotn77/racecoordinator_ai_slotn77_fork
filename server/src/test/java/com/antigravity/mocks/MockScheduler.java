@@ -17,8 +17,8 @@ public class MockScheduler implements ScheduledExecutorService {
   public boolean shutdown = false;
 
   @Override
-  public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period,
-      TimeUnit unit) {
+  public ScheduledFuture<?> scheduleAtFixedRate(
+      Runnable command, long initialDelay, long period, TimeUnit unit) {
     this.commands.add(command);
     return null; // For this test we don't strictly need the future yet
   }
@@ -36,7 +36,8 @@ public class MockScheduler implements ScheduledExecutorService {
   }
 
   @Override
-  public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+  public ScheduledFuture<?> scheduleWithFixedDelay(
+      Runnable command, long initialDelay, long delay, TimeUnit unit) {
     return null;
   }
 
@@ -88,8 +89,9 @@ public class MockScheduler implements ScheduledExecutorService {
   }
 
   @Override
-  public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout,
-      TimeUnit unit) throws InterruptedException {
+  public <T> List<Future<T>> invokeAll(
+      Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+      throws InterruptedException {
     return null;
   }
 
@@ -106,8 +108,7 @@ public class MockScheduler implements ScheduledExecutorService {
   }
 
   @Override
-  public void execute(Runnable command) {
-  }
+  public void execute(Runnable command) {}
 
   public void tick() {
     if (!shutdown) {

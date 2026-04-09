@@ -35,7 +35,8 @@ public class OverallStandings {
 
     // 2. Aggregate stats for each driver
     for (RaceParticipant driver : drivers) {
-      List<DriverHeatData> myHeats = driverHeats.getOrDefault(driver.getObjectId(), new ArrayList<>());
+      List<DriverHeatData> myHeats =
+          driverHeats.getOrDefault(driver.getObjectId(), new ArrayList<>());
       List<DriverHeatData> scoringHeats = getScoringHeats(myHeats);
 
       int totalLaps = 0;
@@ -72,7 +73,8 @@ public class OverallStandings {
         if (allScoringLaps.size() % 2 == 1) {
           driver.setMedianLapTime(allScoringLaps.get(middle));
         } else {
-          driver.setMedianLapTime((allScoringLaps.get(middle - 1) + allScoringLaps.get(middle)) / 2.0);
+          driver.setMedianLapTime(
+              (allScoringLaps.get(middle - 1) + allScoringLaps.get(middle)) / 2.0);
         }
       } else {
         driver.setAverageLapTime(0.0);
@@ -142,7 +144,9 @@ public class OverallStandings {
           break;
         case FASTEST_LAP:
           // Lower time = better
-          comparator = Comparator.comparingDouble(d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
+          comparator =
+              Comparator.comparingDouble(
+                  d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
           break;
         case TOTAL_TIME:
           // Lower time = better
@@ -156,16 +160,19 @@ public class OverallStandings {
       if (heatScoring.getHeatRankingTiebreaker() != null) {
         switch (heatScoring.getHeatRankingTiebreaker()) {
           case FASTEST_LAP_TIME:
-            comparator = comparator
-                .thenComparingDouble(d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
+            comparator =
+                comparator.thenComparingDouble(
+                    d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
             break;
           case MEDIAN_LAP_TIME:
-            comparator = comparator
-                .thenComparingDouble(d -> d.getMedianLapTime() == 0 ? Double.MAX_VALUE : d.getMedianLapTime());
+            comparator =
+                comparator.thenComparingDouble(
+                    d -> d.getMedianLapTime() == 0 ? Double.MAX_VALUE : d.getMedianLapTime());
             break;
           case AVERAGE_LAP_TIME:
-            comparator = comparator
-                .thenComparingDouble(d -> d.getAverageLapTime() == 0 ? Double.MAX_VALUE : d.getAverageLapTime());
+            comparator =
+                comparator.thenComparingDouble(
+                    d -> d.getAverageLapTime() == 0 ? Double.MAX_VALUE : d.getAverageLapTime());
             break;
           default:
             break;
@@ -173,8 +180,10 @@ public class OverallStandings {
       }
     } else {
       // Default to Lap Count
-      comparator = Comparator.comparingInt(DriverHeatData::getLapCount).reversed()
-          .thenComparingDouble(DriverHeatData::getTotalTime);
+      comparator =
+          Comparator.comparingInt(DriverHeatData::getLapCount)
+              .reversed()
+              .thenComparingDouble(DriverHeatData::getTotalTime);
     }
     return comparator;
   }
@@ -200,14 +209,17 @@ public class OverallStandings {
           comparator = Comparator.comparingInt(RaceParticipant::getTotalLaps).reversed();
           break;
         case FASTEST_LAP:
-          comparator = Comparator.comparingDouble(p -> p.getBestLapTime() == 0 ? Double.MAX_VALUE : p.getBestLapTime());
+          comparator =
+              Comparator.comparingDouble(
+                  p -> p.getBestLapTime() == 0 ? Double.MAX_VALUE : p.getBestLapTime());
           break;
         case TOTAL_TIME:
           comparator = Comparator.comparingDouble(RaceParticipant::getTotalTime);
           break;
         case AVERAGE_LAP:
-          comparator = Comparator
-              .comparingDouble(p -> p.getAverageLapTime() == 0 ? Double.MAX_VALUE : p.getAverageLapTime());
+          comparator =
+              Comparator.comparingDouble(
+                  p -> p.getAverageLapTime() == 0 ? Double.MAX_VALUE : p.getAverageLapTime());
           break;
         default:
           comparator = (a, b) -> 0;
@@ -228,11 +240,14 @@ public class OverallStandings {
     }
     switch (overallScoring.getTiebreaker()) {
       case FASTEST_LAP_TIME:
-        return Comparator.comparingDouble(p -> p.getBestLapTime() == 0 ? Double.MAX_VALUE : p.getBestLapTime());
+        return Comparator.comparingDouble(
+            p -> p.getBestLapTime() == 0 ? Double.MAX_VALUE : p.getBestLapTime());
       case MEDIAN_LAP_TIME:
-        return Comparator.comparingDouble(p -> p.getMedianLapTime() == 0 ? Double.MAX_VALUE : p.getMedianLapTime());
+        return Comparator.comparingDouble(
+            p -> p.getMedianLapTime() == 0 ? Double.MAX_VALUE : p.getMedianLapTime());
       case AVERAGE_LAP_TIME:
-        return Comparator.comparingDouble(p -> p.getAverageLapTime() == 0 ? Double.MAX_VALUE : p.getAverageLapTime());
+        return Comparator.comparingDouble(
+            p -> p.getAverageLapTime() == 0 ? Double.MAX_VALUE : p.getAverageLapTime());
       case TOTAL_TIME:
         return Comparator.comparingDouble(RaceParticipant::getTotalTime);
       default:

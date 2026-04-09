@@ -34,8 +34,11 @@ public class DatabaseContext {
   private final ServerConfigService configService;
   private final String dataRoot;
 
-  public DatabaseContext(MongoClient mongoClient, String initialDatabaseName,
-      ServerConfigService configService, String dataRoot) {
+  public DatabaseContext(
+      MongoClient mongoClient,
+      String initialDatabaseName,
+      ServerConfigService configService,
+      String dataRoot) {
     this.mongoClient = mongoClient;
     this.configService = configService;
     this.dataRoot = dataRoot.endsWith(File.separator) ? dataRoot : dataRoot + File.separator;
@@ -78,7 +81,8 @@ public class DatabaseContext {
     }
     File assetDir = new File(dataRoot + databaseName + "/assets");
     if (!assetDir.exists() && !assetDir.mkdirs()) {
-      throw new RuntimeException("Failed to create assets directory: " + assetDir.getAbsolutePath());
+      throw new RuntimeException(
+          "Failed to create assets directory: " + assetDir.getAbsolutePath());
     }
     System.out.println("Created database: " + databaseName + " at " + assetDir.getAbsolutePath());
   }
@@ -159,8 +163,7 @@ public class DatabaseContext {
       if (sourceFile.isDirectory()) {
         copyDirectory(sourceFile, targetFile);
       } else {
-        Files.copy(sourceFile.toPath(), targetFile.toPath(),
-            StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
       }
     }
   }
@@ -215,7 +218,8 @@ public class DatabaseContext {
     }
     sizeBytes += assetSizeBytes;
 
-    return new DatabaseStats(dbName, driverCount, teamCount, trackCount, raceCount, assetCount, sizeBytes);
+    return new DatabaseStats(
+        dbName, driverCount, teamCount, trackCount, raceCount, assetCount, sizeBytes);
   }
 
   public void exportDatabase(String dbName, OutputStream out) throws IOException {
@@ -246,7 +250,8 @@ public class DatabaseContext {
     }
   }
 
-  private void addDirectoryToZip(ZipOutputStream zos, File dir, String baseName) throws IOException {
+  private void addDirectoryToZip(ZipOutputStream zos, File dir, String baseName)
+      throws IOException {
     File[] files = dir.listFiles();
     if (files == null) {
       return;
@@ -330,8 +335,14 @@ public class DatabaseContext {
     public long assetCount;
     public double sizeBytes;
 
-    public DatabaseStats(String name, long driverCount, long teamCount, long trackCount, long raceCount,
-        long assetCount, double sizeBytes) {
+    public DatabaseStats(
+        String name,
+        long driverCount,
+        long teamCount,
+        long trackCount,
+        long raceCount,
+        long assetCount,
+        double sizeBytes) {
       this.name = name;
       this.driverCount = driverCount;
       this.teamCount = teamCount;

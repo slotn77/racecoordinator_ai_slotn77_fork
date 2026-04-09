@@ -38,14 +38,15 @@ public class ClientSubscriptionManager {
   private DatabaseContext databaseContext;
   private volatile boolean isShuttingDown = false;
   private final Set<WsContext> sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
-  private final Set<WsContext> raceDataSubscribers = Collections.newSetFromMap(new ConcurrentHashMap<>());
-  private final Set<WsContext> interfaceSubscribers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+  private final Set<WsContext> raceDataSubscribers =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
+  private final Set<WsContext> interfaceSubscribers =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
   private ScheduledFuture<?> cleanupFuture;
   private long cleanupGracePeriodSeconds = 10;
 
-  private ClientSubscriptionManager() {
-  }
+  private ClientSubscriptionManager() {}
 
   public static synchronized ClientSubscriptionManager getInstance() {
     if (instance == null) {
@@ -82,7 +83,6 @@ public class ClientSubscriptionManager {
     if (this.currentRace != null) {
       System.out.println("New race set. Clients must explicitly subscribe to race data.");
     }
-
   }
 
   public synchronized Race getRace() {
@@ -124,8 +124,11 @@ public class ClientSubscriptionManager {
   public void removeSession(WsContext ctx) {
     sessions.remove(ctx);
     raceDataSubscribers.remove(ctx);
-    System.out.println("WebSocket session removed. Total sessions: " + sessions.size() + ", Subscribers: "
-        + raceDataSubscribers.size());
+    System.out.println(
+        "WebSocket session removed. Total sessions: "
+            + sessions.size()
+            + ", Subscribers: "
+            + raceDataSubscribers.size());
 
     checkAndStopRace();
   }
@@ -133,23 +136,28 @@ public class ClientSubscriptionManager {
   public void addInterfaceSession(WsContext ctx) {
     sessions.add(ctx);
     interfaceSubscribers.add(ctx);
-    System.out.println("New Interface WebSocket session added. Total sessions: " + sessions.size()
-        + ", Interface Subscribers: "
-        + interfaceSubscribers.size());
+    System.out.println(
+        "New Interface WebSocket session added. Total sessions: "
+            + sessions.size()
+            + ", Interface Subscribers: "
+            + interfaceSubscribers.size());
   }
 
   public void removeInterfaceSession(WsContext ctx) {
     sessions.remove(ctx);
     interfaceSubscribers.remove(ctx);
     System.out.println(
-        "Interface WebSocket session removed. Total sessions: " + sessions.size() + ", Interface Subscribers: "
+        "Interface WebSocket session removed. Total sessions: "
+            + sessions.size()
+            + ", Interface Subscribers: "
             + interfaceSubscribers.size());
     checkAndCloseProtocol();
   }
 
   private void checkAndCloseProtocol() {
     if (interfaceSubscribers.isEmpty() && currentProtocol != null && currentRace == null) {
-      System.out.println("Last interested interface client disconnected. Closing current protocol.");
+      System.out.println(
+          "Last interested interface client disconnected. Closing current protocol.");
       try {
         currentProtocol.close();
       } catch (Exception e) {
@@ -164,7 +172,8 @@ public class ClientSubscriptionManager {
     if (request.getSubscribe()) {
       cancelPendingCleanup();
       raceDataSubscribers.add(ctx);
-      System.out.println("Client subscribed to race data. Subscribers: " + raceDataSubscribers.size());
+      System.out.println(
+          "Client subscribed to race data. Subscribers: " + raceDataSubscribers.size());
       // Send current state immediately upon subscription if race exists
       if (currentRace != null) {
         RaceData snapshot = currentRace.createSnapshot();
@@ -172,7 +181,8 @@ public class ClientSubscriptionManager {
       }
     } else {
       raceDataSubscribers.remove(ctx);
-      System.out.println("Client unsubscribed from race data. Subscribers: " + raceDataSubscribers.size());
+      System.out.println(
+          "Client unsubscribed from race data. Subscribers: " + raceDataSubscribers.size());
       checkAndStopRace();
     }
   }
@@ -184,10 +194,16 @@ public class ClientSubscriptionManager {
           performCleanup();
         } else if (cleanupFuture == null || cleanupFuture.isDone()) {
           System.out.println(
-              "No subscribers left. Scheduling race cleanup in " + cleanupGracePeriodSeconds + " seconds...");
-          cleanupFuture = scheduler.schedule(() -> {
-            performCleanup();
-          }, cleanupGracePeriodSeconds, TimeUnit.SECONDS);
+              "No subscribers left. Scheduling race cleanup in "
+                  + cleanupGracePeriodSeconds
+                  + " seconds...");
+          cleanupFuture =
+              scheduler.schedule(
+                  () -> {
+                    performCleanup();
+                  },
+                  cleanupGracePeriodSeconds,
+                  TimeUnit.SECONDS);
         }
       } else {
         System.out.println("Server is shutting down, preserving race state and auto-save.");
@@ -197,7 +213,8 @@ public class ClientSubscriptionManager {
 
   private synchronized void performCleanup() {
     if (raceDataSubscribers.isEmpty() && currentRace != null) {
-      System.out.println("Last interested client disconnected/unsubscribed. Stopping and clearing current race.");
+      System.out.println(
+          "Last interested client disconnected/unsubscribed. Stopping and clearing current race.");
       deleteAutoSave(currentRace.getRaceModel().getEntityId());
       setRace(null);
     }
@@ -273,19 +290,21 @@ public class ClientSubscriptionManager {
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     SimpleModule module = new SimpleModule();
-    module.addSerializer(ObjectId.class,
+    module.addSerializer(
+        ObjectId.class,
         new JsonSerializer<ObjectId>() {
           @Override
-          public void serialize(ObjectId value, JsonGenerator gen,
-              SerializerProvider serializers) throws IOException {
+          public void serialize(ObjectId value, JsonGenerator gen, SerializerProvider serializers)
+              throws IOException {
             gen.writeString(value.toHexString());
           }
         });
-    module.addDeserializer(ObjectId.class,
+    module.addDeserializer(
+        ObjectId.class,
         new JsonDeserializer<ObjectId>() {
           @Override
-          public ObjectId deserialize(JsonParser p,
-              DeserializationContext ctxt) throws IOException {
+          public ObjectId deserialize(JsonParser p, DeserializationContext ctxt)
+              throws IOException {
             String value = p.getValueAsString();
             if (value == null || value.isEmpty()) {
               return null;
@@ -314,9 +333,10 @@ public class ClientSubscriptionManager {
 
     raceDataSubscribers.stream()
         .filter(ctx -> ctx.session.isOpen())
-        .forEach(ctx -> {
-          ctx.send(ByteBuffer.wrap(bytes));
-        });
+        .forEach(
+            ctx -> {
+              ctx.send(ByteBuffer.wrap(bytes));
+            });
   }
 
   public void broadcastInterfaceEvent(InterfaceEvent event) {
@@ -325,16 +345,21 @@ public class ClientSubscriptionManager {
     }
 
     if (event.hasStatus()) {
-      System.out.println("DEBUG: Broadcasting Interface Status: " + event.getStatus().getStatus() + " to "
-          + interfaceSubscribers.size() + " subscribers");
+      System.out.println(
+          "DEBUG: Broadcasting Interface Status: "
+              + event.getStatus().getStatus()
+              + " to "
+              + interfaceSubscribers.size()
+              + " subscribers");
     }
 
     byte[] bytes = event.toByteArray();
 
     interfaceSubscribers.stream()
         .filter(ctx -> ctx.session.isOpen())
-        .forEach(ctx -> {
-          ctx.send(ByteBuffer.wrap(bytes));
-        });
+        .forEach(
+            ctx -> {
+              ctx.send(ByteBuffer.wrap(bytes));
+            });
   }
 }

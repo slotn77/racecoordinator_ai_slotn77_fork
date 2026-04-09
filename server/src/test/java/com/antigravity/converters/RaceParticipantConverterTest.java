@@ -17,7 +17,8 @@ public class RaceParticipantConverterTest {
   @Test
   public void testToProto_Individual() {
     Driver driver = new Driver("Alice", "The Rocket", "d1", new ObjectId());
-    com.antigravity.race.RaceParticipant participant = new com.antigravity.race.RaceParticipant(driver, "p1");
+    com.antigravity.race.RaceParticipant participant =
+        new com.antigravity.race.RaceParticipant(driver, "p1");
     Set<String> sentObjectIds = new HashSet<>();
 
     RaceParticipant proto = RaceParticipantConverter.toProto(participant, sentObjectIds);
@@ -32,8 +33,10 @@ public class RaceParticipantConverterTest {
 
   @Test
   public void testToProto_Team() {
-    Team team = new Team("Team Alpha", "avatar_url", Arrays.asList("d1", "d2"), "t1", new ObjectId());
-    com.antigravity.race.RaceParticipant participant = new com.antigravity.race.RaceParticipant(team);
+    Team team =
+        new Team("Team Alpha", "avatar_url", Arrays.asList("d1", "d2"), "t1", new ObjectId());
+    com.antigravity.race.RaceParticipant participant =
+        new com.antigravity.race.RaceParticipant(team);
     Set<String> sentObjectIds = new HashSet<>();
 
     RaceParticipant proto = RaceParticipantConverter.toProto(participant, sentObjectIds);

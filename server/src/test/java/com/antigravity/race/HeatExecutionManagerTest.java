@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.antigravity.models.AnalogFuelOptions;
 import com.antigravity.models.Driver;
@@ -38,27 +37,30 @@ public class HeatExecutionManagerTest {
 
   @Before
   public void setUp() {
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     participants = new ArrayList<>();
     participants.add(new RaceParticipant(new Driver("Driver 1", "D1", "d1", new ObjectId()), "p1"));
@@ -67,15 +69,21 @@ public class HeatExecutionManagerTest {
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
     lanes.add(new Lane("blue", "black", 100));
-    track = new Track("Test Track", lanes, Collections.singletonList(mock(ArduinoConfig.class)), "track1",
-        new ObjectId());
+    track =
+        new Track(
+            "Test Track",
+            lanes,
+            Collections.singletonList(mock(ArduinoConfig.class)),
+            "track1",
+            new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     // Manager is already initialized by Race constructor, but we want a clean state
     executionManager.initialize(track.getLanes().size());
@@ -93,27 +101,30 @@ public class HeatExecutionManagerTest {
 
   @Test
   public void testLapRace_AllowFinish_Allow_EndsOnLastDriver() {
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.Allow);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.Allow);
 
     // We need to re-create the race to update the scoring
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withEntityId("race1")
-        .build();
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withEntityId("race1")
+            .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -136,20 +147,22 @@ public class HeatExecutionManagerTest {
   @Test
   public void testMinLapTime_AccumulatesLaps() {
     double minLapTime = 10.0;
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withMinLapTime(minLapTime)
-        .withEntityId("race1")
-        .build();
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withMinLapTime(minLapTime)
+            .withEntityId("race1")
+            .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -167,31 +180,43 @@ public class HeatExecutionManagerTest {
     executionManager.onLap(0, 7.0, 1, false, true);
     assertEquals(1, race.getCurrentHeat().getDrivers().get(0).getLapCount());
     // The lap time should be 12.0s (1.0s reaction + 4.0s + 7.0s accumulated)
-    assertEquals(12.0, race.getCurrentHeat().getDrivers().get(0).getLaps().get(0).getLapTime(), 0.001);
+    assertEquals(
+        12.0, race.getCurrentHeat().getDrivers().get(0).getLaps().get(0).getLapTime(), 0.001);
   }
 
   @Test
   public void testFuelConsumption_Linear() {
-    AnalogFuelOptions fuelOptions = new AnalogFuelOptions(
-        true, false, false, 100.0, AnalogFuelOptions.FuelUsageType.LINEAR, 4.0, 100.0, 10.0, 2.0,
-        5.0);
+    AnalogFuelOptions fuelOptions =
+        new AnalogFuelOptions(
+            true,
+            false,
+            false,
+            100.0,
+            AnalogFuelOptions.FuelUsageType.LINEAR,
+            4.0,
+            100.0,
+            10.0,
+            2.0,
+            5.0);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withFuelOptions(fuelOptions)
-        .withEntityId("race1")
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withFuelOptions(fuelOptions)
+            .withEntityId("race1")
+            .build();
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -231,26 +256,28 @@ public class HeatExecutionManagerTest {
     // Setup team with strict limits: 1 lap, 10 seconds total time
     TeamOptions teamOptions = new TeamOptions(1, 0.0, 0, 10.0, false);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withEntityId("race1")
-        .withTeamOptions(teamOptions)
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withEntityId("race1")
+            .withTeamOptions(teamOptions)
+            .build();
 
     Team mockTeam = new Team("Team A", null, null, "t1", new ObjectId());
     RaceParticipant teamParticipant = new RaceParticipant(mockTeam);
     participants.clear();
     participants.add(teamParticipant);
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -259,7 +286,8 @@ public class HeatExecutionManagerTest {
 
     // Warmup lap handling (ignoreTeamLimits = true, checkFinish = false)
     executionManager.onLap(0, 1.0, 1, true, false); // Reaction
-    executionManager.onLap(0, 20.0, 1, true, false); // Lap 1 (both limits exceeded: 1 lap and 10s time)
+    executionManager.onLap(
+        0, 20.0, 1, true, false); // Lap 1 (both limits exceeded: 1 lap and 10s time)
     executionManager.onLap(0, 20.0, 1, true, false); // Lap 2 (should STILL be counted)
 
     assertEquals(2, driverData.getLapCount());
@@ -269,26 +297,29 @@ public class HeatExecutionManagerTest {
   @Test
   public void testWarmup_NeverFinishes() {
     // Setup 3 lap race
-    heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        3L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            3L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withEntityId("race1")
-        .build();
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withEntityId("race1")
+            .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -305,23 +336,34 @@ public class HeatExecutionManagerTest {
 
   @Test
   public void testWarmup_Refueling() {
-    AnalogFuelOptions fuelOptions = new AnalogFuelOptions(
-        true, false, false, 100.0, AnalogFuelOptions.FuelUsageType.LINEAR, 4.0, 100.0, 10.0, 2.0,
-        5.0);
+    AnalogFuelOptions fuelOptions =
+        new AnalogFuelOptions(
+            true,
+            false,
+            false,
+            100.0,
+            AnalogFuelOptions.FuelUsageType.LINEAR,
+            4.0,
+            100.0,
+            10.0,
+            2.0,
+            5.0);
 
-    Race raceModel = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track1")
-        .withFuelOptions(fuelOptions)
-        .withEntityId("race1")
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track1")
+            .withFuelOptions(fuelOptions)
+            .withEntityId("race1")
+            .build();
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
     executionManager = race.getHeatExecutionManager();
     executionManager.initialize(track.getLanes().size());
 
@@ -329,9 +371,7 @@ public class HeatExecutionManagerTest {
     driverData.getDriver().setFuelLevel(50.0);
 
     // Enter pit
-    CarData pitData = new CarData(
-        0, 0, 0, 0, true, CarLocation.PitRow,
-        CarLocation.PitRow, -1);
+    CarData pitData = new CarData(0, 0, 0, 0, true, CarLocation.PitRow, CarLocation.PitRow, -1);
 
     executionManager.handlePitDetection(pitData);
 

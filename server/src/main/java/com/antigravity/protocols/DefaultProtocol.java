@@ -18,8 +18,7 @@ public abstract class DefaultProtocol implements IProtocol {
   }
 
   @Override
-  public void startTimer() {
-  }
+  public void startTimer() {}
 
   @Override
   public List<PartialTime> stopTimer() {
@@ -27,8 +26,7 @@ public abstract class DefaultProtocol implements IProtocol {
   }
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 
   @Override
   public boolean hasPerLaneRelays() {
@@ -41,12 +39,10 @@ public abstract class DefaultProtocol implements IProtocol {
   }
 
   @Override
-  public void setMainPower(boolean on) {
-  }
+  public void setMainPower(boolean on) {}
 
   @Override
-  public void setLanePower(boolean on, int lane) {
-  }
+  public void setLanePower(boolean on, int lane) {}
 
   @Override
   public boolean hasMainRelay() {

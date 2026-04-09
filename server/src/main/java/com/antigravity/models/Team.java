@@ -16,7 +16,8 @@ public class Team extends Model {
   private final List<String> driverIds;
 
   @BsonCreator
-  public Team(@BsonProperty("name") @JsonProperty("name") String name,
+  public Team(
+      @BsonProperty("name") @JsonProperty("name") String name,
       @BsonProperty("avatarUrl") @JsonProperty("avatarUrl") String avatarUrl,
       @BsonProperty("driverIds") @JsonProperty("driverIds") List<String> driverIds,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
@@ -32,8 +33,12 @@ public class Team extends Model {
   }
 
   public Team(TeamModel model) {
-    this(model.getName(), model.getAvatarUrl(), model.getDriverIdsList(),
-        model.getModel().getEntityId(), null);
+    this(
+        model.getName(),
+        model.getAvatarUrl(),
+        model.getDriverIdsList(),
+        model.getModel().getEntityId(),
+        null);
   }
 
   public String getName() {
@@ -49,9 +54,10 @@ public class Team extends Model {
   }
 
   public TeamModel toProto() {
-    com.antigravity.proto.Model modelProto = com.antigravity.proto.Model.newBuilder()
-        .setEntityId(getEntityId() != null ? getEntityId() : "")
-        .build();
+    com.antigravity.proto.Model modelProto =
+        com.antigravity.proto.Model.newBuilder()
+            .setEntityId(getEntityId() != null ? getEntityId() : "")
+            .build();
 
     return TeamModel.newBuilder()
         .setModel(modelProto)

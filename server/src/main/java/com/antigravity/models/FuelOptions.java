@@ -59,8 +59,16 @@ public abstract class FuelOptions {
     this.pitStopDelay = 2.0;
   }
 
-  public FuelOptions(boolean enabled, boolean resetFuelAtHeatStart, boolean endHeatOnOutOfFuel, double capacity,
-      FuelUsageType usageType, double usageRate, double startLevel, double refuelRate, double pitStopDelay) {
+  public FuelOptions(
+      boolean enabled,
+      boolean resetFuelAtHeatStart,
+      boolean endHeatOnOutOfFuel,
+      double capacity,
+      FuelUsageType usageType,
+      double usageRate,
+      double startLevel,
+      double refuelRate,
+      double pitStopDelay) {
     this.enabled = enabled;
     this.resetFuelAtHeatStart = resetFuelAtHeatStart;
     this.endHeatOnOutOfFuel = endHeatOnOutOfFuel;

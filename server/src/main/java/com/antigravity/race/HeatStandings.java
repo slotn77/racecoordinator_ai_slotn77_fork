@@ -27,9 +27,8 @@ public class HeatStandings {
   }
 
   public void reset() {
-    this.currentStandings = this.driverHeatData.stream()
-        .map(DriverHeatData::getObjectId)
-        .collect(Collectors.toList());
+    this.currentStandings =
+        this.driverHeatData.stream().map(DriverHeatData::getObjectId).collect(Collectors.toList());
   }
 
   public List<String> getStandings() {
@@ -52,17 +51,19 @@ public class HeatStandings {
     // client
     for (int i = 0; i < newStandings.size(); i++) {
       String objectId = newStandings.get(i);
-      DriverHeatData dhd = driverHeatData.stream()
-          .filter(d -> d.getObjectId().equals(objectId))
-          .findFirst()
-          .orElse(null);
+      DriverHeatData dhd =
+          driverHeatData.stream()
+              .filter(d -> d.getObjectId().equals(objectId))
+              .findFirst()
+              .orElse(null);
       if (dhd != null) {
-        updateBuilder.addUpdates(HeatPositionUpdate.newBuilder()
-            .setObjectId(objectId)
-            .setRank(i + 1)
-            .setGapLeader(dhd.getGapLeader())
-            .setGapPosition(dhd.getGapPosition())
-            .build());
+        updateBuilder.addUpdates(
+            HeatPositionUpdate.newBuilder()
+                .setObjectId(objectId)
+                .setRank(i + 1)
+                .setGapLeader(dhd.getGapLeader())
+                .setGapPosition(dhd.getGapPosition())
+                .build());
       }
     }
 
@@ -75,27 +76,30 @@ public class HeatStandings {
   }
 
   private List<String> calculateStandings() {
-    List<DriverHeatData> sortedDrivers = driverHeatData.stream()
-        .sorted(getComparator())
-        .collect(Collectors.toList());
+    List<DriverHeatData> sortedDrivers =
+        driverHeatData.stream().sorted(getComparator()).collect(Collectors.toList());
 
     calculateGaps(sortedDrivers);
 
-    List<String> standings = sortedDrivers.stream()
-        .map(DriverHeatData::getObjectId)
-        .collect(Collectors.toList());
+    List<String> standings =
+        sortedDrivers.stream().map(DriverHeatData::getObjectId).collect(Collectors.toList());
 
-    System.out.println("HeatStandings: Calculated standings: " + standings.stream()
-        .map(id -> {
-          DriverHeatData d = driverHeatData.stream()
-              .filter(dhd -> dhd.getObjectId().equals(id))
-              .findFirst()
-              .orElse(null);
-          return (d != null ? d.getDriver().getDriver().getName() : "unknown") + "("
-              + (d != null ? d.getLapCount() : 0)
-              + " laps)";
-        })
-        .collect(Collectors.joining(", ")));
+    System.out.println(
+        "HeatStandings: Calculated standings: "
+            + standings.stream()
+                .map(
+                    id -> {
+                      DriverHeatData d =
+                          driverHeatData.stream()
+                              .filter(dhd -> dhd.getObjectId().equals(id))
+                              .findFirst()
+                              .orElse(null);
+                      return (d != null ? d.getDriver().getDriver().getName() : "unknown")
+                          + "("
+                          + (d != null ? d.getLapCount() : 0)
+                          + " laps)";
+                    })
+                .collect(Collectors.joining(", ")));
 
     return standings;
   }
@@ -153,11 +157,15 @@ public class HeatStandings {
 
     switch (sortType) {
       case LAP_COUNT:
-        comparator = Comparator.comparingInt(DriverHeatData::getLapCount).reversed()
-            .thenComparing(Comparator.comparingDouble(DriverHeatData::getTotalTime));
+        comparator =
+            Comparator.comparingInt(DriverHeatData::getLapCount)
+                .reversed()
+                .thenComparing(Comparator.comparingDouble(DriverHeatData::getTotalTime));
         break;
       case FASTEST_LAP:
-        comparator = Comparator.comparingDouble(d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
+        comparator =
+            Comparator.comparingDouble(
+                d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
         break;
       case TOTAL_TIME:
         comparator = Comparator.comparingDouble(DriverHeatData::getTotalTime);
@@ -174,11 +182,14 @@ public class HeatStandings {
   private Comparator<DriverHeatData> getTieBreakerComparator() {
     switch (tieBreaker) {
       case FASTEST_LAP_TIME:
-        return Comparator.comparingDouble(d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
+        return Comparator.comparingDouble(
+            d -> d.getBestLapTime() == 0 ? Double.MAX_VALUE : d.getBestLapTime());
       case MEDIAN_LAP_TIME:
-        return Comparator.comparingDouble(d -> d.getMedianLapTime() == 0 ? Double.MAX_VALUE : d.getMedianLapTime());
+        return Comparator.comparingDouble(
+            d -> d.getMedianLapTime() == 0 ? Double.MAX_VALUE : d.getMedianLapTime());
       case AVERAGE_LAP_TIME:
-        return Comparator.comparingDouble(d -> d.getAverageLapTime() == 0 ? Double.MAX_VALUE : d.getAverageLapTime());
+        return Comparator.comparingDouble(
+            d -> d.getAverageLapTime() == 0 ? Double.MAX_VALUE : d.getAverageLapTime());
       default:
         return (d1, d2) -> 0;
     }

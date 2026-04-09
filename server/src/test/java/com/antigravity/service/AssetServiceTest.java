@@ -88,11 +88,12 @@ public class AssetServiceTest {
 
   @Test
   public void testGetAllAssets() {
-    Document doc1 = new Document("_id", "1")
-        .append("name", "Asset 1")
-        .append("type", "image")
-        .append("size", "10 KB")
-        .append("url", "/assets/1.png");
+    Document doc1 =
+        new Document("_id", "1")
+            .append("name", "Asset 1")
+            .append("type", "image")
+            .append("size", "10 KB")
+            .append("url", "/assets/1.png");
 
     FindIterable<Document> findIterable = mock(FindIterable.class);
     when(collection.find()).thenReturn(findIterable);
@@ -104,11 +105,13 @@ public class AssetServiceTest {
     when(cursor.next()).thenReturn(doc1);
 
     // Support into() as well if used elsewhere
-    when(findIterable.into(any())).thenAnswer(invocation -> {
-      List<Document> list = invocation.getArgument(0);
-      list.add(doc1);
-      return list;
-    });
+    when(findIterable.into(any()))
+        .thenAnswer(
+            invocation -> {
+              List<Document> list = invocation.getArgument(0);
+              list.add(doc1);
+              return list;
+            });
 
     List<AssetMessage> assets = assetService.getAllAssets();
     assertEquals(1, assets.size());
@@ -118,8 +121,7 @@ public class AssetServiceTest {
   @Test
   public void testDeleteAsset() throws IOException {
     String id = "asset-123";
-    Document doc = new Document("_id", id)
-        .append("filename", "test.png");
+    Document doc = new Document("_id", id).append("filename", "test.png");
 
     FindIterable<Document> iterable = mock(FindIterable.class);
     when(iterable.first()).thenReturn(doc);
@@ -147,10 +149,11 @@ public class AssetServiceTest {
     verify(collection, atLeastOnce()).insertOne(captor.capture());
 
     List<Document> insertedDocs = captor.getAllValues();
-    Document fuelSet = insertedDocs.stream()
-        .filter(d -> "Fuel Gauge".equals(d.getString("name")))
-        .findFirst()
-        .orElse(null);
+    Document fuelSet =
+        insertedDocs.stream()
+            .filter(d -> "Fuel Gauge".equals(d.getString("name")))
+            .findFirst()
+            .orElse(null);
 
     assertNotNull("Fuel Gauge image set should be created", fuelSet);
     assertEquals("image_set", fuelSet.getString("type"));
@@ -163,12 +166,11 @@ public class AssetServiceTest {
   @Test
   public void testDeleteImageSetRecursive() throws IOException {
     String id = "set-123";
-    List<Document> imageDocs = Arrays.asList(
-        new Document("url", "/assets/img1.png"),
-        new Document("url", "/assets/img2.png"));
-    Document setDoc = new Document("_id", id)
-        .append("type", "image_set")
-        .append("images", imageDocs);
+    List<Document> imageDocs =
+        Arrays.asList(
+            new Document("url", "/assets/img1.png"), new Document("url", "/assets/img2.png"));
+    Document setDoc =
+        new Document("_id", id).append("type", "image_set").append("images", imageDocs);
 
     FindIterable<Document> iterable = mock(FindIterable.class);
     when(iterable.first()).thenReturn(setDoc);
@@ -190,18 +192,20 @@ public class AssetServiceTest {
     String name = "New Image Set";
 
     // Entry 1: New image data
-    SaveImageSetEntry entry1 = SaveImageSetEntry.newBuilder()
-        .setName("image1.png")
-        .setPercentage(50)
-        .setData(ByteString.copyFrom("fake_image_1".getBytes()))
-        .build();
+    SaveImageSetEntry entry1 =
+        SaveImageSetEntry.newBuilder()
+            .setName("image1.png")
+            .setPercentage(50)
+            .setData(ByteString.copyFrom("fake_image_1".getBytes()))
+            .build();
 
     // Entry 2: Existing image reference
-    SaveImageSetEntry entry2 = SaveImageSetEntry.newBuilder()
-        .setName("existing.png")
-        .setPercentage(100)
-        .setUrl("/assets/existing_123.png")
-        .build();
+    SaveImageSetEntry entry2 =
+        SaveImageSetEntry.newBuilder()
+            .setName("existing.png")
+            .setPercentage(100)
+            .setUrl("/assets/existing_123.png")
+            .build();
 
     // Create the existing file physically
     new File(assetsDir, "existing_123.png").createNewFile();

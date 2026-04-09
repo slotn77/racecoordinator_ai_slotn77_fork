@@ -29,7 +29,9 @@ public class ClientSubscriptionManagerTest {
 
   @Before
   public void setUp() {
-    tempFolder = new File(System.getProperty("java.io.tmpdir"), "testDB_autosave_" + System.currentTimeMillis());
+    tempFolder =
+        new File(
+            System.getProperty("java.io.tmpdir"), "testDB_autosave_" + System.currentTimeMillis());
     tempFolder.mkdirs();
     manager = ClientSubscriptionManager.getInstance();
     // Reset state
@@ -117,11 +119,12 @@ public class ClientSubscriptionManagerTest {
   @Test
   public void testAutoSaveCreatesFile() throws Exception {
     Race mockRace = mock(Race.class);
-    com.antigravity.models.Race realModel = new com.antigravity.models.Race.Builder()
-        .withName("Race")
-        .withTrackEntityId("track1")
-        .withEntityId("testRaceId")
-        .build();
+    com.antigravity.models.Race realModel =
+        new com.antigravity.models.Race.Builder()
+            .withName("Race")
+            .withTrackEntityId("track1")
+            .withEntityId("testRaceId")
+            .build();
 
     when(mockRace.getRaceModel()).thenReturn(realModel);
     when(mockRace.getTrack())
@@ -138,7 +141,13 @@ public class ClientSubscriptionManagerTest {
     manager.setShuttingDown(false);
     manager.autoSave(mockRace);
 
-    File saveDir = new File(tempFolder.getAbsolutePath() + File.separator + "testDB" + File.separator + "saved_races");
+    File saveDir =
+        new File(
+            tempFolder.getAbsolutePath()
+                + File.separator
+                + "testDB"
+                + File.separator
+                + "saved_races");
     File expectedFile = new File(saveDir, "autosave_testRaceId.json");
     assertTrue("Auto-save file should be created", expectedFile.exists());
   }
@@ -151,7 +160,13 @@ public class ClientSubscriptionManagerTest {
 
     manager.setDatabaseContext(mockDbCtx);
 
-    File saveDir = new File(tempFolder.getAbsolutePath() + File.separator + "testDB" + File.separator + "saved_races");
+    File saveDir =
+        new File(
+            tempFolder.getAbsolutePath()
+                + File.separator
+                + "testDB"
+                + File.separator
+                + "saved_races");
     saveDir.mkdirs();
     File expectedFile = new File(saveDir, "autosave_testRaceId.json");
     expectedFile.createNewFile();
@@ -165,11 +180,12 @@ public class ClientSubscriptionManagerTest {
   @Test
   public void testClientDisconnectDeletesAutoSave() throws Exception {
     Race mockRace = mock(Race.class);
-    com.antigravity.models.Race realModel = new com.antigravity.models.Race.Builder()
-        .withName("Race")
-        .withTrackEntityId("track1")
-        .withEntityId("testRaceId")
-        .build();
+    com.antigravity.models.Race realModel =
+        new com.antigravity.models.Race.Builder()
+            .withName("Race")
+            .withTrackEntityId("track1")
+            .withEntityId("testRaceId")
+            .build();
     when(mockRace.getRaceModel()).thenReturn(realModel);
     when(mockRace.createSnapshot()).thenReturn(RaceData.getDefaultInstance());
     when(mockRace.getHeats()).thenReturn(Collections.emptyList());
@@ -182,7 +198,13 @@ public class ClientSubscriptionManagerTest {
     manager.setDatabaseContext(mockDbCtx);
     manager.setShuttingDown(false);
 
-    File saveDir = new File(tempFolder.getAbsolutePath() + File.separator + "testDB" + File.separator + "saved_races");
+    File saveDir =
+        new File(
+            tempFolder.getAbsolutePath()
+                + File.separator
+                + "testDB"
+                + File.separator
+                + "saved_races");
     saveDir.mkdirs();
     File expectedFile = new File(saveDir, "autosave_testRaceId.json");
     expectedFile.createNewFile();
@@ -191,8 +213,8 @@ public class ClientSubscriptionManagerTest {
     manager.setRace(mockRace);
 
     WsContext mockContext = mock(WsContext.class);
-    RaceSubscriptionRequest unsubscribeReq = RaceSubscriptionRequest
-        .newBuilder().setSubscribe(false).build();
+    RaceSubscriptionRequest unsubscribeReq =
+        RaceSubscriptionRequest.newBuilder().setSubscribe(false).build();
 
     Field rdsField = ClientSubscriptionManager.class.getDeclaredField("raceDataSubscribers");
     rdsField.setAccessible(true);
@@ -200,7 +222,8 @@ public class ClientSubscriptionManagerTest {
 
     manager.handleRaceSubscription(mockContext, unsubscribeReq); // Triggers checkAndStopRace()
 
-    assertFalse("Auto-save file should be deleted upon last client disconnect", expectedFile.exists());
+    assertFalse(
+        "Auto-save file should be deleted upon last client disconnect", expectedFile.exists());
     assertNull("Race should be cleared", manager.getRace());
   }
 }

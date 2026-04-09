@@ -19,7 +19,8 @@ public class ArduinoConfigSerializationTest {
 
     // Check that the JSON contains the integer value 1 for lapPinPitBehavior
     // instead of the string "PIT_IN"
-    assertTrue("JSON should contain integer value for lapPinPitBehavior",
+    assertTrue(
+        "JSON should contain integer value for lapPinPitBehavior",
         json.contains("\"lapPinPitBehavior\":1"));
 
     // Verify round-trip deserialization

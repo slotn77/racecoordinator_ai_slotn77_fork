@@ -63,7 +63,10 @@ public class PowerManager {
             protocol.setLanePower(effectivePower, lane);
             state.firstLanePower[lane] = false;
             state.currentLanePower[lane] = effectivePower;
-            logger.info("Main Power (per-lane) set to {} for protocol {} lane {}", effectivePower ? "ON" : "OFF", i,
+            logger.info(
+                "Main Power (per-lane) set to {} for protocol {} lane {}",
+                effectivePower ? "ON" : "OFF",
+                i,
                 lane + 1);
           }
         }

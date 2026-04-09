@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -120,20 +119,23 @@ public class ClientCommandTaskHandlerTest {
     String driverId = "driver-1";
     String teamId = "team-1";
 
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Timed, 120,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Timed,
+            120,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
     OverallScoring overallScoring = new OverallScoring();
 
-    Race race = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track-1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId(raceId)
-        .build();
+    Race race =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track-1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId(raceId)
+            .build();
     Driver driver = new Driver("Test Driver", "TD", driverId, null);
     Team team = new Team("Test Team", "url", Arrays.asList(driverId), teamId, null);
 
@@ -146,45 +148,54 @@ public class ClientCommandTaskHandlerTest {
     // Mock getAllTeams (used to build lookup map)
     FindIterable<Team> teamIterable = mock(FindIterable.class);
     when(teamCollection.find()).thenReturn(teamIterable);
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      list.add(team);
-      return list;
-    }).when(teamIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              list.add(team);
+              return list;
+            })
+        .when(teamIterable)
+        .into(any(List.class));
 
     // Mock getDrivers (for the participant list)
     FindIterable<Driver> driverIterable = mock(FindIterable.class);
     when(driverCollection.find(any(Bson.class))).thenReturn(driverIterable);
-    doAnswer(invocation -> {
-      List<Driver> list = invocation.getArgument(0);
-      list.add(driver);
-      return list;
-    }).when(driverIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Driver> list = invocation.getArgument(0);
+              list.add(driver);
+              return list;
+            })
+        .when(driverIterable)
+        .into(any(List.class));
 
     // Mock getTeams
     FindIterable<Team> specificTeamIterable = mock(FindIterable.class);
     when(teamCollection.find(any(Bson.class))).thenReturn(specificTeamIterable);
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      // Should be empty as we are only asking for driver ID in the request
-      return list;
-    }).when(specificTeamIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              // Should be empty as we are only asking for driver ID in the request
+              return list;
+            })
+        .when(specificTeamIterable)
+        .into(any(List.class));
 
     // Create Track with lanes
     Lane lane = new Lane("red", "black", 100);
-    Track track = new Track("Test Track", Arrays.asList(lane), "track-1",
-        null);
+    Track track = new Track("Test Track", Arrays.asList(lane), "track-1", null);
 
     FindIterable<Track> trackIterable = mock(FindIterable.class);
     when(trackCollection.find(any(Bson.class))).thenReturn(trackIterable);
     when(trackIterable.first()).thenReturn(track);
 
     // 3. Mock Request
-    InitializeRaceRequest request = InitializeRaceRequest.newBuilder()
-        .setRaceId(raceId)
-        .addDriverIds("d_" + driverId) // Explicit driver selection!
-        .setIsDemoMode(true) // Use demo mode to avoid Arduino config
-        .build();
+    InitializeRaceRequest request =
+        InitializeRaceRequest.newBuilder()
+            .setRaceId(raceId)
+            .addDriverIds("d_" + driverId) // Explicit driver selection!
+            .setIsDemoMode(true) // Use demo mode to avoid Arduino config
+            .build();
 
     // 4. Execute
     TaskResult result = handler.handleInitializeRace(request);
@@ -211,20 +222,23 @@ public class ClientCommandTaskHandlerTest {
     String driverId = "driver-1";
     String teamId = "team-1";
 
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Timed, 120,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Timed,
+            120,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
     OverallScoring overallScoring = new OverallScoring();
 
-    Race race = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track-1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId(raceId)
-        .build();
+    Race race =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track-1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId(raceId)
+            .build();
     Driver driver = new Driver("Test Driver", "TD", driverId, null);
     Team team = new Team("Test Team", "url", Arrays.asList(driverId), teamId, null);
 
@@ -235,45 +249,54 @@ public class ClientCommandTaskHandlerTest {
 
     FindIterable<Team> teamIterable = mock(FindIterable.class);
     when(teamCollection.find()).thenReturn(teamIterable);
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      list.add(team);
-      return list;
-    }).when(teamIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              list.add(team);
+              return list;
+            })
+        .when(teamIterable)
+        .into(any(List.class));
 
     // Mock getDrivers (will be called for team participants)
     FindIterable<Driver> driverIterable = mock(FindIterable.class);
     when(driverCollection.find(any(Bson.class))).thenReturn(driverIterable);
-    doAnswer(invocation -> {
-      List<Driver> list = invocation.getArgument(0);
-      list.add(driver);
-      return list;
-    }).when(driverIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Driver> list = invocation.getArgument(0);
+              list.add(driver);
+              return list;
+            })
+        .when(driverIterable)
+        .into(any(List.class));
 
     // Mock getTeams (called for explicit team lookup)
     FindIterable<Team> specificTeamIterable = mock(FindIterable.class);
     when(teamCollection.find(any(Bson.class))).thenReturn(specificTeamIterable);
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      list.add(team);
-      return list;
-    }).when(specificTeamIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              list.add(team);
+              return list;
+            })
+        .when(specificTeamIterable)
+        .into(any(List.class));
 
     // Create Track
     Lane lane = new Lane("red", "black", 100);
-    Track track = new Track("Test Track", Arrays.asList(lane), "track-1",
-        null);
+    Track track = new Track("Test Track", Arrays.asList(lane), "track-1", null);
 
     FindIterable<Track> trackIterable = mock(FindIterable.class);
     when(trackCollection.find(any(Bson.class))).thenReturn(trackIterable);
     when(trackIterable.first()).thenReturn(track);
 
     // 3. Mock Request
-    InitializeRaceRequest request = InitializeRaceRequest.newBuilder()
-        .setRaceId(raceId)
-        .addDriverIds("t_" + teamId) // Explicit TEAM selection!
-        .setIsDemoMode(true)
-        .build();
+    InitializeRaceRequest request =
+        InitializeRaceRequest.newBuilder()
+            .setRaceId(raceId)
+            .addDriverIds("t_" + teamId) // Explicit TEAM selection!
+            .setIsDemoMode(true)
+            .build();
 
     // 4. Execute
     TaskResult result = handler.handleInitializeRace(request);
@@ -303,14 +326,15 @@ public class ClientCommandTaskHandlerTest {
     when(race.getState()).thenReturn(new NotStarted());
     HeatScoring heatScoring = new HeatScoring();
     OverallScoring overallScoring = new OverallScoring();
-    Race raceModel = new Race.Builder()
-        .withName("MyTestRace")
-        .withTrackEntityId("track-1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race-1")
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("MyTestRace")
+            .withTrackEntityId("track-1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race-1")
+            .build();
     when(race.getRaceModel()).thenReturn(raceModel);
     when(race.getTrack()).thenReturn(new Track("Track1", new ArrayList<>(), "track1", null));
     when(race.getDrivers()).thenReturn(new ArrayList<>());
@@ -446,21 +470,22 @@ public class ClientCommandTaskHandlerTest {
   public void testToggleAnalytics_LAN_IPv4_PrivateNetwork_Success() throws Exception {
     ClientCommandTaskHandler spyHandler = spy(handler);
     Context mockCtx = mock(Context.class);
-    
+
     // Test 192.168.x.x (common home network range)
     doReturn("192.168.1.100").when(spyHandler).getRemoteAddr(any());
     doReturn("192.168.1.100").when(spyHandler).getRemoteHost(any());
-    
+
     AnalyticsToggleRequest requestData = new AnalyticsToggleRequest();
     requestData.setEnabled(true);
-    byte[] bodyBytes = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
-    
+    byte[] bodyBytes =
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
+
     doReturn(bodyBytes).when(spyHandler).getBodyBytes(any());
     doNothing().when(spyHandler).setStatus(any(), anyInt());
     doNothing().when(spyHandler).setResult(any(), anyString());
-    
+
     spyHandler.toggleAnalytics(mockCtx);
-    
+
     verify(spyHandler).setStatus(any(), eq(200));
   }
 
@@ -475,7 +500,8 @@ public class ClientCommandTaskHandlerTest {
 
     AnalyticsToggleRequest requestData = new AnalyticsToggleRequest();
     requestData.setEnabled(false);
-    byte[] bodyBytes = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
+    byte[] bodyBytes =
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
 
     doReturn(bodyBytes).when(spyHandler).getBodyBytes(any());
     doNothing().when(spyHandler).setStatus(any(), anyInt());
@@ -497,7 +523,8 @@ public class ClientCommandTaskHandlerTest {
 
     AnalyticsToggleRequest requestData = new AnalyticsToggleRequest();
     requestData.setEnabled(true);
-    byte[] bodyBytes = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
+    byte[] bodyBytes =
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsBytes(requestData);
 
     doReturn(bodyBytes).when(spyHandler).getBodyBytes(any());
     doNothing().when(spyHandler).setStatus(any(), anyInt());
@@ -510,7 +537,6 @@ public class ClientCommandTaskHandlerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-
   public void testGetAnalyticsConfig_Success() throws Exception {
     ClientCommandTaskHandler spyHandler = spy(handler);
     Context mockCtx = mock(Context.class);
@@ -530,11 +556,12 @@ public class ClientCommandTaskHandlerTest {
     String driverId = "driver-1";
     String teamId = "team-1";
 
-    Race race = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track-1")
-        .withEntityId(raceId)
-        .build();
+    Race race =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track-1")
+            .withEntityId(raceId)
+            .build();
     Driver driver = new Driver("Dave", "D", driverId, null);
     Team team = new Team("Team A", "url", Arrays.asList(driverId), teamId, null);
 
@@ -547,28 +574,36 @@ public class ClientCommandTaskHandlerTest {
     // validation)
     FindIterable<Driver> driverIterable = mock(FindIterable.class);
     when(driverCollection.find(any(Bson.class))).thenReturn(driverIterable);
-    doAnswer(invocation -> {
-      List<Driver> list = invocation.getArgument(0);
-      list.add(driver);
-      return list;
-    }).when(driverIterable).into(any(List.class));
+    doAnswer(
+            invocation -> {
+              List<Driver> list = invocation.getArgument(0);
+              list.add(driver);
+              return list;
+            })
+        .when(driverIterable)
+        .into(any(List.class));
 
     // Teams fetch (requested explicitly in the participantIds)
     FindIterable<Team> teamIterable = mock(FindIterable.class);
     when(teamCollection.find(any(Bson.class))).thenReturn(teamIterable);
-    when(teamCollection.find()).thenReturn(teamIterable); // Also mock no-args find for getAllTeams()
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      list.add(team);
-      return list;
-    }).when(teamIterable).into(any(List.class));
+    when(teamCollection.find())
+        .thenReturn(teamIterable); // Also mock no-args find for getAllTeams()
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              list.add(team);
+              return list;
+            })
+        .when(teamIterable)
+        .into(any(List.class));
 
     // 3. Mock Request
-    InitializeRaceRequest request = InitializeRaceRequest.newBuilder()
-        .setRaceId(raceId)
-        .addDriverIds("d_" + driverId) // Individual
-        .addDriverIds("t_" + teamId) // Team containing same individual
-        .build();
+    InitializeRaceRequest request =
+        InitializeRaceRequest.newBuilder()
+            .setRaceId(raceId)
+            .addDriverIds("d_" + driverId) // Individual
+            .addDriverIds("t_" + teamId) // Team containing same individual
+            .build();
 
     // 4. Execute
     TaskResult result = handler.handleInitializeRace(request);
@@ -591,11 +626,12 @@ public class ClientCommandTaskHandlerTest {
     String teamAId = "team-A";
     String teamBId = "team-B";
 
-    Race race = new Race.Builder()
-        .withName("Test Race")
-        .withTrackEntityId("track-1")
-        .withEntityId(raceId)
-        .build();
+    Race race =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId("track-1")
+            .withEntityId(raceId)
+            .build();
     Driver driver = new Driver("Dave", "D", driverId, null);
     Team teamA = new Team("Team A", "url", Arrays.asList(driverId), teamAId, null);
     Team teamB = new Team("Team B", "url", Arrays.asList(driverId), teamBId, null);
@@ -608,13 +644,17 @@ public class ClientCommandTaskHandlerTest {
     // Teams fetch
     FindIterable<Team> teamIterable = mock(FindIterable.class);
     when(teamCollection.find(any(Bson.class))).thenReturn(teamIterable);
-    when(teamCollection.find()).thenReturn(teamIterable); // Also mock no-args find for getAllTeams()
-    doAnswer(invocation -> {
-      List<Team> list = invocation.getArgument(0);
-      list.add(teamA);
-      list.add(teamB);
-      return list;
-    }).when(teamIterable).into(any(List.class));
+    when(teamCollection.find())
+        .thenReturn(teamIterable); // Also mock no-args find for getAllTeams()
+    doAnswer(
+            invocation -> {
+              List<Team> list = invocation.getArgument(0);
+              list.add(teamA);
+              list.add(teamB);
+              return list;
+            })
+        .when(teamIterable)
+        .into(any(List.class));
 
     // Mock getDriver (used for Rule 2 error detail)
     FindIterable<Driver> driverIterable = mock(FindIterable.class);
@@ -622,11 +662,12 @@ public class ClientCommandTaskHandlerTest {
     when(driverIterable.first()).thenReturn(driver);
 
     // 3. Mock Request
-    InitializeRaceRequest request = InitializeRaceRequest.newBuilder()
-        .setRaceId(raceId)
-        .addDriverIds("t_" + teamAId)
-        .addDriverIds("t_" + teamBId)
-        .build();
+    InitializeRaceRequest request =
+        InitializeRaceRequest.newBuilder()
+            .setRaceId(raceId)
+            .addDriverIds("t_" + teamAId)
+            .addDriverIds("t_" + teamBId)
+            .build();
 
     // 4. Execute
     TaskResult result = handler.handleInitializeRace(request);

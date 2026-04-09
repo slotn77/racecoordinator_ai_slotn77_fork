@@ -51,12 +51,13 @@ public class ReproduceExceptionTest {
   @Test
   public void reproduceFewerDriversThanLanes() {
     // This should not throw an exception
-    com.antigravity.race.Race race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(drivers)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    com.antigravity.race.Race race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(drivers)
+            .track(track)
+            .isDemoMode(true)
+            .build();
 
     assertNotNull(race);
     assertEquals(4, race.getHeats().size()); // numLanes = 4, so 4 heats

@@ -9,8 +9,7 @@ public class RaceHeatStatistics {
   private long startMillis;
   private long durationMillis;
 
-  public RaceHeatStatistics() {
-  }
+  public RaceHeatStatistics() {}
 
   @JsonProperty("startTime")
   public String getStartTime() {

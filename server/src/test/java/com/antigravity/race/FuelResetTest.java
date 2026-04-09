@@ -30,37 +30,40 @@ public class FuelResetTest {
 
   @Before
   public void setUp() {
-    fuelOptions = new AnalogFuelOptions(
-        true, // enabled
-        true, // resetFuelAtHeatStart
-        false, // endHeatOnOutOfFuel
-        100.0, // capacity
-        AnalogFuelOptions.FuelUsageType.LINEAR,
-        4.0, // usageRate
-        100.0, // startLevel
-        20.0, // refuelRate
-        1.0, // pitStopDelay
-        6.0 // referenceTime
-    );
+    fuelOptions =
+        new AnalogFuelOptions(
+            true, // enabled
+            true, // resetFuelAtHeatStart
+            false, // endHeatOnOutOfFuel
+            100.0, // capacity
+            AnalogFuelOptions.FuelUsageType.LINEAR,
+            4.0, // usageRate
+            100.0, // startLevel
+            20.0, // refuelRate
+            1.0, // pitStopDelay
+            6.0 // referenceTime
+            );
 
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        10L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            10L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    Race raceModel = new Race.Builder()
-        .withName("Fuel Test Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(new OverallScoring())
-        .withMinLapTime(0.0)
-        .withFuelOptions(fuelOptions)
-        .withEntityId("race1")
-        .withId(new ObjectId())
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Fuel Test Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(new OverallScoring())
+            .withMinLapTime(0.0)
+            .withFuelOptions(fuelOptions)
+            .withEntityId("race1")
+            .withId(new ObjectId())
+            .build();
 
     participants = new ArrayList<>();
 
@@ -81,14 +84,21 @@ public class FuelResetTest {
     List<Lane> lanes = new ArrayList<>();
     lanes.add(new Lane("red", "black", 100));
     lanes.add(new Lane("blue", "black", 100));
-    track = new Track("Test Track", lanes, Collections.singletonList(mock(ArduinoConfig.class)), "track1", new ObjectId());
+    track =
+        new Track(
+            "Test Track",
+            lanes,
+            Collections.singletonList(mock(ArduinoConfig.class)),
+            "track1",
+            new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 
   @Test
@@ -110,7 +120,8 @@ public class FuelResetTest {
     for (DriverHeatData driverData : race.getCurrentHeat().getDrivers()) {
       RaceParticipant p = driverData.getDriver();
       String name = p.isTeamParticipant() ? p.getTeam().getName() : p.getDriver().getName();
-      assertEquals("Fuel for " + name + " should be reset to 100.0", 100.0, p.getFuelLevel(), 0.001);
+      assertEquals(
+          "Fuel for " + name + " should be reset to 100.0", 100.0, p.getFuelLevel(), 0.001);
     }
   }
 }

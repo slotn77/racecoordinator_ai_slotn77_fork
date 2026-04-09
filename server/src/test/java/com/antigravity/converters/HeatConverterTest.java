@@ -21,13 +21,27 @@ public class HeatConverterTest {
   @Test
   public void testToProto_PopulatesActualDriver() {
     // Setup
-    Driver driver = new Driver("driver1", "Driver One", null, null, null, null, null, null, null, null, null, "d1",
-        null);
+    Driver driver =
+        new Driver(
+            "driver1",
+            "Driver One",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "d1",
+            null);
     // Team constructor: name, avatarUrl, driverIds, entityId, id
     Team team = new Team("Team One", null, new ArrayList<>(), "t1", null);
 
     RaceParticipant participant = new RaceParticipant(team);
-    com.antigravity.race.DriverHeatData heatData = new com.antigravity.race.DriverHeatData(participant);
+    com.antigravity.race.DriverHeatData heatData =
+        new com.antigravity.race.DriverHeatData(participant);
     heatData.setActualDriver(driver);
 
     List<com.antigravity.race.DriverHeatData> heatDrivers = new ArrayList<>();

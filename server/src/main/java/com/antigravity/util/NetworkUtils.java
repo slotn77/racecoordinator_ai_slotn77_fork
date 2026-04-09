@@ -4,15 +4,13 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
-/**
- * Utility class for network-related operations.
- */
+/** Utility class for network-related operations. */
 public class NetworkUtils {
 
   /**
-   * Checks if the given remote address is a local address (localhost or same LAN).
-   * This includes loopback addresses (127.0.0.1, ::1) and private network addresses
-   * (RFC 1918: 192.168.x.x, 10.x.x.x, 172.16-31.x.x).
+   * Checks if the given remote address is a local address (localhost or same LAN). This includes
+   * loopback addresses (127.0.0.1, ::1) and private network addresses (RFC 1918: 192.168.x.x,
+   * 10.x.x.x, 172.16-31.x.x).
    *
    * @param remoteAddr the remote IP address
    * @param remoteHost the remote hostname
@@ -23,8 +21,8 @@ public class NetworkUtils {
   }
 
   /**
-   * Checks if the given remote address is localhost (same PC).
-   * This includes loopback addresses (127.0.0.1, ::1) and localhost hostname.
+   * Checks if the given remote address is localhost (same PC). This includes loopback addresses
+   * (127.0.0.1, ::1) and localhost hostname.
    *
    * @param remoteAddr the remote IP address
    * @param remoteHost the remote hostname
@@ -33,16 +31,16 @@ public class NetworkUtils {
   public static boolean isLocalhost(String remoteAddr, String remoteHost) {
     try {
       // Check for all common localhost IP and hostname variations
-      if ("127.0.0.1".equals(remoteAddr) ||
-          "0:0:0:0:0:0:0:1".equals(remoteAddr) ||
-          "::1".equals(remoteAddr) ||
-          "localhost".equals(remoteAddr) ||
-          "localhost".equals(remoteHost) ||
-          "127.0.0.1".equals(remoteHost) ||
-          "::1".equals(remoteHost) ||
-          "0:0:0:0:0:0:0:1".equals(remoteHost) ||
-          "::ffff:127.0.0.1".equals(remoteAddr) ||
-          "0.0.0.0".equals(remoteAddr)) {
+      if ("127.0.0.1".equals(remoteAddr)
+          || "0:0:0:0:0:0:0:1".equals(remoteAddr)
+          || "::1".equals(remoteAddr)
+          || "localhost".equals(remoteAddr)
+          || "localhost".equals(remoteHost)
+          || "127.0.0.1".equals(remoteHost)
+          || "::1".equals(remoteHost)
+          || "0:0:0:0:0:0:0:1".equals(remoteHost)
+          || "::ffff:127.0.0.1".equals(remoteAddr)
+          || "0.0.0.0".equals(remoteAddr)) {
         return true;
       }
 
@@ -52,13 +50,15 @@ public class NetworkUtils {
       // Fallback to simple string check
     }
 
-    return "127.0.0.1".equals(remoteAddr) || "::1".equals(remoteAddr) || "localhost".equals(remoteAddr);
+    return "127.0.0.1".equals(remoteAddr)
+        || "::1".equals(remoteAddr)
+        || "localhost".equals(remoteAddr);
   }
 
   /**
-   * Checks if the given remote address is on the local network (same LAN, different machine).
-   * This includes private network addresses (RFC 1918: 192.168.x.x, 10.x.x.x, 172.16-31.x.x).
-   * Excludes localhost/loopback addresses.
+   * Checks if the given remote address is on the local network (same LAN, different machine). This
+   * includes private network addresses (RFC 1918: 192.168.x.x, 10.x.x.x, 172.16-31.x.x). Excludes
+   * localhost/loopback addresses.
    *
    * @param remoteAddr the remote IP address
    * @return true if the address is on the same LAN but not localhost
@@ -95,8 +95,8 @@ public class NetworkUtils {
   }
 
   /**
-   * Checks if the given remote address is a local address (localhost or same LAN).
-   * Convenience method that only takes the IP address.
+   * Checks if the given remote address is a local address (localhost or same LAN). Convenience
+   * method that only takes the IP address.
    *
    * @param remoteAddr the remote IP address
    * @return true if the address is considered local

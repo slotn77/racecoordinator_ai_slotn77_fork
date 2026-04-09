@@ -60,13 +60,14 @@ public class DatabaseTaskHandlerTest {
   @SuppressWarnings("unchecked")
   public void testCreateRace_Success() {
     TeamOptions teamOptions = new TeamOptions(10, 60.0, 100, 600.0, true);
-    Race raceRequest = new Race.Builder()
-        .withName("New Race")
-        .withTrackEntityId("track-1")
-        .withMinLapTime(2.5)
-        .withTeamOptions(teamOptions)
-        .withEntityId("new")
-        .build();
+    Race raceRequest =
+        new Race.Builder()
+            .withName("New Race")
+            .withTrackEntityId("track-1")
+            .withMinLapTime(2.5)
+            .withTeamOptions(teamOptions)
+            .withEntityId("new")
+            .build();
 
     // Mock uniqueness check - no existing race
     FindIterable<Race> findIterable = mock(FindIterable.class);
@@ -75,7 +76,8 @@ public class DatabaseTaskHandlerTest {
 
     // Mock sequence generation
     Document counterDoc = new Document("seq", 100);
-    when(countersCollection.findOneAndUpdate(any(Bson.class), any(Bson.class), any())).thenReturn(counterDoc);
+    when(countersCollection.findOneAndUpdate(any(Bson.class), any(Bson.class), any()))
+        .thenReturn(counterDoc);
 
     Race created = handler.createRace(raceRequest);
 
@@ -91,24 +93,29 @@ public class DatabaseTaskHandlerTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testCreateRace_DuplicateName() {
-    Race raceRequest = new Race.Builder()
-        .withName("Duplicate Race")
-        .withTrackEntityId("track-1")
-        .withEntityId("new")
-        .build();
+    Race raceRequest =
+        new Race.Builder()
+            .withName("Duplicate Race")
+            .withTrackEntityId("track-1")
+            .withEntityId("new")
+            .build();
 
     // Mock uniqueness check - race exists
     FindIterable<Race> findIterable = mock(FindIterable.class);
     when(raceCollection.find(any(Bson.class))).thenReturn(findIterable);
-    when(findIterable.first()).thenReturn(new Race.Builder()
-        .withName("Duplicate Race")
-        .withTrackEntityId("track-1")
-        .withEntityId("existing-1")
-        .build());
+    when(findIterable.first())
+        .thenReturn(
+            new Race.Builder()
+                .withName("Duplicate Race")
+                .withTrackEntityId("track-1")
+                .withEntityId("existing-1")
+                .build());
 
-    assertThrows(IllegalArgumentException.class, () -> {
-      handler.createRace(raceRequest);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          handler.createRace(raceRequest);
+        });
 
     verify(raceCollection, never()).insertOne(any(Race.class));
   }
@@ -118,13 +125,14 @@ public class DatabaseTaskHandlerTest {
   public void testUpdateRace_Success() {
     String raceId = "race-123";
     TeamOptions teamOptions = new TeamOptions(20, 120.0, 200, 1200.0, false);
-    Race raceUpdate = new Race.Builder()
-        .withName("Updated Name")
-        .withTrackEntityId("track-1")
-        .withMinLapTime(3.5)
-        .withTeamOptions(teamOptions)
-        .withEntityId(raceId)
-        .build();
+    Race raceUpdate =
+        new Race.Builder()
+            .withName("Updated Name")
+            .withTrackEntityId("track-1")
+            .withMinLapTime(3.5)
+            .withTeamOptions(teamOptions)
+            .withEntityId(raceId)
+            .build();
 
     // Mock uniqueness check - no OTHER race with same name
     FindIterable<Race> findIterable = mock(FindIterable.class);
@@ -150,11 +158,12 @@ public class DatabaseTaskHandlerTest {
   @SuppressWarnings("unchecked")
   public void testUpdateRace_NotFound() {
     String raceId = "non-existent-id";
-    Race raceUpdate = new Race.Builder()
-        .withName("Name")
-        .withTrackEntityId("track-1")
-        .withEntityId(raceId)
-        .build();
+    Race raceUpdate =
+        new Race.Builder()
+            .withName("Name")
+            .withTrackEntityId("track-1")
+            .withEntityId(raceId)
+            .build();
 
     // Mock uniqueness check - no other race with same name
     FindIterable<Race> findIterable = mock(FindIterable.class);
@@ -165,9 +174,11 @@ public class DatabaseTaskHandlerTest {
     when(updateResult.getMatchedCount()).thenReturn(0L);
     when(raceCollection.replaceOne(any(Bson.class), any(Race.class))).thenReturn(updateResult);
 
-    assertThrows(IllegalArgumentException.class, () -> {
-      handler.updateRace(raceId, raceUpdate);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          handler.updateRace(raceId, raceUpdate);
+        });
   }
 
   @Test
@@ -191,9 +202,11 @@ public class DatabaseTaskHandlerTest {
     when(deleteResult.getDeletedCount()).thenReturn(0L);
     when(raceCollection.deleteOne(any(Bson.class))).thenReturn(deleteResult);
 
-    assertThrows(IllegalArgumentException.class, () -> {
-      handler.deleteRace(raceId);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          handler.deleteRace(raceId);
+        });
   }
 
   @Test
@@ -208,7 +221,8 @@ public class DatabaseTaskHandlerTest {
 
     // Mock sequence generation
     Document counterDoc = new Document("seq", 200);
-    when(countersCollection.findOneAndUpdate(any(Bson.class), any(Bson.class), any())).thenReturn(counterDoc);
+    when(countersCollection.findOneAndUpdate(any(Bson.class), any(Bson.class), any()))
+        .thenReturn(counterDoc);
 
     Team created = handler.createTeam(teamRequest);
 
@@ -225,11 +239,14 @@ public class DatabaseTaskHandlerTest {
     // Mock uniqueness check - team exists
     FindIterable<Team> findIterable = mock(FindIterable.class);
     when(teamCollection.find(any(Bson.class))).thenReturn(findIterable);
-    when(findIterable.first()).thenReturn(new Team("Duplicate Team", "url", null, "existing-1", null));
+    when(findIterable.first())
+        .thenReturn(new Team("Duplicate Team", "url", null, "existing-1", null));
 
-    assertThrows(IllegalArgumentException.class, () -> {
-      handler.createTeam(teamRequest);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          handler.createTeam(teamRequest);
+        });
 
     verify(teamCollection, never()).insertOne(any(Team.class));
   }

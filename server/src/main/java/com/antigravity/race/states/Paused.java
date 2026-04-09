@@ -23,7 +23,8 @@ public class Paused implements IRaceState {
 
   @Override
   public void nextHeat(Race race) {
-    throw new IllegalStateException("Cannot move to next heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot move to next heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -52,7 +53,8 @@ public class Paused implements IRaceState {
 
   @Override
   public void deferHeat(Race race) {
-    throw new IllegalStateException("Cannot defer heat from state: " + this.getClass().getSimpleName());
+    throw new IllegalStateException(
+        "Cannot defer heat from state: " + this.getClass().getSimpleName());
   }
 
   @Override
@@ -66,8 +68,7 @@ public class Paused implements IRaceState {
   }
 
   @Override
-  public void onCarData(CarData carData) {
-  }
+  public void onCarData(CarData carData) {}
 
   @Override
   public void onCallbutton(Race race, int lane) {

@@ -47,7 +47,8 @@ public class HeatBuilderTest {
 
     // Default scoring
     when(heatScoring.getHeatRanking()).thenReturn(HeatScoring.HeatRanking.LAP_COUNT);
-    when(heatScoring.getHeatRankingTiebreaker()).thenReturn(HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    when(heatScoring.getHeatRankingTiebreaker())
+        .thenReturn(HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME);
 
     // Default rotation
     when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.RoundRobin);
@@ -59,20 +60,54 @@ public class HeatBuilderTest {
     List<RaceParticipant> participants = new ArrayList<>();
 
     // Create 3 solo drivers
-    participants.add(new RaceParticipant(
-        new Driver("D1", "d1", null, null, null, null, null, null, null, null, null, "1", null)));
-    participants.add(new RaceParticipant(
-        new Driver("D2", "d2", null, null, null, null, null, null, null, null, null, "2", null)));
-    participants.add(new RaceParticipant(
-        new Driver("D3", "d3", null, null, null, null, null, null, null, null, null, "3", null)));
+    participants.add(
+        new RaceParticipant(
+            new Driver(
+                "D1", "d1", null, null, null, null, null, null, null, null, null, "1", null)));
+    participants.add(
+        new RaceParticipant(
+            new Driver(
+                "D2", "d2", null, null, null, null, null, null, null, null, null, "2", null)));
+    participants.add(
+        new RaceParticipant(
+            new Driver(
+                "D3", "d3", null, null, null, null, null, null, null, null, null, "3", null)));
 
     // Create 1 team with 2 drivers
     Team team = new Team("Team1", null, Arrays.asList("TD1", "TD2"), "t1", null);
     RaceParticipant teamParticipant = new RaceParticipant(team);
 
     List<Driver> teamDrivers = new ArrayList<>();
-    teamDrivers.add(new Driver("TeamDriver1", "TD1", null, null, null, null, null, null, null, null, null, "td1", null));
-    teamDrivers.add(new Driver("TeamDriver2", "TD2", null, null, null, null, null, null, null, null, null, "td2", null));
+    teamDrivers.add(
+        new Driver(
+            "TeamDriver1",
+            "TD1",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "td1",
+            null));
+    teamDrivers.add(
+        new Driver(
+            "TeamDriver2",
+            "TD2",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "td2",
+            null));
 
     teamParticipant.setTeamDrivers(teamDrivers);
     participants.add(teamParticipant); // Add as 4th participant
@@ -112,15 +147,57 @@ public class HeatBuilderTest {
 
     List<RaceParticipant> participants = new ArrayList<>();
     for (int i = 1; i <= 4; i++) {
-      participants.add(new RaceParticipant(new Driver("D" + i, "d" + i, null, null, null, null, null, null, null, null,
-          null, String.valueOf(i), null)));
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
     }
 
     Team team = new Team("Team1", null, Arrays.asList("TD1", "TD2"), "t1", null);
     RaceParticipant teamParticipant = new RaceParticipant(team);
     List<Driver> teamDrivers = new ArrayList<>();
-    teamDrivers.add(new Driver("TeamDriver1", "TD1", null, null, null, null, null, null, null, null, null, "td1", null));
-    teamDrivers.add(new Driver("TeamDriver2", "TD2", null, null, null, null, null, null, null, null, null, "td2", null));
+    teamDrivers.add(
+        new Driver(
+            "TeamDriver1",
+            "TD1",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "td1",
+            null));
+    teamDrivers.add(
+        new Driver(
+            "TeamDriver2",
+            "TD2",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "td2",
+            null));
     teamParticipant.setTeamDrivers(teamDrivers);
     participants.add(teamParticipant); // 5th participant
 
@@ -145,7 +222,9 @@ public class HeatBuilderTest {
       if (rp.getTeam() != null && "t1".equals(rp.getTeam().getEntityId())) {
         teamFound = true;
         assertNotNull("Actual driver should be set", dhd.getActualDriver());
-        assertEquals("Incorrect team driver in Heat " + heat.getHeatNumber(), expectedDriverId,
+        assertEquals(
+            "Incorrect team driver in Heat " + heat.getHeatNumber(),
+            expectedDriverId,
             dhd.getActualDriver().getEntityId());
       }
     }

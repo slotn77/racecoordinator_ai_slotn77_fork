@@ -17,14 +17,17 @@ public class ArduinoConfigConverter {
       voltageConfigs.put(String.valueOf(vc.getLane()), vc.getMaxVoltage());
     }
 
-    List<LedString> ledStrings = proto.getLedStringsList().stream()
-        .map(ls -> new LedString(
-            ls.getStringNum(),
-            new ArrayList<>(ls.getLedsList()),
-            ls.getBrightness(),
-            ls.getYellowFlagFlashRate(),
-            new ArrayList<>(ls.getLedLaneColorOverridesList())))
-        .collect(Collectors.toList());
+    List<LedString> ledStrings =
+        proto.getLedStringsList().stream()
+            .map(
+                ls ->
+                    new LedString(
+                        ls.getStringNum(),
+                        new ArrayList<>(ls.getLedsList()),
+                        ls.getBrightness(),
+                        ls.getYellowFlagFlashRate(),
+                        new ArrayList<>(ls.getLedLaneColorOverridesList())))
+            .collect(Collectors.toList());
 
     return new ArduinoConfig(
         proto.getName(),
@@ -49,17 +52,18 @@ public class ArduinoConfigConverter {
       return com.antigravity.proto.ArduinoConfig.getDefaultInstance();
     }
 
-    com.antigravity.proto.ArduinoConfig.Builder builder = com.antigravity.proto.ArduinoConfig.newBuilder()
-        .setName(config.name != null ? config.name : "")
-        .setCommPort(config.commPort != null ? config.commPort : "")
-        .setBaudRate(config.baudRate)
-        .setDebounceUs(config.debounceUs)
-        .setNormallyClosedLaneSensors(config.normallyClosedLaneSensors)
-        .setNormallyClosedRelays(config.normallyClosedRelays)
-        .setGlobalInvertLights(config.globalInvertLights)
-        .setUsePitsAsLaps(config.usePitsAsLaps)
-        .setUseLapsForSegments(config.useLapsForSegments)
-        .setHardwareType(config.hardwareType);
+    com.antigravity.proto.ArduinoConfig.Builder builder =
+        com.antigravity.proto.ArduinoConfig.newBuilder()
+            .setName(config.name != null ? config.name : "")
+            .setCommPort(config.commPort != null ? config.commPort : "")
+            .setBaudRate(config.baudRate)
+            .setDebounceUs(config.debounceUs)
+            .setNormallyClosedLaneSensors(config.normallyClosedLaneSensors)
+            .setNormallyClosedRelays(config.normallyClosedRelays)
+            .setGlobalInvertLights(config.globalInvertLights)
+            .setUsePitsAsLaps(config.usePitsAsLaps)
+            .setUseLapsForSegments(config.useLapsForSegments)
+            .setHardwareType(config.hardwareType);
 
     if (config.digitalIds != null) {
       builder.addAllDigitalIds(config.digitalIds);
@@ -73,12 +77,13 @@ public class ArduinoConfigConverter {
 
     if (config.ledStrings != null) {
       for (LedString ls : config.ledStrings) {
-        com.antigravity.proto.LedString.Builder lsBuilder = com.antigravity.proto.LedString.newBuilder()
-            .setStringNum(ls.stringNum)
-            .setNumUsedLeds(ls.numUsedLeds)
-            .setAddressableLeds(ls.addressableLeds)
-            .setBrightness(ls.brightness)
-            .setYellowFlagFlashRate(ls.yellowFlagFlashRate);
+        com.antigravity.proto.LedString.Builder lsBuilder =
+            com.antigravity.proto.LedString.newBuilder()
+                .setStringNum(ls.stringNum)
+                .setNumUsedLeds(ls.numUsedLeds)
+                .setAddressableLeds(ls.addressableLeds)
+                .setBrightness(ls.brightness)
+                .setYellowFlagFlashRate(ls.yellowFlagFlashRate);
 
         if (ls.leds != null) {
           lsBuilder.addAllLeds(ls.leds);
@@ -94,10 +99,8 @@ public class ArduinoConfigConverter {
       for (Map.Entry<String, Integer> entry : config.voltageConfigs.entrySet()) {
         try {
           int lane = Integer.parseInt(entry.getKey());
-          builder.addVoltageConfigs(VoltageConfig.newBuilder()
-              .setLane(lane)
-              .setMaxVoltage(entry.getValue())
-              .build());
+          builder.addVoltageConfigs(
+              VoltageConfig.newBuilder().setLane(lane).setMaxVoltage(entry.getValue()).build());
         } catch (NumberFormatException e) {
           // Skip invalid lane keys
         }

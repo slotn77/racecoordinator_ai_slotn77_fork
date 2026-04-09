@@ -77,8 +77,8 @@ public class App {
     System.out.println("Race Coordinator AI Server " + SERVER_VERSION);
     System.out.println("Build Time: " + new Date());
     String projectDir = System.getProperty("user.dir");
-    String appDataDir = System.getProperty("app.data.dir",
-        Paths.get(projectDir, "app_data").toString());
+    String appDataDir =
+        System.getProperty("app.data.dir", Paths.get(projectDir, "app_data").toString());
     appDataDir = Paths.get(appDataDir).toAbsolutePath().normalize().toString();
     System.out.println("Using app data directory: " + appDataDir);
     String tmpDir = Paths.get(appDataDir, "server_temp").toString();
@@ -113,67 +113,74 @@ public class App {
     }
 
     // Add a shutdown hook to stop the embedded MongoDB server
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      logger.info("Shutting down server...");
-      ClientSubscriptionManager.getInstance().setShuttingDown(true);
-      if (app != null) {
-        try {
-          app.stop();
-        } catch (Exception e) {
-          logger.error("Error stopping Javalin: " + e.getMessage());
-        }
-      }
-      if (mongoClient != null) {
-        try {
-          mongoClient.close();
-        } catch (Exception e) {
-          logger.error("Error closing MongoClient: " + e.getMessage());
-        }
-      }
-      if (mongodProcess != null) {
-        logger.info("Stopping embedded MongoDB...");
-        mongodProcess.close();
-        logger.info("Embedded MongoDB stopped.");
-      }
-      if (manualMongoProcess != null) {
-        logger.info("Stopping manual MongoDB process...");
-        manualMongoProcess.destroy();
-        try {
-          if (!manualMongoProcess.waitFor(5, TimeUnit.SECONDS)) {
-            logger.warn("MongoDB did not shut down gracefully. Forcing termination...");
-            manualMongoProcess.destroyForcibly();
-          }
-        } catch (InterruptedException e) {
-          manualMongoProcess.destroyForcibly();
-        }
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  logger.info("Shutting down server...");
+                  ClientSubscriptionManager.getInstance().setShuttingDown(true);
+                  if (app != null) {
+                    try {
+                      app.stop();
+                    } catch (Exception e) {
+                      logger.error("Error stopping Javalin: " + e.getMessage());
+                    }
+                  }
+                  if (mongoClient != null) {
+                    try {
+                      mongoClient.close();
+                    } catch (Exception e) {
+                      logger.error("Error closing MongoClient: " + e.getMessage());
+                    }
+                  }
+                  if (mongodProcess != null) {
+                    logger.info("Stopping embedded MongoDB...");
+                    mongodProcess.close();
+                    logger.info("Embedded MongoDB stopped.");
+                  }
+                  if (manualMongoProcess != null) {
+                    logger.info("Stopping manual MongoDB process...");
+                    manualMongoProcess.destroy();
+                    try {
+                      if (!manualMongoProcess.waitFor(5, TimeUnit.SECONDS)) {
+                        logger.warn("MongoDB did not shut down gracefully. Forcing termination...");
+                        manualMongoProcess.destroyForcibly();
+                      }
+                    } catch (InterruptedException e) {
+                      manualMongoProcess.destroyForcibly();
+                    }
 
-        // Fallback for Windows if process is still alive (often happens on Win7)
-        if (manualMongoProcess.isAlive() && System.getProperty("os.name").toLowerCase().contains("win")) {
-          logger.info("MongoDB still alive on Windows. Using taskkill fallback...");
-          try {
-            // Kill by image name to be sure, targeting the one we started
-            Runtime.getRuntime().exec("taskkill /F /IM mongod.exe /T");
-          } catch (IOException e) {
-            logger.error("Failed to run taskkill: " + e.getMessage());
-          }
-        }
-        logger.info("Manual MongoDB process handling complete.");
-      }
-      logger.info("Server stopped.");
-    }));
+                    // Fallback for Windows if process is still alive (often happens on Win7)
+                    if (manualMongoProcess.isAlive()
+                        && System.getProperty("os.name").toLowerCase().contains("win")) {
+                      logger.info("MongoDB still alive on Windows. Using taskkill fallback...");
+                      try {
+                        // Kill by image name to be sure, targeting the one we started
+                        Runtime.getRuntime().exec("taskkill /F /IM mongod.exe /T");
+                      } catch (IOException e) {
+                        logger.error("Failed to run taskkill: " + e.getMessage());
+                      }
+                    }
+                    logger.info("Manual MongoDB process handling complete.");
+                  }
+                  logger.info("Server stopped.");
+                }));
 
     // MongoDB Setup
     CodecRegistry robustBooleanRegistry = CodecRegistries.fromCodecs(new RobustBooleanCodec());
 
-    CodecRegistry pojoCodecRegistry = fromRegistries(robustBooleanRegistry,
-        MongoClientSettings.getDefaultCodecRegistry(),
-        fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+    CodecRegistry pojoCodecRegistry =
+        fromRegistries(
+            robustBooleanRegistry,
+            MongoClientSettings.getDefaultCodecRegistry(),
+            fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-    MongoClientSettings settings = MongoClientSettings.builder()
-        .applyConnectionString(new ConnectionString("mongodb://localhost:" + MONGO_PORT))
-        .codecRegistry(pojoCodecRegistry)
-        .applyToClusterSettings(b -> b.serverSelectionTimeout(30000, TimeUnit.MILLISECONDS))
-        .build();
+    MongoClientSettings settings =
+        MongoClientSettings.builder()
+            .applyConnectionString(new ConnectionString("mongodb://localhost:" + MONGO_PORT))
+            .codecRegistry(pojoCodecRegistry)
+            .applyToClusterSettings(b -> b.serverSelectionTimeout(30000, TimeUnit.MILLISECONDS))
+            .build();
 
     mongoClient = MongoClients.create(settings);
 
@@ -261,7 +268,8 @@ public class App {
     if (userDatabases.isEmpty()) {
       initialDbName = "RaceCoordinator_AI_DB";
       needsFactoryReset = true;
-      System.out.println("No existing databases found. Creating '" + initialDbName + "' with factory defaults.");
+      System.out.println(
+          "No existing databases found. Creating '" + initialDbName + "' with factory defaults.");
     } else {
       // Prioritize last active DB if it exists
       if (lastActiveDb != null && userDatabases.contains(lastActiveDb)) {
@@ -276,8 +284,8 @@ public class App {
       }
     }
 
-    DatabaseContext databaseContext = new DatabaseContext(
-        mongoClient, initialDbName, configService, appDataDir);
+    DatabaseContext databaseContext =
+        new DatabaseContext(mongoClient, initialDbName, configService, appDataDir);
 
     ClientSubscriptionManager.getInstance().setDatabaseContext(databaseContext);
 
@@ -303,70 +311,87 @@ public class App {
     final String staticFilePath = resolvedClientPath != null ? resolvedClientPath : "web";
     System.out.println("Serving static files from: " + staticFilePath);
 
-    app = Javalin.create(config -> {
-      config.addStaticFiles(staticFilePath, Location.EXTERNAL);
-      config.enableCorsForAllOrigins();
+    app =
+        Javalin.create(
+                config -> {
+                  config.addStaticFiles(staticFilePath, Location.EXTERNAL);
+                  config.enableCorsForAllOrigins();
 
-      ObjectMapper mapper = new ObjectMapper();
-      SimpleModule module = new SimpleModule();
-      module.addDeserializer(ObjectId.class, new JsonDeserializer<ObjectId>() {
-        @Override
-        public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-          String value = p.getValueAsString();
-          if (value == null || value.isEmpty()) {
-            return null;
-          }
-          try {
-            return new ObjectId(value);
-          } catch (IllegalArgumentException e) {
-            return null;
-          }
-        }
-      });
-      mapper.registerModule(module);
-      config.jsonMapper(new JavalinJackson(mapper));
-    }).start(7070);
+                  ObjectMapper mapper = new ObjectMapper();
+                  SimpleModule module = new SimpleModule();
+                  module.addDeserializer(
+                      ObjectId.class,
+                      new JsonDeserializer<ObjectId>() {
+                        @Override
+                        public ObjectId deserialize(JsonParser p, DeserializationContext ctxt)
+                            throws IOException {
+                          String value = p.getValueAsString();
+                          if (value == null || value.isEmpty()) {
+                            return null;
+                          }
+                          try {
+                            return new ObjectId(value);
+                          } catch (IllegalArgumentException e) {
+                            return null;
+                          }
+                        }
+                      });
+                  mapper.registerModule(module);
+                  config.jsonMapper(new JavalinJackson(mapper));
+                })
+            .start(7070);
 
     // SPA Fallback: Serve index.html for 404s on HTML requests
-    app.error(404, ctx -> {
-      String accept = ctx.header("Accept");
-      if (accept != null && accept.contains("text/html")) {
-        Path indexPath = Paths.get(staticFilePath, "index.html");
-        if (Files.exists(indexPath)) {
-          ctx.contentType("text/html");
-          ctx.result(new String(Files.readAllBytes(indexPath)));
-        } else {
-          System.err.println("SPA Fallback: index.html not found at " + indexPath.toAbsolutePath());
-        }
-      }
-    });
+    app.error(
+        404,
+        ctx -> {
+          String accept = ctx.header("Accept");
+          if (accept != null && accept.contains("text/html")) {
+            Path indexPath = Paths.get(staticFilePath, "index.html");
+            if (Files.exists(indexPath)) {
+              ctx.contentType("text/html");
+              ctx.result(new String(Files.readAllBytes(indexPath)));
+            } else {
+              System.err.println(
+                  "SPA Fallback: index.html not found at " + indexPath.toAbsolutePath());
+            }
+          }
+        });
 
-    app.ws("/api/race-data", ws -> {
-      ws.onConnect(ctx -> {
-        ClientSubscriptionManager.getInstance().addSession(ctx);
-      });
-      ws.onClose(ctx -> {
-        ClientSubscriptionManager.getInstance().removeSession(ctx);
-      });
-      ws.onBinaryMessage(ctx -> {
-        try {
-          RaceSubscriptionRequest request = RaceSubscriptionRequest
-              .parseFrom(ctx.data());
-          ClientSubscriptionManager.getInstance().handleRaceSubscription(ctx, request);
-        } catch (Exception e) {
-          // Ignore non-subscription messages or invalid protos
-        }
-      });
-    });
+    app.ws(
+        "/api/race-data",
+        ws -> {
+          ws.onConnect(
+              ctx -> {
+                ClientSubscriptionManager.getInstance().addSession(ctx);
+              });
+          ws.onClose(
+              ctx -> {
+                ClientSubscriptionManager.getInstance().removeSession(ctx);
+              });
+          ws.onBinaryMessage(
+              ctx -> {
+                try {
+                  RaceSubscriptionRequest request = RaceSubscriptionRequest.parseFrom(ctx.data());
+                  ClientSubscriptionManager.getInstance().handleRaceSubscription(ctx, request);
+                } catch (Exception e) {
+                  // Ignore non-subscription messages or invalid protos
+                }
+              });
+        });
 
-    app.ws("/api/interface-data", ws -> {
-      ws.onConnect(ctx -> {
-        ClientSubscriptionManager.getInstance().addInterfaceSession(ctx);
-      });
-      ws.onClose(ctx -> {
-        ClientSubscriptionManager.getInstance().removeInterfaceSession(ctx);
-      });
-    });
+    app.ws(
+        "/api/interface-data",
+        ws -> {
+          ws.onConnect(
+              ctx -> {
+                ClientSubscriptionManager.getInstance().addInterfaceSession(ctx);
+              });
+          ws.onClose(
+              ctx -> {
+                ClientSubscriptionManager.getInstance().removeInterfaceSession(ctx);
+              });
+        });
 
     new ClientCommandTaskHandler(databaseContext, app);
     new DatabaseTaskHandler(databaseContext, app);
@@ -386,8 +411,7 @@ public class App {
 
   private static void openBrowser(String url) {
     try {
-      if (Desktop.isDesktopSupported()
-          && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+      if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
         Desktop.getDesktop().browse(new URI(url));
       } else {
         // Fallback for systems where Desktop is not supported (print link)
@@ -406,7 +430,8 @@ public class App {
       System.out.println("Starting MongoDB...");
 
       String appDir = System.getProperty("user.dir");
-      String appDataDir = System.getProperty("app.data.dir", Paths.get(appDir, "app_data").toString());
+      String appDataDir =
+          System.getProperty("app.data.dir", Paths.get(appDir, "app_data").toString());
       String dataDir = Paths.get(appDataDir, "mongodb_data").toString();
 
       if (!Files.exists(Paths.get(dataDir))) {
@@ -443,10 +468,17 @@ public class App {
         if (osName != null) {
           String lowerOsName = osName.toLowerCase();
           String lowerArch = (osArch != null) ? osArch.toLowerCase() : "";
-          boolean isLegacyWindows = lowerOsName.contains("windows")
-              && (lowerOsName.contains("xp") || lowerOsName.contains("2003") || lowerOsName.contains("vista")
-              || lowerOsName.contains("windows 7") || lowerOsName.contains("windows 8"));
-          boolean is32Bit = !(lowerArch.contains("64") || lowerArch.contains("amd64") || lowerArch.contains("aarch64"));
+          boolean isLegacyWindows =
+              lowerOsName.contains("windows")
+                  && (lowerOsName.contains("xp")
+                      || lowerOsName.contains("2003")
+                      || lowerOsName.contains("vista")
+                      || lowerOsName.contains("windows 7")
+                      || lowerOsName.contains("windows 8"));
+          boolean is32Bit =
+              !(lowerArch.contains("64")
+                  || lowerArch.contains("amd64")
+                  || lowerArch.contains("aarch64"));
 
           if (isLegacyWindows || is32Bit) {
             System.out.println(
@@ -463,17 +495,20 @@ public class App {
 
         // Print output in a separate thread so it doesn't block the server but stays
         // visible
-        new Thread(() -> {
-          try (BufferedReader reader = new BufferedReader(
-              new InputStreamReader(manualMongoProcess.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-              System.out.println("[MongoDB] " + line);
-            }
-          } catch (IOException e) {
-            // Ignore
-          }
-        }).start();
+        new Thread(
+                () -> {
+                  try (BufferedReader reader =
+                      new BufferedReader(
+                          new InputStreamReader(manualMongoProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                      System.out.println("[MongoDB] " + line);
+                    }
+                  } catch (IOException e) {
+                    // Ignore
+                  }
+                })
+            .start();
 
         System.out.println("Bundled MongoDB started. Waiting for initialization...");
         return;
@@ -490,40 +525,59 @@ public class App {
 
       de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion mongoVersion = Version.Main.V6_0;
 
-      ImmutableMongod mongod = Mongod.instance()
-          .withInitTempDirectory(
-              de.flapdoodle.embed.process.transitions.InitTempDirectory.with(Paths.get(mongoTempDir)));
+      ImmutableMongod mongod =
+          Mongod.instance()
+              .withInitTempDirectory(
+                  de.flapdoodle.embed.process.transitions.InitTempDirectory.with(
+                      Paths.get(mongoTempDir)));
       if (osName != null) {
         System.out.println("Detected OS: " + osName + " (" + osArch + ")");
         String lowerArch = (osArch != null) ? osArch.toLowerCase() : "";
 
-        boolean isLegacyWindows = lowerOs.contains("windows")
-            && (lowerOs.contains("xp") || lowerOs.contains("2003") || lowerOs.contains("vista")
-            || lowerOs.contains("windows 7") || lowerOs.contains("windows 8"));
-        boolean is64Bit = lowerArch.contains("64") || lowerArch.contains("amd64")
-            || lowerArch.contains("aarch64");
+        boolean isLegacyWindows =
+            lowerOs.contains("windows")
+                && (lowerOs.contains("xp")
+                    || lowerOs.contains("2003")
+                    || lowerOs.contains("vista")
+                    || lowerOs.contains("windows 7")
+                    || lowerOs.contains("windows 8"));
+        boolean is64Bit =
+            lowerArch.contains("64")
+                || lowerArch.contains("amd64")
+                || lowerArch.contains("aarch64");
         boolean is32Bit = !is64Bit;
 
         if (isLegacyWindows || (lowerOs.contains("windows") && is32Bit)) {
-          System.out
-              .println("Legacy/32-bit Windows detected (" + osArch
+          System.out.println(
+              "Legacy/32-bit Windows detected ("
+                  + osArch
                   + "). Force-downgrading MongoDB to 3.2 and using mmapv1 storage engine...");
           mongoVersion = Version.Main.V3_2;
-          mongod = mongod.withMongodArguments(Start.to(MongodArguments.class)
-              .initializedWith(MongodArguments.defaults().withStorageEngine("mmapv1")));
+          mongod =
+              mongod.withMongodArguments(
+                  Start.to(MongodArguments.class)
+                      .initializedWith(MongodArguments.defaults().withStorageEngine("mmapv1")));
         }
       }
 
-      mongodProcess = mongod
-          .withDatabaseDir(Start.to(DatabaseDir.class).initializedWith(DatabaseDir.of(Paths.get(dataDir))))
-          .withNet(Start.to(Net.class)
-              .initializedWith(Net.of("localhost", MONGO_PORT, false))) // Use IPv4
-          .withProcessOutput(Start.to(ProcessOutput.class).initializedWith(ProcessOutput.builder()
-              .output(Processors.logTo(logger, Slf4jLevel.INFO))
-              .error(Processors.logTo(logger, Slf4jLevel.ERROR))
-              .commands(Processors.named("[console>]", Processors.logTo(logger, Slf4jLevel.DEBUG)))
-              .build()))
-          .start(mongoVersion);
+      mongodProcess =
+          mongod
+              .withDatabaseDir(
+                  Start.to(DatabaseDir.class).initializedWith(DatabaseDir.of(Paths.get(dataDir))))
+              .withNet(
+                  Start.to(Net.class)
+                      .initializedWith(Net.of("localhost", MONGO_PORT, false))) // Use IPv4
+              .withProcessOutput(
+                  Start.to(ProcessOutput.class)
+                      .initializedWith(
+                          ProcessOutput.builder()
+                              .output(Processors.logTo(logger, Slf4jLevel.INFO))
+                              .error(Processors.logTo(logger, Slf4jLevel.ERROR))
+                              .commands(
+                                  Processors.named(
+                                      "[console>]", Processors.logTo(logger, Slf4jLevel.DEBUG)))
+                              .build()))
+              .start(mongoVersion);
 
       System.out.println("Embedded MongoDB started with storage at " + dataDir);
     } catch (IOException e) {

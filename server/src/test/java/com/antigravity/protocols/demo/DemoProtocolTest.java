@@ -25,7 +25,8 @@ public class DemoProtocolTest {
     long mockedTime = 10000; // Start at arbitrary non-zero time
     MockScheduler mockScheduler;
 
-    public TestableDemo(int numLanes, MockScheduler scheduler, MockRandom random, boolean isFuelRace) {
+    public TestableDemo(
+        int numLanes, MockScheduler scheduler, MockRandom random, boolean isFuelRace) {
       super(numLanes, random, isFuelRace);
       this.mockScheduler = scheduler;
     }
@@ -89,8 +90,10 @@ public class DemoProtocolTest {
     // elapsed total)
     // Lane 1: elapsed since start = 200.
 
-    assertEquals("Lane 0 should have just reset (0.0s elapsed)", 0.0, partials.get(0).getLapTime(), 0.001);
-    assertEquals("Lane 1 should have 200ms elapsed (0.2s)", 0.2, partials.get(1).getLapTime(), 0.001);
+    assertEquals(
+        "Lane 0 should have just reset (0.0s elapsed)", 0.0, partials.get(0).getLapTime(), 0.001);
+    assertEquals(
+        "Lane 1 should have 200ms elapsed (0.2s)", 0.2, partials.get(1).getLapTime(), 0.001);
   }
 
   @Test

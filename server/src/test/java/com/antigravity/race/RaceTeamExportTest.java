@@ -35,26 +35,29 @@ public class RaceTeamExportTest {
     driverIds.add("d2");
     team = new Team("The Team", "team_avatar", driverIds, "t1", new ObjectId());
 
-    HeatScoring heatScoring = new HeatScoring(
-        HeatScoring.FinishMethod.Lap,
-        10L,
-        HeatScoring.HeatRanking.LAP_COUNT,
-        HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
-        HeatScoring.AllowFinish.None);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            10L,
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.None);
 
-    OverallScoring overallScoring = new OverallScoring(
-        0,
-        OverallScoring.OverallRanking.LAP_COUNT,
-        OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(
+            0,
+            OverallScoring.OverallRanking.LAP_COUNT,
+            OverallScoring.OverallRankingTiebreaker.FASTEST_LAP_TIME);
 
-    Race raceModel = new Race.Builder()
-        .withName("Team Race")
-        .withTrackEntityId("track1")
-        .withHeatRotationType(HeatRotationType.RoundRobin)
-        .withHeatScoring(heatScoring)
-        .withOverallScoring(overallScoring)
-        .withEntityId("race1")
-        .build();
+    Race raceModel =
+        new Race.Builder()
+            .withName("Team Race")
+            .withTrackEntityId("track1")
+            .withHeatRotationType(HeatRotationType.RoundRobin)
+            .withHeatScoring(heatScoring)
+            .withOverallScoring(overallScoring)
+            .withEntityId("race1")
+            .build();
 
     RaceParticipant teamParticipant = new RaceParticipant(team);
     List<Driver> teamDrivers = new ArrayList<>();
@@ -69,12 +72,13 @@ public class RaceTeamExportTest {
     lanes.add(new Lane("red", "black", 100));
     Track track = new Track("Test Track", lanes, new ArrayList<>(), "track1", new ObjectId());
 
-    race = new com.antigravity.race.Race.Builder()
-        .model(raceModel)
-        .drivers(participants)
-        .track(track)
-        .isDemoMode(true)
-        .build();
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(participants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
   }
 
   @Test
@@ -98,7 +102,8 @@ public class RaceTeamExportTest {
     assertTrue("CSV should contain team name in lane summary", csv.contains("1,The Team,N/A,"));
 
     // 6. Verify #Lap header (Show Driver and Nickname columns)
-    assertTrue("CSV should contain updated #Lap header", csv.contains("#Lap,Driver,Nickname,Lap Time"));
+    assertTrue(
+        "CSV should contain updated #Lap header", csv.contains("#Lap,Driver,Nickname,Lap Time"));
 
     // 7. Verify Lap 1 (Teammate A)
     assertTrue("CSV should attribute Lap 1 to Teammate A", csv.contains("1,Teammate A,TA,10.5"));

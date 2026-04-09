@@ -23,8 +23,14 @@ public class OverallStandingsTest {
     return new RaceParticipant(d, id);
   }
 
-  private Heat createHeat(int number, RaceParticipant p1, double laps1, double time1, RaceParticipant p2,
-      double laps2, double time2) {
+  private Heat createHeat(
+      int number,
+      RaceParticipant p1,
+      double laps1,
+      double time1,
+      RaceParticipant p2,
+      double laps2,
+      double time2) {
     List<DriverHeatData> dhdList = new ArrayList<>();
 
     DriverHeatData d1 = new DriverHeatData(p1);
@@ -41,8 +47,9 @@ public class OverallStandingsTest {
     dhdList.add(d1);
     dhdList.add(d2);
 
-    HeatScoring scoring = new HeatScoring(FinishMethod.Lap, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring scoring =
+        new HeatScoring(
+            FinishMethod.Lap, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.FASTEST_LAP_TIME);
 
     return new Heat(number, dhdList, scoring);
   }
@@ -50,10 +57,11 @@ public class OverallStandingsTest {
   @Test
   public void testSimpleRanking() {
     // Use FASTEST_LAP_TIME as tiebreaker
-    HeatScoring heatScoring = new HeatScoring(FinishMethod.Timed, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.FASTEST_LAP_TIME);
-    OverallScoring overallScoring = new OverallScoring(0, OverallRanking.LAP_COUNT,
-        OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(0, OverallRanking.LAP_COUNT, OverallRankingTiebreaker.FASTEST_LAP_TIME);
     OverallStandings os = new OverallStandings(heatScoring, overallScoring);
 
     RaceParticipant p1 = createDriver("D1", "id1");
@@ -76,10 +84,11 @@ public class OverallStandingsTest {
 
   @Test
   public void testDroppedHeats() {
-    HeatScoring heatScoring = new HeatScoring(FinishMethod.Timed, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.MEDIAN_LAP_TIME);
-    OverallScoring overallScoring = new OverallScoring(1, OverallRanking.LAP_COUNT,
-        OverallRankingTiebreaker.MEDIAN_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.MEDIAN_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(1, OverallRanking.LAP_COUNT, OverallRankingTiebreaker.MEDIAN_LAP_TIME);
     OverallStandings os = new OverallStandings(heatScoring, overallScoring);
 
     RaceParticipant p1 = createDriver("D1", "id1");
@@ -107,10 +116,11 @@ public class OverallStandingsTest {
   @Test
   public void testTiebreakers() {
     // Main criteria: LAP_COUNT, Tiebreaker: AVERAGE_LAP_TIME
-    HeatScoring heatScoring = new HeatScoring(FinishMethod.Timed, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.AVERAGE_LAP_TIME);
-    OverallScoring overallScoring = new OverallScoring(0, OverallRanking.LAP_COUNT,
-        OverallRankingTiebreaker.AVERAGE_LAP_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.AVERAGE_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(0, OverallRanking.LAP_COUNT, OverallRankingTiebreaker.AVERAGE_LAP_TIME);
     OverallStandings os = new OverallStandings(heatScoring, overallScoring);
 
     RaceParticipant p1 = createDriver("D1", "id1");
@@ -131,10 +141,11 @@ public class OverallStandingsTest {
     assertEquals(11.0, p2.getAverageLapTime(), 0.001);
 
     // Switch to MEDIAN_LAP_TIME
-    heatScoring = new HeatScoring(FinishMethod.Lap, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.MEDIAN_LAP_TIME);
-    overallScoring = new OverallScoring(0, OverallRanking.LAP_COUNT,
-        OverallRankingTiebreaker.MEDIAN_LAP_TIME);
+    heatScoring =
+        new HeatScoring(
+            FinishMethod.Lap, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.MEDIAN_LAP_TIME);
+    overallScoring =
+        new OverallScoring(0, OverallRanking.LAP_COUNT, OverallRankingTiebreaker.MEDIAN_LAP_TIME);
     os = new OverallStandings(heatScoring, overallScoring);
 
     p1 = createDriver("D1", "id1");
@@ -173,10 +184,11 @@ public class OverallStandingsTest {
 
   @Test
   public void testAverageLapRanking() {
-    HeatScoring heatScoring = new HeatScoring(FinishMethod.Timed, 10, HeatRanking.LAP_COUNT,
-        HeatRankingTiebreaker.AVERAGE_LAP_TIME);
-    OverallScoring overallScoring = new OverallScoring(0, OverallRanking.AVERAGE_LAP,
-        OverallRankingTiebreaker.TOTAL_TIME);
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 10, HeatRanking.LAP_COUNT, HeatRankingTiebreaker.AVERAGE_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(0, OverallRanking.AVERAGE_LAP, OverallRankingTiebreaker.TOTAL_TIME);
     OverallStandings os = new OverallStandings(heatScoring, overallScoring);
 
     RaceParticipant p1 = createDriver("D1", "id1");

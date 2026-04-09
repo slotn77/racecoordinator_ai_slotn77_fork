@@ -11,8 +11,15 @@ public class CarData {
   private final CarLocation lastLocation;
   private final int locationId;
 
-  public CarData(int lane, double time, double controllerThrottlePCT, double carThrottlePCT, boolean canRefuel,
-      CarLocation location, CarLocation lastLocation, int locationId) {
+  public CarData(
+      int lane,
+      double time,
+      double controllerThrottlePCT,
+      double carThrottlePCT,
+      boolean canRefuel,
+      CarLocation location,
+      CarLocation lastLocation,
+      int locationId) {
     this.lane = lane;
     this.time = time;
     this.controllerThrottlePCT = controllerThrottlePCT;

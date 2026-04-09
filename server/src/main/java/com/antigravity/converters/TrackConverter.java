@@ -20,12 +20,14 @@ public class TrackConverter {
           .setModel(Model.newBuilder().setEntityId(track.getObjectId()).build())
           .setName(track.getName())
           .setHasDigitalFuel(hasDigitalFuel(track))
-          .addAllArduinoConfigs(track.getArduinoConfigs().stream()
-              .map(ArduinoConfigConverter::toProto)
-              .collect(Collectors.toList()))
-          .addAllLanes(track.getLanes().stream()
-              .map(l -> LaneConverter.toProto(l, sentObjectIds))
-              .collect(Collectors.toList()))
+          .addAllArduinoConfigs(
+              track.getArduinoConfigs().stream()
+                  .map(ArduinoConfigConverter::toProto)
+                  .collect(Collectors.toList()))
+          .addAllLanes(
+              track.getLanes().stream()
+                  .map(l -> LaneConverter.toProto(l, sentObjectIds))
+                  .collect(Collectors.toList()))
           .build();
     }
   }

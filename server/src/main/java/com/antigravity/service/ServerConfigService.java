@@ -14,8 +14,9 @@ public class ServerConfigService {
   private final Config config;
 
   public ServerConfigService() {
-    String appDataDir = System.getProperty("app.data.dir",
-        Paths.get(System.getProperty("user.dir"), "app_data").toString());
+    String appDataDir =
+        System.getProperty(
+            "app.data.dir", Paths.get(System.getProperty("user.dir"), "app_data").toString());
     this.configFile = Paths.get(appDataDir, CONFIG_FILE).toFile();
     this.mapper = new ObjectMapper();
     this.config = loadConfig();

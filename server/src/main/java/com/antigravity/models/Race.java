@@ -61,32 +61,41 @@ public class Race extends Model {
 
   @BsonCreator
   @JsonCreator
-  public Race(@BsonProperty("name") @JsonProperty("name") String name,
+  public Race(
+      @BsonProperty("name") @JsonProperty("name") String name,
       @BsonProperty("track_entity_id") @JsonProperty("track_entity_id") String trackEntityId,
-      @BsonProperty("heat_rotation_type") @JsonProperty("heat_rotation_type") HeatRotationType heatRotationType,
+      @BsonProperty("heat_rotation_type") @JsonProperty("heat_rotation_type")
+          HeatRotationType heatRotationType,
       @BsonProperty("heat_scoring") @JsonProperty("heat_scoring") HeatScoring heatScoring,
       @BsonProperty("race_scoring") @JsonProperty("race_scoring") HeatScoring oldHeatScoring,
-      @BsonProperty("overall_scoring") @JsonProperty("overall_scoring") OverallScoring overallScoring,
+      @BsonProperty("overall_scoring") @JsonProperty("overall_scoring")
+          OverallScoring overallScoring,
       @BsonProperty("min_lap_time") @JsonProperty("min_lap_time") Double minLapTime,
       @BsonProperty("fuel_options") @JsonProperty("fuel_options") AnalogFuelOptions fuelOptions,
-      @BsonProperty("digital_fuel_options") @JsonProperty("digital_fuel_options") DigitalFuelOptions digitalFuelOptions,
+      @BsonProperty("digital_fuel_options") @JsonProperty("digital_fuel_options")
+          DigitalFuelOptions digitalFuelOptions,
       @BsonProperty("team_options") @JsonProperty("team_options") TeamOptions teamOptions,
       @BsonProperty("auto_advance_time") @JsonProperty("auto_advance_time") Double autoAdvanceTime,
       @BsonProperty("auto_start_time") @JsonProperty("auto_start_time") Double autoStartTime,
-      @BsonProperty("auto_advance_warmup_time") @JsonProperty("auto_advance_warmup_time") Double autoAdvanceWarmupTime,
-      @BsonProperty("auto_start_warmup_time") @JsonProperty("auto_start_warmup_time") Double autoStartWarmupTime,
+      @BsonProperty("auto_advance_warmup_time") @JsonProperty("auto_advance_warmup_time")
+          Double autoAdvanceWarmupTime,
+      @BsonProperty("auto_start_warmup_time") @JsonProperty("auto_start_warmup_time")
+          Double autoStartWarmupTime,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
       @BsonId @JsonProperty("_id") ObjectId id) {
     super(id, entityId);
     this.name = name;
     this.trackEntityId = trackEntityId;
     this.heatRotationType = heatRotationType;
-    this.heatScoring = heatScoring != null ? heatScoring
-        : (oldHeatScoring != null ? oldHeatScoring : new HeatScoring());
+    this.heatScoring =
+        heatScoring != null
+            ? heatScoring
+            : (oldHeatScoring != null ? oldHeatScoring : new HeatScoring());
     this.overallScoring = overallScoring != null ? overallScoring : new OverallScoring();
     this.minLapTime = minLapTime != null ? minLapTime : 0.0;
     this.fuelOptions = fuelOptions != null ? fuelOptions : new AnalogFuelOptions();
-    this.digitalFuelOptions = digitalFuelOptions != null ? digitalFuelOptions : new DigitalFuelOptions();
+    this.digitalFuelOptions =
+        digitalFuelOptions != null ? digitalFuelOptions : new DigitalFuelOptions();
     this.teamOptions = teamOptions != null ? teamOptions : new TeamOptions();
     this.autoAdvanceTime = autoAdvanceTime != null ? autoAdvanceTime : 0.0;
     this.autoStartTime = autoStartTime != null ? autoStartTime : 0.0;
@@ -188,9 +197,23 @@ public class Race extends Model {
     }
 
     public Race build() {
-      return new Race(name, trackEntityId, heatRotationType, heatScoring, null, overallScoring, minLapTime,
-          fuelOptions, digitalFuelOptions, teamOptions, autoAdvanceTime, autoStartTime, autoAdvanceWarmupTime,
-          autoStartWarmupTime, entityId, id);
+      return new Race(
+          name,
+          trackEntityId,
+          heatRotationType,
+          heatScoring,
+          null,
+          overallScoring,
+          minLapTime,
+          fuelOptions,
+          digitalFuelOptions,
+          teamOptions,
+          autoAdvanceTime,
+          autoStartTime,
+          autoAdvanceWarmupTime,
+          autoStartWarmupTime,
+          entityId,
+          id);
     }
   }
 
