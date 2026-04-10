@@ -467,7 +467,7 @@ public class ClientCommandTaskHandlerTest {
   }
 
   @Test
-  public void testToggleAnalytics_LAN_IPv4_PrivateNetwork_Success() throws Exception {
+  public void testToggleAnalytics_LAN_IPv4_PrivateNetwork_Forbidden() throws Exception {
     ClientCommandTaskHandler spyHandler = spy(handler);
     Context mockCtx = mock(Context.class);
 
@@ -486,11 +486,11 @@ public class ClientCommandTaskHandlerTest {
 
     spyHandler.toggleAnalytics(mockCtx);
 
-    verify(spyHandler).setStatus(any(), eq(200));
+    verify(spyHandler).setStatus(any(), eq(403));
   }
 
   @Test
-  public void testToggleAnalytics_LAN_IPv4_10x_PrivateNetwork_Success() throws Exception {
+  public void testToggleAnalytics_LAN_IPv4_10x_PrivateNetwork_Forbidden() throws Exception {
     ClientCommandTaskHandler spyHandler = spy(handler);
     Context mockCtx = mock(Context.class);
 
@@ -509,11 +509,11 @@ public class ClientCommandTaskHandlerTest {
 
     spyHandler.toggleAnalytics(mockCtx);
 
-    verify(spyHandler).setStatus(any(), eq(200));
+    verify(spyHandler).setStatus(any(), eq(403));
   }
 
   @Test
-  public void testToggleAnalytics_LAN_IPv4_172x_PrivateNetwork_Success() throws Exception {
+  public void testToggleAnalytics_LAN_IPv4_172x_PrivateNetwork_Forbidden() throws Exception {
     ClientCommandTaskHandler spyHandler = spy(handler);
     Context mockCtx = mock(Context.class);
 
@@ -532,7 +532,7 @@ public class ClientCommandTaskHandlerTest {
 
     spyHandler.toggleAnalytics(mockCtx);
 
-    verify(spyHandler).setStatus(any(), eq(200));
+    verify(spyHandler).setStatus(any(), eq(403));
   }
 
   @Test

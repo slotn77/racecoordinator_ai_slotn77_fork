@@ -979,7 +979,7 @@ public class ClientCommandTaskHandler {
     String remoteAddr = getRemoteAddr(ctx);
     String remoteHost = getRemoteHost(ctx);
 
-    boolean isLocalhost = NetworkUtils.isLocalAddress(remoteAddr, remoteHost);
+    boolean isLocalhost = NetworkUtils.isLocalhost(remoteAddr, remoteHost);
 
     if (!isLocalhost) {
       setStatus(ctx, 403);

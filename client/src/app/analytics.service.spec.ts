@@ -18,8 +18,9 @@ describe("AnalyticsService", () => {
   let mockDataService: any;
 
   beforeEach(() => {
-    // Reset the global gtag spy
-    (window as any).gtag = jasmine.createSpy("gtag");
+    // Ensure global gtag and dataLayer are clean before each test
+    delete (window as any).gtag;
+    delete (window as any).dataLayer;
 
     routerEventsSubject = new Subject<any>();
     mockRouter = {
@@ -56,6 +57,7 @@ describe("AnalyticsService", () => {
 
     mockDocument = {
       head: mockHead,
+      defaultView: window,
       createElement: jasmine
         .createSpy("createElement")
         .and.callFake((tagName: string) => {
@@ -80,10 +82,32 @@ describe("AnalyticsService", () => {
 
   afterEach(() => {
     delete (window as any).gtag;
+    delete (window as any).dataLayer;
   });
 
-  it("should be created", () => {
+  it("should be created and define gtag fallback", () => {
     expect(service).toBeTruthy();
+    const window = mockDocument.defaultView;
+    expect(window.gtag).toBeDefined();
+    expect(window.dataLayer).toBeDefined();
+
+    // Verify fallback function pushes to dataLayer
+    window.gtag("event", "test_event");
+    expect(window.dataLayer.length).toBeGreaterThan(0);
+    expect(window.dataLayer[0][0]).toBe("event");
+    expect(window.dataLayer[0][1]).toBe("test_event");
+  });
+
+  describe("ensureGtagFallback", () => {
+    it("should not overwrite existing gtag", () => {
+      const existingGtag = jasmine.createSpy("existingGtag");
+      mockDocument.defaultView.gtag = existingGtag;
+
+      // Access private method for testing or just rely on constructor call
+      (service as any).ensureGtagFallback();
+
+      expect(mockDocument.defaultView.gtag).toBe(existingGtag);
+    });
   });
 
   describe("initTracking", () => {
@@ -136,12 +160,17 @@ describe("AnalyticsService", () => {
 
     it("should only inject scripts once even if called multiple times", () => {
       mockSettings.shareAnalytics = true;
+      spyOn(console, "debug"); // Monitor initialization logs
       service.initTracking();
       service.updateOptOutStatus();
       service.updateOptOutStatus();
 
       // Even after 3 updates, it should only create/append 2 scripts total
       expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(2);
+      expect(console.debug).toHaveBeenCalledWith(
+        jasmine.stringMatching("Analytics: updateOptOutStatus called"),
+        jasmine.any(Object),
+      );
     });
   });
 
@@ -149,6 +178,9 @@ describe("AnalyticsService", () => {
     it("should automatically dispatch page_view events when navigating router if enabled", () => {
       mockSettings.shareAnalytics = true;
       service.initTracking();
+
+      // Once initTracking is called, gtag is guaranteed to exist via constructor
+      spyOn(window as any, "gtag").and.callThrough();
 
       // Simulate a router navigation event
       routerEventsSubject.next(
@@ -164,6 +196,8 @@ describe("AnalyticsService", () => {
       mockSettings.shareAnalytics = false;
       service.initTracking();
 
+      spyOn(window as any, "gtag").and.callThrough();
+
       routerEventsSubject.next(
         new NavigationEnd(1, "/fake-url", "/fake-redirect-url"),
       );
@@ -177,6 +211,8 @@ describe("AnalyticsService", () => {
       mockSettings.shareAnalytics = true;
       service.initTracking(); // Init to pull settings
 
+      spyOn(window as any, "gtag").and.callThrough();
+
       service.trackClick("btn_demo", { is_demo: true });
 
       expect((window as any).gtag).toHaveBeenCalledWith("event", "btn_demo", {
@@ -189,6 +225,8 @@ describe("AnalyticsService", () => {
     it("should suppress custom GA events when tracking is disabled", () => {
       mockSettings.shareAnalytics = false;
       service.initTracking(); // Init to pull settings
+
+      spyOn(window as any, "gtag").and.callThrough();
 
       service.trackClick("btn_demo", { is_demo: true });
 

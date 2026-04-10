@@ -146,7 +146,7 @@ public class AnalyticsService {
                     measurementId, apiSecret);
 
             URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = createConnection(url);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
@@ -158,11 +158,35 @@ public class AnalyticsService {
 
             int statusCode = conn.getResponseCode();
             if (statusCode >= 400) {
-              logger.warn("Failed to send GA telemetry. Status: {}", statusCode);
+              StringBuilder responseBody = new StringBuilder();
+              try (InputStream is = conn.getErrorStream()) {
+                if (is != null) {
+                  byte[] buffer = new byte[1024];
+                  int bytesRead;
+                  while ((bytesRead = is.read(buffer)) != -1) {
+                    responseBody.append(new String(buffer, 0, bytesRead, "utf-8"));
+                  }
+                }
+              } catch (Exception bodyEx) {
+                responseBody
+                    .append("(could not read error body: ")
+                    .append(bodyEx.getMessage())
+                    .append(")");
+              }
+              logger.warn(
+                  "Failed to send GA telemetry. Status: {}. Response: {}",
+                  statusCode,
+                  responseBody);
+            } else {
+              logger.debug("Successfully sent GA telemetry. Status: {}", statusCode);
             }
           } catch (Exception e) {
             logger.warn("Error sending GA telemetry: {}", e.getMessage());
           }
         });
+  }
+
+  protected HttpURLConnection createConnection(URL url) throws Exception {
+    return (HttpURLConnection) url.openConnection();
   }
 }

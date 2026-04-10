@@ -24,7 +24,20 @@ export class AnalyticsService {
     private settingsService: SettingsService,
     private dataService: DataService,
     @Inject(DOCUMENT) private document: Document,
-  ) {}
+  ) {
+    this.ensureGtagFallback();
+  }
+
+  private ensureGtagFallback() {
+    const window = this.document.defaultView as any;
+    if (window && typeof window.gtag === "undefined") {
+      console.info("Analytics: Defining global gtag fallback function.");
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () {
+        window.dataLayer.push(arguments);
+      };
+    }
+  }
 
   public isEnabled(): boolean {
     return this.settingsService.getSettings().shareAnalytics;
@@ -83,6 +96,10 @@ export class AnalyticsService {
   public updateOptOutStatus() {
     const settings = this.settingsService.getSettings();
     this.metricsEnabled = settings.shareAnalytics;
+    console.debug("Analytics: updateOptOutStatus called", {
+      metricsEnabled: this.metricsEnabled,
+      scriptLoaded: this.scriptLoaded,
+    });
 
     if (this.metricsEnabled && !this.scriptLoaded) {
       this.loadGoogleAnalyticsScript();
@@ -90,26 +107,34 @@ export class AnalyticsService {
   }
 
   private loadGoogleAnalyticsScript() {
+    console.info("Analytics: loadGoogleAnalyticsScript called");
     this.scriptLoaded = true;
 
     this.dataService.getServerAnalyticsConfig().subscribe({
       next: (config) => {
+        console.info("Analytics: Received config from server", {
+          measurementId: !!config.measurementId,
+          clientId: !!config.clientId,
+        });
         if (config.measurementId) {
           this.measurementId = config.measurementId;
         }
 
         if (!this.measurementId) {
           console.warn(
-            "Analytics enabled but no Measurement ID is configured on the server.",
+            "Analytics enabled but no Measurement ID is configured on the server. Aborting script injection.",
           );
           return;
         }
 
         const clientId = config.clientId;
-
         const script1 = this.document.createElement("script");
         script1.async = true;
         script1.src = `https://www.googletagmanager.com/gtag/js?id=${this.measurementId}`;
+        script1.onload = () =>
+          console.info("Analytics: GTAG library script loaded successfully.");
+        script1.onerror = (e) =>
+          console.error("Analytics: GTAG library script failed to load.", e);
         this.document.head.appendChild(script1);
 
         const script2 = this.document.createElement("script");
@@ -123,6 +148,7 @@ export class AnalyticsService {
           });
         `;
         this.document.head.appendChild(script2);
+        console.info("Analytics: Inline config script appended to head.");
       },
       error: (err) => {
         console.warn(
@@ -150,18 +176,18 @@ export class AnalyticsService {
   }
 
   private trackPageView(url: string) {
-    if (!this.metricsEnabled) return;
+    if (!this.metricsEnabled) {
+      console.debug("Analytics: Page view skipped (metrics disabled)");
+      return;
+    }
 
     try {
-      if (typeof gtag !== "undefined") {
-        // Since we initialized with send_page_view: false, we explicitly
-        // trigger a page_view event on router navigation.
-        gtag("event", "page_view", {
-          page_path: url,
-        });
-      }
+      console.info("Analytics: Tracking page view", url);
+      gtag("event", "page_view", {
+        page_path: url,
+      });
     } catch (e) {
-      console.warn("Analytics not initialized properly");
+      console.warn("Analytics: Error in trackPageView", e);
     }
   }
 
@@ -170,15 +196,13 @@ export class AnalyticsService {
     if (!this.metricsEnabled) return;
 
     try {
-      if (typeof gtag !== "undefined") {
-        gtag("event", eventName, {
-          ...params,
-          event_category: "engagement",
-          event_label: "button_click",
-        });
-      }
+      gtag("event", eventName, {
+        ...params,
+        event_category: "engagement",
+        event_label: "button_click",
+      });
     } catch (e) {
-      console.warn("Analytics not initialized properly");
+      console.warn("Analytics: Error in trackClick", e);
     }
   }
 }

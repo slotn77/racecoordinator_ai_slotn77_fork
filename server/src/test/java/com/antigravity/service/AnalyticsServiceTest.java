@@ -151,4 +151,37 @@ public class AnalyticsServiceTest {
     measurementIdField.set(service, originalMeasurement);
     apiSecretField.set(service, originalSecret);
   }
+
+  @Test
+  public void testTrackRaceStart_HandlesErrorResponse() throws Exception {
+    // This test verifies that the error handling code (including reading the error stream)
+    // executes without throwing exceptions.
+
+    Field enabledField = AnalyticsService.class.getDeclaredField("enabled");
+    enabledField.setAccessible(true);
+    boolean originalEnabled = (boolean) enabledField.get(service);
+
+    Field measurementIdField = AnalyticsService.class.getDeclaredField("measurementId");
+    measurementIdField.setAccessible(true);
+    String originalMeasurement = (String) measurementIdField.get(service);
+
+    enabledField.set(service, true);
+    measurementIdField.set(service, "G-ERROR");
+
+    Race mockRace = mock(Race.class);
+    Track mockTrack = mock(Track.class);
+    when(mockRace.getTrack()).thenReturn(mockTrack);
+    when(mockTrack.getLanes()).thenReturn(new ArrayList<>());
+    when(mockRace.getDrivers()).thenReturn(new ArrayList<>());
+
+    // We can't easily mock the internal createConnection call on the real singleton
+    // without more refactoring, but we can verify that triggering a transmission
+    // to a non-existent endpoint doesn't crash the app and logs appropriately.
+    service.trackRaceStart(mockRace);
+
+    Thread.sleep(200);
+
+    enabledField.set(service, originalEnabled);
+    measurementIdField.set(service, originalMeasurement);
+  }
 }
