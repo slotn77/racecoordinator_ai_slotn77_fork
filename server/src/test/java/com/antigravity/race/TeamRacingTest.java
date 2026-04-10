@@ -2,7 +2,6 @@ package com.antigravity.race;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 import com.antigravity.models.Driver;
 import com.antigravity.models.HeatRotationType;
@@ -82,7 +81,7 @@ public class TeamRacingTest {
         new Track(
             "Test Track",
             lanes,
-            Collections.singletonList(mock(ArduinoConfig.class)),
+            Collections.singletonList(new ArduinoConfig()),
             "track1",
             new ObjectId());
 
