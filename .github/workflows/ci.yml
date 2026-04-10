@@ -27,7 +27,7 @@ jobs:
         run: cd client && npm run test --watch=false
 
   test-visual:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20
@@ -41,12 +41,12 @@ jobs:
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ms-playwright
+          path: ~/Library/Caches/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('client/package-lock.json') }}
       - name: Install Playwright Browsers
         run: cd client && npx playwright install --with-deps
       - name: Install Protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+        run: brew install protobuf
       - name: Generate Protobufs
         run: cd server && chmod +x generate_protos.sh && ./generate_protos.sh
       - name: Run visual tests

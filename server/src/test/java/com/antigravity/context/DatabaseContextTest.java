@@ -45,7 +45,7 @@ public class DatabaseContextTest {
   private DatabaseContext databaseContext;
   private ServerConfigService configService;
 
-  @Rule public TemporaryFolder tempFolder = new TemporaryFolder(new File("/tmp/racecoordinator"));
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Before
   public void setup() throws Exception {
