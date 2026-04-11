@@ -108,23 +108,6 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
         }),
       );
     }
-
-    // Trigger help automatically on first visit or if requested via query param
-    // TODO(aufderheide): I think the param query is just for tests and if so
-    // should be removed and the tests should fix flakiness issues some other way.
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.driverEditorHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.driverEditorHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 500);
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -626,7 +609,7 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("DE_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("DE_HELP_WELCOME_CONTENT"),
@@ -651,11 +634,5 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
         position: "bottom",
       },
     ];
-
-    if (this.titleComponent?.toolbar) {
-      steps.push(...this.titleComponent.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 }

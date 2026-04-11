@@ -18,6 +18,10 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import {
+  createTestSettings,
+  mockAnalyticsService,
+} from "src/app/testing/unit-test-mocks";
 
 import { RaceEditorComponent } from "./race-editor.component";
 import { RaceEditorHarness } from "./testing/race-editor.harness";
@@ -32,7 +36,7 @@ describe("RaceEditorComponent", () => {
   let mockTranslationService: jasmine.SpyObj<TranslationService>;
   let mockHelpService: jasmine.SpyObj<HelpService>;
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
 
   beforeEach(() => {
     mockDataService = jasmine.createSpyObj("DataService", [
@@ -54,21 +58,13 @@ describe("RaceEditorComponent", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "toggleAnalytics",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockSettingsService = jasmine.createSpyObj("SettingsService", [
       "getSettings",
       "saveSettings",
     ]);
-    mockSettingsService.getSettings.and.returnValue({
-      raceEditorHelpShown: true,
-    } as any);
+    mockSettingsService.getSettings.and.returnValue(createTestSettings());
 
     mockActivatedRoute = {
       snapshot: {
@@ -92,7 +88,7 @@ describe("RaceEditorComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],

@@ -174,21 +174,6 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
     this.undoManager.stateCommitted$.subscribe(() => {
       this.autoSaveRace();
     });
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.raceEditorHelpShown) {
-        setTimeout(() => {
-          this.startHelp();
-          if (!forceHelp) {
-            settings.raceEditorHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 800);
-      }
-    });
   }
 
   ngOnDestroy() {

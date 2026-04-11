@@ -22,6 +22,7 @@ import {
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import { createTestSettings } from "src/app/testing/unit-test-mocks";
 
 import { TeamManagerComponent } from "./team-manager.component";
 import { TeamManagerHarness } from "./testing/team-manager.harness";
@@ -117,9 +118,7 @@ describe("TeamManagerComponent", () => {
     mockDataService.getTeams.and.returnValue(of(mockTeams));
     mockDataService.getDrivers.and.returnValue(of(mockDrivers));
     mockTranslationService.translate.and.callFake((key) => key);
-    mockSettingsService.getSettings.and.returnValue({
-      teamManagerHelpShown: true,
-    } as any);
+    mockSettingsService.getSettings.and.returnValue(createTestSettings());
 
     await TestBed.configureTestingModule({
       declarations: [TeamManagerComponent],
@@ -241,49 +240,6 @@ describe("TeamManagerComponent", () => {
         }),
       );
     });
-  });
-
-  describe("Guided Help", () => {
-    it("should trigger help auto-open on first visit", fakeAsync(() => {
-      fixture.destroy();
-      TestBed.resetTestingModule();
-
-      mockSettingsService.getSettings.and.returnValue({
-        teamManagerHelpShown: false,
-      } as any);
-
-      TestBed.configureTestingModule({
-        declarations: [TeamManagerComponent],
-        imports: [SharedModule],
-        providers: [
-          { provide: DataService, useValue: mockDataService },
-          { provide: TranslationService, useValue: mockTranslationService },
-          { provide: Router, useValue: mockRouter },
-          { provide: ActivatedRoute, useValue: mockActivatedRoute },
-          {
-            provide: ConnectionMonitorService,
-            useValue: mockConnectionMonitor,
-          },
-          { provide: HelpService, useValue: mockHelpService },
-          { provide: AnalyticsService, useValue: mockAnalyticsService },
-          { provide: SettingsService, useValue: mockSettingsService },
-          ChangeDetectorRef,
-        ],
-      }).compileComponents();
-
-      fixture = TestBed.createComponent(TeamManagerComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      tick(1000);
-
-      expect(mockHelpService.startGuide).toHaveBeenCalled();
-      expect(mockSettingsService.saveSettings).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          teamManagerHelpShown: true,
-        }),
-      );
-    }));
   });
 
   describe("Edit Team", () => {

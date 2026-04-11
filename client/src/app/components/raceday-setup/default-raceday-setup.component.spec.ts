@@ -22,6 +22,10 @@ import { HelpService } from "src/app/services/help.service";
 import { RaceService } from "src/app/services/race.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import {
+  mockAnalyticsService,
+  mockSettingsService,
+} from "src/app/testing/unit-test-mocks";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
 import { DefaultRacedaySetupHarness } from "./testing/default-raceday-setup.harness";
@@ -43,6 +47,7 @@ class MockToolbarComponent {
   @Input() undoManager?: any;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
 }
 
 describe("DefaultRacedaySetupComponent", () => {
@@ -55,7 +60,7 @@ describe("DefaultRacedaySetupComponent", () => {
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
   let mockFileSystemService: jasmine.SpyObj<FileSystemService>;
   let mockHelpService: any;
-  let mockAnalyticsService: any;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
   let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
@@ -100,6 +105,7 @@ describe("DefaultRacedaySetupComponent", () => {
       "getSettings",
       "saveSettings",
     ]);
+    // mockSettingsService from unit-test-mocks
     mockRouter = jasmine.createSpyObj("Router", ["navigate"]);
     mockFileSystemService = jasmine.createSpyObj("FileSystemService", [
       "selectCustomFolder",
@@ -119,11 +125,7 @@ describe("DefaultRacedaySetupComponent", () => {
     mockHelpService.hasNext$ = new BehaviorSubject(false);
     mockHelpService.hasPrevious$ = new BehaviorSubject(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockDataService.getDrivers.and.returnValue(
       of([
@@ -181,7 +183,8 @@ describe("DefaultRacedaySetupComponent", () => {
         { provide: Router, useValue: mockRouter },
         { provide: FileSystemService, useValue: mockFileSystemService },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
+        { provide: SettingsService, useValue: mockSettingsService },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();

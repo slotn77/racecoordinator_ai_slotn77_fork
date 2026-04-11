@@ -75,21 +75,6 @@ export class DriverManagerComponent implements OnInit, OnDestroy {
     this.connectionMonitor.startMonitoring();
     this.monitorConnection();
     this.loadData();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.driverManagerHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.driverManagerHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 1000); // Wait for data to load
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -337,7 +322,7 @@ export class DriverManagerComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("DM_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("DM_HELP_WELCOME_CONTENT"),
@@ -356,11 +341,5 @@ export class DriverManagerComponent implements OnInit, OnDestroy {
         position: "left",
       },
     ];
-
-    if (this.header?.toolbar) {
-      steps.push(...this.header.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 }

@@ -71,21 +71,6 @@ export class TeamManagerComponent implements OnInit, OnDestroy {
     this.connectionMonitor.startMonitoring();
     this.monitorConnection();
     this.loadData();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.teamManagerHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.teamManagerHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 500); // Small delay to ensure view is ready
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -156,7 +141,7 @@ export class TeamManagerComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("TMM_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("TMM_HELP_WELCOME_CONTENT"),
@@ -175,12 +160,6 @@ export class TeamManagerComponent implements OnInit, OnDestroy {
         position: "left",
       },
     ];
-
-    if (this.header?.toolbar) {
-      steps.push(...this.header.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 
   getDriversForTeam(team: Team): Driver[] {

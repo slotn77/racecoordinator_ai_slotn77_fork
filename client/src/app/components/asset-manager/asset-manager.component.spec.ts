@@ -19,6 +19,7 @@ import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
 import {
+  mockAnalyticsService,
   mockDataService,
   mockRouter,
   mockTranslationService,
@@ -43,7 +44,7 @@ describe("AssetManagerComponent", () => {
   let connectionStateSubject: BehaviorSubject<ConnectionState>;
   let mockHelpService: jasmine.SpyObj<HelpService>;
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
   const mockActivatedRoute = { queryParams: of({ help: "false" }) };
 
   beforeEach(async () => {
@@ -79,13 +80,7 @@ describe("AssetManagerComponent", () => {
       get: () => of(false),
     });
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "trackClick",
-      "toggleAnalytics",
-    ]);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
-    mockAnalyticsService.isEnabled.and.returnValue(true);
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockSettingsService = jasmine.createSpyObj("SettingsService", [
       "getSettings",
@@ -109,7 +104,7 @@ describe("AssetManagerComponent", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],

@@ -14,6 +14,10 @@ import {
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import {
+  createTestSettings,
+  mockAnalyticsService,
+} from "src/app/testing/unit-test-mocks";
 
 import { DriverManagerComponent } from "./driver-manager.component";
 
@@ -25,7 +29,7 @@ describe("DriverManagerComponent", () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockHelpService: jasmine.SpyObj<HelpService>;
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
   let mockConnectionMonitor: jasmine.SpyObj<ConnectionMonitorService>;
   let connectionStateSubject: BehaviorSubject<ConnectionState>;
   let mockActivatedRoute: any;
@@ -59,21 +63,13 @@ describe("DriverManagerComponent", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "toggleAnalytics",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockSettingsService = jasmine.createSpyObj("SettingsService", [
       "getSettings",
       "saveSettings",
     ]);
-    mockSettingsService.getSettings.and.returnValue({
-      driverManagerHelpShown: true,
-    } as any);
+    mockSettingsService.getSettings.and.returnValue(createTestSettings());
 
     Object.defineProperty(mockConnectionMonitor, "connectionState$", {
       get: () => connectionStateSubject.asObservable(),
@@ -102,7 +98,7 @@ describe("DriverManagerComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
         ChangeDetectorRef,
       ],
@@ -150,7 +146,7 @@ describe("DriverManagerComponent", () => {
             useValue: mockConnectionMonitor,
           },
           { provide: HelpService, useValue: mockHelpService },
-          { provide: AnalyticsService, useValue: mockAnalyticsService },
+          { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
           ChangeDetectorRef,
         ],
       }).compileComponents();

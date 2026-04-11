@@ -8,6 +8,7 @@ import {
 import { Router } from "@angular/router";
 import { ToolbarComponent } from "src/app/components/shared/toolbar/toolbar.component";
 import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
+import { Settings } from "src/app/models/settings";
 import { GuideStep } from "src/app/services/help.service";
 
 @Component({
@@ -34,6 +35,7 @@ export class EditorTitleComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: GuideStep[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: keyof Settings;
 
   @Output() help = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();

@@ -46,49 +46,28 @@ export class TrackManagerComponent implements OnInit {
   ngOnInit() {
     this.updateScale();
     this.loadTracks();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.trackManagerHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.trackManagerHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 500); // Small delay to ensure view is ready
-      }
-    });
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
-        title: "TM_HELP_WELCOME_TITLE",
-        content: "TM_HELP_WELCOME_CONTENT",
+        title: this.translationService.translate("TM_HELP_WELCOME_TITLE"),
+        content: this.translationService.translate("TM_HELP_WELCOME_CONTENT"),
         position: "center",
       },
       {
         selector: ".sidebar-list",
-        title: "TM_HELP_SIDEBAR_TITLE",
-        content: "TM_HELP_SIDEBAR_CONTENT",
+        title: this.translationService.translate("TM_HELP_SIDEBAR_TITLE"),
+        content: this.translationService.translate("TM_HELP_SIDEBAR_CONTENT"),
         position: "right",
       },
       {
         selector: ".detail-content",
-        title: "TM_HELP_DETAIL_TITLE",
-        content: "TM_HELP_DETAIL_CONTENT",
+        title: this.translationService.translate("TM_HELP_DETAIL_TITLE"),
+        content: this.translationService.translate("TM_HELP_DETAIL_CONTENT"),
         position: "left",
       },
     ];
-
-    if (this.header?.toolbar) {
-      steps.push(...this.header.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 
   @HostListener("window:resize")

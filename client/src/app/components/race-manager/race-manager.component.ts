@@ -98,21 +98,6 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
     }
 
     this.loadData();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.raceManagerHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.raceManagerHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 800);
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -355,7 +340,7 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("RM_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("RM_HELP_WELCOME_CONTENT"),
@@ -374,11 +359,5 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
         position: "left",
       },
     ];
-
-    if (this.header?.toolbar) {
-      steps.push(...this.header.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 }

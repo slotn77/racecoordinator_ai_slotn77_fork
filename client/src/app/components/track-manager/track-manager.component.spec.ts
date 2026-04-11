@@ -10,6 +10,7 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import { createTestSettings } from "src/app/testing/unit-test-mocks";
 
 import { TrackManagerComponent } from "./track-manager.component";
 
@@ -87,9 +88,7 @@ class MockActivatedRoute {
 // Mock SettingsService
 class MockSettingsService {
   getSettings() {
-    const s = new Settings();
-    s.trackManagerHelpShown = true;
-    return s;
+    return createTestSettings();
   }
   saveSettings(settings: Settings) {}
 }

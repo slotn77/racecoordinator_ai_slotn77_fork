@@ -11,8 +11,10 @@
     backConfirmMessage="TEM_CONFIRM_DISCARD_MESSAGE"
     [undoManager]="undoManager"
     [showCopy]="true"
-    [isSaving]="isSaving"
+    [showHelp]="true"
     [helpSteps]="getHelpSteps()"
+    [helpRecordName]="'teamEditorHelpShown'"
+    [isSaving]="isSaving"
     (copy)="saveAsNew()"
     (back)="onBackClicked()"
   >

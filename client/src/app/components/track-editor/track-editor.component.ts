@@ -139,21 +139,6 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
     );
 
     this.dataService.connectToInterfaceDataSocket();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.trackEditorHelpShown) {
-        setTimeout(() => {
-          this.startHelp();
-          if (!forceHelp) {
-            settings.trackEditorHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 800); // Slightly more delay to ensure layout stability
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -562,61 +547,67 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
   getHelpSteps(): GuideStep[] {
     const steps: GuideStep[] = [
       {
-        title: "TE_HELP_WELCOME_TITLE",
-        content: "TE_HELP_WELCOME_CONTENT",
+        title: this.translationService.translate("TE_HELP_WELCOME_TITLE"),
+        content: this.translationService.translate("TE_HELP_WELCOME_CONTENT"),
         position: "center",
       },
       {
-        title: "TE_HELP_GENERAL_TITLE",
-        content: "TE_HELP_GENERAL_CONTENT",
+        title: this.translationService.translate("TE_HELP_GENERAL_TITLE"),
+        content: this.translationService.translate("TE_HELP_GENERAL_CONTENT"),
         position: "center",
       },
       {
         selector: "#track-name-input",
-        title: "TE_HELP_NAME_TITLE",
-        content: "TE_HELP_NAME_CONTENT",
+        title: this.translationService.translate("TE_HELP_NAME_TITLE"),
+        content: this.translationService.translate("TE_HELP_NAME_CONTENT"),
         position: "bottom",
       },
       {
         selector: "#lane-editor-section",
-        title: "TE_HELP_LANES_TITLE",
-        content: "TE_HELP_LANES_CONTENT",
+        title: this.translationService.translate("TE_HELP_LANES_TITLE"),
+        content: this.translationService.translate("TE_HELP_LANES_CONTENT"),
         position: "right",
       },
       {
         selector: "#lane-bg-0",
-        title: "TE_HELP_LANE_BG_TITLE",
-        content: "TE_HELP_LANE_BG_CONTENT",
+        title: this.translationService.translate("TE_HELP_LANE_BG_TITLE"),
+        content: this.translationService.translate("TE_HELP_LANE_BG_CONTENT"),
         position: "bottom",
       },
       {
         selector: "#lane-fg-0",
-        title: "TE_HELP_LANE_FG_TITLE",
-        content: "TE_HELP_LANE_FG_CONTENT",
+        title: this.translationService.translate("TE_HELP_LANE_FG_TITLE"),
+        content: this.translationService.translate("TE_HELP_LANE_FG_CONTENT"),
         position: "bottom",
       },
       {
         selector: "#lane-length-0",
-        title: "TE_HELP_LANE_LENGTH_TITLE",
-        content: "TE_HELP_LANE_LENGTH_CONTENT",
+        title: this.translationService.translate("TE_HELP_LANE_LENGTH_TITLE"),
+        content: this.translationService.translate(
+          "TE_HELP_LANE_LENGTH_CONTENT",
+        ),
         position: "bottom",
       },
       {
         selector: "#lane-drag-0",
-        title: "TE_HELP_LANE_DRAG_TITLE",
-        content: "TE_HELP_LANE_DRAG_CONTENT",
+        title: this.translationService.translate("TE_HELP_LANE_DRAG_TITLE"),
+        content: this.translationService.translate("TE_HELP_LANE_DRAG_CONTENT"),
         position: "right",
       },
       {
         selector: "#lane-delete-0",
-        title: "TE_HELP_DELETE_LANE_TITLE",
-        content: "TE_HELP_DELETE_LANE_CONTENT",
+        title: this.translationService.translate("TE_HELP_DELETE_LANE_TITLE"),
+        content: this.translationService.translate(
+          "TE_HELP_DELETE_LANE_CONTENT",
+        ),
         position: "right",
       },
       {
         selector: "#add-interface-btn",
-        title: "TE_HELP_ADD_INTERFACE_TITLE",
-        content: "TE_HELP_ADD_INTERFACE_CONTENT",
+        title: this.translationService.translate("TE_HELP_ADD_INTERFACE_TITLE"),
+        content: this.translationService.translate(
+          "TE_HELP_ADD_INTERFACE_CONTENT",
+        ),
         position: "left",
       },
     ];
@@ -644,10 +635,6 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
       if (firstArduino) {
         steps.push(...firstArduino.getHelpSteps());
       }
-    }
-
-    if (this.titleComponent?.toolbar) {
-      steps.push(...this.titleComponent.toolbar.getToolbarHelpSteps());
     }
 
     return steps;

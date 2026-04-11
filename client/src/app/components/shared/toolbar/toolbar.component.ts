@@ -3,11 +3,15 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
 } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { AnalyticsService } from "src/app/analytics.service";
 import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
+import { Settings } from "src/app/models/settings";
 import { GuideStep, HelpService } from "src/app/services/help.service";
+import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
 
 @Component({
@@ -16,7 +20,7 @@ import { TranslationService } from "src/app/services/translation.service";
   styleUrls: ["./toolbar.component.css"],
   standalone: false,
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnInit {
   @Input() showAdd = false;
   @Input() showEdit = false;
   @Input() showHelp = false;
@@ -28,6 +32,7 @@ export class ToolbarComponent {
   @Input() undoManager?: UndoManager<any>;
   @Input() helpSteps: GuideStep[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: keyof Settings;
 
   showAnalyticsModal = false;
   analyticsModalTitle = "";
@@ -38,7 +43,31 @@ export class ToolbarComponent {
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef,
     private helpService: HelpService,
+    private route: ActivatedRoute,
+    private settingsService: SettingsService,
   ) {}
+
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      const forceHelp = params["help"] === "true";
+      const settings = this.settingsService.getSettings();
+      const needsHelp =
+        this.helpRecordName && !settings[this.helpRecordName as keyof Settings];
+
+      if (forceHelp || needsHelp) {
+        // Small delay to ensure the view and translations are ready
+        setTimeout(() => {
+          this.onHelp();
+
+          // If it was the first visit, mark as shown
+          if (needsHelp && !forceHelp && this.helpRecordName) {
+            (settings as any)[this.helpRecordName] = true;
+            this.settingsService.saveSettings(settings);
+          }
+        }, 500);
+      }
+    });
+  }
 
   @Output() add = new EventEmitter<void>();
   @Output() edit = new EventEmitter<void>();

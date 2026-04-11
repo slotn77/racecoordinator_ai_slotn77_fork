@@ -1,6 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -31,21 +30,10 @@ type Participant = Driver | Team;
   styleUrl: "./default-raceday-setup.component.css",
   standalone: false,
 })
-export class DefaultRacedaySetupComponent implements OnInit, AfterViewInit {
+export class DefaultRacedaySetupComponent implements OnInit {
   @ViewChild(ToolbarComponent) toolbar!: ToolbarComponent;
   @Output() requestServerConfig = new EventEmitter<void>();
   @ViewChild("scrollContainer") scrollContainer?: ElementRef;
-
-  ngAfterViewInit() {
-    setTimeout(() => {
-      const settings = this.settingsService.getSettings();
-      if (!settings.racedaySetupWalkthroughSeen) {
-        this.startHelp();
-        settings.racedaySetupWalkthroughSeen = true;
-        this.settingsService.saveSettings(settings);
-      }
-    }, 500);
-  }
 
   // Driver/Team State
   selectedParticipants: Participant[] = [];
@@ -892,7 +880,7 @@ export class DefaultRacedaySetupComponent implements OnInit, AfterViewInit {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("RDS_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("RDS_HELP_WELCOME_CONTENT"),
@@ -960,12 +948,6 @@ export class DefaultRacedaySetupComponent implements OnInit, AfterViewInit {
         position: "top",
       },
     ];
-
-    if (this.toolbar) {
-      steps.push(...this.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 
   startHelp() {

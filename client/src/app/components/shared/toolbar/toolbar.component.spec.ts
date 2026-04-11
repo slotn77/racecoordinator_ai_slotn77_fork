@@ -1,13 +1,22 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject, of } from "rxjs";
 import { AnalyticsService } from "src/app/analytics.service";
 import { AcknowledgementModalComponent } from "src/app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
+import { Settings } from "src/app/models/settings";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
 import { HelpService } from "src/app/services/help.service";
+import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import { createTestSettings } from "src/app/testing/unit-test-mocks";
 
 import { ToolbarHarness } from "./testing/toolbar.harness";
 import { ToolbarComponent } from "./toolbar.component";
@@ -26,6 +35,9 @@ describe("ToolbarComponent", () => {
   let translationServiceSpy: jasmine.SpyObj<TranslationService>;
   let analyticsServiceSpy: jasmine.SpyObj<AnalyticsService>;
   let helpServiceSpy: jasmine.SpyObj<HelpService>;
+  let settingsServiceSpy: jasmine.SpyObj<SettingsService>;
+  let mockActivatedRoute: any;
+  let queryParamsSubject: BehaviorSubject<any>;
 
   beforeEach(async () => {
     translationServiceSpy = jasmine.createSpyObj("TranslationService", [
@@ -47,6 +59,17 @@ describe("ToolbarComponent", () => {
     helpServiceSpy.hasNext$ = of(false);
     helpServiceSpy.hasPrevious$ = of(false);
 
+    settingsServiceSpy = jasmine.createSpyObj("SettingsService", [
+      "getSettings",
+      "saveSettings",
+    ]);
+    settingsServiceSpy.getSettings.and.returnValue(createTestSettings());
+
+    queryParamsSubject = new BehaviorSubject({});
+    mockActivatedRoute = {
+      queryParams: queryParamsSubject.asObservable(),
+    };
+
     await TestBed.configureTestingModule({
       declarations: [
         ToolbarComponent,
@@ -58,6 +81,8 @@ describe("ToolbarComponent", () => {
         { provide: TranslationService, useValue: translationServiceSpy },
         { provide: AnalyticsService, useValue: analyticsServiceSpy },
         { provide: HelpService, useValue: helpServiceSpy },
+        { provide: SettingsService, useValue: settingsServiceSpy },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -218,5 +243,52 @@ describe("ToolbarComponent", () => {
 
       expect(component.showAnalyticsModal).toBeFalse();
     });
+  });
+
+  describe("Automatic Guided Help", () => {
+    it("should trigger help automatically when helpRecordName is provided and help has not been shown", fakeAsync(() => {
+      spyOn(component, "onHelp").and.callThrough();
+      const settings = new Settings();
+      settings.trackManagerHelpShown = false;
+      settingsServiceSpy.getSettings.and.returnValue(settings);
+
+      component.helpRecordName = "trackManagerHelpShown";
+      component.ngOnInit();
+      tick(600); // Wait for the 500ms delay in ngOnInit
+
+      expect(component.onHelp).toHaveBeenCalled();
+      expect(helpServiceSpy.startGuide).toHaveBeenCalled();
+      expect(settingsServiceSpy.saveSettings).toHaveBeenCalled();
+      expect(settings.trackManagerHelpShown).toBeTrue();
+    }));
+
+    it("should NOT trigger help automatically if it has already been shown", fakeAsync(() => {
+      spyOn(component, "onHelp").and.callThrough();
+      const settings = new Settings();
+      settings.trackManagerHelpShown = true;
+      settingsServiceSpy.getSettings.and.returnValue(settings);
+
+      component.helpRecordName = "trackManagerHelpShown";
+      component.ngOnInit();
+      tick(600);
+
+      expect(component.onHelp).not.toHaveBeenCalled();
+    }));
+
+    it("should trigger help regardless of setting if help=true query param is present", fakeAsync(() => {
+      spyOn(component, "onHelp").and.callThrough();
+      const settings = new Settings();
+      settings.trackManagerHelpShown = true;
+      settingsServiceSpy.getSettings.and.returnValue(settings);
+      queryParamsSubject.next({ help: "true" });
+
+      component.helpRecordName = "trackManagerHelpShown";
+      component.ngOnInit();
+      tick(600);
+
+      expect(component.onHelp).toHaveBeenCalled();
+      // Should NOT save settings as marked shown because it was already shown
+      expect(settingsServiceSpy.saveSettings).not.toHaveBeenCalled();
+    }));
   });
 });

@@ -33,6 +33,7 @@ class MockToolbarComponent {
   @Input() undoManager: any;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
   @Output() help = new EventEmitter<void>();
   @Output() add = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();

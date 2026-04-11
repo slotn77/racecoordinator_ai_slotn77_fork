@@ -19,6 +19,7 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import { createTestSettings } from "src/app/testing/unit-test-mocks";
 
 import { TrackEditorComponent } from "./track-editor.component";
 
@@ -173,7 +174,7 @@ class MockActivatedRoute {
 class MockSettingsService {
   settings = new Settings();
   constructor() {
-    this.settings.trackEditorHelpShown = true;
+    this.settings = createTestSettings();
   }
   getSettings() {
     return this.settings;
@@ -230,6 +231,7 @@ class MockEditorTitleComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
   @Output() help = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
   @Output() copy = new EventEmitter<void>();
@@ -581,42 +583,6 @@ describe("TrackEditorComponent", () => {
       mockSettingsService = settingsService as any as MockSettingsService;
       mockSettingsService.settings = new Settings();
     });
-
-    it("should trigger help automatically on first visit", fakeAsync(() => {
-      spyOn(component, "startHelp").and.callThrough();
-
-      component.ngOnInit();
-      tick(1100);
-
-      expect(component.startHelp).toHaveBeenCalled();
-      expect(helpService.startGuide).toHaveBeenCalled();
-      expect(mockSettingsService.settings.trackEditorHelpShown).toBeTrue();
-    }));
-
-    it("should trigger help if help=true query param is present even if already shown", fakeAsync(() => {
-      mockSettingsService.settings.trackEditorHelpShown = true;
-      const activatedRoute = TestBed.inject(
-        ActivatedRoute,
-      ) as any as MockActivatedRoute;
-      activatedRoute.setQueryParams({ help: "true" });
-      spyOn(component, "startHelp").and.callThrough();
-
-      component.ngOnInit();
-      tick(1100);
-
-      expect(component.startHelp).toHaveBeenCalled();
-    }));
-
-    it("should NOT trigger help automatically if already shown and no query param", fakeAsync(() => {
-      mockSettingsService.settings.trackEditorHelpShown = true;
-      spyOn(component, "startHelp").and.callThrough();
-
-      component.ngOnInit();
-      tick(1100);
-
-      expect(component.startHelp).not.toHaveBeenCalled();
-      expect(helpService.startGuide).not.toHaveBeenCalled();
-    }));
 
     it("should trigger help when startHelp is called manually", () => {
       component.startHelp();

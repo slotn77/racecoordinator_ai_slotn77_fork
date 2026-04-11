@@ -123,7 +123,11 @@
     </div>
 
     <div class="header-right">
-      <app-toolbar [showHelp]="true" [helpSteps]="getHelpSteps()"></app-toolbar>
+      <app-toolbar
+        [showHelp]="true"
+        [helpSteps]="getHelpSteps()"
+        [helpRecordName]="'racedaySetupWalkthroughSeen'"
+      ></app-toolbar>
     </div>
   </div>
 

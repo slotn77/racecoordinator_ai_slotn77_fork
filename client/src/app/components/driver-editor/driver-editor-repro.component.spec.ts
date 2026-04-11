@@ -49,6 +49,7 @@ class MockImageSelectorComponent {
   @Input() label?: string;
   @Input() imageUrl?: string;
   @Input() assets: any[] = [];
+  @Input() size?: string;
   @Output() imageUrlChange = new EventEmitter<string>();
   @Output() uploadStarted = new EventEmitter<void>();
   @Output() uploadFinished = new EventEmitter<void>();
@@ -93,6 +94,7 @@ class MockEditorTitleComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
   @Output() help = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
   @Output() copy = new EventEmitter<void>();

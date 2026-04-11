@@ -11,6 +11,7 @@ import { ConnectionMonitorService } from "src/app/services/connection-monitor.se
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import { mockAnalyticsService } from "src/app/testing/unit-test-mocks";
 
 import { RaceManagerComponent } from "./race-manager.component";
 
@@ -23,7 +24,7 @@ describe("RaceManagerComponent", () => {
   let mockConnectionMonitor: jasmine.SpyObj<ConnectionMonitorService>;
   let mockHelpService: jasmine.SpyObj<HelpService>;
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
 
   beforeEach(() => {
     mockDataService = jasmine.createSpyObj("DataService", [
@@ -50,13 +51,7 @@ describe("RaceManagerComponent", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "toggleAnalytics",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockSettingsService = jasmine.createSpyObj("SettingsService", [
       "getSettings",
@@ -85,7 +80,7 @@ describe("RaceManagerComponent", () => {
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],

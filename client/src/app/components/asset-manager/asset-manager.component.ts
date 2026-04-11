@@ -76,21 +76,6 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
     this.monitorConnection();
     this.loadActiveDatabase();
     this.loadAssets();
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.assetManagerHelpShown) {
-        setTimeout(() => {
-          this.helpService.startGuide(this.getHelpSteps());
-          if (!forceHelp) {
-            settings.assetManagerHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 800);
-      }
-    });
   }
 
   loadActiveDatabase() {
@@ -595,7 +580,7 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("AM_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("AM_HELP_WELCOME_CONTENT"),
@@ -614,11 +599,5 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
         position: "left",
       },
     ];
-
-    if (this.header?.toolbar) {
-      steps.push(...this.header.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 }

@@ -20,7 +20,7 @@ import { ImageSetEditorComponent } from "./image-set-editor.component";
 class MockImageSelectorComponent {
   @Input() imageUrl?: string;
   @Input() assets: any[] = [];
-  @Input() size: string = "medium";
+  @Input() size?: string;
   @Output() imageUrlChange = new EventEmitter<string>();
 }
 

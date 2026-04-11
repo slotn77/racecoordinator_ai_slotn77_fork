@@ -6,6 +6,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { ToolbarComponent } from "src/app/components/shared/toolbar/toolbar.component";
+import { Settings } from "src/app/models/settings";
 import { GuideStep } from "src/app/services/help.service";
 
 @Component({
@@ -27,6 +28,7 @@ export class ManagerHeaderComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: GuideStep[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: keyof Settings;
 
   @Output() add = new EventEmitter<void>();
   @Output() edit = new EventEmitter<void>();

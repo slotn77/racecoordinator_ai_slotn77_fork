@@ -101,23 +101,6 @@ export class TeamEditorComponent implements OnInit, OnDestroy {
         }),
       );
     }
-
-    // Trigger help automatically on first visit or if requested via query param
-    this.route.queryParams.subscribe((params) => {
-      // TODO(aufderheide): I think help is used for tests, we should fix the
-      // test and not have this hack here.
-      const forceHelp = params["help"] === "true";
-      const settings = this.settingsService.getSettings();
-      if (forceHelp || !settings.teamEditorHelpShown) {
-        setTimeout(() => {
-          this.startHelp();
-          if (!forceHelp) {
-            settings.teamEditorHelpShown = true;
-            this.settingsService.saveSettings(settings);
-          }
-        }, 800);
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -549,7 +532,7 @@ export class TeamEditorComponent implements OnInit, OnDestroy {
   }
 
   getHelpSteps(): GuideStep[] {
-    const steps: GuideStep[] = [
+    return [
       {
         title: this.translationService.translate("TEM_HELP_WELCOME_TITLE"),
         content: this.translationService.translate("TEM_HELP_WELCOME_CONTENT"),
@@ -582,12 +565,6 @@ export class TeamEditorComponent implements OnInit, OnDestroy {
         position: "left",
       },
     ];
-
-    if (this.titleComponent?.toolbar) {
-      steps.push(...this.titleComponent.toolbar.getToolbarHelpSteps());
-    }
-
-    return steps;
   }
 
   startHelp() {

@@ -50,6 +50,7 @@ class MockImageSelectorComponent {
   @Input() label?: string;
   @Input() imageUrl?: string;
   @Input() assets: any[] = [];
+  @Input() size?: string;
   @Output() imageUrlChange = new EventEmitter<string>();
   @Output() uploadStarted = new EventEmitter<void>();
   @Output() uploadFinished = new EventEmitter<void>();
@@ -94,6 +95,7 @@ class MockEditorTitleComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
   @Output() help = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
   @Output() copy = new EventEmitter<void>();
@@ -109,6 +111,10 @@ class MockHelpOverlayComponent {
 }
 
 import { Pipe, PipeTransform } from "@angular/core";
+import {
+  createTestSettings,
+  mockAnalyticsService,
+} from "src/app/testing/unit-test-mocks";
 @Pipe({ name: "translate", standalone: false })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
@@ -133,7 +139,7 @@ describe("DriverEditorComponent", () => {
   let mockActivatedRoute: any;
   let mockHelpService: jasmine.SpyObj<HelpService>;
   let mockSettingsService: jasmine.SpyObj<SettingsService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
 
   beforeEach(async () => {
     mockDataService = jasmine.createSpyObj("DataService", [
@@ -154,21 +160,13 @@ describe("DriverEditorComponent", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "toggleAnalytics",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockSettingsService = jasmine.createSpyObj("SettingsService", [
       "getSettings",
       "saveSettings",
     ]);
-    mockSettingsService.getSettings.and.returnValue({
-      driverEditorHelpShown: true,
-    } as any);
+    mockSettingsService.getSettings.and.returnValue(createTestSettings());
 
     mockConnectionMonitor = {
       connectionState$: new BehaviorSubject("CONNECTED"),
@@ -215,7 +213,7 @@ describe("DriverEditorComponent", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
     }).compileComponents();

@@ -30,6 +30,7 @@ class MockImageSelectorComponent {
   @Input() label?: string;
   @Input() imageUrl?: string;
   @Input() assets: any[] = [];
+  @Input() size?: string;
   @Output() imageUrlChange = new EventEmitter<string>();
   @Output() uploadStarted = new EventEmitter<void>();
   @Output() uploadFinished = new EventEmitter<void>();

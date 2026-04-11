@@ -25,6 +25,10 @@ import { ConnectionMonitorService } from "src/app/services/connection-monitor.se
 import { HelpService } from "src/app/services/help.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { TranslationService } from "src/app/services/translation.service";
+import {
+  createTestSettings,
+  mockAnalyticsService,
+} from "src/app/testing/unit-test-mocks";
 
 import { TeamEditorComponent } from "./team-editor.component";
 
@@ -41,6 +45,7 @@ class MockImageSelectorComponent {
   @Input() label?: string;
   @Input() imageUrl?: string;
   @Input() assets: any[] = [];
+  @Input() size?: string;
   @Output() imageUrlChange = new EventEmitter<string>();
   @Output() uploadStarted = new EventEmitter<void>();
   @Output() uploadFinished = new EventEmitter<void>();
@@ -84,6 +89,7 @@ class MockEditorTitleComponent {
   @Input() isSaving: boolean = false;
   @Input() helpSteps: any[] = [];
   @Input() helpTitle: string = "";
+  @Input() helpRecordName?: string;
   @Output() help = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
   @Output() copy = new EventEmitter<void>();
@@ -119,7 +125,7 @@ describe("TeamEditorComponent", () => {
   let mockLocation: any;
   let mockHelpService: any;
   let mockSettingsService: any;
-  let mockAnalyticsService: any;
+  let mockAnalyticsServiceLocal: jasmine.SpyObj<AnalyticsService>;
 
   const mockDrivers = [
     new Driver("d1", "Alice", "Rocket", "assets/images/default_avatar.svg"),
@@ -167,16 +173,10 @@ describe("TeamEditorComponent", () => {
     mockSettingsService = {
       getSettings: jasmine
         .createSpy("getSettings")
-        .and.returnValue({ teamEditorHelpShown: true }),
+        .and.returnValue(createTestSettings()),
       saveSettings: jasmine.createSpy("saveSettings"),
     };
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
-      "isEnabled",
-      "toggleAnalytics",
-      "trackClick",
-    ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
-    mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
+    mockAnalyticsServiceLocal = mockAnalyticsService as any;
 
     mockDataService.getDrivers.and.returnValue(of(mockDrivers));
     mockDataService.getTeams.and.returnValue(of(mockTeams));
@@ -206,7 +206,7 @@ describe("TeamEditorComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: Location, useValue: mockLocation },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: AnalyticsService, useValue: mockAnalyticsServiceLocal },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
     }).compileComponents();
