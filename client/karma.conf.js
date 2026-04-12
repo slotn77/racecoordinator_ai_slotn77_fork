@@ -50,6 +50,47 @@ module.exports = function (config) {
   console.log("DEBUG: TMPDIR =", process.env.TMPDIR);
   console.log("DEBUG: chromeUserData =", chromeUserData);
 
+  var isCI = !!process.env.GITHUB_ACTIONS;
+  var isAgent = !!process.env.ANTIGRAVITY_AGENT;
+
+  console.log("DEBUG: Environment - isCI:", isCI, "isAgent:", isAgent);
+
+  var chromeFlags = [
+    isCI ? "--headless=new" : "--headless",
+    "--no-sandbox",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--user-data-dir=" + chromeUserData,
+    "--disable-crash-reporter",
+    "--disable-breakpad",
+    "--crash-dumps-dir=" + chromeCrashDumps,
+    "--no-default-browser-check",
+    "--no-first-run",
+    "--disable-signin",
+    "--disable-sync",
+    "--remote-debugging-port=9222",
+    "--disable-software-rasterizer",
+    "--disk-cache-dir=" + path.join(tmpDir, "cache"),
+    "--remote-allow-origins=*",
+  ];
+
+  if (isCI) {
+    // GitHub Actions specific fixes
+    chromeFlags.push(
+      "--disable-setuid-sandbox",
+      "--disable-extensions",
+      "--disable-features=Translate,PasswordImport,AutofillServerCommunication,OptimizationHints,VizDisplayCompositor",
+    );
+  } else {
+    // Local/Agent flags
+    // Note: --single-process removed as it causes fatal "Cannot use V8 Proxy resolver" errors
+    chromeFlags.push(
+      "--disable-namespace-sandbox",
+      "--disable-features=Dial",
+      "--disable-gpu-sandbox",
+    );
+  }
+
   config.set({
     basePath: "",
     frameworks: ["jasmine", "@angular-devkit/build-angular"],
@@ -86,28 +127,7 @@ module.exports = function (config) {
     customLaunchers: {
       ChromeHeadlessWithCustomConfig: {
         base: "Chrome",
-        flags: [
-          "--headless",
-          "--no-sandbox",
-          "--single-process",
-          "--disable-namespace-sandbox",
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          "--user-data-dir=" + chromeUserData,
-          "--disable-crash-reporter",
-          "--disable-breakpad",
-          "--crash-dumps-dir=" + chromeCrashDumps,
-          "--no-default-browser-check",
-          "--no-first-run",
-          "--disable-signin",
-          "--disable-sync",
-          "--remote-debugging-port=9222",
-          "--disable-software-rasterizer",
-          "--disk-cache-dir=" + path.join(tmpDir, "cache"),
-          "--disable-features=Dial",
-          "--remote-allow-origins=*",
-          "--disable-gpu-sandbox",
-        ],
+        flags: chromeFlags,
       },
     },
     captureTimeout: 60000,
