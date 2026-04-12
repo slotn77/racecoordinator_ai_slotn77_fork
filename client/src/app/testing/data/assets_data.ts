@@ -1,0 +1,35 @@
+export const MOCK_ASSETS = [
+  {
+    id: "a1",
+    name: "RedCar",
+    type: "image",
+    size: "150 KB",
+    url: "assets/images/red_car.png",
+    editMode: false,
+    selected: false,
+  },
+  {
+    id: "a2",
+    name: "EngineRev",
+    type: "sound",
+    size: "45 KB",
+    url: "assets/sounds/engine_rev.mp3",
+    editMode: false,
+    selected: false,
+  },
+  {
+    id: "a3",
+    name: "FuelGauge",
+    type: "image_set",
+    size: "300 KB",
+    url: "",
+    images: [
+      { url: "assets/images/fuel_100.png", percentage: 100 },
+      { url: "assets/images/fuel_50.png", percentage: 50 },
+      { url: "assets/images/fuel_0.png", percentage: 0 },
+    ],
+    currentPreviewIndex: 0,
+    editMode: false,
+    selected: false,
+  },
+];
