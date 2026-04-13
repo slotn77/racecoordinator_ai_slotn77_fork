@@ -59,6 +59,9 @@ module.exports = function (config) {
     "--use-mock-keychain",
     "--no-pings",
     "--disable-features=IsolateOrigins,site-per-process,Dial",
+    "--disable-gpu-shader-disk-cache",
+    "--disable-udev-discovery",
+    "--no-zygote",
   ];
 
   if (isCI) {
@@ -109,7 +112,7 @@ module.exports = function (config) {
     browsers: ["ChromeHeadlessWithCustomConfig"],
     customLaunchers: {
       ChromeHeadlessWithCustomConfig: {
-        base: "Chrome",
+        base: "ChromeHeadless",
         flags: chromeFlags,
       },
     },

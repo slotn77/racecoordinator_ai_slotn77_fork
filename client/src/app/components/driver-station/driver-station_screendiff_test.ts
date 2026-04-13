@@ -141,4 +141,80 @@ test.describe("Driver Station Visuals", () => {
       maxDiffPixelRatio: 0.1,
     });
   });
+
+  test("should display team name under driver nickname", async ({ page }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/driver-station/1"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r1" },
+          name: "World Championship",
+          heatScoring: { finishMethod: 0, finishValue: 10 }, // 10 Laps
+          fuelOptions: { enabled: false },
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#000055", // Deep Blue
+                foregroundColor: "#ffffff",
+              },
+            ],
+          },
+        },
+        drivers: [
+          {
+            objectId: "rp1",
+            driver: { entityId: "d1", name: "Max Speed", nickname: "Rocket" },
+            team: { entityId: "t1", name: "Team Extreme" },
+            rank: 2,
+            totalLaps: 50,
+            bestLapTime: 1.052,
+          },
+          {
+            objectId: "rp_leader",
+            driver: { entityId: "d_leader", name: "Leader", nickname: "Flash" },
+            team: { entityId: "t_leader", name: "Alpha Racing" },
+            rank: 1,
+            totalLaps: 52,
+            bestLapTime: 1.011,
+          },
+        ],
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [
+            {
+              objectId: "hd1",
+              driver: {
+                objectId: "rp1",
+                driver: {
+                  entityId: "d1",
+                  name: "Max Speed",
+                  nickname: "Rocket",
+                },
+                team: { entityId: "t1", name: "Team Extreme" },
+              },
+              laps: [1.102, 1.095, 1.088, 1.075, 1.052],
+              gapLeader: 0.453,
+              gapPosition: 0.122,
+            },
+          ],
+          standings: ["t1"],
+        },
+      },
+    };
+
+    await TestSetupHelper.mockRaceData(page, raceData);
+
+    await page.waitForTimeout(500);
+
+    await expect(page).toHaveScreenshot("driver-station-team.png", {
+      maxDiffPixelRatio: 0.1,
+    });
+  });
 });

@@ -116,6 +116,21 @@
   display: block;
 }
 
+.nickname-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.team-name {
+  font-size: min(1.5rem, 8cqw);
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: -2px;
+}
+
 /* Rank row with 2 columns */
 .rank-row {
   display: flex;

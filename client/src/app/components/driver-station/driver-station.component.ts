@@ -134,7 +134,11 @@ export class DriverStationComponent implements OnInit, OnDestroy {
       this.raceConnectionService.standingsUpdate$.subscribe((update) => {
         if (this.heat && update && update.updates) {
           update.updates.forEach((u) => {
-            if (u.objectId === this.driverData?.objectId) {
+            const teamId = this.driverData?.participant?.team?.entity_id;
+            const isMatch =
+              u.objectId === this.driverData?.objectId ||
+              (teamId && u.objectId === teamId);
+            if (isMatch) {
               this.standingsPosition = u.rank || 0;
             }
           });
@@ -146,16 +150,7 @@ export class DriverStationComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.raceService.participants$.subscribe((participants) => {
         if (participants && this.driverData) {
-          const driverEntityId = this.driverData.actualDriver?.entity_id;
-          const index = participants.findIndex(
-            (p) => p && p.driver?.entity_id === driverEntityId,
-          );
-          if (index >= 0) {
-            this.overallPosition = index + 1;
-          } else {
-            this.overallPosition = 0;
-          }
-          this.cdr.detectChanges();
+          this.calculateOverallPosition();
         }
       }),
     );
@@ -176,7 +171,12 @@ export class DriverStationComponent implements OnInit, OnDestroy {
 
         // Update standings position from heat standings if available
         if (this.driverData && this.heat.standings) {
-          const index = this.heat.standings.indexOf(this.driverData.objectId);
+          const teamEntityId = this.driverData.participant?.team?.entity_id;
+          const index = this.heat.standings.findIndex(
+            (id) =>
+              id === this.driverData?.objectId ||
+              (teamEntityId && id === teamEntityId),
+          );
           if (index >= 0) {
             this.standingsPosition = index + 1;
           }
@@ -191,10 +191,18 @@ export class DriverStationComponent implements OnInit, OnDestroy {
   private calculateOverallPosition(): void {
     const participants = this.raceService.getParticipants();
     if (participants && this.driverData) {
-      const driverEntityId = this.driverData.actualDriver?.entity_id;
-      const index = participants.findIndex(
-        (p: any) => p && p.driver?.entity_id === driverEntityId,
-      );
+      const teamEntityId = this.driverData.participant?.team?.entity_id;
+      const driverEntityId =
+        this.driverData.actualDriver?.entity_id ||
+        this.driverData.participant.driver?.entity_id;
+
+      const index = participants.findIndex((p: any) => {
+        if (teamEntityId && p.team?.entity_id === teamEntityId) {
+          return true;
+        }
+        return p.driver?.entity_id === driverEntityId;
+      });
+
       if (index >= 0) {
         this.overallPosition = index + 1;
       } else {
