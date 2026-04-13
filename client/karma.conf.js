@@ -3,8 +3,8 @@ module.exports = function (config) {
   var fs = require("fs");
   var path = require("path");
 
-  // Use a local directory to avoid permission issues with system temp, but short enough for socket limits
-  var tmpDir = path.join(__dirname, "tmp", "kc");
+  // Use /tmp for CI compatibility - short paths avoid Unix socket limits
+  var tmpDir = "/tmp/kc";
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
   // Define dedicated directories
@@ -20,12 +20,14 @@ module.exports = function (config) {
     fs.mkdirSync(chromeCrashDumps, { recursive: true });
 
   // Override environment variables
-  process.env.HOME = chromeHome;
+  // NOTE: Do NOT override process.env.HOME - it breaks Chrome's Mach port / Crashpad on macOS
   process.env.XDG_CONFIG_HOME = path.join(tmpDir, "config");
   process.env.XDG_CACHE_HOME = path.join(tmpDir, "cache");
   process.env.XDG_RUNTIME_DIR = path.join(tmpDir, "run");
-  process.env.TMPDIR = path.join(tmpDir, "t");
-  process.env.CHROME_USER_DATA_DIR = chromeUserData;
+
+  if (!process.env.TMPDIR) {
+    process.env.TMPDIR = path.join(tmpDir, "t");
+  }
 
   [
     process.env.XDG_CONFIG_HOME,
@@ -40,6 +42,7 @@ module.exports = function (config) {
   var isAgent = !!process.env.ANTIGRAVITY_AGENT;
 
   var chromeFlags = [
+    isCI ? "--headless=new" : "--headless",
     "--no-sandbox",
     "--disable-gpu",
     "--disable-dev-shm-usage",
@@ -58,16 +61,11 @@ module.exports = function (config) {
     "--use-mock-keychain",
     "--no-pings",
     "--disable-features=IsolateOrigins,site-per-process,Dial",
-    "--disable-gpu-shader-disk-cache",
-    "--disable-udev-discovery",
-    "--no-zygote",
   ];
 
   if (isCI) {
     // GitHub Actions specific fixes
     chromeFlags.push(
-      "--headless=new",
-      "--ozone-platform=headless",
       "--disable-setuid-sandbox",
       "--disable-extensions",
       "--disable-features=Translate,PasswordImport,AutofillServerCommunication,OptimizationHints,VizDisplayCompositor",
@@ -75,7 +73,6 @@ module.exports = function (config) {
   } else {
     // Local/Agent flags
     chromeFlags.push(
-      isAgent ? "--headless=new" : "--headless",
       "--disable-setuid-sandbox",
       "--disable-gpu-sandbox",
       "--disable-namespace-sandbox",
