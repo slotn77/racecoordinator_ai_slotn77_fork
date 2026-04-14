@@ -112,6 +112,24 @@ public class ArduinoLedHelper {
         updateRate);
   }
 
+  public void clearLeds() {
+    ArduinoConfig config = protocol.getConfig();
+    if (config.ledStrings == null) {
+      return;
+    }
+
+    for (LedString ledString : config.ledStrings) {
+      List<RgbLedState> updates = new ArrayList<>();
+      for (int i = 0; i < ledString.addressableLeds; i++) {
+        updates.add(RgbLedState.newBuilder().setIndex(i).setR(0).setG(0).setB(0).build());
+      }
+      if (!updates.isEmpty()) {
+        setStringRgbLedValues(ledString.pin, updates);
+      }
+    }
+    lastLedColors.clear();
+  }
+
   public void setStringRgbLedValues(int pinId, List<RgbLedState> rgbLeds) {
     if (!protocol.isSerialOpen() || rgbLeds == null || rgbLeds.isEmpty()) {
       return;

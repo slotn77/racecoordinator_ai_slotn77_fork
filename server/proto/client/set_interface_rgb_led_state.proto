@@ -13,7 +13,7 @@ message RgbLedState {
 }
 
 message SetInterfaceRgbLedStateRequest {
-  int32 string_index = 1;
+  int32 pin = 1;
   repeated RgbLedState leds = 2;
   int32 interface_index = 3;
 }

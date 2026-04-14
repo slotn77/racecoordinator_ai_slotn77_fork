@@ -45,6 +45,7 @@ public class NotStarted implements IRaceState {
   public void enter(Race race) {
     System.out.println("NotStarted state entered.");
     this.race = race;
+    race.initializeHardwareState();
     this.executionManager = race.getHeatExecutionManager();
     race.setHasRacedInCurrentHeat(false);
 

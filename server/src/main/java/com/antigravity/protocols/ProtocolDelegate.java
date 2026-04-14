@@ -45,6 +45,13 @@ public class ProtocolDelegate implements IProtocol {
   }
 
   @Override
+  public void clearLeds() {
+    for (IProtocol protocol : protocols) {
+      protocol.clearLeds();
+    }
+  }
+
+  @Override
   public void setListener(ProtocolListener listener) {
     for (IProtocol protocol : protocols) {
       protocol.setListener(listener);

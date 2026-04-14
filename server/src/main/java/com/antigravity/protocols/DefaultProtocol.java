@@ -21,6 +21,9 @@ public abstract class DefaultProtocol implements IProtocol {
   public void close() {}
 
   @Override
+  public void clearLeds() {}
+
+  @Override
   public boolean hasPerLaneRelays() {
     return false;
   }

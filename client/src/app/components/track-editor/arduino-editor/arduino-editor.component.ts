@@ -404,9 +404,12 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
     const g = 0;
     const b = 0;
 
+    const ls = this.config?.ledStrings?.[stringIndex];
+    if (!ls) return;
+
     this.dataService
       .setInterfaceRgbLedState(
-        stringIndex,
+        ls.pin,
         [{ index: ledIndex, r, g, b }],
         this.index,
       )

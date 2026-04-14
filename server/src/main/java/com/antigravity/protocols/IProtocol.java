@@ -12,6 +12,8 @@ public interface IProtocol {
 
   void close();
 
+  void clearLeds();
+
   boolean hasPerLaneRelays();
 
   boolean hasDigitalFuel();

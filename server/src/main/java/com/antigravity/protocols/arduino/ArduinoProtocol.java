@@ -214,6 +214,7 @@ public class ArduinoProtocol extends DefaultProtocol {
   @Override
   public void close() {
     logger.info("[{}] Closing ArduinoProtocol", getLogTime());
+    clearLeds();
     if (statusFuture != null) {
       statusFuture.cancel(true);
     }
@@ -393,6 +394,16 @@ public class ArduinoProtocol extends DefaultProtocol {
   private void processData() {
     while (rxBuffer.size() > 0) {
       byte opcode = rxBuffer.peek(0);
+
+      if (!versionVerified && opcode != OPCODE_VERSION) {
+        logger.warn(
+            "[{}] Skipping byte 0x{} before version verification",
+            getLogTime(),
+            String.format("%02X", opcode));
+        rxBuffer.get();
+        continue;
+      }
+
       int messageLength = 0;
 
       switch (opcode) {
@@ -687,6 +698,11 @@ public class ArduinoProtocol extends DefaultProtocol {
 
   public void setStringRgbLedValues(int pinId, List<RgbLedState> rgbLeds) {
     ledHelper.setStringRgbLedValues(pinId, rgbLeds);
+  }
+
+  @Override
+  public void clearLeds() {
+    ledHelper.clearLeds();
   }
 
   @Override

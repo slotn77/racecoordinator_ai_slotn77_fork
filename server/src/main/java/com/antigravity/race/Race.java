@@ -218,20 +218,61 @@ public class Race implements ProtocolListener {
     return isDemoMode;
   }
 
-  private void initializeFuelLevels() {
-    FuelOptions fuelOptions = null;
+  public FuelOptions getFuelOptions() {
     if (track != null && track.hasDigitalFuel()) {
-      fuelOptions = model.getDigitalFuelOptions();
-    } else {
-      fuelOptions = model.getFuelOptions();
+      return model.getDigitalFuelOptions();
     }
+    return model.getFuelOptions();
+  }
 
+  private void initializeFuelLevels() {
+    FuelOptions fuelOptions = getFuelOptions();
     if (fuelOptions != null && fuelOptions.isEnabled()) {
       double initialLevel = (fuelOptions.getCapacity() * fuelOptions.getStartLevel()) / 100.0;
       for (RaceParticipant driver : drivers) {
         driver.setFuelLevel(initialLevel);
       }
     }
+  }
+
+  public void initializeHardwareState() {
+    if (this.protocols == null) {
+      return;
+    }
+
+    // 1. Race State and Flag
+    this.protocols.setRaceState(
+        getProtoState(state), state.getFlagType(this), getAutoStartRemaining());
+
+    // 2. Heat Standings / Heat Leader
+    if (this.currentHeat != null && this.currentHeat.getHeatStandings() != null) {
+      List<String> standingsIds = currentHeat.getStandings();
+      List<DriverHeatData> heatDrivers = currentHeat.getDrivers();
+      List<Integer> rankings = new ArrayList<>();
+      for (String id : standingsIds) {
+        for (int i = 0; i < heatDrivers.size(); i++) {
+          if (heatDrivers.get(i).getObjectId().equals(id)) {
+            rankings.add(i);
+            break;
+          }
+        }
+      }
+      this.protocols.setHeatStandings(rankings);
+    }
+
+    // 3. Fuel Levels
+    FuelOptions fuelOptions = getFuelOptions();
+    if (fuelOptions != null && fuelOptions.isEnabled() && fuelOptions.getCapacity() > 0) {
+      double capacity = fuelOptions.getCapacity();
+      for (int i = 0; i < drivers.size(); i++) {
+        int currentPct = (int) ((drivers.get(i).getFuelLevel() / capacity) * 100.0);
+        this.protocols.setFuelLevel(i, currentPct);
+        this.protocols.setRefueling(i, false);
+      }
+    }
+
+    // 4. Heat Progress
+    this.protocols.setHeatProgress(0);
   }
 
   private void createProtocols(boolean isDemoMode) {
@@ -441,6 +482,7 @@ public class Race implements ProtocolListener {
 
   public void stop() {
     if (protocols != null) {
+      protocols.clearLeds();
       protocols.close();
     }
     if (state != null) {

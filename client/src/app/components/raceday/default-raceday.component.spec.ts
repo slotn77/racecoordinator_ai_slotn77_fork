@@ -176,6 +176,12 @@ describe("DefaultRacedayComponent", () => {
     expect(component).toBeTruthy();
   });
 
+  it("should disconnect from race on destroy", () => {
+    fixture.detectChanges();
+    fixture.destroy();
+    expect(mockRaceConnectionService.disconnect).toHaveBeenCalled();
+  });
+
   it("should update countdown timers when raceTime$ emits", () => {
     fixture.detectChanges();
 

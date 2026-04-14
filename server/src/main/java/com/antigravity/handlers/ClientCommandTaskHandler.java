@@ -672,7 +672,7 @@ public class ClientCommandTaskHandler {
       }
 
       if (target != null) {
-        target.setStringRgbLedValues(request.getStringIndex(), request.getLedsList());
+        target.setStringRgbLedValues(request.getPin(), request.getLedsList());
 
         SetInterfaceRgbLedStateResponse response =
             SetInterfaceRgbLedStateResponse.newBuilder()

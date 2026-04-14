@@ -1632,4 +1632,31 @@ public class ArduinoProtocolTest {
 
     assertEquals(initialConnections, serialConnection.connectionCount);
   }
+
+  @Test
+  public void testVersionVerification_StrayBytes() {
+    protocol.open();
+    // Clear initial RESET command from history to make verification cleaner
+    serialConnection.allWrittenData.clear();
+
+    // Simulate stray heartbeat byte 'T' (0x54) followed by version message
+    // 0x54 + {0x56, 2, 0, 0, 0, 0x3B}
+    // Note: The previous bug would have treated [0x54 ... 0x3B] as a 7-byte heartbeat
+    // and consumed the version opcode!
+    byte[] strayAndVersion = {0x54, 0x56, 2, 0, 0, 0, 0x3B};
+    serialConnection.injectData(strayAndVersion);
+
+    // Version should be verified now.
+    // If verified, it sends Pin Mode ('P'), Debounce ('d'), etc.
+    boolean foundConfigCommand = false;
+    for (byte[] msg : serialConnection.allWrittenData) {
+      if (msg.length > 0 && (msg[0] == 0x50 || msg[0] == 0x64)) {
+        foundConfigCommand = true;
+        break;
+      }
+    }
+    assertTrue(
+        "Should have sent configuration commands after version verification despite stray bytes",
+        foundConfigCommand);
+  }
 }

@@ -363,12 +363,12 @@ export class DataService {
   }
 
   setInterfaceRgbLedState(
-    stringIndex: number,
+    pin: number,
     leds: com.antigravity.IRgbLedState[],
     interfaceIndex: number,
   ): Observable<com.antigravity.SetInterfaceRgbLedStateResponse> {
     const request = com.antigravity.SetInterfaceRgbLedStateRequest.create({
-      stringIndex,
+      pin,
       leds: leds.map((l) => com.antigravity.RgbLedState.create(l)),
       interfaceIndex,
     });

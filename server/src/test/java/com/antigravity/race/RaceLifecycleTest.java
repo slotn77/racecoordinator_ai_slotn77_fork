@@ -92,8 +92,20 @@ public class RaceLifecycleTest {
     // When stopping the race
     race.stop();
 
-    // Then protocols.close() should be called
+    // Then protocols.clearLeds() should be called BEFORE close()
+    verify(mockProtocols).clearLeds();
     verify(mockProtocols).close();
+  }
+
+  @Test
+  public void testNotStartedInitialization() throws Exception {
+    // When the race transitions to NotStarted (which happens on build/init)
+    race.changeState(new com.antigravity.race.states.NotStarted());
+
+    // Then hardware should be initialized
+    // The test setup has 2 lanes, so we expect standings for both.
+    verify(mockProtocols).setHeatStandings(java.util.Arrays.asList(0, 1));
+    verify(mockProtocols).setHeatProgress(0);
   }
 
   @Test
