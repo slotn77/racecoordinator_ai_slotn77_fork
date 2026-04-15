@@ -15,4 +15,5 @@ message Lap {
   int32 interfaceId = 7;
   string driver_id = 8;
   double fuel_level = 9;
+  bool is_drift = 10;
 }

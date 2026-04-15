@@ -60,6 +60,8 @@ export const MOCK_RACES = [
       overall_time_limit: 0,
       require_pit_stop_change_driver: false,
     },
+    min_lap_time: 1.5,
+    drift_time: 0.5,
   },
   {
     entity_id: "r2",
@@ -78,6 +80,8 @@ export const MOCK_RACES = [
       ranking_method: "LAP_COUNT",
       tiebreaker: "FASTEST_LAP_TIME",
     },
+    min_lap_time: 1.5,
+    drift_time: 0.5,
   },
   {
     entity_id: "r3",
@@ -96,6 +100,8 @@ export const MOCK_RACES = [
       ranking_method: "LAP_COUNT",
       tiebreaker: "FASTEST_LAP_TIME",
     },
+    min_lap_time: 1.5,
+    drift_time: 0.5,
   },
 ];
 
@@ -156,5 +162,6 @@ export const MOCK_RACE_INSTANCES = MOCK_RACES.map((r: any) => {
     0, // auto_advance_warmup_time
     0, // auto_start_warmup_time
     r.drift_time ?? 0.5,
+    r.min_lap_time ?? 1.5,
   );
 });

@@ -440,6 +440,8 @@
   "RD_COL_SEED": "SEED",
   "RD_COL_SEGMENT_TIME": "TEMPS PARTIEL",
   "RD_COL_TEAM": "ÉQUIPE",
+  "RD_DRIFT_LAP": "DRIFT",
+
   "RD_EMPTY_LANE": "Voie Vide",
   "RD_ERROR_NO_DRIVERS": "Aucun pilote sélectionné.",
   "RD_ERR_DRIVER_CHANGE_NOT_IN_PIT": "Changement de pilote rejeté : La voiture n'est pas aux stands",

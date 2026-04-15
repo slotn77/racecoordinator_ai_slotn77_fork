@@ -440,6 +440,8 @@
   "RD_COL_SEED": "TESTA DI SERIE",
   "RD_COL_SEGMENT_TIME": "TEMPO SETTORE",
   "RD_COL_TEAM": "SQUADRA",
+  "RD_DRIFT_LAP": "DRIFT",
+
   "RD_EMPTY_LANE": "Corsia Vuota",
   "RD_ERROR_NO_DRIVERS": "Nessun pilota selezionato.",
   "RD_ERR_DRIVER_CHANGE_NOT_IN_PIT": "Cambio pilota rifiutato: L'auto non è ai box",

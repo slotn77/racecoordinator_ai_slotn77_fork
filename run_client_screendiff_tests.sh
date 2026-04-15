@@ -30,6 +30,10 @@ else
   cp -Rf src scripts package.json angular.json tsconfig*.json playwright.config.ts "$ISOLATED_DIR/"
 fi
 
+# Force a rebuild by deleting the dist directory to ensure latest changes are picked up
+echo "Clearing stale build output..."
+rm -rf "$ISOLATED_DIR/dist"
+
 cd "$ISOLATED_DIR" || exit
 
 # Ensure dependencies are installed in isolated directory

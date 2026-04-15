@@ -11,6 +11,7 @@ option java_outer_classname = "DriverHeatDataProto";
 message LapData {
   double lap_time = 1;
   string driver_id = 2;
+  bool is_drift = 3;
 }
 
 message DriverHeatData {

@@ -81,6 +81,14 @@ test.describe("Race Editor Visuals", () => {
       timeout: 10000,
     });
 
+    // Ensure drift settings are visible
+    // We use the specific classes we added to the template for robust selection
+    const minLapInput = page.locator(".min-lap-time-input");
+    const driftTimeInput = page.locator(".drift-time-input");
+
+    await minLapInput.waitFor({ state: "visible", timeout: 10000 });
+    await driftTimeInput.waitFor({ state: "visible", timeout: 10000 });
+
     // Disable animations
     await TestSetupHelper.disableAnimations(page);
 

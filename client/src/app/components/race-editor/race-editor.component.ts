@@ -224,6 +224,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
             auto_advance_warmup_time: race.auto_advance_warmup_time || 0,
             auto_start_warmup_time: race.auto_start_warmup_time || 0,
             drift_time: race.drift_time ?? 0.5,
+            min_lap_time: race.min_lap_time ?? 1.5,
           };
           if (!this.editingRace.fuel_options) {
             this.editingRace.fuel_options = {
@@ -350,7 +351,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         pit_stop_delay: 2.0,
         capacity: 100,
       },
-      min_lap_time: 0,
+      min_lap_time: 1.5,
       drift_time: 0.5,
       team_options: {
         heat_lap_limit: 0,

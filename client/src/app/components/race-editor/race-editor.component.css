@@ -536,6 +536,7 @@
 .config-row {
   display: flex;
   gap: 40px;
+  flex-wrap: wrap;
 }
 
 .config-row .editor-section,

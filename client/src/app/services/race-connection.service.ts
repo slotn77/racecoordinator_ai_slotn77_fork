@@ -145,6 +145,11 @@ export class RaceConnectionService implements OnDestroy {
             (d) => d.objectId === lap.objectId,
           );
           if (driverData) {
+            if (lap.isDrift) {
+              console.log(
+                `RaceConnectionService [DEBUG]: Received DRIFT lap update for hd=${lap.objectId}, time=${lap.lapTime}`,
+              );
+            }
             driverData.addLapTime(
               lap.lapNumber!,
               lap.lapTime!,
@@ -152,6 +157,7 @@ export class RaceConnectionService implements OnDestroy {
               lap.medianLapTime!,
               lap.bestLapTime!,
               lap.driverId!,
+              lap.isDrift!,
             );
             this.lapSubject.next(lap);
           }

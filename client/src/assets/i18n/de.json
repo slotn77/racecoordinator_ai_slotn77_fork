@@ -440,6 +440,8 @@
   "RD_COL_SEED": "SEED",
   "RD_COL_SEGMENT_TIME": "SEGMENTZEIT",
   "RD_COL_TEAM": "TEAM",
+  "RD_DRIFT_LAP": "DRIFT",
+
   "RD_EMPTY_LANE": "Leere Spur",
   "RD_ERROR_NO_DRIVERS": "Keine Fahrer ausgewählt.",
   "RD_ERR_DRIVER_CHANGE_NOT_IN_PIT": "Fahrerwechsel abgelehnt: Auto ist nicht in der Box",

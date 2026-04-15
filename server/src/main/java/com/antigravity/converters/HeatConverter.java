@@ -92,6 +92,7 @@ public class HeatConverter {
                           LapData.newBuilder()
                               .setLapTime(l.getLapTime())
                               .setDriverId(l.getDriverId())
+                              .setIsDrift(l.isDrift())
                               .build())
                   .collect(Collectors.toList()))
           .build();

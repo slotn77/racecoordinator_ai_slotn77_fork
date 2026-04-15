@@ -204,6 +204,18 @@ export class DefaultRacedayComponent
     return `anchor-${anchor.toLowerCase()}`;
   }
 
+  isLapTimeColumn(col: ColumnDefinition): boolean {
+    const property = this.getLayoutEntries(col)[0]?.property || "";
+    const baseKey = property.split("_")[0];
+    const isLap =
+      baseKey === "lastLapTime" ||
+      baseKey === "bestLapTime" ||
+      baseKey === "averageLapTime" ||
+      baseKey === "medianLapTime" ||
+      baseKey === "segmentTime";
+    return isLap;
+  }
+
   protected isImageProperty(prop: string): boolean {
     if (!prop) return false;
     const base = prop.split("_")[0];
@@ -2045,8 +2057,8 @@ export class DefaultRacedayComponent
     const lLabel = this.translationService.translate("RD_STATS_LAP_ABBR");
     const tLabel = this.translationService.translate("RD_STATS_TOTAL_ABBR");
 
-    if (hd.lapsWithDrivers) {
-      hd.lapsWithDrivers.forEach((l: any) => {
+    if (hd.lapsWithDetails) {
+      hd.lapsWithDetails.forEach((l: any) => {
         if (l.driverId === driverId) {
           heatLaps++;
           heatTime += l.time;
@@ -2059,8 +2071,8 @@ export class DefaultRacedayComponent
       heats.forEach((h: any) => {
         if (h.heatDrivers) {
           h.heatDrivers.forEach((d_hd: any) => {
-            if (d_hd.lapsWithDrivers) {
-              d_hd.lapsWithDrivers.forEach((l: any) => {
+            if (d_hd.lapsWithDetails) {
+              d_hd.lapsWithDetails.forEach((l: any) => {
                 if (l.driverId === driverId) {
                   overallLaps++;
                   overallTime += l.time;

@@ -440,6 +440,8 @@
   "RD_COL_SEED": "SEED",
   "RD_COL_SEGMENT_TIME": "TIEMPO PARCIAL",
   "RD_COL_TEAM": "EQUIPO",
+  "RD_DRIFT_LAP": "DRIFT",
+
   "RD_EMPTY_LANE": "Carril Vacío",
   "RD_ERROR_NO_DRIVERS": "Sin pilotos seleccionados.",
   "RD_ERR_DRIVER_CHANGE_NOT_IN_PIT": "Cambio de piloto rechazado: El coche no está en boxes",

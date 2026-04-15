@@ -110,7 +110,7 @@
           </div>
 
           <div class="section-content" *ngIf="sectionsExpanded.general">
-            <div class="config-row">
+            <div class="config-row wrap">
               <div class="editor-section">
                 <label>{{ "RM_LABEL_TRACK" | translate }}</label>
                 <select
@@ -144,6 +144,8 @@
                   min="0"
                   step="0.1"
                   placeholder="0.0"
+                  class="min-lap-time-input"
+                  data-testid="min-lap-time-input"
                 />
               </div>
 
@@ -163,6 +165,8 @@
                   min="0"
                   step="0.1"
                   placeholder="0.0"
+                  class="drift-time-input"
+                  data-testid="drift-time-input"
                 />
               </div>
             </div>

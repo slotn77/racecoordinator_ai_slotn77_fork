@@ -1,80 +1,151 @@
 <div class="dashboard-wrapper">
-
-  <app-acknowledgement-modal [visible]="showAckModal" [title]="ackModalTitle" [message]="ackModalMessage"
-    [buttonText]="ackModalButtonText" (acknowledge)="onAcknowledgeModal()">
+  <app-acknowledgement-modal
+    [visible]="showAckModal"
+    [title]="ackModalTitle"
+    [message]="ackModalMessage"
+    [buttonText]="ackModalButtonText"
+    (acknowledge)="onAcknowledgeModal()"
+  >
   </app-acknowledgement-modal>
 
-  <app-confirmation-modal [visible]="showExitConfirmation" [title]="exitModalTitle"
-    [message]="exitModalMessage" [confirmText]="exitConfirmText" [cancelText]="exitCancelText" 
-    (confirm)="onExitConfirm()" (cancel)="onExitCancel()">
+  <app-confirmation-modal
+    [visible]="showExitConfirmation"
+    [title]="exitModalTitle"
+    [message]="exitModalMessage"
+    [confirmText]="exitConfirmText"
+    [cancelText]="exitCancelText"
+    (confirm)="onExitConfirm()"
+    (cancel)="onExitCancel()"
+  >
   </app-confirmation-modal>
 
-  <div class="scalable-content" [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'">
-
+  <div
+    class="scalable-content"
+    [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'"
+  >
     <!-- Top Horizontal Menu Bar -->
     <div class="menu-bar">
       <div class="menu-wrapper">
-        <button class="menu-button-top" (click)="toggleFileMenu()">{{ 'RD_MENU_FILE' | translate }}</button>
+        <button class="menu-button-top" (click)="toggleFileMenu()">
+          {{ "RD_MENU_FILE" | translate }}
+        </button>
         <div *ngIf="isFileMenuOpen" class="menu-dropdown top-dropdown">
-          <div class="menu-item" [class.disabled]="isSaveDisabled" (click)="onFileMenuSelect('SAVE')">{{ 'RD_MENU_SAVE'
-            | translate }}</div>
-          <div class="menu-item" (click)="onFileMenuSelect('EXPORT_CSV')">{{ 'RD_MENU_EXPORT_CSV' | translate }}</div>
-          <div class="menu-item" (click)="onFileMenuSelect('EXIT')">{{ 'RD_MENU_EXIT' | translate }}</div>
+          <div
+            class="menu-item"
+            [class.disabled]="isSaveDisabled"
+            (click)="onFileMenuSelect('SAVE')"
+          >
+            {{ "RD_MENU_SAVE" | translate }}
+          </div>
+          <div class="menu-item" (click)="onFileMenuSelect('EXPORT_CSV')">
+            {{ "RD_MENU_EXPORT_CSV" | translate }}
+          </div>
+          <div class="menu-item" (click)="onFileMenuSelect('EXIT')">
+            {{ "RD_MENU_EXIT" | translate }}
+          </div>
         </div>
       </div>
       <div class="menu-wrapper">
-        <button class="menu-button-top" (click)="toggleMenu()">{{ 'RD_MENU_RACE_DIRECTOR' | translate }}</button>
+        <button class="menu-button-top" (click)="toggleMenu()">
+          {{ "RD_MENU_RACE_DIRECTOR" | translate }}
+        </button>
         <div *ngIf="isMenuOpen" class="menu-dropdown top-dropdown">
-          <div class="menu-item" [class.disabled]="isStartResumeDisabled" (click)="onMenuSelect('START_RESUME')">
-            <span>{{ 'RD_MENU_START_RESUME' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isStartResumeDisabled"
+            (click)="onMenuSelect('START_RESUME')"
+          >
+            <span>{{ "RD_MENU_START_RESUME" | translate }}</span>
             <span class="menu-shortcut">{{ startResumeShortcut }}</span>
           </div>
-          <div class="menu-item" [class.disabled]="isPauseDisabled" (click)="onMenuSelect('PAUSE')">
-            <span>{{ 'RD_MENU_PAUSE' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isPauseDisabled"
+            (click)="onMenuSelect('PAUSE')"
+          >
+            <span>{{ "RD_MENU_PAUSE" | translate }}</span>
             <span class="menu-shortcut">{{ pauseShortcut }}</span>
           </div>
           <div class="menu-separator"></div>
-          <div class="menu-item" [class.disabled]="isAddLapDisabled" (click)="onMenuSelect('ADD_LAP')">{{
-            'RD_MENU_ADD_LAP' | translate }}</div>
-          <div class="menu-item" [class.disabled]="isNextHeatDisabled" (click)="onMenuSelect('NEXT_HEAT')">
-            <span>{{ 'RD_MENU_NEXT_HEAT' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isAddLapDisabled"
+            (click)="onMenuSelect('ADD_LAP')"
+          >
+            {{ "RD_MENU_ADD_LAP" | translate }}
+          </div>
+          <div
+            class="menu-item"
+            [class.disabled]="isNextHeatDisabled"
+            (click)="onMenuSelect('NEXT_HEAT')"
+          >
+            <span>{{ "RD_MENU_NEXT_HEAT" | translate }}</span>
             <span class="menu-shortcut">{{ nextHeatShortcut }}</span>
           </div>
           <div class="menu-separator"></div>
-          <div class="menu-item" [class.disabled]="isRestartHeatDisabled" (click)="onMenuSelect('RESTART_HEAT')">
-            <span>{{ 'RD_MENU_RESTART' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isRestartHeatDisabled"
+            (click)="onMenuSelect('RESTART_HEAT')"
+          >
+            <span>{{ "RD_MENU_RESTART" | translate }}</span>
             <span class="menu-shortcut">{{ restartHeatShortcut }}</span>
           </div>
-          <div class="menu-item" [class.disabled]="isDeferHeatDisabled" (click)="onMenuSelect('DEFER_HEAT')">
-            <span>{{ 'RD_MENU_DEFER' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isDeferHeatDisabled"
+            (click)="onMenuSelect('DEFER_HEAT')"
+          >
+            <span>{{ "RD_MENU_DEFER" | translate }}</span>
             <span class="menu-shortcut">{{ deferHeatShortcut }}</span>
           </div>
-          <div class="menu-item" [class.disabled]="isSkipHeatDisabled" (click)="onMenuSelect('SKIP_HEAT')">
-            <span>{{ 'RD_MENU_SKIP_HEAT' | translate }}</span>
+          <div
+            class="menu-item"
+            [class.disabled]="isSkipHeatDisabled"
+            (click)="onMenuSelect('SKIP_HEAT')"
+          >
+            <span>{{ "RD_MENU_SKIP_HEAT" | translate }}</span>
             <span class="menu-shortcut">{{ skipHeatShortcut }}</span>
           </div>
-          <div class="menu-item" [class.disabled]="isSkipRaceDisabled" (click)="onMenuSelect('SKIP_RACE')">{{
-            'RD_MENU_SKIP_RACE' | translate }}</div>
+          <div
+            class="menu-item"
+            [class.disabled]="isSkipRaceDisabled"
+            (click)="onMenuSelect('SKIP_RACE')"
+          >
+            {{ "RD_MENU_SKIP_RACE" | translate }}
+          </div>
           <div class="menu-separator"></div>
-          <div class="menu-item" (click)="onMenuSelect('MODIFY')">{{ 'RD_MENU_MODIFY' | translate }}</div>
-          <div class="menu-item" (click)="onMenuSelect('EDIT_LAPS')">{{ 'RD_MENU_EDIT_LAPS' | translate }}</div>
+          <div class="menu-item" (click)="onMenuSelect('MODIFY')">
+            {{ "RD_MENU_MODIFY" | translate }}
+          </div>
+          <div class="menu-item" (click)="onMenuSelect('EDIT_LAPS')">
+            {{ "RD_MENU_EDIT_LAPS" | translate }}
+          </div>
         </div>
       </div>
       <div class="menu-wrapper" *ngIf="track && track.lanes">
-        <button class="menu-button-top" (click)="toggleLanesMenu()">{{ 'RD_MENU_LANES' | translate }}</button>
+        <button class="menu-button-top" (click)="toggleLanesMenu()">
+          {{ "RD_MENU_LANES" | translate }}
+        </button>
         <div *ngIf="isLanesMenuOpen" class="menu-dropdown top-dropdown">
-          <div class="menu-item has-submenu" (click)="toggleDriversStationMenu(); $event.stopPropagation()">
-            {{ 'RD_MENU_DRIVERS_STATION' | translate }}
+          <div
+            class="menu-item has-submenu"
+            (click)="toggleDriversStationMenu(); $event.stopPropagation()"
+          >
+            {{ "RD_MENU_DRIVERS_STATION" | translate }}
             <span class="submenu-arrow">▶</span>
-              <div *ngIf="isDriversStationOpen" class="menu-dropdown submenu">
-                <div *ngFor="let lane of track.lanes; let i = index" class="menu-item" (click)="onLaneMenuSelect(i)">
-                  {{ 'RD_MENU_LANE' | translate:{lane: i + 1} }}
-                </div>
+            <div *ngIf="isDriversStationOpen" class="menu-dropdown submenu">
+              <div
+                *ngFor="let lane of track.lanes; let i = index"
+                class="menu-item"
+                (click)="onLaneMenuSelect(i)"
+              >
+                {{ "RD_MENU_LANE" | translate: { lane: i + 1 } }}
               </div>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
 
     <ng-container *ngIf="heat && race">
@@ -85,7 +156,9 @@
           <span class="value-text">{{ race.name }}</span>
         </div>
         <div class="info-section">
-          <span class="value-text">Heat {{ heat.heatNumber }} of {{ totalHeats }}</span>
+          <span class="value-text"
+            >Heat {{ heat.heatNumber }} of {{ totalHeats }}</span
+          >
         </div>
         <div class="info-section">
           <span class="label-text">Track:</span>
@@ -97,17 +170,21 @@
       <div class="mid-section">
         <!-- Branding Panel -->
         <div class="panel-card branding-panel">
-          <div class="logo-text">Race Coordinator <span class="logo-highlight">AI</span></div>
-          <a href="https://github.com/daufderheide/racecoordinator_ai/tree/main" 
-             target="_blank" 
-             class="branding-tagline">
-            {{ 'RD_TAGLINE' | translate }}
+          <div class="logo-text">
+            Race Coordinator <span class="logo-highlight">AI</span>
+          </div>
+          <a
+            href="https://github.com/daufderheide/racecoordinator_ai/tree/main"
+            target="_blank"
+            class="branding-tagline"
+          >
+            {{ "RD_TAGLINE" | translate }}
           </a>
         </div>
 
         <!-- Flag Panel -->
         <div class="panel-card flag-panel">
-          <img [src]="getCurrentFlagUrl()" class="flag-image" alt="Race Flag">
+          <img [src]="getCurrentFlagUrl()" class="flag-image" alt="Race Flag" />
         </div>
 
         <!-- Timer Panel -->
@@ -115,8 +192,12 @@
           <div class="timer-wrapper">
             <div class="timer-text">{{ formattedTime }}</div>
             <div class="timer-status-labels">
-              <div class="status-label" *ngIf="autoStatusLabel">{{ autoStatusLabel | translate }}</div>
-              <div class="warmup-label" *ngIf="isWarmup">{{ 'RD_WARMUP' | translate }}</div>
+              <div class="status-label" *ngIf="autoStatusLabel">
+                {{ autoStatusLabel | translate }}
+              </div>
+              <div class="warmup-label" *ngIf="isWarmup">
+                {{ "RD_WARMUP" | translate }}
+              </div>
             </div>
           </div>
         </div>
@@ -124,27 +205,48 @@
         <!-- Record Panel -->
         <div class="panel-card record-panel">
           <div class="record-header">Race Record Lap</div>
-          <div class="record-row" style="background:#222; margin-top:2px; padding:0 10px;">
+          <div
+            class="record-row"
+            style="background: #222; margin-top: 2px; padding: 0 10px"
+          >
             <span class="record-val">{{ raceRecordLapNickname }}</span>
-            <span class="record-val">{{ raceRecordLapTime | number:'1.3-3' }}</span>
+            <span class="record-val">{{
+              raceRecordLapTime | number: "1.3-3"
+            }}</span>
           </div>
 
-          <div class="record-header" style="margin-top:5px; background:transparent;">Race Record Score</div>
-          <div class="record-row" style="padding:0 10px;">
+          <div
+            class="record-header"
+            style="margin-top: 5px; background: transparent"
+          >
+            Race Record Score
+          </div>
+          <div class="record-row" style="padding: 0 10px">
             <span class="record-val">{{ raceRecordScoreNickname }}</span>
-            <span class="record-val">{{ raceRecordScore | number:'1.3-3' }}</span>
+            <span class="record-val">{{
+              raceRecordScore | number: "1.3-3"
+            }}</span>
           </div>
 
-          <div class="record-header" style="margin-top:5px; background:#222;">Current Race Best Lap</div>
-          <div class="record-row" style="background:#222; padding:0 10px;">
+          <div class="record-header" style="margin-top: 5px; background: #222">
+            Current Race Best Lap
+          </div>
+          <div class="record-row" style="background: #222; padding: 0 10px">
             <span class="record-val">{{ currentRaceBestNickname }}</span>
-            <span class="record-val">{{ currentRaceBestTime | number:'1.3-3' }}</span>
+            <span class="record-val">{{
+              currentRaceBestTime | number: "1.3-3"
+            }}</span>
           </div>
 
-          <div class="record-header" style="margin-top:5px; background:transparent;">Heat Best Lap</div>
-          <div class="record-row" style="padding:0 10px;">
+          <div
+            class="record-header"
+            style="margin-top: 5px; background: transparent"
+          >
+            Heat Best Lap
+          </div>
+          <div class="record-row" style="padding: 0 10px">
             <span class="record-val">{{ heatBestNickname }}</span>
-            <span class="record-val">{{ heatBestTime | number:'1.3-3' }}</span>
+            <span class="record-val">{{ heatBestTime | number: "1.3-3" }}</span>
           </div>
         </div>
 
@@ -152,15 +254,34 @@
         <div class="panel-card leaderboard-panel">
           <div class="leaderboard-title">Leader Board</div>
           <div class="leaderboard-list">
-            <div class="leaderboard-scroll-content" [style.height.px]="leaderboardEntries.length * 24">
-              <div *ngFor="let entry of leaderboardEntries; let i = index; trackBy: trackByLeaderboardEntry" 
-                   class="leaderboard-item"
-                   [class.leaderboard-item-odd]="getLeaderboardPosition(entry) % 2 === 1"
-                   [style.transform]="'translateY(' + (getLeaderboardPosition(entry) * 24) + 'px)'">
-                <span [class.leader-gold]="getLeaderboardPosition(entry) === 0" [class.leader-white]="getLeaderboardPosition(entry) > 0">
+            <div
+              class="leaderboard-scroll-content"
+              [style.height.px]="leaderboardEntries.length * 24"
+            >
+              <div
+                *ngFor="
+                  let entry of leaderboardEntries;
+                  let i = index;
+                  trackBy: trackByLeaderboardEntry
+                "
+                class="leaderboard-item"
+                [class.leaderboard-item-odd]="
+                  getLeaderboardPosition(entry) % 2 === 1
+                "
+                [style.transform]="
+                  'translateY(' + getLeaderboardPosition(entry) * 24 + 'px)'
+                "
+              >
+                <span
+                  [class.leader-gold]="getLeaderboardPosition(entry) === 0"
+                  [class.leader-white]="getLeaderboardPosition(entry) > 0"
+                >
                   {{ getLeaderboardPosition(entry) + 1 }} {{ entry.name }}
                 </span>
-                <span [class.leader-gold]="getLeaderboardPosition(entry) === 0" [class.leader-white]="getLeaderboardPosition(entry) > 0">
+                <span
+                  [class.leader-gold]="getLeaderboardPosition(entry) === 0"
+                  [class.leader-white]="getLeaderboardPosition(entry) > 0"
+                >
                   {{ entry.score }}
                 </span>
               </div>
@@ -172,46 +293,125 @@
       <!-- Bottom Position Table -->
       <div class="bottom-section" *ngIf="columns && columns.length > 0">
         <!-- Header -->
-        <div class="table-header-row" [style.grid-template-columns]="gridTemplateColumns">
-          <div *ngFor="let col of columns; trackBy: trackByColumn" class="header-cell">
+        <div
+          class="table-header-row"
+          [style.grid-template-columns]="gridTemplateColumns"
+        >
+          <div
+            *ngFor="let col of columns; trackBy: trackByColumn"
+            class="header-cell"
+          >
             {{ getColumnLabel(col) }}
           </div>
         </div>
 
         <!-- Body (Dynamic rows) -->
         <div class="table-body">
-          <div *ngFor="let hd of sortedHeatDrivers; let i = index; trackBy: trackByDriverId" 
-            class="table-row" [class.highlight]="highlightedDrivers.has(hd.objectId)"
-            [style.grid-template-columns]="gridTemplateColumns" [style.height.px]="getRowHeight()"
+          <div
+            *ngFor="
+              let hd of sortedHeatDrivers;
+              let i = index;
+              trackBy: trackByDriverId
+            "
+            class="table-row"
+            [class.highlight]="highlightedDrivers.has(hd.objectId)"
+            [style.grid-template-columns]="gridTemplateColumns"
+            [style.height.px]="getRowHeight()"
             [style.z-index]="100 - getDriverVisualPosition(hd)"
-            [style.transform]="'translateY(' + (getDriverVisualPosition(hd) * (getRowHeight() + 2)) + 'px) ' + (highlightedDrivers.has(hd.objectId) ? 'scale(1.015)' : 'scale(1)')">
-
-            <div *ngFor="let col of columns; trackBy: trackByColumn" class="body-cell"
+            [style.transform]="
+              'translateY(' +
+              getDriverVisualPosition(hd) * (getRowHeight() + 2) +
+              'px) ' +
+              (highlightedDrivers.has(hd.objectId)
+                ? 'scale(1.015)'
+                : 'scale(1)')
+            "
+          >
+            <div
+              *ngFor="let col of columns; trackBy: trackByColumn"
+              class="body-cell"
               [style.background]="track.lanes[hd.laneIndex]?.background_color"
-              [style.border-left-color]="track.lanes[hd.laneIndex]?.foreground_color"
-              [style.border-right-color]="track.lanes[hd.laneIndex]?.foreground_color">
+              [style.border-left-color]="
+                track.lanes[hd.laneIndex]?.foreground_color
+              "
+              [style.border-right-color]="
+                track.lanes[hd.laneIndex]?.foreground_color
+              "
+            >
+              <div
+                class="drift-indicator"
+                *ngIf="hd.isLastLapDrift && isLapTimeColumn(col)"
+                data-testid="drift-badge"
+                [style.background-color]="
+                  track.lanes[hd.laneIndex]?.foreground_color
+                "
+                [style.color]="track.lanes[hd.laneIndex]?.background_color"
+              >
+                {{ "RD_DRIFT_LAP" | translate }}
+              </div>
 
-              <ng-container *ngFor="let entry of getLayoutEntries(col); trackBy: trackByLayout">
+              <ng-container
+                *ngFor="
+                  let entry of getLayoutEntries(col);
+                  trackBy: trackByLayout
+                "
+              >
                 <!-- Text Content -->
-                <div *ngIf="!isImageProperty(entry.property)" [class]="getAnchorClass(entry.anchor)"
-                  [style.color]="track.lanes[hd.laneIndex]?.foreground_color">
-
+                <div
+                  *ngIf="!isImageProperty(entry.property)"
+                  [class]="getAnchorClass(entry.anchor)"
+                  [style.color]="track.lanes[hd.laneIndex]?.foreground_color"
+                >
                   <!-- Team Driver Pulldown -->
-                  <!-- Team Driver Pulldown -->
-                  <div *ngIf="isNameProperty(entry.property) && isTeam(hd)" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <span class="teammate-display-name" [style.color]="track.lanes[hd.laneIndex]?.foreground_color">
-                      {{ (entry.property === 'driver.nickname' ? (hd.actualDriver?.nickname || hd.actualDriver?.name || hd.driver.nickname || hd.driver.name) : (hd.actualDriver?.name || hd.driver.name)) }}
+                  <div
+                    *ngIf="isNameProperty(entry.property) && isTeam(hd)"
+                    style="
+                      position: relative;
+                      width: 100%;
+                      height: 100%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    "
+                  >
+                    <span
+                      class="teammate-display-name"
+                      [style.color]="
+                        track.lanes[hd.laneIndex]?.foreground_color
+                      "
+                    >
+                      {{
+                        entry.property === "driver.nickname"
+                          ? hd.actualDriver?.nickname ||
+                            hd.actualDriver?.name ||
+                            hd.driver.nickname ||
+                            hd.driver.name
+                          : hd.actualDriver?.name || hd.driver.name
+                      }}
                     </span>
-                    <select class="teammate-select"
-                      [style.background-image]="getDropdownArrowBg(hd)" [disabled]="isDriverSwapDisabled(hd)"
-                      (change)="onTeammateChange(hd, $event)">
-                      <option *ngFor="let tm of getTeammates(hd)" [value]="tm.entity_id || tm.id"
-                        [selected]="(tm.entity_id || tm.id) === (hd.actualDriver?.entity_id || hd.driver.entity_id)">
-                        {{ (entry.property === 'driver.nickname' ? (tm.nickname || tm.name) : tm.name) }} {{ getDriverStats(hd, tm.entity_id || tm.id) }}
+                    <select
+                      class="teammate-select"
+                      [style.background-image]="getDropdownArrowBg(hd)"
+                      [disabled]="isDriverSwapDisabled(hd)"
+                      (change)="onTeammateChange(hd, $event)"
+                    >
+                      <option
+                        *ngFor="let tm of getTeammates(hd)"
+                        [value]="tm.entity_id || tm.id"
+                        [selected]="
+                          (tm.entity_id || tm.id) ===
+                          (hd.actualDriver?.entity_id || hd.driver.entity_id)
+                        "
+                      >
+                        {{
+                          entry.property === "driver.nickname"
+                            ? tm.nickname || tm.name
+                            : tm.name
+                        }}
+                        {{ getDriverStats(hd, tm.entity_id || tm.id) }}
                       </option>
                     </select>
                   </div>
-
 
                   <!-- Static Text for Individuals or non-name properties -->
                   <span *ngIf="!isNameProperty(entry.property) || !isTeam(hd)">
@@ -219,23 +419,42 @@
                   </span>
                 </div>
                 <!-- Image Content -->
-                <div *ngIf="isImageProperty(entry.property)" [class]="getAnchorClass(entry.anchor)">
-                  <img [src]="formatColumnValue(hd, col, entry.property)" alt="">
+                <div
+                  *ngIf="isImageProperty(entry.property)"
+                  [class]="getAnchorClass(entry.anchor)"
+                >
+                  <img
+                    [src]="formatColumnValue(hd, col, entry.property)"
+                    alt=""
+                  />
                 </div>
               </ng-container>
-
             </div>
           </div>
         </div>
       </div>
     </ng-container>
 
-    <div *ngIf="!heat && errorMessage" class="error-container"
-      style="flex: 1; display: flex; align-items: center; justify-content: center;">
-      <h1 style="color: #ef4444; font-size: 40px; font-weight: bold; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">
+    <div
+      *ngIf="!heat && errorMessage"
+      class="error-container"
+      style="
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <h1
+        style="
+          color: #ef4444;
+          font-size: 40px;
+          font-weight: bold;
+          text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        "
+      >
         {{ errorMessage }}
       </h1>
     </div>
-
   </div>
 </div>

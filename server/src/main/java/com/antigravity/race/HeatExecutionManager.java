@@ -568,6 +568,7 @@ public class HeatExecutionManager {
                     ? driverData.getActualDriver().getEntityId()
                     : "")
             .setFuelLevel(driverData.getDriver().getFuelLevel())
+            .setIsDrift(isDrift)
             .build();
 
     RaceData lapDataMsg = RaceData.newBuilder().setLap(lapMsg).build();
