@@ -366,17 +366,6 @@
                 </h2>
 
                 <div class="config-section">
-                  <label>{{ "RE_DROPPED_HEATS" | translate }}</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="editingRace.overall_scoring.dropped_heats"
-                    (ngModelChange)="captureState()"
-                    min="0"
-                    max="10"
-                  />
-                </div>
-
-                <div class="config-section">
                   <label>{{ "RE_OVERALL_RANKING" | translate }}</label>
                   <select
                     [(ngModel)]="editingRace.overall_scoring.ranking_method"
@@ -400,6 +389,17 @@
                     <option value="AVERAGE_LAP_TIME">Average Lap Time</option>
                     <option value="TOTAL_TIME">Total Time</option>
                   </select>
+                </div>
+
+                <div class="config-section">
+                  <label>{{ "RE_DROPPED_HEATS" | translate }}</label>
+                  <input
+                    type="number"
+                    [(ngModel)]="editingRace.overall_scoring.dropped_heats"
+                    (ngModelChange)="captureState()"
+                    min="0"
+                    max="10"
+                  />
                 </div>
               </div>
             </div>

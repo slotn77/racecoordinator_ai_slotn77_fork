@@ -178,6 +178,8 @@
   "DBM_STAT_ASSETS": "Assets",
   "DBM_STAT_DRIVERS": "Drivers",
   "DBM_STAT_RACES": "Races",
+  "DBM_STAT_RACE_RECORDS": "Race Records",
+  "DBM_STAT_SAVED_RACES": "Saved Races",
   "DBM_STAT_SIZE": "Size",
   "DBM_STAT_TEAMS": "Teams",
   "DBM_STAT_TRACKS": "Tracks",

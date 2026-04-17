@@ -225,8 +225,38 @@ public class DatabaseContext {
     }
     sizeBytes += assetSizeBytes;
 
+    long raceRecordCount = 0;
+    double raceRecordSizeBytes = 0;
+    try {
+      Document collStats = db.runCommand(new Document("collStats", "race_history"));
+      raceRecordCount = ((Number) collStats.get("count")).longValue();
+      raceRecordSizeBytes = ((Number) collStats.get("size")).doubleValue();
+    } catch (Exception e) {
+      // Collection might not exist yet
+    }
+
+    long savedRaceCount = 0;
+    double savedRaceSizeBytes = 0;
+    try {
+      Document collStats = db.runCommand(new Document("collStats", "saved_races"));
+      savedRaceCount = ((Number) collStats.get("count")).longValue();
+      savedRaceSizeBytes = ((Number) collStats.get("size")).doubleValue();
+    } catch (Exception e) {
+      // Collection might not exist yet
+    }
+
     return new DatabaseStats(
-        dbName, driverCount, teamCount, trackCount, raceCount, assetCount, sizeBytes);
+        dbName,
+        driverCount,
+        teamCount,
+        trackCount,
+        raceCount,
+        assetCount,
+        sizeBytes,
+        raceRecordCount,
+        raceRecordSizeBytes,
+        savedRaceCount,
+        savedRaceSizeBytes);
   }
 
   public void exportDatabase(String dbName, OutputStream out) throws IOException {
@@ -341,6 +371,10 @@ public class DatabaseContext {
     public long raceCount;
     public long assetCount;
     public double sizeBytes;
+    public long raceRecordCount;
+    public double raceRecordSizeBytes;
+    public long savedRaceCount;
+    public double savedRaceSizeBytes;
 
     public DatabaseStats(
         String name,
@@ -349,7 +383,11 @@ public class DatabaseContext {
         long trackCount,
         long raceCount,
         long assetCount,
-        double sizeBytes) {
+        double sizeBytes,
+        long raceRecordCount,
+        double raceRecordSizeBytes,
+        long savedRaceCount,
+        double savedRaceSizeBytes) {
       this.name = name;
       this.driverCount = driverCount;
       this.teamCount = teamCount;
@@ -357,6 +395,10 @@ public class DatabaseContext {
       this.raceCount = raceCount;
       this.assetCount = assetCount;
       this.sizeBytes = sizeBytes;
+      this.raceRecordCount = raceRecordCount;
+      this.raceRecordSizeBytes = raceRecordSizeBytes;
+      this.savedRaceCount = savedRaceCount;
+      this.savedRaceSizeBytes = savedRaceSizeBytes;
     }
   }
 }

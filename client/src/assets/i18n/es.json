@@ -178,6 +178,8 @@
   "DBM_STAT_ASSETS": "Activos",
   "DBM_STAT_DRIVERS": "Conductores",
   "DBM_STAT_RACES": "Carreras",
+  "DBM_STAT_RACE_RECORDS": "Registros de Carrera",
+  "DBM_STAT_SAVED_RACES": "Carreras Guardadas",
   "DBM_STAT_SIZE": "Tamaño",
   "DBM_STAT_TEAMS": "Equipos",
   "DBM_STAT_TRACKS": "Pistas",
