@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.protobuf.GeneratedMessageV3;
 import io.javalin.websocket.WsContext;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -97,6 +98,9 @@ public class ClientSubscriptionManager {
   }
 
   public synchronized void setProtocol(ProtocolDelegate protocol) {
+    System.out.println(
+        "DEBUG: setProtocol called with: "
+            + (protocol == null ? "null" : protocol.getClass().getSimpleName()));
     if (protocol != null && this.currentRace != null) {
       System.out.println(
           "New protocol being set while race is active. Stopping race to allow take-over.");
@@ -142,6 +146,8 @@ public class ClientSubscriptionManager {
   }
 
   public synchronized void addInterfaceSession(WsContext ctx) {
+    System.out.println(
+        "DEBUG: New Interface WebSocket session added: " + System.identityHashCode(ctx));
     sessions.add(ctx);
     interfaceSubscribers.add(ctx);
     System.out.println(
@@ -336,7 +342,7 @@ public class ClientSubscriptionManager {
 
     raceDataSubscribers.forEach(
         ctx -> {
-          ctx.send(bytes);
+          ctx.send(ByteBuffer.wrap(bytes));
         });
   }
 
@@ -345,20 +351,11 @@ public class ClientSubscriptionManager {
       return;
     }
 
-    if (event.hasStatus()) {
-      System.out.println(
-          "DEBUG: Broadcasting Interface Status: "
-              + event.getStatus().getStatus()
-              + " to "
-              + interfaceSubscribers.size()
-              + " subscribers");
-    }
-
     byte[] bytes = event.toByteArray();
-
-    interfaceSubscribers.forEach(
-        ctx -> {
-          ctx.send(bytes);
-        });
+    for (WsContext session : interfaceSubscribers) {
+      if (session.session.isOpen()) {
+        session.send(ByteBuffer.wrap(bytes));
+      }
+    }
   }
 }

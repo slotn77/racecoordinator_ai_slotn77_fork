@@ -944,13 +944,40 @@ export class DataService {
 
     this.interfaceDataSocket.onmessage = (event) => {
       try {
-        const arrayBuffer = event.data as ArrayBuffer;
-        const msg = com.antigravity.InterfaceEvent.decode(
-          new Uint8Array(arrayBuffer),
-        );
+        const data = event.data;
+        let uint8Array: Uint8Array;
+
+        if (data instanceof ArrayBuffer) {
+          uint8Array = new Uint8Array(data);
+        } else if (typeof data === "string") {
+          // Some environments/proxies might return Base64 strings
+          try {
+            const trimmed = data.trim().replace(/^"|"$/g, ""); // Remove quotes if they exist
+            const binaryString = atob(trimmed);
+            uint8Array = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              uint8Array[i] = binaryString.charCodeAt(i);
+            }
+          } catch (e) {
+            console.error(
+              "Failed to decode Base64 WebSocket message. Data was:",
+              data,
+              e,
+            );
+            return;
+          }
+        } else {
+          console.warn(
+            "Received unknown data type from Interface WebSocket",
+            typeof data,
+          );
+          return;
+        }
+
+        const msg = com.antigravity.InterfaceEvent.decode(uint8Array);
         this.interfaceEventSubject.next(msg);
       } catch (e) {
-        console.error("Error parsing interface data message", e);
+        console.error("Error decoding Interface WebSocket message", e);
       }
     };
 

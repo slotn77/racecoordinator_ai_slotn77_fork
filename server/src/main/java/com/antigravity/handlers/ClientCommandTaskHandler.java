@@ -530,14 +530,14 @@ public class ClientCommandTaskHandler {
                 .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } else {
+        String errMsg = "Target interface index " + interfaceIndex + " is invalid. ";
+        if (current == null) {
+          errMsg += "Current protocol delegate is null. ";
+        } else {
+          errMsg += "Protocol list size is " + current.getProtocols().size() + ". ";
+        }
         UpdateInterfaceConfigResponse response =
-            UpdateInterfaceConfigResponse.newBuilder()
-                .setSuccess(false)
-                .setMessage(
-                    "Target interface index "
-                        + interfaceIndex
-                        + " is invalid or not an ArduinoProtocol")
-                .build();
+            UpdateInterfaceConfigResponse.newBuilder().setSuccess(false).setMessage(errMsg).build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {

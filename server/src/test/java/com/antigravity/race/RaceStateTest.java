@@ -132,6 +132,15 @@ public class RaceStateTest {
         .when(currentMockWsContext)
         .send(org.mockito.ArgumentMatchers.any(byte[].class));
 
+    org.mockito.Mockito.doAnswer(
+            invocation -> {
+              ByteBuffer buf = invocation.getArgument(0);
+              mockRemote.sendBytesByFuture(buf);
+              return null;
+            })
+        .when(currentMockWsContext)
+        .send(org.mockito.ArgumentMatchers.any(ByteBuffer.class));
+
     ClientSubscriptionManager.getInstance().addSession(currentMockWsContext);
     ClientSubscriptionManager.getInstance()
         .handleRaceSubscription(

@@ -254,25 +254,45 @@ public class ArduinoProtocolTest {
   }
 
   @Test
+  public void testStatusConnected_AfterVersion() {
+    protocol.open();
+    scheduler.tick();
+    assertEquals("Initial status should be NO_DATA", InterfaceStatus.NO_DATA, listener.lastStatus);
+
+    // Inject Version message: V 2.0.0.0 ; -> 56 02 00 00 00 3B
+    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
+
+    scheduler.tick();
+    assertEquals(
+        "Status should be CONNECTED immediately after version verification",
+        InterfaceStatus.CONNECTED,
+        listener.lastStatus);
+  }
+
+  @Test
   public void testStatusConnected_AfterHeartbeat() {
     protocol.open();
-    // Simulate heartbeat - but we need to reach the private onHeartbeat or similar.
-    // In ArduinoProtocol, processData() parses opcode 'T' and calls onHeartbeat.
-    // However, onHeartbeat is private.
-    // We can simulate it by setting lastHeartbeatTimeMs if we make it protected,
-    // or we can simulate a real heartbeat message in the buffer.
+    // Verify version first
+    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
+    scheduler.tick();
+    assertEquals(InterfaceStatus.CONNECTED, listener.lastStatus);
 
-    // For now, let's just use reflection or assume behavior if we can trigger it.
-    // Actually, let's just set the time directly in our testable class if we add a
-    // helper.
+    // Timeout by advancing 2.5s
+    protocol.advanceTime(2500);
+    scheduler.tick();
+    assertEquals(InterfaceStatus.DISCONNECTED, listener.lastStatus);
 
-    // Trigger "heartbeat" (T opcode is 0x54)
-    // message format from ArduinoProtocol: V opcode or T opcode, then data, then ;
-    // Heartbeat: T <long:timeInUse> <byte:isReset> ;
-    // But it's binary!
-    // Heartbeat: 0x54, 8 bytes of long, 1 byte of reset, 0x3B
+    // Inject Heartbeat message: T <4 bytes time> <1 byte reset> ; -> 54 00 00 00 00 00 3B
+    byte[] heartbeatMsg = {0x54, 0, 0, 0, 0, 0, 0x3B};
+    serialConnection.injectData(heartbeatMsg);
 
-    // Instead of parsing, let's just verify DISCONNECTED if timeout.
+    scheduler.tick();
+    assertEquals(
+        "Status should be CONNECTED after heartbeat",
+        InterfaceStatus.CONNECTED,
+        listener.lastStatus);
   }
 
   @Test

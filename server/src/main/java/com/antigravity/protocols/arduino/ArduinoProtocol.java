@@ -42,12 +42,12 @@ public class ArduinoProtocol extends DefaultProtocol {
 
   private static final Logger logger = LoggerFactory.getLogger(ArduinoProtocol.class);
 
-  private ArduinoConfig config;
+  private volatile ArduinoConfig config;
   private int numLanes;
 
   private SerialConnection serialConnection;
   private CircularBuffer rxBuffer;
-  private boolean versionVerified = false;
+  private volatile boolean versionVerified = false;
   private Map<String, PinConfig> pinLookup;
 
   private HwTime[] hwLapTime;
@@ -58,7 +58,7 @@ public class ArduinoProtocol extends DefaultProtocol {
   private ScheduledFuture<?> statusFuture;
   private ScheduledFuture<?> refuelFuture;
   private ScheduledFuture<?> ledFlashFuture;
-  protected long lastHeartbeatTimeMs = 0;
+  protected volatile long lastHeartbeatTimeMs = 0;
 
   // Lane specific
   private boolean[] laneInPits;
@@ -280,10 +280,17 @@ public class ArduinoProtocol extends DefaultProtocol {
                     status = InterfaceStatus.DISCONNECTED;
                   } else if (lastHeartbeatTimeMs == 0) {
                     status = InterfaceStatus.NO_DATA;
-                  } else if (now() - lastHeartbeatTimeMs < 2000) {
-                    status = InterfaceStatus.CONNECTED;
                   } else {
-                    status = InterfaceStatus.DISCONNECTED;
+                    long age = now() - lastHeartbeatTimeMs;
+                    if (age < 2000) {
+                      status = InterfaceStatus.CONNECTED;
+                    } else {
+                      status = InterfaceStatus.DISCONNECTED;
+                      logger.warn(
+                          "[{}] status dropping to DISCONNECTED due to heartbeat age: {}ms",
+                          getLogTime(),
+                          age);
+                    }
                   }
                   listener.onInterfaceStatus(status, getInterfaceIndex());
                 }
@@ -484,12 +491,16 @@ public class ArduinoProtocol extends DefaultProtocol {
 
       // Valid message, read it
       byte[] message = rxBuffer.read(messageLength);
-      logger.info("[{}] Processing message: {}", getLogTime(), bytesToHex(message));
+      logger.debug("[{}] Processing message: {}", getLogTime(), bytesToHex(message));
       handleMessage(message);
     }
   }
 
-  private void handleMessage(byte[] message) {
+  public void handleMessage(byte[] message) {
+    if (message != null && message.length > 0) {
+      lastHeartbeatTimeMs = System.currentTimeMillis();
+    }
+
     byte opcode = message[0];
 
     if (!versionVerified && opcode != OPCODE_VERSION) {
@@ -499,6 +510,7 @@ public class ArduinoProtocol extends DefaultProtocol {
           String.format("%02X", opcode));
       return;
     }
+    lastHeartbeatTimeMs = now();
 
     switch (opcode) {
       case OPCODE_HEARTBEAT:
@@ -543,7 +555,6 @@ public class ArduinoProtocol extends DefaultProtocol {
   }
 
   private void onHeartbeat(long timeInUse, byte isReset) {
-    lastHeartbeatTimeMs = now();
     // Heartbeats are frequent, so maybe use debug? But user asked for logs when
     // data
     // received.
