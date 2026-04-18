@@ -36,16 +36,20 @@ public class RaceOver implements IRaceState {
       }
     }
 
-    // Save history and update stats
-    try {
-      DatabaseService dbService = DatabaseService.getInstance();
-      com.mongodb.client.MongoDatabase db =
-          ClientSubscriptionManager.getInstance().getDatabaseContext().getDatabase();
-      dbService.saveRaceHistory(db, race);
-      dbService.updateGlobalStatistics(db, race);
-    } catch (Exception e) {
-      System.err.println("Failed to insert race history: " + e.getMessage());
-      e.printStackTrace();
+    // Save history and update stats (only if not in demo mode)
+    if (!race.isDemoMode()) {
+      try {
+        DatabaseService dbService = DatabaseService.getInstance();
+        com.mongodb.client.MongoDatabase db =
+            ClientSubscriptionManager.getInstance().getDatabaseContext().getDatabase();
+        dbService.saveRaceHistory(db, race);
+        dbService.updateGlobalStatistics(db, race);
+      } catch (Exception e) {
+        System.err.println("Failed to insert race history: " + e.getMessage());
+        e.printStackTrace();
+      }
+    } else {
+      System.out.println("Race was in demo mode. Records will not be saved to the database.");
     }
   }
 

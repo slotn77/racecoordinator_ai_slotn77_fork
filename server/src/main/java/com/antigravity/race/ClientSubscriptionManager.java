@@ -243,7 +243,7 @@ public class ClientSubscriptionManager {
   }
 
   public synchronized void autoSave(Race race) {
-    if (race == null || databaseContext == null) {
+    if (race == null || databaseContext == null || race.isDemoMode()) {
       return;
     }
     try {
