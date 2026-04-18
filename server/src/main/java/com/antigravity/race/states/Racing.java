@@ -14,8 +14,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Racing implements IRaceState {
+
+  private static final Logger logger = LoggerFactory.getLogger(Racing.class);
 
   private ScheduledExecutorService scheduler;
   private ScheduledFuture<?> timerHandle;
@@ -119,8 +123,8 @@ public class Racing implements IRaceState {
       }
     }
 
-    System.out.println("Racing: Digital fuel enabled: " + executionManager.isDigitalFuelEnabled());
-    System.out.println("Racing: Analog fuel enabled: " + executionManager.isAnalogFuelEnabled());
+    logger.info("Racing: Digital fuel enabled: {}", executionManager.isDigitalFuelEnabled());
+    logger.info("Racing: Analog fuel enabled: {}", executionManager.isAnalogFuelEnabled());
 
     race.startProtocols();
     scheduler = Executors.newScheduledThreadPool(1);
@@ -260,8 +264,7 @@ public class Racing implements IRaceState {
               }
 
             } catch (Exception e) {
-              System.err.println("Error in Racing timer: " + e.getMessage());
-              e.printStackTrace();
+              logger.error("Error in Racing timer", e);
             }
           }
         };
@@ -275,9 +278,17 @@ public class Racing implements IRaceState {
     }
     if (scheduler != null) {
       scheduler.shutdown();
+      try {
+        if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+          scheduler.shutdownNow();
+        }
+      } catch (InterruptedException e) {
+        scheduler.shutdownNow();
+        Thread.currentThread().interrupt();
+      }
     }
     race.stopProtocols();
-    System.out.println("Racing state exited.");
+    logger.info("Racing state exited.");
   }
 
   @Override
@@ -293,14 +304,14 @@ public class Racing implements IRaceState {
 
   @Override
   public void pause(Race race) {
-    System.out.println("Racing.pause() called. Pausing race.");
+    logger.info("Racing.pause() called. Pausing race.");
     race.getStatistics().incrementYellowFlagCount();
     race.changeState(new Paused());
   }
 
   @Override
   public void restartHeat(Race race) {
-    System.out.println("Racing.restartHeat() called. Resetting current heat.");
+    logger.info("Racing.restartHeat() called. Resetting current heat.");
     race.resetCurrentHeat();
     race.changeState(new NotStarted());
   }
@@ -395,7 +406,7 @@ public class Racing implements IRaceState {
 
   @Override
   public void onCallbutton(Race race, int lane) {
-    System.out.println("Racing.onCallbutton() called. Pausing race.");
+    logger.info("Racing.onCallbutton() called. Pausing race.");
     pause(race);
   }
 }

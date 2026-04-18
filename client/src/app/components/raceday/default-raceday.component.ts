@@ -2229,6 +2229,13 @@ export class DefaultRacedayComponent
   private updateCountdownLamps(currentTime: number) {
     if (!this.showCountdownOverlay) return;
 
+    // If we've reached RACING state, but the overlay hasn't hidden yet,
+    // ensure we stay in the "GO!" state with all green lamps.
+    if (this.raceState === com.antigravity.RaceState.RACING) {
+      this.setAllLampsGo();
+      return;
+    }
+
     // Red lamps turn on as time ticks down.
     // e.g. at 5s, 0 on. at 4.9s, 1 on. at 3.9s, 2 on.
     const onCount = this.countdownTotalLamps - Math.floor(currentTime);

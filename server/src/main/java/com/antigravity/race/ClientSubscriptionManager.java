@@ -28,9 +28,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientSubscriptionManager {
 
+  private static final Logger logger = LoggerFactory.getLogger(ClientSubscriptionManager.class);
   private static ClientSubscriptionManager instance;
   private Race currentRace;
   private ProtocolDelegate currentProtocol;
@@ -65,7 +68,7 @@ public class ClientSubscriptionManager {
   public void setShuttingDown(boolean shuttingDown) {
     this.isShuttingDown = shuttingDown;
     if (shuttingDown) {
-      System.out.println("Server shutting down. Cleaning up race and protocols...");
+      logger.info("Server shutting down. Cleaning up race and protocols...");
       setRace(null);
       setProtocol(null);
     }
@@ -89,7 +92,7 @@ public class ClientSubscriptionManager {
     this.currentRace = race;
 
     if (this.currentRace != null) {
-      System.out.println("New race set. Clients must explicitly subscribe to race data.");
+      logger.info("New race set. Clients must explicitly subscribe to race data.");
     }
   }
 
@@ -98,12 +101,11 @@ public class ClientSubscriptionManager {
   }
 
   public synchronized void setProtocol(ProtocolDelegate protocol) {
-    System.out.println(
-        "DEBUG: setProtocol called with: "
-            + (protocol == null ? "null" : protocol.getClass().getSimpleName()));
+    logger.debug(
+        "setProtocol called with: {}",
+        (protocol == null ? "null" : protocol.getClass().getSimpleName()));
     if (protocol != null && this.currentRace != null) {
-      System.out.println(
-          "New protocol being set while race is active. Stopping race to allow take-over.");
+      logger.info("New protocol being set while race is active. Stopping race to allow take-over.");
       setRace(null);
     }
     if (this.currentProtocol != null) {
@@ -130,11 +132,11 @@ public class ClientSubscriptionManager {
     if (currentRace != null) {
       RaceData snapshot = currentRace.createSnapshot();
       if (snapshot.hasRace() && snapshot.getRace().hasCurrentHeat()) {
-        System.out.println(
-            "DIAGNOSTIC: Snapshot includes Current Heat: "
-                + snapshot.getRace().getCurrentHeat().getObjectId());
+        logger.debug(
+            "Snapshot includes Current Heat: {}",
+            snapshot.getRace().getCurrentHeat().getObjectId());
       } else {
-        System.out.println("DIAGNOSTIC: Snapshot MISSING Current Heat!");
+        logger.warn("Snapshot MISSING Current Heat!");
       }
       ctx.send(ByteBuffer.wrap(snapshot.toByteArray()));
     }
@@ -167,23 +169,20 @@ public class ClientSubscriptionManager {
   public synchronized void removeInterfaceSession(WsContext ctx) {
     sessions.remove(ctx);
     interfaceSubscribers.remove(ctx);
-    System.out.println(
-        "Interface WebSocket session removed. Total sessions: "
-            + sessions.size()
-            + ", Interface Subscribers: "
-            + interfaceSubscribers.size());
+    logger.info(
+        "Interface WebSocket session removed. Total sessions: {}, Interface Subscribers: {}",
+        sessions.size(),
+        interfaceSubscribers.size());
     checkAndCloseProtocol();
   }
 
   private synchronized void checkAndCloseProtocol() {
     if (interfaceSubscribers.isEmpty() && currentProtocol != null && currentRace == null) {
-      System.out.println(
-          "Last interested interface client disconnected. Closing current protocol.");
+      logger.info("Last interested interface client disconnected. Closing current protocol.");
       try {
         currentProtocol.close();
       } catch (Exception e) {
-        System.err.println("Error closing protocol: " + e.getMessage());
-        e.printStackTrace();
+        logger.error("Error closing protocol", e);
       }
       currentProtocol = null;
     }
@@ -193,24 +192,23 @@ public class ClientSubscriptionManager {
     if (request.getSubscribe()) {
       cancelPendingCleanup();
       raceDataSubscribers.add(ctx);
-      System.out.println(
-          "Client subscribed to race data. Subscribers: " + raceDataSubscribers.size());
+      logger.info("Client subscribed to race data. Subscribers: {}", raceDataSubscribers.size());
       // Send current state immediately upon subscription if race exists
       if (currentRace != null) {
         RaceData snapshot = currentRace.createSnapshot();
         if (snapshot.hasRace() && snapshot.getRace().hasCurrentHeat()) {
-          System.out.println(
-              "DIAGNOSTIC (Sub): Snapshot includes Current Heat: "
-                  + snapshot.getRace().getCurrentHeat().getObjectId());
+          logger.debug(
+              "Snapshot includes Current Heat: {}",
+              snapshot.getRace().getCurrentHeat().getObjectId());
         } else {
-          System.out.println("DIAGNOSTIC (Sub): Snapshot MISSING Current Heat!");
+          logger.warn("Snapshot MISSING Current Heat!");
         }
         ctx.send(ByteBuffer.wrap(snapshot.toByteArray()));
       }
     } else {
       raceDataSubscribers.remove(ctx);
-      System.out.println(
-          "Client unsubscribed from race data. Subscribers: " + raceDataSubscribers.size());
+      logger.info(
+          "Client unsubscribed from race data. Subscribers: {}", raceDataSubscribers.size());
       checkAndStopRace();
     }
   }
@@ -225,12 +223,10 @@ public class ClientSubscriptionManager {
         if (gracePeriod <= 0) {
           performCleanup();
         } else if (cleanupFuture == null || cleanupFuture.isDone()) {
-          System.out.println(
-              "No subscribers left (Sessions: "
-                  + sessions.size()
-                  + "). Scheduling race cleanup in "
-                  + gracePeriod
-                  + " seconds...");
+          logger.info(
+              "No subscribers left (Sessions: {}). Scheduling race cleanup in {} seconds...",
+              sessions.size(),
+              gracePeriod);
           cleanupFuture =
               scheduler.schedule(
                   () -> {
@@ -240,14 +236,14 @@ public class ClientSubscriptionManager {
                   TimeUnit.SECONDS);
         }
       } else {
-        System.out.println("Server is shutting down, preserving race state and auto-save.");
+        logger.info("Server is shutting down, preserving race state and auto-save.");
       }
     }
   }
 
   private synchronized void performCleanup() {
     if (raceDataSubscribers.isEmpty() && currentRace != null) {
-      System.out.println(
+      logger.info(
           "Last interested client disconnected/unsubscribed. Stopping and clearing current race.");
       deleteAutoSave(currentRace.getRaceModel().getEntityId());
       setRace(null);
@@ -256,7 +252,7 @@ public class ClientSubscriptionManager {
 
   private synchronized void cancelPendingCleanup() {
     if (cleanupFuture != null && !cleanupFuture.isDone()) {
-      System.out.println("Subscriber re-connected. Cancelling pending race cleanup.");
+      logger.info("Subscriber re-connected. Cancelling pending race cleanup.");
       cleanupFuture.cancel(false);
       cleanupFuture = null;
     }
@@ -285,9 +281,9 @@ public class ClientSubscriptionManager {
 
       DatabaseService dbService = DatabaseService.getInstance();
       dbService.upsertAutoSave(databaseContext.getDatabase(), saveData);
-      System.out.println("Auto-saved race to database: " + filename);
+      logger.info("Auto-saved race to database: {}", filename);
     } catch (Exception e) {
-      System.err.println("Error during auto-save: " + e.getMessage());
+      logger.error("Error during auto-save", e);
     }
   }
 
@@ -300,10 +296,10 @@ public class ClientSubscriptionManager {
       DatabaseService dbService = DatabaseService.getInstance();
       boolean deleted = dbService.deleteSavedRace(databaseContext.getDatabase(), filename);
       if (deleted) {
-        System.out.println("Deleted auto-save from db: " + filename);
+        logger.info("Deleted auto-save from db: {}", filename);
       }
     } catch (Exception e) {
-      System.err.println("Error deleting auto-save: " + e.getMessage());
+      logger.error("Error deleting auto-save", e);
     }
   }
 

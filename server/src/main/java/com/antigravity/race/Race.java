@@ -41,8 +41,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Race implements ProtocolListener {
+  private static final Logger logger = LoggerFactory.getLogger(Race.class);
 
   // Data based on the race model configuration
   private final com.antigravity.models.Race model;
@@ -318,17 +321,16 @@ public class Race implements ProtocolListener {
           }
         }
 
-        System.out.println(
-            "Global records loaded: fastestLap="
-                + this.overallFastestLap
-                + ", highestScore="
-                + this.overallHighestScore);
+        logger.info(
+            "Global records loaded: fastestLap={}, highestScore={}",
+            this.overallFastestLap,
+            this.overallHighestScore);
       } else {
         initializeLaneRecords();
-        System.out.println("No global records found in database.");
+        logger.info("No global records found in database.");
       }
     } catch (Exception e) {
-      System.err.println("Failed to load global statistics: " + e.getMessage());
+      logger.error("Failed to load global statistics", e);
       initializeLaneRecords();
     }
   }
@@ -703,6 +705,9 @@ public class Race implements ProtocolListener {
   }
 
   public void stop() {
+    logger.info(
+        "Race.stop() called. Current state: {}",
+        state != null ? state.getClass().getSimpleName() : "null");
     if (protocols != null) {
       protocols.clearLeds();
       protocols.close();
@@ -838,7 +843,7 @@ public class Race implements ProtocolListener {
   }
 
   public void resetCurrentHeat() {
-    System.out.println("Race.resetCurrentHeat() called.");
+    logger.info("Race.resetCurrentHeat() called.");
 
     if (currentHeat != null) {
       statistics.incrementRestartCount();

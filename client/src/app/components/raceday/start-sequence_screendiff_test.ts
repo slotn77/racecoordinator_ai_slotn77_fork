@@ -185,4 +185,66 @@ test.describe("Raceday Start Sequence Visuals", () => {
     await page.locator(".countdown-overlay").waitFor({ state: "visible" });
     await expect(page).toHaveScreenshot("start-sequence-all-green.png");
   });
+
+  test("should stay green if a late countdown message arrives after race start", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r1" },
+          name: "Test Race",
+          start_time: 5.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+
+    // 1. Transition to STARTING then RACING
+    await TestSetupHelper.sendRaceState(
+      page,
+      com.antigravity.RaceState.STARTING,
+    );
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 0.1,
+      autoStartRemaining: 0.1,
+    });
+    await TestSetupHelper.sendRaceState(page, com.antigravity.RaceState.RACING);
+
+    // 2. Wait a tiny bit, but less than 1s (overlay still visible)
+    await page.waitForTimeout(200);
+
+    // 3. Send a late RACETIME message that would normally show red lamps if the state check wasn't there
+    // For example, if we were back in STARTING at 2.5s
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 2.5,
+      autoStartRemaining: 2.5,
+    });
+
+    // 4. Verify it's STILL ALL GREEN
+    await page.locator(".countdown-overlay").waitFor({ state: "visible" });
+    await expect(page).toHaveScreenshot(
+      "start-sequence-stay-green-late-msg.png",
+    );
+  });
 });
