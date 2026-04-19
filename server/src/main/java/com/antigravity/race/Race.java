@@ -917,22 +917,11 @@ public class Race implements ProtocolListener {
   public void onLap(int lane, double lapTime, int interfaceId, int interfaceIndex) {
     try {
       if (state.onLap(lane, lapTime, interfaceId, false)) {
-        // Calculate effective lap time (including reaction time for first lap)
-        // to match HeatExecutionManager calculation
-        double effectiveLapTime = lapTime;
         DriverHeatData dhd = currentHeat.getDrivers().get(lane);
-        if (dhd != null && dhd.getLapCount() == 1) { // dhd.addLap was already called in state.onLap
-          // At this point, dhd.getLapCount() is already 1 because handleLapTime called
-          // addLap()
-          // We need to look at the last lap time added to the driver data
-          List<DriverHeatData.LapData> laps = dhd.getLaps();
-          if (!laps.isEmpty()) {
-            effectiveLapTime = laps.get(laps.size() - 1).getLapTime();
-          }
+        if (dhd != null) {
+          // Update records with the same effective time shown in lane data
+          updateRecords(lane, dhd.getLastLapTime());
         }
-
-        // Update records with the same effective time shown in lane data
-        updateRecords(lane, effectiveLapTime);
       }
     } catch (Exception e) {
       System.err.println("Error in onLap for lane " + lane + ": " + e.getMessage());

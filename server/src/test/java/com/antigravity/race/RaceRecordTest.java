@@ -311,4 +311,92 @@ public class RaceRecordTest {
         csv.contains("Overall Fastest Lap,Driver T,Nick T,Team Alpha,"));
     assertTrue("Overall Fastest Lap data row mismatch (suffix)", csv.contains(",6.0"));
   }
+
+  @Test
+  public void testMinLapAlignmentWithRecords() {
+    // Setup a race with minLapTime = 3.0
+    Race raceModel =
+        new Race.Builder()
+            .withName("MinLap Race")
+            .withMinLapTime(3.0)
+            .withTrackEntityId("track1")
+            .withHeatScoring(new HeatScoring())
+            .withOverallScoring(new OverallScoring())
+            .build();
+
+    com.antigravity.race.Race minLapRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(drivers)
+            .track(track)
+            .isDemoMode(true)
+            .build();
+    minLapRace.changeState(new Racing());
+
+    // 1. Reaction hit
+    minLapRace.onLap(0, 1.0, 0, 0);
+
+    // 2. First hit after reaction: 2.9s.
+    // Below 3.0 minLap, not counted yet.
+    minLapRace.onLap(0, 2.9, 0, 0);
+    assertEquals(0, minLapRace.getCurrentHeat().getDrivers().get(0).getLapCount());
+
+    // 3. Second hit: 0.2s.
+    // Total since reaction = 2.9 + 0.2 = 3.1.
+    // Counted as lap 1. Effective time = 3.1 + 1.0 (reaction) = 4.1.
+    minLapRace.onLap(0, 0.2, 0, 0);
+
+    DriverHeatData dhd = minLapRace.getCurrentHeat().getDrivers().get(0);
+    assertEquals(1, dhd.getLapCount());
+    assertEquals(4.1, dhd.getLastLapTime(), 0.001);
+
+    // Verify record is 4.1, not 0.2
+    RecordData recordData = minLapRace.getRecordData();
+    assertEquals(4.1, recordData.getCurrent().getFastestLap().getValue(), 0.001);
+    assertEquals(4.1, recordData.getCurrent().getLaneFastestLap(0).getValue(), 0.001);
+  }
+
+  @Test
+  public void testSubsequentLapMinLapAlignment() {
+    // Setup a race with minLapTime = 3.0
+    Race raceModel =
+        new Race.Builder()
+            .withName("MinLap Race")
+            .withMinLapTime(3.0)
+            .withTrackEntityId("track1")
+            .withHeatScoring(new HeatScoring())
+            .withOverallScoring(new OverallScoring())
+            .build();
+
+    com.antigravity.race.Race minLapRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .drivers(drivers)
+            .track(track)
+            .isDemoMode(true)
+            .build();
+    minLapRace.changeState(new Racing());
+
+    // 1. Reaction hit (1.0) + Lap 1 (4.0) -> effective 5.0
+    minLapRace.onLap(0, 1.0, 0, 0);
+    minLapRace.onLap(0, 4.0, 0, 0);
+    assertEquals(1, minLapRace.getCurrentHeat().getDrivers().get(0).getLapCount());
+
+    // 2. Lap 2 part 1: 2.0s (below 3.0)
+    minLapRace.onLap(0, 2.0, 0, 0);
+    assertEquals(1, minLapRace.getCurrentHeat().getDrivers().get(0).getLapCount());
+
+    // 3. Lap 2 part 2: 1.5s (2.0 + 1.5 = 3.5 > 3.0)
+    minLapRace.onLap(0, 1.5, 0, 0);
+    assertEquals(2, minLapRace.getCurrentHeat().getDrivers().get(0).getLapCount());
+
+    DriverHeatData dhd = minLapRace.getCurrentHeat().getDrivers().get(0);
+    assertEquals(3.5, dhd.getLastLapTime(), 0.001);
+
+    // Verify records. Fastest lap should be 3.5.
+    // BUG: Was 1.5 before fix.
+    RecordData recordData = minLapRace.getRecordData();
+    assertEquals(3.5, recordData.getCurrent().getFastestLap().getValue(), 0.001);
+    assertEquals(3.5, recordData.getCurrent().getLaneFastestLap(0).getValue(), 0.001);
+  }
 }
