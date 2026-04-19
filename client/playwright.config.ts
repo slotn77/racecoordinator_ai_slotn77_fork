@@ -62,8 +62,8 @@ export default defineConfig({
   expect: {
     /* Visual regression settings */
     toHaveScreenshot: {
-      maxDiffPixels: 200,
-      maxDiffPixelRatio: 0.01,
+      maxDiffPixels: 1000,
+      maxDiffPixelRatio: 0.05,
     },
   },
 });

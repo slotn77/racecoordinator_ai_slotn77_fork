@@ -1151,6 +1151,7 @@ export class TestSetupHelper {
         scroll-behavior: auto !important;
         caret-color: transparent !important;
         clip-path: none !important;
+        backdrop-filter: none !important;
       }
     `;
 

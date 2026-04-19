@@ -11,24 +11,36 @@ test.describe("Splash Screen Visuals", () => {
     await TestSetupHelper.setupStandardMocks(page);
     await page.setViewportSize({ width: 1280, height: 720 });
 
-    await page.route("**/api/version", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "text/plain",
-        body: "1.2.3-TEST",
-      });
-    });
-
     await page.addInitScript(() => {
+      // Force deterministic randomness for quote shuffling
       Math.random = () => 0.1;
     });
 
-    await TestSetupHelper.setupLocalStorage(page, {
-      racedaySetupWalkthroughSeen: true,
-    });
-
-    await page.route("**/api/drivers", async () => {
-      // Simulate hanging connection
+    // Mock localized quotes to be stable
+    await page.route("**/assets/i18n/en.json", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          RDS_MENU_SERVER: "SERVER",
+          RDS_ABOUT_CLIENT_VERSION: "Client: {{version}}",
+          RDS_ABOUT_SERVER_VERSION: "Server: {{version}}",
+          RDS_ABOUT_SERVER_ADDRESS: "IP: {{ip}}:{{port}}",
+          RDS_SERVER_CONFIG_TITLE: "SERVER CONFIGURATION",
+          RDS_LABEL_IP: "IP ADDRESS:",
+          RDS_LABEL_PORT: "PORT:",
+          RDS_BTN_SAVE_RETRY: "SAVE & RETRY",
+          RDS_BTN_CANCEL: "CANCEL",
+          RDS_QUOTE_1: "MOCK STABLE QUOTE FOR TESTING",
+          // Refill all possible quote keys to be safe
+          ...Object.fromEntries(
+            Array.from({ length: 30 }, (_, i) => [
+              `RDS_QUOTE_${i + 1}`,
+              "MOCK STABLE QUOTE FOR TESTING",
+            ]),
+          ),
+        }),
+      });
     });
 
     await page.goto("/");
@@ -37,12 +49,12 @@ test.describe("Splash Screen Visuals", () => {
     const container = page.locator(".shell-container");
     const harness = new RacedaySetupHarnessE2e(container);
 
-    expect(await harness.isSplashScreenVisible()).toBe(true);
+    await page.locator(".splash-screen").waitFor({ state: "visible" });
 
-    await expect(page.locator(".quote-text")).toHaveText(/./, {
-      timeout: 5000,
-    });
-    await expect(page.locator(".quote-container")).toBeVisible();
+    // Wait for the components to be visible/ready before taking the screenshot
+    await page.locator(".quote-text").waitFor({ state: "visible" });
+    await page.locator(".client-version").waitFor({ state: "visible" });
+    await page.locator(".server-version").waitFor({ state: "visible" });
 
     await page.clock.runFor(2000);
     await page.waitForTimeout(500);
@@ -50,14 +62,13 @@ test.describe("Splash Screen Visuals", () => {
 
     await page.addStyleTag({
       content: `
-        .progress-bar-container, .quote-container { visibility: hidden !important; }
+        .progress-bar-container { visibility: hidden !important; }
         .splash-screen { transition: none !important; }
       `,
     });
 
     await expect(page).toHaveScreenshot("splash-screen-initial.png", {
-      maxDiffPixelRatio: 0.1,
-      threshold: 0.2,
+      maxDiffPixels: 500,
       animations: "disabled",
     });
 
@@ -66,11 +77,10 @@ test.describe("Splash Screen Visuals", () => {
     await page.clock.runFor(1000);
     await page.waitForTimeout(500);
 
-    expect(await harness.isServerConfigModalVisible()).toBe(true);
+    await page.locator(".server-config-modal").waitFor({ state: "visible" });
 
     await expect(page).toHaveScreenshot("server-config-modal.png", {
-      maxDiffPixelRatio: 0.1,
-      threshold: 0.2,
+      maxDiffPixels: 500,
       animations: "disabled",
     });
 
