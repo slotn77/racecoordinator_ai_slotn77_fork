@@ -360,6 +360,42 @@ public class RaceStateTest {
   }
 
   @Test
+  public void testAutoStartSkippedOnFirstHeat() throws Exception {
+    // 1. Setup race with auto-start time
+    injectAutoStartTime(10.0);
+
+    // 2. State transition to trigger enter()
+    race.changeState(new NotStarted());
+
+    // 3. Verify autoStartRemaining is 0 (since it's the first heat)
+    assertEquals(0.0, race.getAutoStartRemaining(), 0.001);
+  }
+
+  @Test
+  public void testAutoStartRunsOnSecondHeat() throws Exception {
+    // 1. Setup race with auto-start time
+    injectAutoStartTime(10.0);
+
+    // 2. Advance to second heat
+    List<Heat> heats = race.getHeats();
+    Heat h2 = mock(Heat.class);
+    when(h2.getDrivers()).thenReturn(new ArrayList<>());
+    when(h2.getHeatStandings()).thenReturn(mock(HeatStandings.class));
+    heats.add(h2);
+
+    race.setCurrentHeat(h2);
+
+    // 3. State transition to trigger enter()
+    // We transition to Paused first to avoid NotStarted.exit() clearing the timer
+    // set by NotStarted.enter() due to the order in Race.changeState()
+    race.changeState(new Paused());
+    race.changeState(new NotStarted());
+
+    // 4. Verify autoStartRemaining is 10.0
+    assertEquals(10.0, race.getAutoStartRemaining(), 0.001);
+  }
+
+  @Test
   public void testPauseDuringAutoAdvanceCancelsTimer() throws Exception {
     // 1. Setup Race in HeatOver with Auto-Advance
     race.changeState(new HeatOver());
@@ -452,6 +488,34 @@ public class RaceStateTest {
             .withEntityId(oldModel.getEntityId())
             .withId(oldModel.getId())
             .withDriftTime(driftTime)
+            .build();
+
+    modelField.set(race, newModel);
+  }
+
+  private void injectAutoStartTime(double autoStartTime) throws Exception {
+    Field modelField = com.antigravity.race.Race.class.getDeclaredField("model");
+    modelField.setAccessible(true);
+    Race oldModel = (Race) modelField.get(race);
+
+    Race newModel =
+        new Race.Builder()
+            .withName(oldModel.getName())
+            .withTrackEntityId(oldModel.getTrackEntityId())
+            .withHeatRotationType(oldModel.getHeatRotationType())
+            .withHeatScoring(oldModel.getHeatScoring())
+            .withOverallScoring(oldModel.getOverallScoring())
+            .withMinLapTime(oldModel.getMinLapTime())
+            .withFuelOptions(oldModel.getFuelOptions())
+            .withDigitalFuelOptions(oldModel.getDigitalFuelOptions())
+            .withTeamOptions(oldModel.getTeamOptions())
+            .withAutoAdvanceTime(oldModel.getAutoAdvanceTime())
+            .withAutoStartTime(autoStartTime)
+            .withAutoAdvanceWarmupTime(oldModel.getAutoAdvanceWarmupTime())
+            .withAutoStartWarmupTime(oldModel.getAutoStartWarmupTime())
+            .withEntityId(oldModel.getEntityId())
+            .withId(oldModel.getId())
+            .withDriftTime(oldModel.getDriftTime())
             .build();
 
     modelField.set(race, newModel);

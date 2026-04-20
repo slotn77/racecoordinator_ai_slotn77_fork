@@ -52,7 +52,7 @@ public class NotStarted implements IRaceState {
     double autoStartTime = race.getRaceModel().getAutoStartTime();
     double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
 
-    if (autoStartTime > 0 && !race.isAutoStartFired()) {
+    if (autoStartTime > 0 && !race.isAutoStartFired() && !race.isFirstHeat()) {
       race.setAutoStartRemaining(autoStartTime);
 
       // Handle initial power state to avoid transient flicker

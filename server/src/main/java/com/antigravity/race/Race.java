@@ -1239,6 +1239,10 @@ public class Race implements ProtocolListener {
     return heats.indexOf(currentHeat) == heats.size() - 1;
   }
 
+  public boolean isFirstHeat() {
+    return heats != null && !heats.isEmpty() && heats.indexOf(currentHeat) == 0;
+  }
+
   // TODO(aufderheide): This synchronize probably isn't enough. We need to lock
   // the race object while we're creating the snapshot.
   public synchronized RaceData createSnapshot() {
