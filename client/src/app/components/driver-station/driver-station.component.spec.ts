@@ -222,4 +222,19 @@ describe("DriverStationComponent", () => {
 
     expect(component["standingsPosition"]).toBe(3);
   });
+
+  it("should handle raceFlag$ emissions without error", () => {
+    const raceFlagSubject = new Subject<com.antigravity.RaceFlag>();
+    mockRaceConnectionService.raceFlag$ = raceFlagSubject;
+
+    fixture.detectChanges();
+
+    // Emit a new flag value - should not throw error
+    raceFlagSubject.next(com.antigravity.RaceFlag.CHECKERED);
+    raceFlagSubject.next(com.antigravity.RaceFlag.GREEN);
+    raceFlagSubject.next(com.antigravity.RaceFlag.RED);
+
+    // Test passes if no error is thrown
+    expect(true).toBe(true);
+  });
 });
