@@ -36,13 +36,19 @@ class MockImageSelectorComponent {
   @Output() uploadFinished = new EventEmitter<void>();
 }
 
-@Component({ selector: "app-back-button", template: "", standalone: false })
-class MockBackButtonComponent {
-  @Input() label: string = "";
-  @Input() route: string = "";
-  @Input() confirm: boolean = false;
-  @Input() confirmTitle: string = "";
-  @Input() confirmMessage: string = "";
+@Component({ selector: "app-editor-title", template: "", standalone: false })
+class MockEditorTitleComponent {
+  @Input() titleKey: string = "";
+  @Input() backRoute: string = "";
+  @Input() undoManager: any;
+}
+
+@Component({ selector: "app-column-preview", template: "", standalone: false })
+class MockColumnPreviewComponent {
+  @Input() columnSlots: any[] = [];
+  @Input() columnLayouts: any = {};
+  @Input() resizingColumnKey: string | null = null;
+  @Input() columnVisibility: any = {};
 }
 
 @Component({ selector: "app-reorder-dialog", template: "", standalone: false })
@@ -51,15 +57,6 @@ class MockReorderDialogComponent {
   @Input() data: any;
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
-}
-
-@Component({
-  selector: "app-undo-redo-controls",
-  template: "",
-  standalone: false,
-})
-class MockUndoRedoControlsComponent {
-  @Input() manager: any;
 }
 
 @Pipe({ name: "translate", standalone: false })
@@ -129,8 +126,8 @@ describe("UIEditorComponent", () => {
       declarations: [
         UIEditorComponent,
         MockImageSelectorComponent,
-        MockBackButtonComponent,
-        MockUndoRedoControlsComponent,
+        MockEditorTitleComponent,
+        MockColumnPreviewComponent,
         MockReorderDialogComponent,
         MockTranslatePipe,
       ],
@@ -344,5 +341,56 @@ describe("UIEditorComponent", () => {
     expect(kph?.label).toBe("RD_COL_KPH");
     expect(fph).toBeTruthy();
     expect(fph?.label).toBe("RD_COL_FPH");
+  });
+
+  describe("expander behavior", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      spyOn(localStorage, "getItem").and.callThrough();
+      spyOn(localStorage, "setItem").and.callThrough();
+    });
+
+    it("should load expander state from localStorage on init", () => {
+      const savedState = JSON.stringify({
+        layout: false,
+        config: true,
+        flags: false,
+      });
+      (localStorage.getItem as jasmine.Spy).and.returnValue(savedState);
+
+      // We need a new instance to test OnInit logic that calls loadExpanderState
+      const newFixture = TestBed.createComponent(UIEditorComponent);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+
+      expect(newComponent.sectionsExpanded.layout).toBeFalse();
+      expect(newComponent.sectionsExpanded.config).toBeTrue();
+      expect(newComponent.sectionsExpanded.flags).toBeFalse();
+    });
+
+    it("should toggle section and save to localStorage", () => {
+      const initialLayout = component.sectionsExpanded.layout;
+      component.toggleSection("layout");
+
+      expect(component.sectionsExpanded.layout).toBe(!initialLayout);
+      expect(localStorage.setItem).toHaveBeenCalledWith(
+        "ui_editor_expanders",
+        JSON.stringify(component.sectionsExpanded),
+      );
+    });
+
+    it("should handle localStorage errors gracefully when toggling", () => {
+      spyOn(console, "error");
+      (localStorage.setItem as jasmine.Spy).and.throwError(
+        "QuotaExceededError",
+      );
+
+      const initialLayout = component.sectionsExpanded.layout;
+      component.toggleSection("layout");
+
+      // State should still toggle locally even if save fails
+      expect(component.sectionsExpanded.layout).toBe(!initialLayout);
+      expect(console.error).toHaveBeenCalled();
+    });
   });
 });

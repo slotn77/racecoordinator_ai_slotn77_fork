@@ -138,7 +138,7 @@
   cursor: grab;
   font-size: 0.9em;
   border: 1px solid #333;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #444;
   transition: all 0.2s;
   color: #e2e8f0;
   text-transform: uppercase;
@@ -322,8 +322,8 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   box-sizing: border-box;
   gap: 2px;
@@ -375,8 +375,8 @@
 
 /* Blank Add Slot */
 .slot-add-blank {
-  border: 2px dashed #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
   padding: 20px;
   display: flex;

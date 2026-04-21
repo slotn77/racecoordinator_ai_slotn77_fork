@@ -70,6 +70,12 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
   undoManager!: UndoManager<Settings>;
 
+  sectionsExpanded = {
+    layout: true,
+    config: true,
+    flags: true,
+  };
+
   constructor(
     private settingsService: SettingsService,
     private fileSystem: FileSystemService,
@@ -91,6 +97,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
   ngOnInit() {
     this.updateScale();
+    this.loadExpanderState();
     this.loadData();
 
     // Auto-save on changes (like Driver Editor)
@@ -157,7 +164,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           .filter((a: any) => a.type === "image_set")
           .map((a: any) => ({
             key: `imageset_${a.model?.entityId}`,
-            label: a.name || "Unknown Image Set",
+            label: a.name || "AM_UNKNOWN_ASSET",
           }));
 
         // Robustness: ensure imageset_fuel-gauge-builtin is available if a "Fuel Gauge" set exists
@@ -379,5 +386,31 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
   captureState() {
     this.undoManager.captureState();
+  }
+
+  toggleSection(section: keyof typeof this.sectionsExpanded) {
+    this.sectionsExpanded[section] = !this.sectionsExpanded[section];
+    try {
+      localStorage.setItem(
+        "ui_editor_expanders",
+        JSON.stringify(this.sectionsExpanded),
+      );
+    } catch (e) {
+      console.error("Error saving expander state", e);
+    }
+  }
+
+  loadExpanderState() {
+    try {
+      const saved = localStorage.getItem("ui_editor_expanders");
+      if (saved) {
+        this.sectionsExpanded = {
+          ...this.sectionsExpanded,
+          ...JSON.parse(saved),
+        };
+      }
+    } catch (e) {
+      console.error("Error loading expander state", e);
+    }
   }
 }

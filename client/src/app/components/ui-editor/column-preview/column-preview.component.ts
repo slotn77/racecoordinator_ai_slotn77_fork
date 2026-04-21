@@ -20,6 +20,12 @@ const PREVIEW_LABELS: { [key: string]: string } = {
   fuelCapacity: "RD_COL_FUEL_CAPACITY",
   fuelPercentage: "RD_COL_FUEL_PERCENTAGE",
   imageset: "RD_COL_FUEL_GAUGE",
+  mph: "RD_COL_MPH",
+  kph: "RD_COL_KPH",
+  fph: "RD_COL_FPH",
+  rankHeat: "RD_COL_RANK_HEAT",
+  rankOverall: "RD_COL_RANK_OVERALL",
+  seed: "RD_COL_SEED",
 };
 
 @Component({
