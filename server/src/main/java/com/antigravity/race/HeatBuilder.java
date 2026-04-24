@@ -37,6 +37,8 @@ public class HeatBuilder {
             getEuroRoundRobinRotationSequence(numLanes),
             false,
             race.getRaceModel().getHeatScoring());
+      case SingleHeat:
+        return getSingleHeatHeats(drivers, numLanes, race.getRaceModel().getHeatScoring());
       default:
         throw new IllegalArgumentException("Unknown HeatRotationType: " + rotationType);
     }
@@ -144,6 +146,47 @@ public class HeatBuilder {
               heatDrivers.set(lane, data);
             }
           }
+        }
+      }
+      heatList.add(new Heat(h + 1, heatDrivers, scoring));
+    }
+    return heatList;
+  }
+
+  private static List<Heat> getSingleHeatHeats(
+      List<RaceParticipant> drivers, int numLanes, HeatScoring scoring) {
+    List<Heat> heatList = new ArrayList<>();
+    if (drivers.isEmpty()) {
+      return heatList;
+    }
+
+    int numDrivers = drivers.size();
+    int numHeats = (int) Math.ceil((double) numDrivers / numLanes);
+
+    int driversPerHeat = numDrivers / numHeats;
+    int extraDrivers = numDrivers % numHeats;
+
+    int driverIndex = 0;
+    for (int h = 0; h < numHeats; h++) {
+      List<DriverHeatData> heatDrivers = new ArrayList<>();
+      int driversInThisHeat = driversPerHeat + (h < extraDrivers ? 1 : 0);
+
+      for (int l = 0; l < numLanes; l++) {
+        if (l < driversInThisHeat && driverIndex < numDrivers) {
+          RaceParticipant participant = drivers.get(driverIndex++);
+          DriverHeatData data = new DriverHeatData(participant);
+
+          if (participant.isTeamParticipant()
+              && participant.getTeam() != null
+              && participant.getTeamDrivers() != null
+              && !participant.getTeamDrivers().isEmpty()) {
+            int dIdx = h % participant.getTeamDrivers().size();
+            Driver assignedDriver = participant.getTeamDrivers().get(dIdx);
+            data.setActualDriver(assignedDriver);
+          }
+          heatDrivers.add(data);
+        } else {
+          heatDrivers.add(new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER)));
         }
       }
       heatList.add(new Heat(h + 1, heatDrivers, scoring));

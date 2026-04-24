@@ -54,9 +54,18 @@
           [(ngModel)]="editingRace.heat_rotation_type"
           (ngModelChange)="onRotationTypeChange()"
         >
-          <option value="RoundRobin">Round Robin</option>
-          <option value="FriendlyRoundRobin">Friendly Round Robin</option>
-          <option value="EuropeanRoundRobin">European Round Robin</option>
+          <option value="RoundRobin">
+            {{ "RE_ROTATION_ROUND_ROBIN" | translate }}
+          </option>
+          <option value="FriendlyRoundRobin">
+            {{ "RE_ROTATION_FRIENDLY_ROUND_ROBIN" | translate }}
+          </option>
+          <option value="EuropeanRoundRobin">
+            {{ "RE_ROTATION_EUROPEAN_ROUND_ROBIN" | translate }}
+          </option>
+          <option value="SingleHeat">
+            {{ "RE_ROTATION_SINGLE_HEAT" | translate }}
+          </option>
         </select>
       </div>
 

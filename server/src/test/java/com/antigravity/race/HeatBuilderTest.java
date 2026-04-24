@@ -232,4 +232,199 @@ public class HeatBuilderTest {
       fail("Team not found in heat " + heat.getHeatNumber());
     }
   }
+
+  @Test
+  public void testSingleHeat() {
+    when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.SingleHeat);
+
+    List<RaceParticipant> participants = new ArrayList<>();
+    for (int i = 1; i <= 10; i++) {
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
+    }
+
+    List<Heat> heats = HeatBuilder.buildHeats(race, participants);
+
+    // 10 participants, 4 lanes -> 3 heats (ceil(10/4))
+    assertEquals(3, heats.size());
+
+    // Heat 1 should have 4 drivers (10/3 = 3.33 -> 4, 3, 3)
+    assertEquals(4, countDrivers(heats.get(0)));
+    // Heat 2 should have 3 drivers
+    assertEquals(3, countDrivers(heats.get(1)));
+    // Heat 3 should have 3 drivers
+    assertEquals(3, countDrivers(heats.get(2)));
+
+    // Verify sequence
+    assertEquals("1", heats.get(0).getDrivers().get(0).getActualDriver().getEntityId());
+    assertEquals("4", heats.get(0).getDrivers().get(3).getActualDriver().getEntityId());
+    assertEquals("5", heats.get(1).getDrivers().get(0).getActualDriver().getEntityId());
+    assertEquals("7", heats.get(1).getDrivers().get(2).getActualDriver().getEntityId());
+    assertEquals("8", heats.get(2).getDrivers().get(0).getActualDriver().getEntityId());
+    assertEquals("10", heats.get(2).getDrivers().get(2).getActualDriver().getEntityId());
+  }
+
+  @Test
+  public void testSingleHeat_FiveDriversFourLanes() {
+    when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.SingleHeat);
+
+    List<RaceParticipant> participants = new ArrayList<>();
+    for (int i = 1; i <= 5; i++) {
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
+    }
+
+    List<Heat> heats = HeatBuilder.buildHeats(race, participants);
+
+    // ceil(5/4) = 2 heats
+    assertEquals(2, heats.size());
+    // Balanced: 5/2 = 2.5 -> 3, 2
+    assertEquals(3, countDrivers(heats.get(0)));
+    assertEquals(2, countDrivers(heats.get(1)));
+  }
+
+  @Test
+  public void testSingleHeat_TwelveDriversSixLanes() {
+    when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.SingleHeat);
+
+    // Mock 6 lanes
+    List<Lane> lanes = new ArrayList<>();
+    for (int i = 1; i <= 6; i++) {
+      lanes.add(new Lane("Lane" + i, "color" + i, i));
+    }
+    when(track.getLanes()).thenReturn(lanes);
+
+    List<RaceParticipant> participants = new ArrayList<>();
+    for (int i = 1; i <= 12; i++) {
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
+    }
+
+    List<Heat> heats = HeatBuilder.buildHeats(race, participants);
+
+    // ceil(12/6) = 2 heats
+    assertEquals(2, heats.size());
+    // Balanced: 12/2 = 6 -> 6, 6
+    assertEquals(6, countDrivers(heats.get(0)));
+    assertEquals(6, countDrivers(heats.get(1)));
+  }
+
+  @Test
+  public void testSingleHeat_ElevenDriversFourLanes() {
+    when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.SingleHeat);
+
+    List<RaceParticipant> participants = new ArrayList<>();
+    for (int i = 1; i <= 11; i++) {
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
+    }
+
+    List<Heat> heats = HeatBuilder.buildHeats(race, participants);
+
+    // ceil(11/4) = 3 heats
+    assertEquals(3, heats.size());
+    // Balanced: 11/3 = 3.66 -> 4, 4, 3
+    assertEquals(4, countDrivers(heats.get(0)));
+    assertEquals(4, countDrivers(heats.get(1)));
+    assertEquals(3, countDrivers(heats.get(2)));
+  }
+
+  @Test
+  public void testSingleHeat_FourDriversFourLanes() {
+    when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.SingleHeat);
+
+    List<RaceParticipant> participants = new ArrayList<>();
+    for (int i = 1; i <= 4; i++) {
+      participants.add(
+          new RaceParticipant(
+              new Driver(
+                  "D" + i,
+                  "d" + i,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  String.valueOf(i),
+                  null)));
+    }
+
+    List<Heat> heats = HeatBuilder.buildHeats(race, participants);
+
+    // ceil(4/4) = 1 heat
+    assertEquals(1, heats.size());
+    // Balanced: 4/1 = 4 -> 4
+    assertEquals(4, countDrivers(heats.get(0)));
+  }
+
+  private int countDrivers(Heat heat) {
+    int count = 0;
+    for (DriverHeatData dhd : heat.getDrivers()) {
+      if (dhd.getActualDriver() != null
+          && !Driver.EMPTY_DRIVER.getEntityId().equals(dhd.getActualDriver().getEntityId())) {
+        count++;
+      }
+    }
+    return count;
+  }
 }

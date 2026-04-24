@@ -260,8 +260,14 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
 
   getHeatRotationTypeDisplay(type: string | undefined): string {
     if (!type) return "";
-    // Convert enum format to display format (e.g., "RoundRobin" -> "Round Robin")
-    return type.replace(/([A-Z])/g, " $1").trim();
+    const key = `RE_ROTATION_${type
+      .replace(/([A-Z])/g, "_$1")
+      .toUpperCase()
+      .replace(/^_/, "")}`;
+    const translated = this.translationService.translate(key);
+    return translated && translated !== key
+      ? translated
+      : type.replace(/([A-Z])/g, " $1").trim();
   }
 
   createNewRace() {
