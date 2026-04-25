@@ -1188,7 +1188,7 @@ describe("DefaultRacedayComponent", () => {
       expect((component as any).getDriverVisualPosition(mockHd1)).toBe(1); // Rank 2 -> visual pos 1
     });
 
-    it("should have correct transform for animation when sorted", () => {
+    it("should have correct top position for animation when sorted", () => {
       mockSettings.sortByStandings = true;
       component["driverRankings"].set("hd1", 2);
       component["driverRankings"].set("hd2", 1);
@@ -1201,12 +1201,10 @@ describe("DefaultRacedayComponent", () => {
 
       // hd1 (lane 0) is rank 2 -> visual position 1
       // hd2 (lane 1) is rank 1 -> visual position 0
-      // translateY = pos * (height + 2)
-      const expectedHd1Translate = 1 * (rowHeight + 2);
-      expect(rows[0].style.transform).toContain(
-        `translateY(${expectedHd1Translate}px)`,
-      );
-      expect(rows[1].style.transform).toContain("translateY(0px)");
+      // top = pos * (height + 2)
+      const expectedHd1Top = 1 * (rowHeight + 2);
+      expect(rows[0].style.top).toBe(`${expectedHd1Top}px`);
+      expect(rows[1].style.top).toBe("0px");
     });
 
     it("should update rankings and sort on standingsUpdate$ event", fakeAsync(() => {
@@ -1696,6 +1694,38 @@ describe("DefaultRacedayComponent", () => {
       component["onDrop"](event);
 
       expect(console.error).toHaveBeenCalledWith("Failed to change lane");
+    });
+
+    it("should call dataService.changeLane for SingleHeat in NOT_STARTED state", () => {
+      (component as any).race.heat_rotation_type = "SingleHeat";
+      component["raceState"] = com.antigravity.RaceState.NOT_STARTED;
+      const fromHd = component["sortedHeatDrivers"][0];
+      const event = {
+        previousIndex: 0,
+        currentIndex: 1,
+        item: { data: fromHd },
+      } as any;
+
+      mockDataService.changeLane.and.returnValue(of(true));
+
+      component["onDrop"](event);
+
+      expect(mockDataService.changeLane).toHaveBeenCalledWith(0, 1);
+    });
+
+    it("should NOT call dataService.changeLane for SingleHeat in RACING state", () => {
+      (component as any).race.heat_rotation_type = "SingleHeat";
+      component["raceState"] = com.antigravity.RaceState.RACING;
+      const fromHd = component["sortedHeatDrivers"][0];
+      const event = {
+        previousIndex: 0,
+        currentIndex: 1,
+        item: { data: fromHd },
+      } as any;
+
+      component["onDrop"](event);
+
+      expect(mockDataService.changeLane).not.toHaveBeenCalled();
     });
   });
 });

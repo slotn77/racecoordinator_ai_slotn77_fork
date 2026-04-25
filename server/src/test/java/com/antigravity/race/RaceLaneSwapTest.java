@@ -122,6 +122,62 @@ public class RaceLaneSwapTest {
   }
 
   @Test
+  public void testSingleHeatSwapAllowedInNotStarted() {
+    assertEquals(p1, race.getDrivers().get(0));
+    assertEquals(p2, race.getDrivers().get(1));
+
+    // Rebuild as SingleHeat
+    Race singleHeatModel =
+        new Race.Builder()
+            .withName("Single Heat Race")
+            .withHeatRotationType(HeatRotationType.SingleHeat)
+            .build();
+
+    com.antigravity.race.Race shRace =
+        new com.antigravity.race.Race.Builder()
+            .model(singleHeatModel)
+            .drivers(race.getDrivers())
+            .track(race.getTrack())
+            .isDemoMode(true)
+            .build();
+
+    assertEquals(p1, shRace.getCurrentHeat().getDrivers().get(0).getDriver());
+    assertEquals(p2, shRace.getCurrentHeat().getDrivers().get(1).getDriver());
+
+    shRace.changeLane(0, 1);
+
+    assertEquals(p2, shRace.getCurrentHeat().getDrivers().get(0).getDriver());
+    assertEquals(p1, shRace.getCurrentHeat().getDrivers().get(1).getDriver());
+  }
+
+  @Test
+  public void testSingleHeatSwapRejectedAfterStart() {
+    // Rebuild as SingleHeat
+    Race singleHeatModel =
+        new Race.Builder()
+            .withName("Single Heat Race")
+            .withHeatRotationType(HeatRotationType.SingleHeat)
+            .build();
+
+    com.antigravity.race.Race shRace =
+        new com.antigravity.race.Race.Builder()
+            .model(singleHeatModel)
+            .drivers(race.getDrivers())
+            .track(race.getTrack())
+            .isDemoMode(true)
+            .build();
+
+    // Start the race (transitions to Starting)
+    shRace.changeState(new com.antigravity.race.states.Starting());
+
+    shRace.changeLane(0, 1);
+
+    // Should NOT have swapped
+    assertEquals(p1, shRace.getCurrentHeat().getDrivers().get(0).getDriver());
+    assertEquals(p2, shRace.getCurrentHeat().getDrivers().get(1).getDriver());
+  }
+
+  @Test
   public void testSwapRejectedWithInvalidIndices() {
     assertEquals(p1, race.getCurrentHeat().getDrivers().get(0).getDriver());
 
@@ -130,5 +186,52 @@ public class RaceLaneSwapTest {
 
     race.changeLane(-1, 0);
     assertEquals(p1, race.getCurrentHeat().getDrivers().get(0).getDriver());
+  }
+
+  @Test
+  public void testTeammateChangeAfterSwap() {
+    // Rebuild as SingleHeat
+    Race singleHeatModel =
+        new Race.Builder()
+            .withName("Single Heat Race")
+            .withHeatRotationType(HeatRotationType.SingleHeat)
+            .build();
+
+    com.antigravity.race.Race shRace =
+        new com.antigravity.race.Race.Builder()
+            .model(singleHeatModel)
+            .drivers(race.getDrivers())
+            .track(race.getTrack())
+            .isDemoMode(true)
+            .build();
+
+    // Initial state: Lane 0 has p1, Lane 1 has p2
+    Driver d1 = p1.getDriver();
+    Driver d2 = p2.getDriver();
+    assertEquals(
+        d1.getObjectId(),
+        shRace.getCurrentHeat().getDrivers().get(0).getActualDriver().getObjectId());
+    assertEquals(
+        d2.getObjectId(),
+        shRace.getCurrentHeat().getDrivers().get(1).getActualDriver().getObjectId());
+
+    // Swap lanes
+    shRace.changeLane(0, 1);
+
+    // Now Lane 0 has p2, Lane 1 has p1
+    assertEquals(
+        d2.getObjectId(),
+        shRace.getCurrentHeat().getDrivers().get(0).getActualDriver().getObjectId());
+    assertEquals(
+        d1.getObjectId(),
+        shRace.getCurrentHeat().getDrivers().get(1).getActualDriver().getObjectId());
+
+    // Change teammate for Lane 0 (which is now p2)
+    Driver newDriver = new Driver("New Driver", "ND", "new_driver", new ObjectId());
+    shRace.getCurrentHeat().getDrivers().get(0).setActualDriver(newDriver);
+
+    assertEquals(
+        newDriver.getObjectId(),
+        shRace.getCurrentHeat().getDrivers().get(0).getActualDriver().getObjectId());
   }
 }

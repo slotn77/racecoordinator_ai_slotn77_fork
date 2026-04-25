@@ -341,7 +341,7 @@
           cdkDropList
           [cdkDropListData]="sortedHeatDrivers"
           (cdkDropListDropped)="onDrop($event)"
-          [cdkDropListDisabled]="!isSingleHeatSolo"
+          [cdkDropListDisabled]="!canSwapLanes"
         >
           <div
             *ngFor="
@@ -352,7 +352,7 @@
             class="table-row"
             cdkDrag
             [cdkDragData]="hd"
-            [cdkDragDisabled]="!isSingleHeatSolo || !isLaneOccupied(hd)"
+            [cdkDragDisabled]="!canSwapLanes || !isLaneOccupied(hd)"
             [cdkDragPreviewContainer]="'parent'"
             (cdkDragStarted)="onDragStarted(hd.laneIndex)"
             (cdkDragEnded)="onDragEnded()"
@@ -364,13 +364,9 @@
             [style.z-index]="
               isDragging ? 1000 : 100 - getDriverVisualPosition(hd)
             "
+            [style.top.px]="getDriverVisualPosition(hd) * (getRowHeight() + 2)"
             [style.transform]="
-              'translateY(' +
-              getDriverVisualPosition(hd) * (getRowHeight() + 2) +
-              'px) ' +
-              (highlightedDrivers.has(hd.objectId)
-                ? 'scale(1.015)'
-                : 'scale(1)')
+              highlightedDrivers.has(hd.objectId) ? 'scale(1.015)' : 'scale(1)'
             "
           >
             <div
@@ -463,7 +459,7 @@
                   <div
                     class="drag-handle"
                     *ngIf="
-                      isSingleHeatSolo &&
+                      canSwapLanes &&
                       isNameProperty(entry.property) &&
                       isLaneOccupied(hd)
                     "

@@ -99,7 +99,10 @@
         <app-heat-list
           [heats]="generatedHeats"
           [showHeader]="false"
-          [canDragLanes]="editingRace?.heat_rotation_type === 'SingleHeatSolo'"
+          [canDragLanes]="
+            editingRace?.heat_rotation_type === 'SingleHeatSolo' ||
+            editingRace?.heat_rotation_type === 'SingleHeat'
+          "
           (laneSelected)="onLaneSelected($event)"
         ></app-heat-list>
       </div>

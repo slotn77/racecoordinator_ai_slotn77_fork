@@ -740,11 +740,23 @@ export class DefaultRacedayComponent
     return this.race?.heat_rotation_type === "SingleHeatSolo";
   }
 
+  protected get isSingleHeat(): boolean {
+    return this.race?.heat_rotation_type === "SingleHeat";
+  }
+
+  protected get canSwapLanes(): boolean {
+    if (this.isSingleHeatSolo) return true;
+    if (this.isSingleHeat) {
+      return this.raceState === com.antigravity.RaceState.NOT_STARTED;
+    }
+    return false;
+  }
+
   protected onDrop(event: CdkDragDrop<DriverHeatData[]>) {
     this.draggingLane = null;
     this.isDragging = false;
     if (
-      !this.isSingleHeatSolo ||
+      !this.canSwapLanes ||
       event.previousIndex === event.currentIndex ||
       !this.sortedHeatDrivers
     ) {
@@ -774,7 +786,7 @@ export class DefaultRacedayComponent
   }
 
   protected onDragOver(laneIndex: number) {
-    if (this.isSingleHeatSolo && this.isDragging) {
+    if (this.canSwapLanes && this.isDragging) {
       this.draggingLane = laneIndex;
     }
   }
@@ -909,7 +921,9 @@ export class DefaultRacedayComponent
   }
 
   getRowHeight(): number {
-    return 672 / (this.track?.lanes?.length || 1);
+    const numLanes = this.track?.lanes?.length || 1;
+    const totalGaps = (numLanes - 1) * 2;
+    return (672 - totalGaps) / numLanes;
   }
 
   getImageMetrics(colIndex: number) {
@@ -962,7 +976,7 @@ export class DefaultRacedayComponent
     hasTeam: boolean = false,
     anchor?: any,
   ): number {
-    const rowHeight = 672 / (this.track?.lanes?.length || 8);
+    const rowHeight = this.getRowHeight();
     const targetAnchor = anchor || AnchorPoint.CenterCenter;
 
     switch (targetAnchor) {
@@ -2241,7 +2255,7 @@ export class DefaultRacedayComponent
         console.log(`Teammate changed for lane ${lane} to ${driverId}`);
       },
       error: (err) => {
-        console.error("Error changing teammate:", err);
+        console.error(`Error changing teammate for lane ${lane}:`, err);
         this.ackModalTitle = "RD_ERR_DRIVER_CHANGE_TITLE";
         this.ackModalMessage = err.error || "RD_ERR_DRIVER_CHANGE_MESSAGE";
         this.showAckModal = true;

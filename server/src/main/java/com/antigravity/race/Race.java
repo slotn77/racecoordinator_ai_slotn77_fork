@@ -924,7 +924,14 @@ public class Race implements ProtocolListener {
   }
 
   public synchronized void changeLane(int fromLane, int toLane) {
-    if (model.getHeatRotationType() != com.antigravity.models.HeatRotationType.SingleHeatSolo) {
+    com.antigravity.models.HeatRotationType rotationType = model.getHeatRotationType();
+    if (rotationType != com.antigravity.models.HeatRotationType.SingleHeatSolo
+        && rotationType != com.antigravity.models.HeatRotationType.SingleHeat) {
+      return;
+    }
+
+    if (rotationType == com.antigravity.models.HeatRotationType.SingleHeat
+        && !(state instanceof NotStarted)) {
       return;
     }
 

@@ -813,7 +813,7 @@ public class ClientCommandTaskHandler {
           }
           dhd.setActualDriver(driver);
           race.broadcast(race.createSnapshot());
-          ctx.status(200).result("Driver updated");
+          ctx.status(200);
         } else {
           ctx.status(404).result("RD_ERR_DRIVER_NOT_FOUND");
         }
