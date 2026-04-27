@@ -49,6 +49,7 @@
 
 .select-wrapper {
     flex: 1;
+    min-width: 0;
 }
 
 .dm-select {
@@ -56,13 +57,19 @@
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(0, 255, 255, 0.3);
     color: #fff;
-    padding: 10px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: 6px;
     outline: none;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
 }
 
 .dm-input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(0, 255, 255, 0.3);
     color: #fff;
@@ -96,4 +103,9 @@
 
 .btn-play:hover {
     background: rgba(0, 255, 255, 0.2);
+}
+
+.readonly-controls .dm-select {
+    flex: 1;
+    min-width: 0;
 }
