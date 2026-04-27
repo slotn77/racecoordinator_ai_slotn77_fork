@@ -34,7 +34,9 @@ describe("AppComponent", () => {
       "connectToRaceDataSocket",
       "getRaceUpdate",
       "getRaceFlag",
+      "getThemes",
     ]);
+    mockDataService.getThemes.and.returnValue(of([]));
     mockDataService.getServerVersion.and.returnValue(of("TEST-SERVER-VERSION"));
     mockDataService.connectToRaceDataSocket.and.stub();
     mockDataService.getRaceUpdate.and.returnValue(of({}));

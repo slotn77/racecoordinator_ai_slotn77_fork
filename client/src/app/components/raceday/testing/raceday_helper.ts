@@ -143,7 +143,7 @@ export function createRacedayMocks(overrides: any = {}) {
     track: MOCK_TRACK_INSTANCES[0],
   };
   mockRaceService.currentHeat$ = of(mockHeatsWithAudio[0]);
-  mockRaceService.race$ = of(mockRaceWithTrack);
+  mockRaceService.selectedRace$ = of(mockRaceWithTrack);
   mockRaceService.participants$ = participantsSubject.asObservable();
   mockRaceService.getRace.and.returnValue(mockRaceWithTrack);
   mockRaceService.getHeats.and.returnValue(mockHeatsWithAudio);

@@ -37,8 +37,8 @@ rm -rf "$ISOLATED_DIR/dist"
 cd "$ISOLATED_DIR" || exit
 
 # Ensure dependencies are installed in isolated directory
-# Check if package.json has changed since last install
-if [ ! -d "node_modules" ] || [ package.json -nt node_modules ]; then
+# Check if package.json has changed since last install OR if playwright is missing/empty
+if [ ! -d "node_modules" ] || [ package.json -nt node_modules ] || [ ! -f "node_modules/@playwright/test/package.json" ]; then
     echo "Installing/Updating dependencies in $ISOLATED_DIR..."
     npm install --no-package-lock --cache "$ISOLATED_DIR/npm-cache" || echo "Warning: npm install failed, trying to proceed anyway..."
     # Touch node_modules to update its mtime for the check above

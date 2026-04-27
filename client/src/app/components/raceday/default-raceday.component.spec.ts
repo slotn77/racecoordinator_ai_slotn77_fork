@@ -1511,6 +1511,51 @@ describe("DefaultRacedayComponent", () => {
       ).toBeTrue();
     }));
 
+    it("should use start_time for countdownTotalLamps when starting a new race", fakeAsync(() => {
+      const race = { ...MOCK_RACES[0], start_time: 3.0 } as any;
+      component["race"] = race;
+      mockRaceService.getRace.and.returnValue(race);
+      raceStateSubject.next(com.antigravity.RaceState.NOT_STARTED);
+      tick();
+      raceStateSubject.next(com.antigravity.RaceState.STARTING);
+      tick();
+
+      expect(component["countdownTotalLamps"]).toBe(3);
+      expect(component["countdownLamps"].length).toBe(3);
+    }));
+
+    it("should use restart_time for countdownTotalLamps when resuming from PAUSED", fakeAsync(() => {
+      const race = {
+        ...MOCK_RACES[0],
+        start_time: 5.0,
+        restart_time: 2.0,
+      } as any;
+      component["race"] = race;
+      mockRaceService.getRace.and.returnValue(race);
+      raceStateSubject.next(com.antigravity.RaceState.RACING);
+      tick();
+      raceStateSubject.next(com.antigravity.RaceState.PAUSED);
+      tick();
+      raceStateSubject.next(com.antigravity.RaceState.STARTING);
+      tick();
+
+      expect(component["isRestarting"]).toBeTrue();
+      expect(component["countdownTotalLamps"]).toBe(2);
+      expect(component["countdownLamps"].length).toBe(2);
+    }));
+
+    it("should re-sync countdownTotalLamps when race data is loaded during STARTING", fakeAsync(() => {
+      component["raceState"] = com.antigravity.RaceState.STARTING;
+      component["isRestarting"] = true; // resumed from pause
+
+      const newRace = { ...MOCK_RACES[0], restart_time: 4.0 };
+      mockRaceService.getRace.and.returnValue(newRace);
+
+      (component as any).loadRaceData();
+
+      expect(component["countdownTotalLamps"]).toBe(4);
+    }));
+
     it("should update lamp states based on time remaining", fakeAsync(() => {
       component["race"] = { ...MOCK_RACES[0], start_time: 5.0 } as any;
       raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
@@ -1882,11 +1927,36 @@ describe("DefaultRacedayComponent", () => {
       raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
       tick();
 
-      expect(mockThemeService.resolveAudioConfig).toHaveBeenCalledWith(
-        THEME_SLOT_KEYS.AUDIO_COUNTDOWN_5,
-      );
       expect(window.Audio).toHaveBeenCalledWith(
         `${mockDataService.serverUrl}api/assets/download/default_countdown_5`,
+      );
+    }));
+
+    it("should not play audio for seconds higher than countdownTotalLamps", fakeAsync(() => {
+      mockThemeService.resolveAudioConfig.and.returnValue({
+        type: "preset",
+        url: "default_countdown",
+      });
+
+      const race = { ...MOCK_RACES[0], start_time: 3.0 } as any;
+      component["race"] = race;
+      mockRaceService.getRace.and.returnValue(race);
+      raceStateSubject.next(com.antigravity.RaceState.STARTING);
+      tick();
+
+      // If server sends 5.0 but we only have 3 lamps, it should NOT play.
+      raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
+      tick();
+
+      expect(mockThemeService.resolveAudioConfig).not.toHaveBeenCalledWith(
+        THEME_SLOT_KEYS.AUDIO_COUNTDOWN_5,
+      );
+
+      // But it SHOULD play 3
+      raceTimeSubject.next({ time: 3.0, autoStartRemaining: 3.0 });
+      tick();
+      expect(mockThemeService.resolveAudioConfig).toHaveBeenCalledWith(
+        THEME_SLOT_KEYS.AUDIO_COUNTDOWN_3,
       );
     }));
 

@@ -20,6 +20,11 @@
   </app-confirmation-modal>
 
   <div class="countdown-overlay" *ngIf="showCountdownOverlay">
+    <div id="debug-info" style="display: none" *ngIf="race">
+      TotalLamps: {{ countdownTotalLamps }}, RaceStartTime:
+      {{ race.start_time }}, RaceRestartTime: {{ race.restart_time }},
+      IsRestarting: {{ isRestarting }}
+    </div>
     <div class="lamps-container">
       <img
         *ngFor="let lamp of countdownLamps"

@@ -170,36 +170,12 @@ export class RaceConverter {
           proto.autoStartTime || 0,
           proto.autoAdvanceWarmupTime || 0,
           proto.autoStartWarmupTime || 0,
-          p.driftTime !== undefined
-            ? p.driftTime
-            : p.drift_time !== undefined
-              ? p.drift_time
-              : 0.5,
-          p.minLapTime !== undefined
-            ? p.minLapTime
-            : p.min_lap_time !== undefined
-              ? p.min_lap_time
-              : 1.5,
-          p.startTime !== undefined
-            ? p.startTime
-            : p.start_time !== undefined
-              ? p.start_time
-              : 5.0,
-          p.restartTime !== undefined
-            ? p.restartTime
-            : p.restart_time !== undefined
-              ? p.restart_time
-              : 5.0,
-          p.startDelay !== undefined
-            ? p.startDelay
-            : p.start_delay !== undefined
-              ? p.start_delay
-              : 0.0,
-          p.restartDelay !== undefined
-            ? p.restartDelay
-            : p.restart_delay !== undefined
-              ? p.restart_delay
-              : 0.0,
+          p.driftTime || p.drift_time || 0.5,
+          p.minLapTime || p.min_lap_time || 1.5,
+          p.startTime || p.start_time || 5.0,
+          p.restartTime || p.restart_time || 5.0,
+          p.startDelay || p.start_delay || 0.0,
+          p.restartDelay || p.restart_delay || 0.0,
           proto.soloLaneIndex || 0,
         );
       },

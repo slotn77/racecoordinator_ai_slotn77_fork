@@ -51,7 +51,7 @@ test.describe("Raceday Start Sequence Visuals", () => {
         race: {
           model: { entityId: "r1" },
           name: "Test Race",
-          start_time: 5.0,
+          startTime: 5.0,
           track: {
             lanes: [
               {
@@ -70,6 +70,7 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
 
     // Transition to STARTING state
     await TestSetupHelper.sendRaceState(
@@ -123,6 +124,7 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
 
     // Transition to STARTING state and tick down
     // At T=2.5, 5 - floor(2.5) = 5 - 2 = 3 lamps should be ON
@@ -173,6 +175,7 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
 
     // Transition to STARTING then RACING
     await TestSetupHelper.sendRaceState(
@@ -225,6 +228,7 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
 
     // 1. Transition to STARTING then RACING
     await TestSetupHelper.sendRaceState(
@@ -255,5 +259,118 @@ test.describe("Raceday Start Sequence Visuals", () => {
     await expect(page).toHaveScreenshot(
       "start-sequence-stay-green-late-msg.png",
     );
+  });
+
+  test("should show only 3 lamps when start_time is set to 3s", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r-3s" },
+          name: "Test Race",
+          startTime: 3.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+    // Ensure the app has processed the new race data before we trigger the state change
+    await page.waitForTimeout(200);
+
+    // Transition to STARTING state
+    await TestSetupHelper.sendRaceState(
+      page,
+      com.antigravity.RaceState.STARTING,
+    );
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 3.0,
+      autoStartRemaining: 3.0,
+    });
+
+    await page.waitForTimeout(500);
+    await page.locator(".countdown-overlay").waitFor({ state: "visible" });
+
+    // Verify the visual state with exactly 3 lamps
+    await expect(page).toHaveScreenshot("start-sequence-3-lamps-total.png");
+  });
+
+  test("should show restart duration when resuming from pause", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r-restart-2s" },
+          name: "Test Race",
+          startTime: 5.0,
+          restartTime: 2.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+    // Ensure the app has processed the new race data before we trigger the state change
+    await page.waitForTimeout(200);
+
+    // 1. Initial State: RACING
+    await TestSetupHelper.sendRaceState(page, com.antigravity.RaceState.RACING);
+
+    // 2. PAUSE
+    await TestSetupHelper.sendRaceState(page, com.antigravity.RaceState.PAUSED);
+
+    // 3. Resume -> STARTING
+    await TestSetupHelper.sendRaceState(
+      page,
+      com.antigravity.RaceState.STARTING,
+    );
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 2.0,
+      autoStartRemaining: 2.0,
+    });
+
+    await page.waitForTimeout(500);
+    await page.locator(".countdown-overlay").waitFor({ state: "visible" });
+
+    // Verify the visual state with exactly 2 lamps (restart_time = 2.0)
+    await expect(page).toHaveScreenshot("start-sequence-restart-2-lamps.png");
   });
 });

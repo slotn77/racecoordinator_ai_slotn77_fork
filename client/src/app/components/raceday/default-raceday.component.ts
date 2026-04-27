@@ -79,6 +79,7 @@ export class DefaultRacedayComponent
   countdownColor: string = "";
   countdownTotalLamps: number = 0;
   private lastPlayedCountdownSecond: number = -1;
+  protected isRestarting: boolean = false;
 
   // Static record values for now as requested
   // Record values
@@ -385,6 +386,12 @@ export class DefaultRacedayComponent
 
     this.subscriptions.push(
       this.raceService.currentHeat$.subscribe(() => {
+        this.loadRaceData();
+      }),
+    );
+
+    this.subscriptions.push(
+      this.raceService.selectedRace$.subscribe(() => {
         this.loadRaceData();
       }),
     );
@@ -829,6 +836,7 @@ export class DefaultRacedayComponent
         this.raceState === com.antigravity.RaceState.PAUSED
       ) {
         const duration =
+          this.isRestarting ||
           this.raceState === com.antigravity.RaceState.PAUSED
             ? race.restart_time
             : race.start_time;
@@ -2365,14 +2373,27 @@ export class DefaultRacedayComponent
     if (state === com.antigravity.RaceState.STARTING) {
       this.showCountdownOverlay = true;
       this.lastPlayedCountdownSecond = -1;
+
+      // Determine if this is a restart from a paused state
+      if (previousState === com.antigravity.RaceState.PAUSED) {
+        this.isRestarting = true;
+      } else if (previousState !== com.antigravity.RaceState.STARTING) {
+        this.isRestarting = false;
+      }
+
       // Determine duration based on entry path
-      const duration = this.race?.start_time || 5.0;
+      const r = this.raceService.getRace() || this.race;
+      const duration = this.isRestarting
+        ? r?.restart_time || 5.0
+        : r?.start_time || 5.0;
+
       this.countdownTotalLamps = Math.ceil(duration);
       this.updateCountdownLamps(duration);
     }
 
     // If RACING state came, set all lamps to green
     if (state === com.antigravity.RaceState.RACING) {
+      this.isRestarting = false;
       this.setAllLampsGo();
       this.playThemedSound(THEME_SLOT_KEYS.AUDIO_COUNTDOWN_GO);
       // Hide overlay after 1 second of green lamps
@@ -2422,6 +2443,7 @@ export class DefaultRacedayComponent
 
     const currentSecond = Math.ceil(currentTime);
     if (
+      currentSecond <= this.countdownTotalLamps &&
       currentSecond <= 5 &&
       currentSecond >= 1 &&
       currentSecond !== this.lastPlayedCountdownSecond
