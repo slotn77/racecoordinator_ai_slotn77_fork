@@ -175,8 +175,22 @@ elif [ -d "$PROJECT_ROOT/client" ]; then
     CLIENT_PROTO_OUT="$PROJECT_ROOT/client/src/app/proto"
     mkdir -p "$CLIENT_PROTO_OUT"
     pushd "$PROTO_ROOT" > /dev/null
-    npx -y -p protobufjs-cli pbjs -p . -t static-module -w es6 -o "$CLIENT_PROTO_OUT/message.js" client/*.proto server/*.proto message.proto
-    npx -y -p protobufjs-cli pbts -o "$CLIENT_PROTO_OUT/message.d.ts" "$CLIENT_PROTO_OUT/message.js"
+    
+    # Try to use local installation if available (more reliable)
+    PBJS="$PROJECT_ROOT/client/node_modules/.bin/pbjs"
+    PBTS="$PROJECT_ROOT/client/node_modules/.bin/pbts"
+    
+    if [ -f "$PBJS" ]; then
+        echo "Using local pbjs/pbts..."
+        "$PBJS" -p . -t static-module -w es6 -o "$CLIENT_PROTO_OUT/message.js" client/*.proto server/*.proto message.proto
+        "$PBTS" -o "$CLIENT_PROTO_OUT/message.d.ts" "$CLIENT_PROTO_OUT/message.js"
+    else
+        echo "Local pbjs not found, using npx..."
+        # Specify both packages to ensure compatibility and avoid the 'reservedRe' error
+        npx -y -p protobufjs-cli@1.1.2 -p protobufjs@7.5.5 pbjs -p . -t static-module -w es6 -o "$CLIENT_PROTO_OUT/message.js" client/*.proto server/*.proto message.proto
+        npx -y -p protobufjs-cli@1.1.2 -p protobufjs@7.5.5 pbts -o "$CLIENT_PROTO_OUT/message.d.ts" "$CLIENT_PROTO_OUT/message.js"
+    fi
+    
     popd > /dev/null
     echo "Client-side protobuf generation successful."
 fi
