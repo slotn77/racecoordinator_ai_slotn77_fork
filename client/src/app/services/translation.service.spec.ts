@@ -148,6 +148,29 @@ describe("TranslationService", () => {
     req.flush({});
   });
 
+  it("should handle translation load failure and fallback to English", () => {
+    spyOn(console, "error");
+    settingsServiceSpy.getSettings.and.returnValue(
+      Object.assign(new Settings(), { language: "fr" }),
+    );
+
+    service = TestBed.inject(TranslationService);
+
+    const req = httpMock.expectOne((request) =>
+      request.url.startsWith("assets/i18n/fr.json"),
+    );
+    req.error(new ErrorEvent("Network error"));
+
+    expect(console.error).toHaveBeenCalled();
+
+    // Should then try to load 'en'
+    const fallbackReq = httpMock.expectOne((request) =>
+      request.url.startsWith("assets/i18n/en.json"),
+    );
+    expect(fallbackReq).toBeDefined();
+    fallbackReq.flush({});
+  });
+
   afterEach(() => {
     httpMock.verify();
   });

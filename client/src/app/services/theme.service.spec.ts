@@ -34,6 +34,8 @@ describe("ThemeService", () => {
       "getThemes",
       "createTheme",
       "updateTheme",
+      "duplicateTheme",
+      "deleteTheme",
     ]);
     const settingsSpy = jasmine.createSpyObj("SettingsService", [
       "getSettings",
@@ -109,11 +111,45 @@ describe("ThemeService", () => {
   });
 
   it("should handle initialization failure", async () => {
+    spyOn(console, "error");
     dataServiceSpy.getThemes.and.returnValue(
       throwError(() => new Error("Failed")),
     );
     await service.initialize();
     expect(service.isInitialized()).toBeTrue(); // Still marked as initialized but with empty themes
     expect(service.getThemes().length).toBe(0);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("should handle refresh failure", async () => {
+    spyOn(console, "error");
+    dataServiceSpy.getThemes.and.returnValue(
+      throwError(() => new Error("Refresh Failed")),
+    );
+    await service.refresh();
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("should duplicate theme and refresh", async () => {
+    const newTheme = { ...mockThemes[0], entity_id: "new-theme" };
+    dataServiceSpy.duplicateTheme.and.returnValue(of(newTheme));
+
+    const result = await service.duplicateTheme("default_theme", "New Name");
+
+    expect(dataServiceSpy.duplicateTheme).toHaveBeenCalledWith(
+      "default_theme",
+      "New Name",
+    );
+    expect(dataServiceSpy.getThemes).toHaveBeenCalled();
+    expect(result.entity_id).toBe("new-theme");
+  });
+
+  it("should delete theme and refresh", async () => {
+    dataServiceSpy.deleteTheme.and.returnValue(of(undefined));
+
+    await service.deleteTheme("theme-1");
+
+    expect(dataServiceSpy.deleteTheme).toHaveBeenCalledWith("theme-1");
+    expect(dataServiceSpy.getThemes).toHaveBeenCalled();
   });
 });
