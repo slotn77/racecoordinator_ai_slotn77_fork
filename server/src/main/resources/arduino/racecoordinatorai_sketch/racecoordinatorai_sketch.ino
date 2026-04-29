@@ -225,6 +225,7 @@ typedef struct {
 s_rgbLedString rgbLedStrings[MAX_RGB_LED_STRINGS];
 CLEDController *rgbLedControllers[MAX_RGB_LED_STRINGS];
 byte rgbLedBrightness[MAX_RGB_LED_STRINGS];
+byte rgbLedColorOrder[MAX_RGB_LED_STRINGS];
 byte rgbLedPins[MAX_RGB_LED_STRINGS];
 int rgbLedUpdateRateMs = 20;
 boolean rgbLedUpdateString[MAX_RGB_LED_STRINGS];
@@ -273,7 +274,7 @@ int allocateRgbSlotForPin(byte pin) {
 //  GW6205
 //  GW6205_400
 
-#define OTHER_LED_TYPE TM1809
+#define OTHER_LED_TYPE WS2812B
 
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328__)
 // Uno/Nano memory optimization:
@@ -283,23 +284,23 @@ int allocateRgbSlotForPin(byte pin) {
 #define ADD_LEDS_ON_PIN(PIN)                                                   \
   case PIN:                                                                    \
     if (ledType == 12)                                                         \
-      return &FastLED.addLeds<OTHER_LED_TYPE, PIN>(leds, numLeds);             \
-    return &FastLED.addLeds<WS2811, PIN>(leds, numLeds);
+      return &FastLED.addLeds<OTHER_LED_TYPE, PIN, RGB>(leds, numLeds);        \
+    return &FastLED.addLeds<WS2811, PIN, RGB>(leds, numLeds);
 #else
 // Mega support for multiple distinct LED templates
 #define ADD_LEDS_ON_PIN(PIN)                                                   \
   case PIN:                                                                    \
     switch (ledType) {                                                         \
     case 1:                                                                    \
-      return &FastLED.addLeds<WS2811, PIN>(leds, numLeds);                     \
+      return &FastLED.addLeds<WS2811, PIN, RGB>(leds, numLeds);                \
     case 2:                                                                    \
-      return &FastLED.addLeds<WS2812, PIN>(leds, numLeds);                     \
+      return &FastLED.addLeds<WS2812, PIN, RGB>(leds, numLeds);                \
     case 3:                                                                    \
-      return &FastLED.addLeds<WS2812B, PIN>(leds, numLeds);                    \
+      return &FastLED.addLeds<WS2812B, PIN, RGB>(leds, numLeds);               \
     case 12:                                                                   \
-      return &FastLED.addLeds<OTHER_LED_TYPE, PIN>(leds, numLeds);             \
+      return &FastLED.addLeds<OTHER_LED_TYPE, PIN, RGB>(leds, numLeds);        \
     default:                                                                   \
-      return &FastLED.addLeds<NEOPIXEL, PIN>(leds, numLeds);                   \
+      return &FastLED.addLeds<NEOPIXEL, PIN, RGB>(leds, numLeds);              \
     }
 #endif
 
@@ -397,6 +398,7 @@ void setup() {
     rgbLedStrings[i].numLeds = 0;
     rgbLedPins[i] = 0;
     rgbLedUpdateString[i] = false;
+    rgbLedColorOrder[i] = 0; // Default to RGB
   }
   rgbLedInit = true;
   rgbLedUpdateTime = 0xffffffff;
@@ -832,6 +834,8 @@ void processLedModeRequest() {
       rgbLedStrings[stringNum].leds[i] = CRGB::Black;
     }
 
+    rgbLedColorOrder[stringNum] = inBuffer[7];
+
     if (needsController) {
       byte ledType = inBuffer[6];
       rgbLedControllers[stringNum] =
@@ -901,9 +905,39 @@ void processLedWriteRequest() {
         SERIAL_PRINT(b);
         SERIAL_PRINTLN(F("]"));
 
-        rgbLedStrings[stringNum].leds[pixel].r = r;
-        rgbLedStrings[stringNum].leds[pixel].g = g;
-        rgbLedStrings[stringNum].leds[pixel].b = b;
+        byte co = rgbLedColorOrder[stringNum];
+        switch (co) {
+        case 1: // GRB
+          rgbLedStrings[stringNum].leds[pixel].r = g;
+          rgbLedStrings[stringNum].leds[pixel].g = r;
+          rgbLedStrings[stringNum].leds[pixel].b = b;
+          break;
+        case 2: // BGR
+          rgbLedStrings[stringNum].leds[pixel].r = b;
+          rgbLedStrings[stringNum].leds[pixel].g = g;
+          rgbLedStrings[stringNum].leds[pixel].b = r;
+          break;
+        case 3: // RBG
+          rgbLedStrings[stringNum].leds[pixel].r = r;
+          rgbLedStrings[stringNum].leds[pixel].g = b;
+          rgbLedStrings[stringNum].leds[pixel].b = g;
+          break;
+        case 4: // GBR
+          rgbLedStrings[stringNum].leds[pixel].r = g;
+          rgbLedStrings[stringNum].leds[pixel].g = b;
+          rgbLedStrings[stringNum].leds[pixel].b = r;
+          break;
+        case 5: // BRG
+          rgbLedStrings[stringNum].leds[pixel].r = b;
+          rgbLedStrings[stringNum].leds[pixel].g = r;
+          rgbLedStrings[stringNum].leds[pixel].b = g;
+          break;
+        default: // 0: RGB
+          rgbLedStrings[stringNum].leds[pixel].r = r;
+          rgbLedStrings[stringNum].leds[pixel].g = g;
+          rgbLedStrings[stringNum].leds[pixel].b = b;
+          break;
+        }
       }
     }
 

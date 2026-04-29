@@ -770,6 +770,24 @@ describe("ArduinoEditorComponent", () => {
         "#0000ff",
       );
     });
+
+    it("should sync color order across all strings when linked", () => {
+      component.isLedStringsLinked = true;
+
+      component.onLedStringColorOrderChange(0, 1); // GRB
+
+      expect(component.config!.ledStrings[0].colorOrder).toBe(1);
+      expect(component.config!.ledStrings[1].colorOrder).toBe(1);
+    });
+
+    it("should NOT sync color order when unlinked", () => {
+      component.isLedStringsLinked = false;
+
+      component.onLedStringColorOrderChange(0, 2); // BGR
+
+      expect(component.config!.ledStrings[0].colorOrder).toBe(2);
+      expect(component.config!.ledStrings[1].colorOrder).not.toBe(2);
+    });
   });
 
   describe("Real-time Pin Status", () => {
@@ -880,6 +898,7 @@ describe("ArduinoEditorComponent", () => {
       const ls = component.config!.ledStrings[0];
       expect(ls.brightness).toBe(32);
       expect(ls.ledType).toBe(1); // WS2811
+      expect(ls.colorOrder).toBe(0); // RGB
       expect(ls.flagFlashRate).toBe(2);
     });
 

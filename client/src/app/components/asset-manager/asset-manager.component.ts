@@ -306,6 +306,7 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
       clearInterval(this.previewInterval);
     }
     // Disable cycling in tests to ensure deterministic screendiffs
+    // TODO(aufderheide): This is a total hack for testing and should be removed.
     if ((window as any).isPlaywright) {
       return;
     }

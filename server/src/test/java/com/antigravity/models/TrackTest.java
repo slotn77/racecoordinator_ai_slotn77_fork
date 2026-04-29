@@ -98,7 +98,8 @@ public class TrackTest {
     behaviors.add(RgbLedBehavior.RGB_LED_BEHAVIOR_COUNTDOWN_BASE_VALUE + 3); // Countdown
     behaviors.add(RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_PROGRESS_VALUE);
 
-    LedString ls = new LedString(1, behaviors, 255, 0, 5.0, Collections.singletonList("#FF0000"));
+    LedString ls =
+        new LedString(1, behaviors, 255, 0, 0, 5.0, Collections.singletonList("#FF0000"));
     ArduinoConfig config =
         new ArduinoConfig(
             "Test",

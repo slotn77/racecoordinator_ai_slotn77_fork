@@ -500,6 +500,22 @@
                             </option>
                           </select>
                         </div>
+                        <div class="control-group">
+                          <label>{{ "AE_COLOR_ORDER" | translate }}</label>
+                          <select
+                            [ngModel]="ls.colorOrder.toString()"
+                            (ngModelChange)="
+                              onLedStringColorOrderChange(i, $event)
+                            "
+                          >
+                            <option
+                              *ngFor="let order of colorOrders"
+                              [value]="order.value"
+                            >
+                              {{ order.label }}
+                            </option>
+                          </select>
+                        </div>
                       </div>
 
                       <div class="lane-colors-editor">

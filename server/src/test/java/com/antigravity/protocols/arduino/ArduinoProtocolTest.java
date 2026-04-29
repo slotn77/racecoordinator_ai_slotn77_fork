@@ -153,7 +153,7 @@ public class ArduinoProtocolTest {
   @Test
   public void testCloseSequence() {
     // Add an LED string so clearLeds() actually sends data
-    LedString string0 = new LedString(2, Arrays.asList(1), 255, 0, 5.0, new ArrayList<>());
+    LedString string0 = new LedString(2, Arrays.asList(1), 255, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = Collections.singletonList(string0);
 
     protocol.open();
@@ -1315,7 +1315,7 @@ public class ArduinoProtocolTest {
     leds.set(
         4, RgbLedBehavior.RGB_LED_BEHAVIOR_LAP_SENSOR_BASE_VALUE); // Max index 4, so count is 5
 
-    LedString string0 = new LedString(14, leds, 150, 2, 5.0, new ArrayList<>()); // ledType 2
+    LedString string0 = new LedString(14, leds, 150, 2, 0, 5.0, new ArrayList<>()); // ledType 2
     config.ledStrings = new ArrayList<>();
     config.ledStrings.add(string0);
 
@@ -1332,8 +1332,8 @@ public class ArduinoProtocolTest {
     // brightness = 150
     // updateRate = 20 (0x0014)
     // ledType = 2
-    // Expected: 0x6C 0x0E 0x05 0x96 0x14 0x00 0x02 0x3B
-    byte[] expected = {0x6C, 0x0E, 0x05, (byte) 150, 0x14, 0x00, 0x02, 0x3B};
+    // Expected: 0x6C 0x0E 0x05 0x96 0x14 0x00 0x02 0x00 0x3B
+    byte[] expected = {0x6C, 0x0E, 0x05, (byte) 150, 0x14, 0x00, 0x02, 0x00, 0x3B};
 
     boolean found = false;
     for (byte[] data : serialConnection.allWrittenData) {
@@ -1421,11 +1421,15 @@ public class ArduinoProtocolTest {
 
   @Test
   public void testSetHeatStandings_MissingColorMapping() {
-    LedString ledString = new LedString();
-    ledString.pin = 1;
-    ledString.leds =
-        Collections.singletonList(RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_LEADER_BASE_VALUE + 0);
-    ledString.ledLaneColorOverrides = new ArrayList<>(); // Empty mapping
+    LedString ledString =
+        new LedString(
+            1,
+            Collections.singletonList(RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_LEADER_BASE_VALUE + 0),
+            255,
+            0,
+            0,
+            5.0,
+            new ArrayList<>());
     config.ledStrings = Collections.singletonList(ledString);
 
     protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
@@ -1493,7 +1497,7 @@ public class ArduinoProtocolTest {
     // 1. Initial configuration with an LED string
     ArduinoConfig configWithLed = new ArduinoConfig();
     configWithLed.commPort = "COM1";
-    LedString string0 = new LedString(2, Arrays.asList(1), 100, 0, 5.0, new ArrayList<>());
+    LedString string0 = new LedString(2, Arrays.asList(1), 100, 0, 0, 5.0, new ArrayList<>());
     configWithLed.ledStrings = new ArrayList<>(Collections.singletonList(string0));
 
     protocol.updateConfig(configWithLed);
@@ -1503,8 +1507,9 @@ public class ArduinoProtocolTest {
     byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
-    // Initial mode message should have been sent (Pin 2, Count 1, Brightness 100)
-    byte[] expectedInitial = {0x6C, 0x02, 0x01, 100, 0x14, 0x00, 0x00, 0x3B};
+    // Initial mode message should have been sent (Pin 2, Count 1, Brightness 100, Rate 20, Type 0,
+    // ColorOrder 0)
+    byte[] expectedInitial = {0x6C, 0x02, 0x01, 100, 0x14, 0x00, 0x00, 0x00, 0x3B};
     assertTrue(
         serialConnection.allWrittenData.stream().anyMatch(d -> Arrays.equals(expectedInitial, d)));
 
@@ -1517,7 +1522,7 @@ public class ArduinoProtocolTest {
     protocol.updateConfig(configNoLed);
 
     // Should send cleanup message: pin 2, brightness 0 (to turn off previous string)
-    byte[] expectedCleanup = {0x6C, 0x02, 0x01, 0, 0x14, 0x00, 0x00, 0x3B};
+    byte[] expectedCleanup = {0x6C, 0x02, 0x01, 0, 0x14, 0x00, 0x00, 0x00, 0x3B};
     assertTrue(
         "Should have sent cleanup message with brightness 0 for pin 2",
         serialConnection.allWrittenData.stream().anyMatch(d -> Arrays.equals(expectedCleanup, d)));

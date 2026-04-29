@@ -25,6 +25,7 @@ public class ArduinoLedHelper {
   private final Map<Integer, Integer> lastAddressableLeds = new HashMap<>();
   private final Map<Integer, Integer> lastBrightness = new HashMap<>();
   private final Map<Integer, Integer> lastNumUsedLeds = new HashMap<>();
+  private final Map<Integer, Integer> lastColorOrder = new HashMap<>();
   private final Map<String, Long> lastLedColors = new HashMap<>();
   private RaceState lastState = RaceState.UNKNOWN_STATE;
   private RaceFlag lastFlag = RaceFlag.UNKNOWN_FLAG; // Default to unknown
@@ -57,25 +58,30 @@ public class ArduinoLedHelper {
         int currentMax = ledString.addressableLeds;
         int currentBrightness = ledString.brightness;
         int currentUsed = ledString.numUsedLeds;
+        int currentColorOrder = ledString.colorOrder;
 
         int previousMax = lastAddressableLeds.getOrDefault(pinId, 0);
         int previousBrightness = lastBrightness.getOrDefault(pinId, -1);
         int previousUsed = lastNumUsedLeds.getOrDefault(pinId, 0);
+        int previousColorOrder = lastColorOrder.getOrDefault(pinId, -1);
 
         // Only send mode if the number of addressable leds changed, brightness changed,
-        // or any led transitioned between used and unused.
+        // color order changed, or any led transitioned between used and unused.
         if (currentMax != previousMax
             || currentBrightness != previousBrightness
-            || currentUsed != previousUsed) {
+            || currentUsed != previousUsed
+            || currentColorOrder != previousColorOrder) {
           int maxCount = Math.max(currentMax, previousMax);
           if (maxCount > 0) {
-            sendRgbLedModeMessage(pinId, maxCount, currentBrightness, ledString.ledType);
+            sendRgbLedModeMessage(
+                pinId, maxCount, currentBrightness, ledString.ledType, currentColorOrder);
           }
         }
 
         lastAddressableLeds.put(pinId, currentMax);
         lastBrightness.put(pinId, currentBrightness);
         lastNumUsedLeds.put(pinId, currentUsed);
+        lastColorOrder.put(pinId, currentColorOrder);
         updatedPins.add(pinId);
       }
     }
@@ -86,19 +92,21 @@ public class ArduinoLedHelper {
       if (!updatedPins.contains(pinId)) {
         int previousMax = lastAddressableLeds.get(pinId);
         if (previousMax > 0) {
-          sendRgbLedModeMessage(pinId, previousMax, 0, 0); // Brightness 0 for disabled
+          sendRgbLedModeMessage(pinId, previousMax, 0, 0, 0); // Brightness 0 for disabled
         }
         lastAddressableLeds.remove(pinId);
         lastBrightness.remove(pinId);
         lastNumUsedLeds.remove(pinId);
+        lastColorOrder.remove(pinId);
       }
     }
   }
 
-  private void sendRgbLedModeMessage(int pinId, int ledCount, int brightness, int ledType) {
-    // { 0x6C, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3B }
-    // opcode pin ledCount brightness updateRateLow updateRateHigh ledType ;
-    byte[] message = new byte[8];
+  private void sendRgbLedModeMessage(
+      int pinId, int ledCount, int brightness, int ledType, int colorOrder) {
+    // { 0x6C, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3B }
+    // opcode pin ledCount brightness updateRateLow updateRateHigh ledType colorOrder ;
+    byte[] message = new byte[9];
     int updateRate = 20;
 
     message[0] = 0x6C; // 'l'
@@ -108,16 +116,18 @@ public class ArduinoLedHelper {
     message[4] = (byte) (updateRate & 0xFF);
     message[5] = (byte) ((updateRate >> 8) & 0xFF);
     message[6] = (byte) (ledType & 0xFF);
-    message[7] = TERMINATOR;
+    message[7] = (byte) (colorOrder & 0xFF);
+    message[8] = TERMINATOR;
 
     protocol.writeData(message);
     logger.info(
-        "[{}] Sent RGB_LED_MODE - Pin: {}, Count: {}, Brightness: {}, UpdateRate: {}",
+        "[{}] Sent RGB_LED_MODE - Pin: {}, Count: {}, Brightness: {}, UpdateRate: {}, ColorOrder: {}",
         protocol.getLogTime(),
         pinId,
         ledCount,
         brightness,
-        updateRate);
+        updateRate,
+        colorOrder);
   }
 
   public void clearLeds() {

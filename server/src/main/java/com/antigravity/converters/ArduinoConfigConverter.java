@@ -25,7 +25,8 @@ public class ArduinoConfigConverter {
                         ls.getPin(),
                         new ArrayList<>(ls.getLedsList()),
                         ls.getBrightness(),
-                        ls.getLedType(),
+                        ls.getLedTypeValue(),
+                        ls.getColorOrderValue(),
                         ls.getFlagFlashRate(),
                         new ArrayList<>(ls.getLedLaneColorOverridesList())))
             .collect(Collectors.toList());
@@ -84,7 +85,8 @@ public class ArduinoConfigConverter {
                 .setNumUsedLeds(ls.numUsedLeds)
                 .setAddressableLeds(ls.addressableLeds)
                 .setBrightness(ls.brightness)
-                .setLedType(ls.ledType)
+                .setLedTypeValue(ls.ledType)
+                .setColorOrderValue(ls.colorOrder)
                 .setFlagFlashRate(ls.flagFlashRate);
 
         if (ls.leds != null) {

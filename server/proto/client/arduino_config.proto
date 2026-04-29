@@ -28,6 +28,23 @@ enum LapPinPitBehavior {
   LAP_PIN_PIT_IN_OUT = 3;
 }
 
+enum LedType {
+  LED_TYPE_NEOPIXEL = 0;
+  LED_TYPE_WS2811 = 1;
+  LED_TYPE_WS2812 = 2;
+  LED_TYPE_WS2812B = 3;
+  LED_TYPE_OTHER = 12;
+}
+
+enum ColorOrder {
+  COLOR_ORDER_RGB = 0;
+  COLOR_ORDER_GRB = 1;
+  COLOR_ORDER_BGR = 2;
+  COLOR_ORDER_RBG = 3;
+  COLOR_ORDER_GBR = 4;
+  COLOR_ORDER_BRG = 5;
+}
+
 enum PinId {
   option allow_alias = true;
   PIN_ID_UNKNOWN = 0;
@@ -76,7 +93,8 @@ message LedString {
   double flag_flash_rate = 6;
   repeated string led_lane_color_overrides = 7;
   int32 pin = 8;
-  int32 led_type = 9;
+  LedType led_type = 9;
+  ColorOrder color_order = 10;
 }
 
 message VoltageConfig {

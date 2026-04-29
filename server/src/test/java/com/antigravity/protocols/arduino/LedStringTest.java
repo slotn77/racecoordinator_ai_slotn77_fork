@@ -18,7 +18,7 @@ public class LedStringTest {
             0 // Unused
             );
 
-    LedString ledString = new LedString(0, behaviors, 255, 0, 5.0, null);
+    LedString ledString = new LedString(0, behaviors, 255, 1, 0, 5.0, null);
 
     // After ceb463a, addressableLeds should be the full size of the behaviors list
     assertEquals("Addressable LEDs should be the full list size", 4, ledString.addressableLeds);
@@ -27,7 +27,7 @@ public class LedStringTest {
 
   @Test
   public void testEmptyLedString() {
-    LedString ledString = new LedString(0, Arrays.asList(), 255, 0, 5.0, null);
+    LedString ledString = new LedString(0, Arrays.asList(), 255, 1, 0, 5.0, null);
     assertEquals(0, ledString.addressableLeds);
     assertEquals(0, ledString.numUsedLeds);
   }

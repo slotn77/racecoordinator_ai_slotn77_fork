@@ -496,6 +496,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
       s1.numUsedLeds !== s2.numUsedLeds ||
       s1.addressableLeds !== s2.addressableLeds ||
       s1.brightness !== s2.brightness ||
+      s1.colorOrder !== s2.colorOrder ||
       s1.flagFlashRate !== s2.flagFlashRate
     ) {
       return false;

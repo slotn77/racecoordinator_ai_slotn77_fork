@@ -42,7 +42,7 @@ public class ArduinoLedHelperTest {
     leds.set(
         4, RgbLedBehavior.RGB_LED_BEHAVIOR_LAP_SENSOR_BASE_VALUE); // Max index 4, so count is 5
 
-    LedString string0 = new LedString(14, leds, 150, 0, 5.0, new ArrayList<>());
+    LedString string0 = new LedString(14, leds, 150, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = new ArrayList<>();
     config.ledStrings.add(string0);
 
@@ -53,8 +53,10 @@ public class ArduinoLedHelperTest {
     // ledCount = 5
     // brightness = 150
     // updateRate = 20 (0x0014)
-    // Expected: 0x6C 0x0E 0x05 0x96 0x14 0x00 0x00 0x3B
-    byte[] expected = {0x6C, 0x0E, 0x05, (byte) 150, 0x14, 0x00, 0x00, 0x3B};
+    // ledType = 0
+    // colorOrder = 0 (Default)
+    // Expected: 0x6C 0x0E 0x05 0x96 0x14 0x00 0x00 0x00 0x3B
+    byte[] expected = {0x6C, 0x0E, 0x05, (byte) 150, 0x14, 0x00, 0x00, 0x00, 0x3B};
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
@@ -67,6 +69,33 @@ public class ArduinoLedHelperTest {
       }
     }
     assertTrue("Should have sent RGB_LED_MODE command", found);
+  }
+
+  @Test
+  public void testSendRgbLedMode_WithColorOrder() {
+    // Configure one LED string with ColorOrder.GRB (1)
+    List<Integer> leds = new ArrayList<>(Collections.singletonList(0));
+    LedString string0 = new LedString(14, leds, 200, 2, 1, 10.0, new ArrayList<>());
+    config.ledStrings = new ArrayList<>();
+    config.ledStrings.add(string0);
+
+    helper.sendRgbLedMode();
+
+    // Expected: 0x6C, Pin: 14, Count: 1, Brightness: 200, Rate: 20 (0x0014), LedType: 2,
+    // ColorOrder: 1, Term: 0x3B
+    byte[] expected = {0x6C, 0x0E, 0x01, (byte) 200, 0x14, 0x00, 0x02, 0x01, 0x3B};
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(protocol, atLeastOnce()).writeData(captor.capture());
+
+    boolean found = false;
+    for (byte[] data : captor.getAllValues()) {
+      if (Arrays.equals(expected, data)) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue("Should have sent RGB_LED_MODE command with color order 1", found);
   }
 
   @Test
@@ -261,7 +290,7 @@ public class ArduinoLedHelperTest {
   public void testSendRgbLedMode_Optimization() {
     // 1. Initial call
     List<Integer> leds = new ArrayList<>(Arrays.asList(1, 1, 0, 0));
-    LedString string0 = new LedString(2, leds, 100, 0, 5.0, new ArrayList<>());
+    LedString string0 = new LedString(2, leds, 100, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = new ArrayList<>(Collections.singletonList(string0));
 
     helper.sendRgbLedMode();
@@ -284,7 +313,7 @@ public class ArduinoLedHelperTest {
     // addressableLeds remains 4 (size of list).
     reset(protocol);
     leds.set(0, 2);
-    LedString stringUpdated = new LedString(2, leds, 100, 0, 5.0, new ArrayList<>());
+    LedString stringUpdated = new LedString(2, leds, 100, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
@@ -309,7 +338,7 @@ public class ArduinoLedHelperTest {
     // Then set(2, 1) -> [2, 1, 1, 0]. Size remains 4.
     reset(protocol);
     leds.set(2, 1); // index 2 now used
-    stringUpdated = new LedString(2, leds, 200, 0, 5.0, new ArrayList<>());
+    stringUpdated = new LedString(2, leds, 200, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
@@ -323,7 +352,7 @@ public class ArduinoLedHelperTest {
   @Test
   public void testSendRgbLedMode_Removals() {
     // 1. Initial string
-    LedString string0 = new LedString(2, Arrays.asList(1), 100, 0, 5.0, new ArrayList<>());
+    LedString string0 = new LedString(2, Arrays.asList(1), 100, 0, 0, 5.0, new ArrayList<>());
     config.ledStrings = new ArrayList<>(Collections.singletonList(string0));
     helper.sendRgbLedMode();
     verify(protocol, times(1)).writeData(any());
@@ -335,8 +364,8 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
-    // Should send cleanup message: pin 2, brightness 0 (to turn off previous
-    // string)
+    // Should send cleanup message: pin 2, brightness 0 (to turn off previous string)
+    byte[] expectedCleanup = {0x6C, 0x02, 0x01, 0, 0x14, 0x00, 0x00, 0x00, 0x3B};
     verify(protocol).writeData(argThat(data -> data[0] == 0x6C && data[1] == 2 && data[3] == 0));
   }
 

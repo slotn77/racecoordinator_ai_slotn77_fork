@@ -150,6 +150,7 @@ public class Track extends Model {
                   syncedBehaviors,
                   ls.brightness,
                   ls.ledType,
+                  ls.colorOrder,
                   ls.flagFlashRate,
                   syncedOverrides));
         }

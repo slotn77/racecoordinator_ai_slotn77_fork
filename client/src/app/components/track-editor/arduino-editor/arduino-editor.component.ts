@@ -79,6 +79,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
   ledStringExpanded: boolean[] = [];
   activeRgbLedStates: { [key: string]: boolean } = {};
   ledTypes: PinAction[] = [];
+  colorOrders: PinAction[] = [];
 
   private interfaceEventsSubscription?: Subscription;
   private portPollingSubscription?: Subscription;
@@ -161,6 +162,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
     this.updatePinActions();
     this.updateLedBehaviors();
     this.updateLedTypes();
+    this.updateColorOrders();
 
     // Subscribe to Interface Events for status and pin activity
     this.interfaceEventsSubscription = this.dataService
@@ -262,6 +264,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
       this.updatePinActions();
       this.updateLedBehaviors();
       this.updateLedTypes();
+      this.updateColorOrders();
     });
 
     this.updateArduinoConfig();
@@ -743,6 +746,35 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
     }
   }
 
+  private updateColorOrders() {
+    this.colorOrders = [
+      {
+        label: this.translationService.translate("AE_LED_ORDER_RGB"),
+        value: "0",
+      },
+      {
+        label: this.translationService.translate("AE_LED_ORDER_GRB"),
+        value: "1",
+      },
+      {
+        label: this.translationService.translate("AE_LED_ORDER_BGR"),
+        value: "2",
+      },
+      {
+        label: this.translationService.translate("AE_LED_ORDER_RBG"),
+        value: "3",
+      },
+      {
+        label: this.translationService.translate("AE_LED_ORDER_GBR"),
+        value: "4",
+      },
+      {
+        label: this.translationService.translate("AE_LED_ORDER_BRG"),
+        value: "5",
+      },
+    ];
+  }
+
   private getLedBaseTranslationKey(behaviorKey: string): string {
     switch (behaviorKey) {
       case "RGB_LED_BEHAVIOR_HEAT_LEADER_BASE":
@@ -793,6 +825,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
       addressableLeds: n,
       brightness: 32,
       ledType: 1,
+      colorOrder: 0,
       flagFlashRate: 2,
       ledLaneColorOverrides: this.lanes.map(
         (l) => l.background_color || "#ffffff",
@@ -967,6 +1000,19 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
     if (this.isLedStringsLinked) {
       this.config.ledStrings.forEach((ls, i) => {
         if (i !== stringIdx) ls.ledType = ledType;
+      });
+    }
+    this.updateArduinoConfig();
+  }
+
+  onLedStringColorOrderChange(stringIdx: number, val: any) {
+    if (!this.config?.ledStrings) return;
+    const colorOrder = parseInt(val, 10);
+    this.config.ledStrings[stringIdx].colorOrder = colorOrder;
+
+    if (this.isLedStringsLinked) {
+      this.config.ledStrings.forEach((ls, i) => {
+        if (i !== stringIdx) ls.colorOrder = colorOrder;
       });
     }
     this.updateArduinoConfig();

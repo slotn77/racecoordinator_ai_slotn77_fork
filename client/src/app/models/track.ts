@@ -67,6 +67,7 @@ export interface LedString {
   addressableLeds: number;
   brightness: number;
   ledType: number;
+  colorOrder: number;
   flagFlashRate: number;
   ledLaneColorOverrides: string[];
 }
