@@ -65,7 +65,7 @@ public class RaceFlagTest {
 
     // Resuming
     when(race.hasRacedInCurrentHeat()).thenReturn(true);
-    assertEquals(RaceFlag.YELLOW, state.getFlagType(race));
+    assertEquals(RaceFlag.RED, state.getFlagType(race));
   }
 
   @Test

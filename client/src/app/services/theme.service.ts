@@ -198,8 +198,9 @@ export class ThemeService {
     settings.flagRed = resolveUrl("flag.red");
     settings.flagYellow = resolveUrl("flag.yellow");
     settings.flagWhite = resolveUrl("flag.white");
-    settings.flagCheckered = resolveUrl("flag.checkered");
     settings.flagBlack = resolveUrl("flag.black");
+    settings.flagYellowGreen = resolveUrl("flag.yellowgreen");
+    settings.flagCheckered = resolveUrl("flag.checkered");
     settings.lampRedOn = resolveUrl("lamp.red.on");
     settings.lampRedDim = resolveUrl("lamp.red.dim");
     settings.lampGreen = resolveUrl("lamp.green");

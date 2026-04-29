@@ -47,14 +47,17 @@ public class NotStarted implements IRaceState {
     this.race = race;
     race.setHasRacedInCurrentHeat(false);
     race.prepareHeat();
-    race.initializeHardwareState();
-    this.executionManager = race.getHeatExecutionManager();
-
     double autoStartTime = race.getRaceModel().getAutoStartTime();
     double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
 
     if (autoStartTime > 0 && !race.isAutoStartFired()) {
       race.setAutoStartRemaining(autoStartTime);
+    }
+
+    race.initializeHardwareState();
+    this.executionManager = race.getHeatExecutionManager();
+
+    if (autoStartTime > 0 && !race.isAutoStartFired()) {
 
       // Handle initial power state to avoid transient flicker
       if (autoStartWarmupTime > 0) {
@@ -111,6 +114,7 @@ public class NotStarted implements IRaceState {
     race.setAutoStartFired(true);
     race.clearAutoTimers();
     race.setMainPower(false);
+    race.broadcastFlag(getFlagType(race));
   }
 
   @Override
@@ -309,6 +313,7 @@ public class NotStarted implements IRaceState {
                           "NotStarted: Warmup ended. Turning off power and resetting heat.");
                       race.setMainPower(false);
                       race.resetCurrentHeat();
+                      race.broadcastFlag(com.antigravity.proto.RaceFlag.RED);
                     }
                   }
                 }

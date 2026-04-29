@@ -416,7 +416,7 @@ export class DefaultRacedayComponent
 
         // Update countdown overlay if active
         if (this.showCountdownOverlay) {
-          this.updateCountdownLamps(time);
+          this.updateCountdownLamps(this.autoStartRemaining);
         }
 
         if (time > this.previousTime) {
@@ -1524,7 +1524,7 @@ export class DefaultRacedayComponent
       yellow: "flag.yellow",
       white: "flag.white",
       checkered: "flag.checkered",
-      green_yellow: "flag.green", // falls back to green slot
+      green_yellow: "flag.yellowgreen",
     };
     const slotKey = themeSlotMap[flagType];
     if (slotKey) {
@@ -1541,7 +1541,7 @@ export class DefaultRacedayComponent
     if (flagType === "red") url = settings.flagRed;
     if (flagType === "white") url = settings.flagWhite;
     if (flagType === "checkered") url = settings.flagCheckered;
-    if (flagType === "green_yellow") url = settings.flagGreen; // Fallback to green
+    if (flagType === "green_yellow") url = settings.flagYellowGreen;
 
     if (url) {
       // Check if it's a dead asset reference (e.g. after a DB reset)
@@ -1559,7 +1559,7 @@ export class DefaultRacedayComponent
       yellow: "/assets/flags/yellow.png",
       white: "/assets/flags/white.png",
       checkered: "/assets/flags/checkered.png",
-      green_yellow: "/assets/flags/green.png",
+      green_yellow: "/assets/flags/green_yellow.png",
     };
 
     const displayNames: Record<FlagType, string> = {
@@ -2419,9 +2419,9 @@ export class DefaultRacedayComponent
       return;
     }
 
-    // Red lamps turn on as time ticks down.
-    // e.g. at 5s, 0 on. at 4.9s, 1 on. at 3.9s, 2 on.
-    const onCount = this.countdownTotalLamps - Math.floor(currentTime);
+    // Show the number of lamps corresponding to the seconds remaining (e.g., 3s = 3 lamps).
+    // This synchronizes with the hardware LED logic.
+    const onCount = Math.ceil(currentTime);
 
     this.countdownLamps = [];
     for (let i = 0; i < this.countdownTotalLamps; i++) {

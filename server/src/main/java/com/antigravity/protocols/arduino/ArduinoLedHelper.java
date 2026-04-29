@@ -30,6 +30,7 @@ public class ArduinoLedHelper {
   private RaceState lastState = RaceState.UNKNOWN_STATE;
   private RaceFlag lastFlag = RaceFlag.UNKNOWN_FLAG; // Default to unknown
   private double lastCountdown = 0.0;
+  private double maxCountdownSeen = 0.0;
   private Double lastHeatProgress = null;
   private long lastStateChangeTime = 0;
   private final Map<Integer, Double> lastFuelLevels = new HashMap<>();
@@ -132,7 +133,7 @@ public class ArduinoLedHelper {
 
   public void clearLeds() {
     ArduinoConfig config = protocol.getConfig();
-    if (config.ledStrings == null) {
+    if (config == null || config.ledStrings == null) {
       return;
     }
 
@@ -145,13 +146,16 @@ public class ArduinoLedHelper {
         setStringRgbLedValues(ledString.pin, updates);
       }
     }
-    lastLedColors.clear();
+    resetCache();
   }
 
   public void resetCache() {
     lastLedColors.clear();
-    lastState = RaceState.UNKNOWN_STATE;
-    lastFlag = RaceFlag.UNKNOWN_FLAG;
+    lastAddressableLeds.clear();
+    lastBrightness.clear();
+    lastNumUsedLeds.clear();
+    lastColorOrder.clear();
+    maxCountdownSeen = 0.0;
     lastCountdown = 0.0;
     lastStateChangeTime = 0;
   }
@@ -249,12 +253,23 @@ public class ArduinoLedHelper {
 
   public void setRaceState(RaceState state, RaceFlag flag, double countdown) {
     RaceState oldState = this.lastState;
+    logger.info("setRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
     if (state != oldState) {
       lastStateChangeTime = getCurrentTimeMillis();
     }
     this.lastState = state;
     this.lastFlag = flag;
     this.lastCountdown = countdown;
+
+    if (state == RaceState.STARTING) {
+      if (oldState != RaceState.STARTING) {
+        maxCountdownSeen = countdown;
+      } else {
+        maxCountdownSeen = Math.max(maxCountdownSeen, countdown);
+      }
+    } else {
+      maxCountdownSeen = 0.0;
+    }
 
     if ((state == RaceState.UNKNOWN_STATE
             || state == RaceState.RACE_OVER
@@ -284,9 +299,8 @@ public class ArduinoLedHelper {
     if (!protocol.isSerialOpen()) {
       return;
     }
-
     ArduinoConfig config = protocol.getConfig();
-    if (config.ledStrings == null) {
+    if (config == null || config.ledStrings == null) {
       return;
     }
 
@@ -294,7 +308,15 @@ public class ArduinoLedHelper {
     RaceFlag flag = lastFlag;
     double countdown = lastCountdown;
 
-    if (state == RaceState.UNKNOWN_STATE || flag == RaceFlag.UNKNOWN_FLAG) {
+    // During the STARTING state (countdown), the LEDs should always be RED regardless of the
+    // logical flag (which might be YELLOW for a restart).
+    if (state == RaceState.STARTING) {
+      flag = RaceFlag.RED;
+    }
+
+    logger.info("refreshRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
+
+    if (state == RaceState.UNKNOWN_STATE) {
       return;
     }
 
@@ -306,7 +328,7 @@ public class ArduinoLedHelper {
 
       for (int i = 0; i < ledString.leds.size(); i++) {
         int behavior = ledString.leds.get(i);
-        if (behavior >= raceStateBehavior && behavior <= raceStateBehavior + 5) {
+        if (behavior >= raceStateBehavior && behavior < raceStateBehavior + 100) {
           int[] rgb1 = {0, 0, 0};
           int[] rgb2 = {0, 0, 0};
           boolean isInterleaved = false;
@@ -315,9 +337,11 @@ public class ArduinoLedHelper {
           switch (flag) {
             case RED:
               rgb1 = new int[] {255, 0, 0};
+              rgb2 = new int[] {0, 0, 0};
               break;
             case GREEN:
               rgb1 = new int[] {0, 255, 0};
+              rgb2 = new int[] {0, 0, 0};
               break;
             case YELLOW:
               isInterleaved = true;
@@ -327,6 +351,7 @@ public class ArduinoLedHelper {
               break;
             case WHITE:
               rgb1 = new int[] {255, 255, 255};
+              rgb2 = new int[] {0, 0, 0};
               break;
             case CHECKERED:
               isInterleaved = true;
@@ -360,13 +385,16 @@ public class ArduinoLedHelper {
           }
 
           int[] finalRgb = rgb1;
-          if (isInterleaved && (behavior % 2 != 0)) {
+          if (isInterleaved && ((behavior - raceStateBehavior) % 2 != 0)) {
             finalRgb = rgb2;
           }
 
-          if (state == com.antigravity.proto.RaceState.STARTING) {
+          if (state == RaceState.STARTING) {
             int n = behavior - raceStateBehavior;
-            if (!(Math.floor(countdown) <= (double) n && countdown >= 0)) {
+            // Show the number of LEDs corresponding to the seconds remaining (e.g., 3s = 3 LEDs).
+            // This matches the UI countdown display.
+            boolean shouldBeOn = n < Math.ceil(countdown);
+            if (!shouldBeOn) {
               finalRgb = new int[] {0, 0, 0};
             }
           }
@@ -379,6 +407,11 @@ public class ArduinoLedHelper {
           Long lastColor = lastLedColors.get(key);
 
           if (lastColor == null || lastColor != currentColor) {
+            logger.debug(
+                "  LED Update: pin={}, index={}, color={}",
+                ledString.pin,
+                i,
+                String.format("%06X", currentColor));
             updates.add(
                 RgbLedState.newBuilder()
                     .setIndex(i)
@@ -396,10 +429,9 @@ public class ArduinoLedHelper {
           int b = 0;
 
           if (state == RaceState.STARTING) {
-            // Use floor to ensure we turn on the next LED at the start of the second.
-            // e.g. at 5.0s, floor=5, LED 5 turns on.
-            // at 4.9s, floor=4, LED 5 and 4 turn on.
-            if (Math.floor(countdown) <= (double) n && countdown >= 0) {
+            // Show the number of LEDs corresponding to the seconds remaining (e.g., 3s = 3 LEDs).
+            // This matches the UI countdown display.
+            if (n < Math.ceil(countdown)) {
               r = 255;
             }
           } else if (state == RaceState.RACING && flag == RaceFlag.GREEN) {

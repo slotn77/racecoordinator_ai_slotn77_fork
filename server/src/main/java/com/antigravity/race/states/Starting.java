@@ -12,7 +12,7 @@ public class Starting implements IRaceState {
 
   @Override
   public RaceFlag getFlagType(Race race) {
-    return race.hasRacedInCurrentHeat() ? RaceFlag.YELLOW : RaceFlag.RED;
+    return RaceFlag.RED;
   }
 
   private ScheduledExecutorService scheduler;

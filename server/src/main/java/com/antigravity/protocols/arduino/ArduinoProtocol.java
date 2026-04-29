@@ -203,6 +203,10 @@ public class ArduinoProtocol extends DefaultProtocol {
       ledHelper.resetCache();
       writeData(RESET_COMMAND);
       logger.info("[{}] Connected to {}. Sent RESET command.", getLogTime(), config.commPort);
+
+      // Immediately refresh the race state to ensure LEDs turn on
+      ledHelper.refreshRaceState();
+
       startStatusScheduler();
 
       return true;
@@ -583,7 +587,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     if (!versionVerified) {
       // Note: Not checking build number as it changes frequently and indicates
       // backwards compatibility with previous versions.
-      if (major == 2 && minor == 0 && patch == 0) {
+      if (major == 2 && minor == 1 && patch == 0) {
         versionVerified = true;
         logger.info("Version verified - {}.{}.{}.{}", major, minor, patch, build);
         sendPinModeRead();
@@ -594,7 +598,7 @@ public class ArduinoProtocol extends DefaultProtocol {
         ledHelper.sendRgbLedMode();
       } else {
         logger.error(
-            "[{}] Invalid firmware version: {}.{}.{}. Expected 2.0.0",
+            "[{}] Invalid firmware version: {}.{}.{}. Expected 2.1.0",
             getLogTime(),
             major,
             minor,
@@ -701,6 +705,7 @@ public class ArduinoProtocol extends DefaultProtocol {
   private void sendTimeReset() {
     writeData(TIME_RESET_COMMAND);
     logger.info("[{}] Sent TIME_RESET", getLogTime());
+    ledHelper.refreshRaceState();
   }
 
   protected boolean isSerialOpen() {

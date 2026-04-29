@@ -41,6 +41,7 @@ export class Settings {
   flagRed?: string;
   flagWhite?: string;
   flagBlack?: string;
+  flagYellowGreen?: string;
   flagCheckered?: string;
 
   // Theme system

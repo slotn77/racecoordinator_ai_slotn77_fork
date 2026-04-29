@@ -1295,6 +1295,7 @@ describe("DefaultRacedayComponent", () => {
         { url: "yellow.png", name: "Yellow Flag" },
         { url: "white.png", name: "White Flag" },
         { url: "checkered.png", name: "Checkered Flag" },
+        { url: "yellow_green.png", name: "Yellow Green Flag" },
       ];
     });
 
@@ -1323,9 +1324,9 @@ describe("DefaultRacedayComponent", () => {
       expect(component.getCurrentFlagUrl()).toContain("checkered.png");
     });
 
-    it("should return green flag for 'green_yellow'", () => {
+    it("should return yellow-green flag for 'green_yellow'", () => {
       mockRaceFlagService.getFlagType.and.returnValue("green_yellow");
-      expect(component.getCurrentFlagUrl()).toContain("green.png");
+      expect(component.getCurrentFlagUrl()).toContain("yellow_green.png");
     });
 
     it("should return red flag for default/unknown flag type", () => {
@@ -1505,9 +1506,9 @@ describe("DefaultRacedayComponent", () => {
       expect(component["showCountdownOverlay"]).toBeTrue();
       expect(component["countdownTotalLamps"]).toBe(5);
       expect(component["countdownLamps"].length).toBe(5);
-      // F1 standard: initially all dimmed
+      // Digital standard: initially all ON (ceil(5.0) = 5)
       expect(
-        component["countdownLamps"].every((l) => l.state === "dim"),
+        component["countdownLamps"].every((l) => l.state === "on"),
       ).toBeTrue();
     }));
 
@@ -1562,22 +1563,23 @@ describe("DefaultRacedayComponent", () => {
       raceStateSubject.next(com.antigravity.RaceState.STARTING);
       tick();
 
-      // At T=3.2s remaining, 5 - floor(3.2) = 2 lamps should be ON
+      // At T=3.2s remaining, ceil(3.2) = 4 lamps should be ON
       raceTimeSubject.next({ time: 3.2, autoStartRemaining: 3.2 });
       tick();
-
       expect(component["countdownLamps"][0].state).toBe("on");
       expect(component["countdownLamps"][1].state).toBe("on");
+      expect(component["countdownLamps"][2].state).toBe("on");
+      expect(component["countdownLamps"][3].state).toBe("on");
+      expect(component["countdownLamps"][4].state).toBe("dim");
+
+      // At 0.5s remaining, ceil(0.5) = 1 lamp should be ON
+      raceTimeSubject.next({ time: 0.5, autoStartRemaining: 0.5 });
+      tick();
+      expect(component["countdownLamps"][0].state).toBe("on");
+      expect(component["countdownLamps"][1].state).toBe("dim");
       expect(component["countdownLamps"][2].state).toBe("dim");
       expect(component["countdownLamps"][3].state).toBe("dim");
       expect(component["countdownLamps"][4].state).toBe("dim");
-
-      // At 0.5s remaining, 5 - 0 = 5 lamps should be ON
-      raceTimeSubject.next({ time: 0.5, autoStartRemaining: 0.5 });
-      tick();
-      expect(
-        component["countdownLamps"].every((l) => l.state === "on"),
-      ).toBeTrue();
     }));
 
     it("should transition to green and hide after 5s when state becomes RACING", fakeAsync(() => {
@@ -1977,6 +1979,28 @@ describe("DefaultRacedayComponent", () => {
       );
       expect(window.Audio).toHaveBeenCalledWith(
         `${mockDataService.serverUrl}api/assets/download/default_countdown_go`,
+      );
+    }));
+
+    it("should NOT play countdown audio based on race time when autoStartRemaining is 0 (abort scenario)", fakeAsync(() => {
+      mockThemeService.resolveAudioConfig.and.callFake((key: string) => {
+        if (key === THEME_SLOT_KEYS.AUDIO_COUNTDOWN_2) {
+          return { type: "preset", url: "default_countdown_2" };
+        }
+        return null;
+      });
+
+      component["race"] = { ...MOCK_RACES[0], start_time: 5.0 } as any;
+      raceStateSubject.next(com.antigravity.RaceState.STARTING);
+      tick();
+
+      // Simulate abort: autoStartRemaining becomes 0, but race time is still > 0
+      // This is what happens when clearAutoTimers() is called on the server before the state change to PAUSED arrives.
+      raceTimeSubject.next({ time: 1.2, autoStartRemaining: 0 });
+      tick();
+
+      expect(mockThemeService.resolveAudioConfig).not.toHaveBeenCalledWith(
+        THEME_SLOT_KEYS.AUDIO_COUNTDOWN_2,
       );
     }));
   });

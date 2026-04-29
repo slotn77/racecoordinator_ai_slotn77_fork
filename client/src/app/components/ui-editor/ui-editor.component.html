@@ -112,6 +112,20 @@
               >
               </app-image-selector>
               <app-image-selector
+                [label]="'UE_LABEL_YELLOWGREEN_FLAG' | translate"
+                [imageUrl]="getFlagUrl('flag.yellowgreen', theme)"
+                (imageUrlChange)="captureState()"
+                [assetId]="theme.slots['flag.yellowgreen']"
+                [assetType]="'image'"
+                [images]="getAssetForSlot('flag.yellowgreen', theme)?.images"
+                (assetSelected)="
+                  onThemeSlotChanged(theme, 'flag.yellowgreen', $event)
+                "
+                [assets]="assets"
+                [disabled]="theme.is_default"
+              >
+              </app-image-selector>
+              <app-image-selector
                 [label]="'UE_LABEL_RED_FLAG' | translate"
                 [imageUrl]="getFlagUrl('flag.red', theme)"
                 (imageUrlChange)="captureState()"

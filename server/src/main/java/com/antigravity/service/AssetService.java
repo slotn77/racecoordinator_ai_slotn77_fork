@@ -628,21 +628,64 @@ public class AssetService {
         audioSlots = new Document();
       }
 
+      List<Bson> allUpdates = new ArrayList<>();
       boolean audioSlotsChanged = false;
-      List<Bson> otherUpdates = new ArrayList<>();
 
-      // Migration: Move from slots to audio_slots if present
-      if (slots != null && slots.containsKey("audio.yellowflag")) {
-        String assetId = slots.getString("audio.yellowflag");
-        if (!audioSlots.containsKey("audio.yellowflag")) {
-          audioSlots.append(
-              "audio.yellowflag", new Document("type", "preset").append("url", assetId));
-          audioSlotsChanged = true;
-        }
-        otherUpdates.add(Updates.unset("slots.audio.yellowflag"));
+      if (slots == null) {
+        slots = new Document();
+        allUpdates.add(Updates.set("slots", slots));
       }
 
-      // Default backfill
+      // 1. Repair corrupted slots (nested documents caused by incorrect dot-notation updates)
+      if (slots.get("flag") instanceof Document) {
+        Document flagDoc = (Document) slots.get("flag");
+        for (String subKey : flagDoc.keySet()) {
+          allUpdates.add(Updates.set("slots.flag." + subKey, flagDoc.get(subKey)));
+          slots.append("flag." + subKey, flagDoc.get(subKey));
+        }
+        allUpdates.add(Updates.unset("slots.flag"));
+        slots.remove("flag");
+      }
+      if (slots.get("audio") instanceof Document) {
+        Document audioDoc = (Document) slots.get("audio");
+        for (String subKey : audioDoc.keySet()) {
+          allUpdates.add(Updates.set("slots.audio." + subKey, audioDoc.get(subKey)));
+          slots.append("audio." + subKey, audioDoc.get(subKey));
+        }
+        allUpdates.add(Updates.unset("slots.audio"));
+        slots.remove("audio");
+      }
+
+      // 2. Migration: Move from slots to audio_slots if present
+      if (slots.containsKey("audio.yellowflag")) {
+        Object val = slots.get("audio.yellowflag");
+        if (val instanceof String) {
+          String assetId = (String) val;
+          if (!audioSlots.containsKey("audio.yellowflag")) {
+            audioSlots.append(
+                "audio.yellowflag", new Document("type", "preset").append("url", assetId));
+            audioSlotsChanged = true;
+          }
+        }
+        allUpdates.add(Updates.unset("slots.audio.yellowflag"));
+        slots.remove("audio.yellowflag");
+      }
+
+      // 3. Backfill flag.yellowgreen image slot
+      if (!slots.containsKey("flag.yellowgreen")) {
+        allUpdates.add(Updates.set("slots.flag.yellowgreen", "default_flag_green_yellow"));
+        slots.append("flag.yellowgreen", "default_flag_green_yellow");
+      }
+
+      // 4. Default backfill for audio.yellowflag if still missing
+      if (!audioSlots.containsKey("audio.yellowflag")) {
+        audioSlots.append(
+            "audio.yellowflag",
+            new Document("type", "preset").append("url", "default_yellow_flag"));
+        audioSlotsChanged = true;
+      }
+
+      // 5. Countdown backfill
       String[] countdownKeys = {
         "audio.countdown.5",
         "audio.countdown.4",
@@ -660,14 +703,6 @@ public class AssetService {
         "default_countdown_go"
       };
 
-      if (!audioSlots.containsKey("audio.yellowflag")
-          && (slots == null || !slots.containsKey("audio.yellowflag"))) {
-        audioSlots.append(
-            "audio.yellowflag",
-            new Document("type", "preset").append("url", "default_yellow_flag"));
-        audioSlotsChanged = true;
-      }
-
       for (int i = 0; i < countdownKeys.length; i++) {
         String key = countdownKeys[i];
         String defaultAsset = defaultCountdownAssets[i];
@@ -677,7 +712,7 @@ public class AssetService {
         }
       }
 
-      List<Bson> allUpdates = new ArrayList<>(otherUpdates);
+      // 6. Save updates if anything changed
       if (audioSlotsChanged) {
         allUpdates.add(Updates.set("audio_slots", audioSlots));
       }
@@ -709,6 +744,7 @@ public class AssetService {
     slots.append("flag.green", "default_flag_green");
     slots.append("flag.red", "default_flag_red");
     slots.append("flag.yellow", "default_flag_yellow");
+    slots.append("flag.yellowgreen", "default_flag_green_yellow");
     slots.append("flag.white", "default_flag_white");
     slots.append("flag.checkered", "default_flag_checkered");
     slots.append("flag.black", "default_flag_black");

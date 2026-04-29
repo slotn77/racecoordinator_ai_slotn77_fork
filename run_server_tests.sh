@@ -8,8 +8,8 @@ echo ""
 echo "--- 🔹 Running Server Tests 🔹 ---"
 cd "$SERVER_DIR" || exit
 
-# Use a /tmp-based directory to avoid macOS EPERM issues on quarantined project subdirs
-SERVER_TMP="/tmp/racecoordinator"
+# Use a local directory to avoid macOS EPERM issues on quarantined project subdirs or /tmp issues
+SERVER_TMP="$(pwd)/target_tmp"
 SERVER_BUILD_DIR="$SERVER_TMP/target_test"
 export PROTO_DEST_DIR="$SERVER_BUILD_DIR"
 export npm_config_cache="$SERVER_TMP/npm_cache"

@@ -1,7 +1,7 @@
 /*
    Arduino slot car lap sensor
 
-   I/O Sketch - V2.0.0.0
+   I/O Sketch - V2.1.0.0
 
    The Race Coordinator Arduino sketch is covered by the Creative Commons -
    Attribution-NonCommercial-ShareAlike 4.0 International license. Copyright
@@ -74,8 +74,8 @@
 const byte term = 0x3B; // ;
 
 // Version is "major"."minor"."patch"."drop"
-// V2.0.0.0
-const byte rcVersion[] = {0x56, 0x02, 0x00, 0x00, 0x0, term};
+// V2.1.0.0
+const byte rcVersion[] = {0x56, 0x02, 0x01, 0x00, 0x00, term};
 
 // Setting for the baud rate RC will run at 115200
 const long iBaudRate = 115200;

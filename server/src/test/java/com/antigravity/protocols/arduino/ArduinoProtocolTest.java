@@ -268,8 +268,8 @@ public class ArduinoProtocolTest {
     scheduler.tick();
     assertEquals("Initial status should be NO_DATA", InterfaceStatus.NO_DATA, listener.lastStatus);
 
-    // Inject Version message: V 2.0.0.0 ; -> 56 02 00 00 00 3B
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    // Inject Version message: V 2.1.0.0 ; -> 56 02 01 00 00 3B
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     scheduler.tick();
@@ -283,7 +283,7 @@ public class ArduinoProtocolTest {
   public void testStatusConnected_AfterHeartbeat() {
     protocol.open();
     // Verify version first
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
     scheduler.tick();
     assertEquals(InterfaceStatus.CONNECTED, listener.lastStatus);
@@ -383,8 +383,8 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    // V 1.0.0.0 ; -> 56 01 00 00 00 3B
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    // V 2.1.0.0 ; -> 56 02 01 00 00 3B
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D2 input (Digital=0x44, Pin=2, State=0 - NO means 0 triggers)
@@ -594,7 +594,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D4 low (0 - NO means 0 triggers) -> In pits
@@ -625,7 +625,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D5 high (Pit Out - transition from 0 to 1 should trigger Main)
@@ -648,7 +648,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D4 low (Pit In/Out - wantState is 0) -> In pits
@@ -677,7 +677,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D4 low (Pit In - wantState is 0) -> In pits
@@ -711,7 +711,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Initial state: Main
@@ -750,7 +750,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D2 low (Lap/Pit In - NO means 0 triggers) -> In pits
@@ -778,7 +778,7 @@ public class ArduinoProtocolTest {
     protocol.setListener(listener);
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Enter pit via Pit In (D4 LOW - NO means 0 triggers)
@@ -841,7 +841,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     byte[] callLow = {0x49, 0x44, 0x02, 0x00, 0x3B};
@@ -892,7 +892,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Normal (NO): Trigger D2 LOW (state 0) -> Segment should trigger
@@ -932,7 +932,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Trigger D2 LOW (state 0) -> Should trigger BOTH Lap and Segment
@@ -970,7 +970,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Inject Version to verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Inverted: Trigger D3 HIGH (state 1) -> Segment should trigger
@@ -988,7 +988,7 @@ public class ArduinoProtocolTest {
   @Test
   public void testInterfaceDigitalPinEvent() {
     protocol.open();
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // 1. Digital Pin Input (D2 LOW)
@@ -1029,7 +1029,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Trigger Version to send pin modes
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // After version, sendPinModeAnalogRead should be called
@@ -1056,7 +1056,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Send version first to verify protocol
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Opcode 0x41 (A), Count 1, Pin 1, Value 1023 (0x3FF)
@@ -1074,7 +1074,7 @@ public class ArduinoProtocolTest {
   public void testOnAnalogData_ZeroValue() {
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Pin 0, Value 0
@@ -1091,7 +1091,7 @@ public class ArduinoProtocolTest {
   public void testOnAnalogData_MaxValue() {
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Pin 2, Value 1023 (max 10-bit ADC reading)
@@ -1108,7 +1108,7 @@ public class ArduinoProtocolTest {
   public void testOnAnalogData_MidRangeValue() {
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Pin 3, Value 512 = 0x00000200
@@ -1136,7 +1136,7 @@ public class ArduinoProtocolTest {
     protocol.setListener(multiListener);
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Count = 3
@@ -1196,7 +1196,7 @@ public class ArduinoProtocolTest {
     protocol.setListener(multiListener);
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // First message: Pin 0, Value 200
@@ -1218,7 +1218,7 @@ public class ArduinoProtocolTest {
   public void testOnAnalogData_PartialMessageDoesNotFire() {
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Inject only the opcode and count (not the full message body)
@@ -1235,7 +1235,7 @@ public class ArduinoProtocolTest {
   public void testOnAnalogData_HighPinIndex() {
     protocol.open();
 
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Pin 15 (last analog pin on Mega A15), Value 750 = 0x000002EE
@@ -1265,7 +1265,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Verify version
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     protocol.simulateHeartbeat();
@@ -1292,7 +1292,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Verify version
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     protocol.simulateHeartbeat();
@@ -1323,7 +1323,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Trigger Version to send RGB LED mode
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B}; // V2
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B}; // V2
     serialConnection.injectData(versionMsg);
 
     // Opcode 0x6C (l)
@@ -1350,7 +1350,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Trigger Version to verify protocol
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Set LED 2 to Red (255, 0, 0) on pin 14
@@ -1470,7 +1470,7 @@ public class ArduinoProtocolTest {
     assertEquals("Input should be ignored before version verification", 0, listener.lapCount);
 
     // 3. Send Version (V) - should verify
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
     assertTrue(
         "Version should be verified",
@@ -1504,7 +1504,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Verify version to enable sending commands
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
 
     // Initial mode message should have been sent (Pin 2, Count 1, Brightness 100, Rate 20, Type 0,
@@ -1670,7 +1670,7 @@ public class ArduinoProtocolTest {
     protocol.open();
 
     // Must inject version (v2.0.0.0) and heartbeat to enable the protocol to process data
-    byte[] versionMsg = {0x56, 2, 0, 0, 0, 0x3B};
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(versionMsg);
     protocol.simulateHeartbeat();
 
@@ -1744,10 +1744,10 @@ public class ArduinoProtocolTest {
     serialConnection.allWrittenData.clear();
 
     // Simulate stray heartbeat byte 'T' (0x54) followed by version message
-    // 0x54 + {0x56, 2, 0, 0, 0, 0x3B}
+    // 0x54 + {0x56, 2, 1, 0, 0, 0x3B}
     // Note: The previous bug would have treated [0x54 ... 0x3B] as a 7-byte heartbeat
     // and consumed the version opcode!
-    byte[] strayAndVersion = {0x54, 0x56, 2, 0, 0, 0, 0x3B};
+    byte[] strayAndVersion = {0x54, 0x56, 2, 1, 0, 0, 0x3B};
     serialConnection.injectData(strayAndVersion);
 
     // Version should be verified now.

@@ -22,6 +22,7 @@ export const THEME_SLOT_KEYS = {
   FLAG_RED: "flag.red",
   FLAG_YELLOW: "flag.yellow",
   FLAG_WHITE: "flag.white",
+  FLAG_YELLOWGREEN: "flag.yellowgreen",
   FLAG_CHECKERED: "flag.checkered",
   FLAG_BLACK: "flag.black",
 

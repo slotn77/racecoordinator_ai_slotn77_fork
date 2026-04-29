@@ -429,6 +429,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       a.flagRed === b.flagRed &&
       a.flagWhite === b.flagWhite &&
       a.flagBlack === b.flagBlack &&
+      a.flagYellowGreen === b.flagYellowGreen &&
       a.flagCheckered === b.flagCheckered &&
       a.sortByStandings === b.sortByStandings &&
       a.highlightRowOnLap === b.highlightRowOnLap &&

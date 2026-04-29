@@ -908,30 +908,22 @@ public class ArduinoLedHelperTest {
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
     // 1. Initial State: STARTING, Countdown 5.0
-    // floor(5.0) = 5. Only LED 5 (Index 4, behavior 3005) is ON (5 <= 5)
-    // However, since this is the first update, all 5 LEDs are sent (LED 5 as RED, others as OFF)
+    // ceil(5.0) = 5. n < 5 turns on.
+    // Our behaviors are base + 1 to base + 5, so n = 1, 2, 3, 4, 5.
+    // n < 5 means n = 1, 2, 3, 4 are ON. (4 LEDs)
     spyHelper.setRaceState(
         com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 5.0);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     byte[] data = captor.getValue();
     assertEquals(5, data[2]); // First sync sends all 5 LEDs
-    // Find LED 5 (Index 4) and verify it is Red
-    boolean foundRed = false;
+    int onCount = 0;
     for (int i = 0; i < 5; i++) {
-      int idx = data[3 + i * 4] & 0xFF;
-      if (idx == 4) {
-        assertEquals((byte) 255, data[4 + i * 4]); // R
-        assertEquals(0, data[5 + i * 4]); // G
-        assertEquals(0, data[6 + i * 4]); // B
-        foundRed = true;
-      } else {
-        assertEquals(0, data[4 + i * 4]); // OFF
-      }
+      if (data[4 + i * 4] == (byte) 255) onCount++;
     }
-    assertTrue("LED 5 should be RED", foundRed);
+    assertEquals(4, onCount); // n=1,2,3,4 are ON (<5.0). n=5 is OFF.
 
     // 2. Countdown progresses to 4.0s
-    // floor(4.0) = 4. LEDs 5 and 4 turn ON (4 <= 5 and 4 <= 4)
+    // ceil(4.0) = 4. n < 4 turns on. n = 1, 2, 3 are ON.
     reset(protocol);
     setupMocks();
     doReturn(10200L).when(spyHelper).getCurrentTimeMillis();
@@ -939,20 +931,23 @@ public class ArduinoLedHelperTest {
         com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 4.0);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     data = captor.getValue();
-    assertEquals(1, data[2]); // Index 3 turns ON (Behavior 3004)
+    // One more LED turned off (n=4 at index 3)
+    assertEquals(1, data[2]);
     assertEquals(3, data[3]); // Index 3
+    assertEquals(0, data[4]); // OFF
 
-    // 3. Countdown progresses to 3.9s
-    // floor(3.9) = 3. LEDs 5, 4, and 3 turn ON (3 <= 5, 4, 3)
+    // 3. Countdown progresses to 3.0s
+    // ceil(3.0) = 3. n < 3 turns on. n = 1, 2 are ON.
     reset(protocol);
     setupMocks();
     doReturn(10250L).when(spyHelper).getCurrentTimeMillis();
     spyHelper.setRaceState(
-        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 3.9);
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 3.0);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     data = captor.getValue();
-    assertEquals(1, data[2]); // Index 2 turns ON (Behavior 3003)
+    assertEquals(1, data[2]); // One more LED off (n=3 at index 2)
     assertEquals(2, data[3]); // Index 2
+    assertEquals(0, data[4]); // OFF
 
     // 4. Countdown progresses to 1.0s
     // floor(1.0) = 1. All LEDs 1-5 turn RED
@@ -1048,39 +1043,35 @@ public class ArduinoLedHelperTest {
     when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // 1. Countdown at 5.0s -> Both should be OFF (floor(5)=5, and 5 > 4 and 5 > 0)
+    // 1. Initial State at 5.0s -> LEDs should be ON (n < Math.ceil(5.0))
+    // Behavior base+4 -> n=4. 4 < 5.0 is true.
+    // Behavior base+0 -> n=0. 0 < 5.0 is true.
     helper.setRaceState(
         com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 5.0);
-
-    // Initial check: if cache was empty, it might not send updates if they are already 0,
-    // but usually clearLeds() or resetCache() ensures we start clean.
-    // In this case, we check that if it SENT something, it was 0,0,0.
-    verify(protocol, never())
-        .writeData(
-            argThat(data -> data.length > 5 && (data[4] != 0 || data[5] != 0 || data[6] != 0)));
-
-    // 2. Countdown at 4.0s -> LED 0 (base+4) should turn ON (RED)
-    reset(protocol);
-    setupMocks();
-    helper.setRaceState(
-        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 4.0);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     byte[] data = captor.getValue();
 
-    // Check LED 0 (Index 0)
+    // Check LED 0 (Index 0, Behavior base+4 -> n=4)
     assertEquals(0, data[3]);
     assertEquals((byte) 0xFF, data[4]); // R=255
 
-    // 3. Countdown at 0.0s -> LED 1 (base+0) should turn ON (RED)
+    // 3. Countdown at 1.0s -> LED 1 (base+0) should stay ON, LED 0 (base+4) should be OFF
     reset(protocol);
     setupMocks();
+    helper.resetCache();
     helper.setRaceState(
-        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 0.0);
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 1.0);
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     data = captor.getValue();
+    assertEquals(2, data[2]); // Both updated
 
-    // Check LED 1 (Index 1)
-    assertEquals(1, data[3]);
-    assertEquals((byte) 0xFF, data[4]); // R=255
+    // LED 0 (Index 0, Behavior base+4 -> n=4) should be OFF
+    assertEquals(0, data[3]);
+    assertEquals(0, data[4]);
+
+    // LED 1 (Index 1, Behavior base+0 -> n=0) should be ON
+    assertEquals(1, data[7]);
+    assertEquals((byte) 0xFF, data[8]);
   }
 
   @Test
@@ -1095,17 +1086,17 @@ public class ArduinoLedHelperTest {
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
-    // Starting with YELLOW flag (restart)
+    // Starting with YELLOW flag (restart) at 5.0s
     helper.setRaceState(
-        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.YELLOW, 0.0);
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.YELLOW, 5.0);
 
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     byte[] data = captor.getValue();
 
-    // Should be solid Yellow (R=255, G=255) and NOT interleaved or flashed (i.e., not black)
+    // Should be solid RED (R=255, G=0) because of the helper's override during STARTING
     assertEquals(0, data[3]);
     assertEquals(255, data[4] & 0xFF);
-    assertEquals(255, data[5] & 0xFF);
+    assertEquals(0, data[5] & 0xFF);
   }
 
   @Test
@@ -1167,18 +1158,18 @@ public class ArduinoLedHelperTest {
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
-    // Starting with YELLOW flag (restart)
+    // Starting with YELLOW flag (restart) at 5.0s
     helper.setRaceState(
-        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.YELLOW, 0.0);
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.YELLOW, 5.0);
 
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     byte[] data = captor.getValue();
     assertEquals(2, data[2]); // Both LEDs updated
 
-    // LED 1: Yellow (NOT Black/Interleaved)
+    // LED 1: RED (NOT Yellow/Black/Interleaved) because of STARTING override
     assertEquals(1, data[7]);
     assertEquals(255, data[8] & 0xFF);
-    assertEquals(255, data[9] & 0xFF);
+    assertEquals(0, data[9] & 0xFF);
   }
 
   @Test
@@ -1270,5 +1261,63 @@ public class ArduinoLedHelperTest {
     assertEquals(255, data[4] & 0xFF);
     assertEquals(0, data[5] & 0xFF);
     assertEquals(255, data[6] & 0xFF);
+  }
+
+  @Test
+  public void testSetRaceState_Countdown_ShortDuration() {
+    LedString ledString = new LedString();
+    ledString.pin = 2;
+    int base = RgbLedBehavior.RGB_LED_BEHAVIOR_RACE_STATE_BASE_VALUE;
+    // Configure 5 LEDs (n=0, 1, 2, 3, 4)
+    ledString.leds = Arrays.asList(base, base + 1, base + 2, base + 3, base + 4);
+    config.ledStrings = Collections.singletonList(ledString);
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+
+    // Start with 3.0s countdown.
+    helper.setRaceState(
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 3.0);
+    verify(protocol, atLeastOnce()).writeData(captor.capture());
+    byte[] data = captor.getValue();
+
+    // ceil(3.0) = 3. n < 3 ON. n=0, 1, 2 are ON.
+    int onCount3 = 0;
+    for (int i = 0; i < data[2]; i++) {
+      if (data[4 + i * 4] == (byte) 255) onCount3++;
+    }
+    assertEquals(3, onCount3);
+
+    // Now go to 1.0s
+    reset(protocol);
+    setupMocks();
+    helper.resetCache();
+    helper.setRaceState(
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 1.0);
+    verify(protocol, atLeastOnce()).writeData(captor.capture());
+    data = captor.getValue();
+
+    // ceil(1.0) = 1. n < 1 ON. n=0 is ON.
+    int onCount1 = 0;
+    for (int i = 0; i < data[2]; i++) {
+      if (data[4 + i * 4] == (byte) 255) onCount1++;
+    }
+    assertEquals(1, onCount1);
+
+    // Now go to 0.0s
+    reset(protocol);
+    setupMocks();
+    helper.resetCache();
+    helper.setRaceState(
+        com.antigravity.proto.RaceState.STARTING, com.antigravity.proto.RaceFlag.RED, 0.0);
+    verify(protocol, atLeastOnce()).writeData(captor.capture());
+    data = captor.getValue();
+
+    // ceil(0.0) = 0. All OFF.
+    int onCount0 = 0;
+    for (int i = 0; i < data[2]; i++) {
+      if (data[4 + i * 4] == (byte) 255) onCount0++;
+    }
+    assertEquals(0, onCount0);
   }
 }

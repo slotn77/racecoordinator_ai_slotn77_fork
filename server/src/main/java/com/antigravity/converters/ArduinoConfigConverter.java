@@ -85,8 +85,8 @@ public class ArduinoConfigConverter {
                 .setNumUsedLeds(ls.numUsedLeds)
                 .setAddressableLeds(ls.addressableLeds)
                 .setBrightness(ls.brightness)
-                .setLedTypeValue(ls.ledType)
-                .setColorOrderValue(ls.colorOrder)
+                .setLedType(com.antigravity.proto.LedType.forNumber(ls.ledType))
+                .setColorOrder(com.antigravity.proto.ColorOrder.forNumber(ls.colorOrder))
                 .setFlagFlashRate(ls.flagFlashRate);
 
         if (ls.leds != null) {
