@@ -2452,9 +2452,12 @@ export class DefaultRacedayComponent
       return;
     }
 
-    // Show the number of lamps corresponding to the seconds remaining (e.g., 3s = 3 lamps).
-    // This synchronizes with the hardware LED logic.
-    const onCount = Math.ceil(currentTime);
+    // Show the number of lamps corresponding to the seconds elapsed (e.g., 1st sec = 1 lamp).
+    // This synchronizes with the updated hardware LED logic (1, 2, 3, GO).
+    const onCount = Math.max(
+      1,
+      this.countdownTotalLamps - Math.ceil(currentTime) + 1,
+    );
 
     this.countdownLamps = [];
     for (let i = 0; i < this.countdownTotalLamps; i++) {

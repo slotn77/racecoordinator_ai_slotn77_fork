@@ -1506,10 +1506,13 @@ describe("DefaultRacedayComponent", () => {
       expect(component["showCountdownOverlay"]).toBeTrue();
       expect(component["countdownTotalLamps"]).toBe(5);
       expect(component["countdownLamps"].length).toBe(5);
-      // Digital standard: initially all ON (ceil(5.0) = 5)
+      // New logic (1, 2, 3, GO): initially only 1st lamp is ON (5 - ceil(5.0) + 1 = 1)
+      // But text should show the countdown (5)
+      expect(component["countdownLamps"][0].state).toBe("on");
       expect(
-        component["countdownLamps"].every((l) => l.state === "on"),
-      ).toBeTrue();
+        component["countdownLamps"].filter((l) => l.state === "on").length,
+      ).toBe(1);
+      expect(component["countdownText"]).toBe("5");
     }));
 
     it("should use start_time for countdownTotalLamps when starting a new race", fakeAsync(() => {
@@ -1563,23 +1566,23 @@ describe("DefaultRacedayComponent", () => {
       raceStateSubject.next(com.antigravity.RaceState.STARTING);
       tick();
 
-      // At T=3.2s remaining, ceil(3.2) = 4 lamps should be ON
+      // At T=3.2s remaining, ceil(3.2) = 4. onCount = 5 - 4 + 1 = 2 lamps should be ON
+      // Text should show "4" (countdown)
       raceTimeSubject.next({ time: 3.2, autoStartRemaining: 3.2 });
       tick();
       expect(component["countdownLamps"][0].state).toBe("on");
       expect(component["countdownLamps"][1].state).toBe("on");
-      expect(component["countdownLamps"][2].state).toBe("on");
-      expect(component["countdownLamps"][3].state).toBe("on");
-      expect(component["countdownLamps"][4].state).toBe("dim");
+      expect(component["countdownLamps"][2].state).toBe("dim");
+      expect(component["countdownText"]).toBe("4");
 
-      // At 0.5s remaining, ceil(0.5) = 1 lamp should be ON
+      // At 0.5s remaining, ceil(0.5) = 1. onCount = 5 - 1 + 1 = 5 lamps should be ON
+      // Text should show "1" (countdown)
       raceTimeSubject.next({ time: 0.5, autoStartRemaining: 0.5 });
       tick();
-      expect(component["countdownLamps"][0].state).toBe("on");
-      expect(component["countdownLamps"][1].state).toBe("dim");
-      expect(component["countdownLamps"][2].state).toBe("dim");
-      expect(component["countdownLamps"][3].state).toBe("dim");
-      expect(component["countdownLamps"][4].state).toBe("dim");
+      expect(
+        component["countdownLamps"].every((l) => l.state === "on"),
+      ).toBeTrue();
+      expect(component["countdownText"]).toBe("1");
     }));
 
     it("should transition to green and hide after 5s when state becomes RACING", fakeAsync(() => {
@@ -1901,6 +1904,10 @@ describe("DefaultRacedayComponent", () => {
             url: "/api/assets/download/default_countdown_5",
           },
           {
+            model: { entityId: "default_countdown_1" },
+            url: "/api/assets/download/default_countdown_1",
+          },
+          {
             model: { entityId: "default_countdown_go" },
             url: "/api/assets/download/default_countdown_go",
           },
@@ -1925,7 +1932,7 @@ describe("DefaultRacedayComponent", () => {
       raceStateSubject.next(com.antigravity.RaceState.STARTING);
       tick();
 
-      // At 5.0s, it should play '5' sound
+      // At 5.0s left, it should play '5' sound (even though 1 lamp is on)
       raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
       tick();
 

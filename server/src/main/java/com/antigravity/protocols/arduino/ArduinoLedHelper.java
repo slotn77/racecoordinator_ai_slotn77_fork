@@ -33,6 +33,7 @@ public class ArduinoLedHelper {
   private double maxCountdownSeen = 0.0;
   private Double lastHeatProgress = null;
   private long lastStateChangeTime = 0;
+  private int startingDuration = 0;
   private final Map<Integer, Double> lastFuelLevels = new HashMap<>();
   private List<String> laneColors = new ArrayList<>();
 
@@ -256,6 +257,9 @@ public class ArduinoLedHelper {
     logger.info("setRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
     if (state != oldState) {
       lastStateChangeTime = getCurrentTimeMillis();
+      if (state == RaceState.STARTING) {
+        startingDuration = (int) Math.ceil(countdown);
+      }
     }
     this.lastState = state;
     this.lastFlag = flag;
@@ -391,9 +395,10 @@ public class ArduinoLedHelper {
 
           if (state == RaceState.STARTING) {
             int n = behavior - raceStateBehavior;
-            // Show the number of LEDs corresponding to the seconds remaining (e.g., 3s = 3 LEDs).
-            // This matches the UI countdown display.
-            boolean shouldBeOn = n < Math.ceil(countdown);
+            // Show the number of LEDs corresponding to the seconds elapsed (e.g., 1st sec = 1 LED).
+            // This matches the updated UI countdown display (1, 2, 3, GO).
+            int onCount = Math.max(1, startingDuration - (int) Math.ceil(countdown) + 1);
+            boolean shouldBeOn = n < onCount;
             if (!shouldBeOn) {
               finalRgb = new int[] {0, 0, 0};
             }
@@ -429,9 +434,10 @@ public class ArduinoLedHelper {
           int b = 0;
 
           if (state == RaceState.STARTING) {
-            // Show the number of LEDs corresponding to the seconds remaining (e.g., 3s = 3 LEDs).
-            // This matches the UI countdown display.
-            if (n < Math.ceil(countdown)) {
+            // Show the number of LEDs corresponding to the seconds elapsed (e.g., 1st sec = 1 LED).
+            // This matches the updated UI countdown display (1, 2, 3, GO).
+            int onCount = Math.max(1, startingDuration - (int) Math.ceil(countdown) + 1);
+            if (n < onCount) {
               r = 255;
             }
           } else if (state == RaceState.RACING && flag == RaceFlag.GREEN) {
