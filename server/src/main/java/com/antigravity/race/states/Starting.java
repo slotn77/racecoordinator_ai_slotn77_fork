@@ -61,6 +61,7 @@ public class Starting implements IRaceState {
               float displayTime = Math.max(0, countdown) / 10.0f;
               race.setAutoStartRemaining(displayTime);
               race.broadcastTime();
+              race.setHeatProgress(0.0);
               race.setRaceState(
                   com.antigravity.proto.RaceState.STARTING,
                   getFlagType(race),

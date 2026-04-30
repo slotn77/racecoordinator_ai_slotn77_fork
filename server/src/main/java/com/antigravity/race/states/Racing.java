@@ -90,6 +90,7 @@ public class Racing implements IRaceState {
   @Override
   public void enter(Race race) {
     this.race = race;
+    this.previousHeatProgress = -1.0;
     this.executionManager = race.getHeatExecutionManager();
 
     if (race.getStatistics().getStartTime() == null) {
