@@ -9,6 +9,16 @@ if (-not (Test-Path $IsolatedDir)) {
     New-Item -ItemType Directory -Path $IsolatedDir -Force | Out-Null
 }
 
+$env:PW_REPORT_PATH = Join-Path $IsolatedDir "pw-result.json"
+
+# If sync-only, run Node.js script to promote actual images to expected and exit
+if ($args -contains "--sync-only") {
+    Write-Host "Syncing snapshots from last run's actual results..." -ForegroundColor Cyan
+    $env:CLIENT_DIR = $ClientDir
+    node (Join-Path $ProjectRoot "scripts" "sync_snapshots.js")
+    exit 0
+}
+
 Write-Host "--- 🔹 Running Client Visual Tests (PowerShell) 🔹 ---" -ForegroundColor Cyan
 
 # Sync current source and configuration to isolated directory

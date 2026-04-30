@@ -16,7 +16,10 @@ export default defineConfig({
   retries: process.env["CI"] ? 2 : 0,
   workers: process.env["CI"] ? 1 : "100%",
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html"], ["json", { outputFile: "/tmp/pw-result.json" }]],
+  reporter: [
+    ["html"],
+    ["json", { outputFile: process.env["PW_REPORT_PATH"] || "pw-result.json" }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

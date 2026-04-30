@@ -103,27 +103,34 @@ You can run all tests across the entire project using the master script:
 
 #### Unit Tests
 Run the standard Jasmine/Karma unit tests:
-```bash
-./run_client_unit_tests.sh
-```
+
+- **Linux/Mac**: `./run_client_unit_tests.sh`
+- **Windows**: `.\run_client_unit_tests.ps1`
+
 *Note: This script automatically installs and uses a local Playwright text-to-speech compatible Chromium instance, ensuring tests run consistently regardless of your installed system browser.*
 
 #### Visual Regression Tests (Screen Diff)
 Run Playwright-based visual tests to detect UI regressions:
-```bash
-./run_client_screendiff_tests.sh
-```
+
+- **Linux/Mac**: `./run_client_screendiff_tests.sh`
+- **Windows**: `.\run_client_screendiff_tests.ps1`
+
 #### Accepting Changes (Updating Snapshots)
-If you have intentionally modified the UI and need to update the expected screenshots, run:
-```bash
-./run_client_screendiff_tests.sh --update-snapshots
-```
+If you have intentionally modified the UI and need to update the expected screenshots, you have two options:
+
+1. **Re-run and Update**: Run the tests and force an update of the snapshots. This will execute the tests again and overwrite the "expected" images with the new results.
+   - **Linux/Mac**: `./run_client_screendiff_tests.sh --update-snapshots`
+   - **Windows**: `.\run_client_screendiff_tests.ps1 --update-snapshots`
+
+2. **Sync from Last Run**: If you just ran the tests and want to promote the "actual" (failed) images from that run to "expected" without re-running everything, use the sync flag. This is much faster.
+   - **Linux/Mac**: `./run_client_screendiff_tests.sh --sync-only`
+   - **Windows**: `.\run_client_screendiff_tests.ps1 --sync-only`
 
 ### Server (Java)
 Run the JUnit tests for the backend:
-```bash
-./run_server_tests.sh
-```
+
+- **Linux/Mac**: `./run_server_tests.sh`
+- **Windows**: `.\run_server_tests.ps1`
 
 ## Debugging
 

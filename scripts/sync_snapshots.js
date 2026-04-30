@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const REPORT_PATH = '/tmp/pw-result.json';
-const PROJECT_ROOT = process.env.CLIENT_DIR || path.resolve(__dirname, 'client');
+const PROJECT_ROOT = process.env.CLIENT_DIR || path.resolve(__dirname, '..', 'client');
+const REPORT_PATH = process.env.PW_REPORT_PATH || path.join(PROJECT_ROOT, 'pw-result.json');
 
 function findFailedSpecs(node) {
     if (!node) return [];
