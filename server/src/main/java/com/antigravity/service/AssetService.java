@@ -1235,6 +1235,12 @@ public class AssetService {
         }
       }
 
+      // 6. Migration: Ensure gauge.fuel is present
+      if (!slots.containsKey("gauge.fuel")) {
+        slots.append("gauge.fuel", "default_fuel-gauge-builtin");
+        changed = true;
+      }
+
       if (changed) {
         themes.updateOne(
             Filters.eq("_id", theme.get("_id")),
@@ -1272,6 +1278,8 @@ public class AssetService {
     slots.append("lamp.red.on", "default_start_red_on");
     slots.append("lamp.red.dim", "default_start_red_dim");
     slots.append("lamp.green", "default_start_green");
+    // Fuel gauge
+    slots.append("gauge.fuel", "default_fuel-gauge-builtin");
 
     Document audioSlots = new Document();
     // Audio

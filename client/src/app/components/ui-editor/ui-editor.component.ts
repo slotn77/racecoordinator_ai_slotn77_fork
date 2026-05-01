@@ -729,20 +729,19 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   getAssetForSlot(slot: string, theme?: Theme): any | undefined {
-    let assetId: string | undefined;
+    let assetId: string | undefined | null;
 
-    if (theme?.slots) {
+    if (theme?.slots && theme.slots[slot]) {
       assetId = theme.slots[slot];
     } else {
       assetId =
-        this.themeService.resolveAssetId(slot) ||
         (slot === "gauge.fuel"
           ? this.editingSettings.fuelGaugeImageSet
-          : undefined);
+          : undefined) || this.themeService.resolveAssetId(slot);
     }
 
     if (!assetId) return undefined;
-    return this.assets.find(
+    return (this.assets || []).find(
       (a) => a.model?.entityId === assetId || a.entity_id === assetId,
     );
   }

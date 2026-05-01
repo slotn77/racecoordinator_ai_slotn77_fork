@@ -491,4 +491,54 @@ public class AssetServiceTest {
     assertTrue(entries.get(0).getString("url").startsWith("/assets/"));
     assertEquals("/assets/existing_123.wav", entries.get(1).getString("url"));
   }
+
+  @Test
+  public void testBackfillDefaultThemeIncludesFuelGauge() {
+    // 1. Mock theme not found
+    FindIterable<Document> emptyIterable = mock(FindIterable.class);
+    when(emptyIterable.first()).thenReturn(null);
+    when(themesCollection.find(any(Bson.class))).thenReturn(emptyIterable);
+
+    assetService.backfillDefaultTheme();
+
+    // Verify insertion of default theme
+    ArgumentCaptor<Document> captor = ArgumentCaptor.forClass(Document.class);
+    verify(themesCollection, atLeastOnce()).insertOne(captor.capture());
+
+    Document theme = captor.getValue();
+    Document slots = (Document) theme.get("slots");
+    assertNotNull("Slots should not be null", slots);
+    assertEquals("default_fuel-gauge-builtin", slots.getString("gauge.fuel"));
+  }
+
+  @Test
+  public void testBackfillThemeSlotsMigrationAddsFuelGauge() {
+    // Mock an existing theme without gauge.fuel in slots
+    Document legacyTheme =
+        new Document("_id", "theme_1")
+            .append("name", "Legacy Theme")
+            .append("is_default", false)
+            .append("slots", new Document("flag.green", "some_asset"));
+
+    FindIterable<Document> findIterable = mock(FindIterable.class);
+    MongoCursor<Document> cursor = mock(MongoCursor.class);
+    when(themesCollection.find()).thenReturn(findIterable);
+    when(findIterable.iterator()).thenReturn(cursor);
+    when(cursor.hasNext()).thenReturn(true, false);
+    when(cursor.next()).thenReturn(legacyTheme);
+
+    assetService.backfillDefaults();
+
+    // Verify update was called to add the fuel gauge slot
+    ArgumentCaptor<Bson> filterCaptor = ArgumentCaptor.forClass(Bson.class);
+    ArgumentCaptor<Bson> updateCaptor = ArgumentCaptor.forClass(Bson.class);
+    verify(themesCollection, atLeastOnce())
+        .updateOne(filterCaptor.capture(), updateCaptor.capture());
+
+    String updateStr = updateCaptor.getValue().toString();
+    assertTrue("Should include gauge.fuel in update", updateStr.contains("gauge.fuel"));
+    assertTrue(
+        "Should include default_fuel-gauge-builtin",
+        updateStr.contains("default_fuel-gauge-builtin"));
+  }
 }

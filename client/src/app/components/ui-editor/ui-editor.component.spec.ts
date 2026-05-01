@@ -1388,4 +1388,64 @@ describe("UIEditorComponent", () => {
       expect(component.editingState.themes.length).toBe(3);
     }));
   });
+
+  describe("getAssetForSlot fallback logic", () => {
+    it("should resolve asset from theme slots if present", () => {
+      const theme = {
+        entity_id: "t1",
+        slots: { "gauge.fuel": "asset-in-theme" },
+      } as any;
+      const asset = { entity_id: "asset-in-theme", name: "Theme Asset" };
+      component.assets = [asset as any];
+
+      const resolved = component.getAssetForSlot("gauge.fuel", theme);
+      expect(resolved).toEqual(asset);
+    });
+
+    it("should fall back to global settings for gauge.fuel if theme slot is missing", () => {
+      const theme = {
+        entity_id: "t1",
+        slots: {}, // missing gauge.fuel
+      } as any;
+      component.editingSettings.fuelGaugeImageSet = "global-asset-id";
+      const globalAsset = {
+        entity_id: "global-asset-id",
+        name: "Global Asset",
+      };
+      component.assets = [globalAsset as any];
+
+      const resolved = component.getAssetForSlot("gauge.fuel", theme);
+      expect(resolved).toEqual(globalAsset);
+    });
+
+    it("should fall back to ThemeService.resolveAssetId if theme slot is missing and not gauge.fuel", () => {
+      const theme = {
+        entity_id: "t1",
+        slots: {}, // missing flag.green
+      } as any;
+      mockThemeService.resolveAssetId.and.returnValue("fallback-asset-id");
+      const fallbackAsset = {
+        entity_id: "fallback-asset-id",
+        name: "Fallback Asset",
+      };
+      component.assets = [fallbackAsset as any];
+
+      const resolved = component.getAssetForSlot("flag.green", theme);
+      expect(resolved).toEqual(fallbackAsset);
+      expect(mockThemeService.resolveAssetId).toHaveBeenCalledWith(
+        "flag.green",
+      );
+    });
+
+    it("should return undefined if no asset matches the resolved ID", () => {
+      const theme = {
+        entity_id: "t1",
+        slots: { "gauge.fuel": "non-existent-asset" },
+      } as any;
+      component.assets = [];
+
+      const resolved = component.getAssetForSlot("gauge.fuel", theme);
+      expect(resolved).toBeUndefined();
+    });
+  });
 });
