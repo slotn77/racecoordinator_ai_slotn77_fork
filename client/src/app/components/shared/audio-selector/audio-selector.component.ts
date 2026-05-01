@@ -52,19 +52,9 @@ export class AudioSelectorComponent {
     return this.assets.filter((a) => a.type !== "audio_set");
   }
 
-  get selectedAssetName(): string {
-    if (this.type === "none") {
-      return this.translationService
-        ? this.translationService.translate("AS_OPTION_NONE")
-        : "None";
-    }
+  get selectedAsset(): any {
     const lookupValue = this.assetId || this.url;
-    if (!lookupValue) {
-      if (this.fallbackName) return this.fallbackName;
-      return this.translationService
-        ? this.translationService.translate("AS_SELECT_SOUND")
-        : "Select Sound...";
-    }
+    if (!lookupValue) return null;
 
     const normalize = (u: string) => {
       if (!u) return "";
@@ -78,19 +68,37 @@ export class AudioSelectorComponent {
 
     const normalizedLookup = normalize(lookupValue);
 
-    const asset = this.assets.find((a) => {
+    return this.assets.find((a) => {
       if (a.model?.entityId === lookupValue || a.entity_id === lookupValue)
         return true;
       if (normalize(a.url) === normalizedLookup) return true;
       return false;
     });
+  }
 
-    return asset
-      ? asset.name
-      : this.fallbackName ||
-          (this.translationService
-            ? this.translationService.translate("AS_UNKNOWN_ASSET")
-            : "Unknown Asset");
+  get selectedAssetName(): string {
+    if (this.type === "none") {
+      return this.translationService
+        ? this.translationService.translate("AS_OPTION_NONE")
+        : "None";
+    }
+
+    const asset = this.selectedAsset;
+
+    if (!asset) {
+      if (this.fallbackName) return this.fallbackName;
+      return this.translationService
+        ? this.translationService.translate("AS_SELECT_SOUND")
+        : "Select Sound...";
+    }
+
+    return (
+      asset.name ||
+      this.fallbackName ||
+      (this.translationService
+        ? this.translationService.translate("AS_UNKNOWN_ASSET")
+        : "Unknown Asset")
+    );
   }
 
   constructor(
@@ -144,7 +152,15 @@ export class AudioSelectorComponent {
     this.closeItemSelector();
   }
 
+  isPlaying = false;
+  private currentAudio: HTMLAudioElement | null = null;
+
   onPlayPreview(item: any) {
+    if (this.isPlaying) {
+      this.stop();
+      // If we clicked play on a different item while playing, we should play the new one.
+      // But for now let's just stop.
+    }
     const playContext = this.context || mockTTSContext();
     playSound(
       item.type === "audio_set" ? "audio_set" : "preset",
@@ -156,15 +172,114 @@ export class AudioSelectorComponent {
   }
 
   play() {
+    if (this.isPlaying) {
+      this.stop();
+      return;
+    }
+
     if (this.type === "none") return;
-    const playContext = this.context || mockTTSContext();
-    playSound(
-      this.type,
-      this.url,
-      this.text,
-      this.dataService.serverUrl,
-      playContext,
-    );
+
+    if (this.type === "audio_set") {
+      this.playAudioSet();
+    } else {
+      this.playStandard();
+    }
+  }
+
+  stop() {
+    this.isPlaying = false;
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+    }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    this.cdr.detectChanges();
+  }
+
+  private async playAudioSet() {
+    const asset = this.selectedAsset;
+    if (!asset || !asset.audioEntries || asset.audioEntries.length === 0) {
+      return;
+    }
+
+    this.isPlaying = true;
+    this.cdr.detectChanges();
+
+    for (const entry of asset.audioEntries) {
+      if (!this.isPlaying) break;
+      try {
+        await this.playUrl(entry.url);
+      } catch (e) {
+        console.error("Error playing audio set entry", e);
+      }
+    }
+    this.isPlaying = false;
+    this.cdr.detectChanges();
+  }
+
+  private playStandard() {
+    this.isPlaying = true;
+    this.cdr.detectChanges();
+
+    if (this.type === "preset") {
+      this.playUrl(this.url)
+        .then(() => {
+          this.isPlaying = false;
+          this.cdr.detectChanges();
+        })
+        .catch(() => {
+          this.isPlaying = false;
+          this.cdr.detectChanges();
+        });
+    } else if (this.type === "tts") {
+      this.playTTS(this.text);
+    }
+  }
+
+  private playUrl(url: string | undefined): Promise<void> {
+    if (!url) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      let playableUrl = url;
+      if (url.startsWith("/")) {
+        playableUrl = `${this.dataService.serverUrl}${url}`;
+      }
+      const audio = new Audio(playableUrl);
+      this.currentAudio = audio;
+      audio.onended = () => {
+        this.currentAudio = null;
+        resolve();
+      };
+      audio.onerror = (err) => {
+        this.currentAudio = null;
+        reject(err);
+      };
+      audio.play().catch(reject);
+    });
+  }
+
+  private playTTS(text: string | undefined) {
+    if (!text || !window.speechSynthesis) {
+      this.isPlaying = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    // Cancel any current speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => {
+      this.isPlaying = false;
+      this.cdr.detectChanges();
+    };
+    utterance.onerror = () => {
+      this.isPlaying = false;
+      this.cdr.detectChanges();
+    };
+
+    window.speechSynthesis.speak(utterance);
   }
 
   // Drag & Drop

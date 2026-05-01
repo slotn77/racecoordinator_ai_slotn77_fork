@@ -113,8 +113,7 @@ describe("DefaultRacedayComponent", () => {
 
   let raceStateSubject: Subject<com.antigravity.RaceState>;
 
-  beforeAll(() => {
-    originalAudio = (window as any).Audio;
+  beforeEach(() => {
     mockAudioInstance = jasmine.createSpyObj("AudioInstance", [
       "play",
       "pause",
@@ -122,15 +121,9 @@ describe("DefaultRacedayComponent", () => {
     ]);
     mockAudioInstance.play.and.returnValue(Promise.resolve());
 
-    (window as any).Audio = jasmine.createSpy("Audio").and.callFake(function (
-      this: any,
-    ) {
+    spyOn(window, "Audio").and.callFake(function (this: any) {
       return mockAudioInstance;
-    });
-  });
-
-  afterAll(() => {
-    (window as any).Audio = originalAudio;
+    } as any);
   });
 
   beforeEach(async () => {
@@ -148,7 +141,6 @@ describe("DefaultRacedayComponent", () => {
     recordDataSubject = mocks.recordDataSubject;
     participantsSubject = mocks.participantsSubject;
 
-    (window.Audio as unknown as jasmine.Spy).calls.reset();
     mockAudioInstance.play.calls.reset();
 
     mockSettings = createDefaultSettings({

@@ -33,8 +33,22 @@ describe("AudioSelectorComponent", () => {
   let harness: AudioSelectorHarness;
   let mockDataService: any;
   let mockTranslationService: any;
-
+  let mockAudioInstance: any;
   beforeEach(async () => {
+    mockAudioInstance = jasmine.createSpyObj("Audio", ["play", "pause"]);
+    mockAudioInstance.play.and.returnValue(Promise.resolve());
+
+    // Check if Audio is already a spy to avoid double-spying
+    if (!(window.Audio as any).and) {
+      spyOn(window, "Audio").and.callFake(function (this: any) {
+        return mockAudioInstance;
+      } as any);
+    } else {
+      (window.Audio as any).and.callFake(function (this: any) {
+        return mockAudioInstance;
+      } as any);
+    }
+
     mockDataService = jasmine.createSpyObj("DataService", ["uploadAsset"]);
     mockTranslationService = jasmine.createSpyObj("TranslationService", [
       "translate",
@@ -53,9 +67,7 @@ describe("AudioSelectorComponent", () => {
         { provide: TranslationService, useValue: mockTranslationService },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(AudioSelectorComponent);
     component = fixture.componentInstance;
     harness = await TestbedHarnessEnvironment.harnessForFixture(
@@ -145,28 +157,20 @@ describe("AudioSelectorComponent", () => {
     component.type = "preset";
     component.url = "test.mp3";
 
-    const mockAudio = jasmine.createSpyObj("Audio", ["play"]);
-    mockAudio.play.and.returnValue(Promise.resolve());
-    spyOn(window, "Audio").and.returnValue(mockAudio);
-
     component.play();
 
     expect(window.Audio).toHaveBeenCalled();
-    expect(mockAudio.play).toHaveBeenCalled();
+    expect(mockAudioInstance.play).toHaveBeenCalled();
   });
 
   // Note: Testing TTS relies on window.speechSynthesis which might need more complex mocking
   // for a robust test environment, but this covers the basic logic paths.
 
   it("should call playSound when onPlayPreview is called", () => {
-    const mockAudio = jasmine.createSpyObj("Audio", ["play"]);
-    mockAudio.play.and.returnValue(Promise.resolve());
-    spyOn(window, "Audio").and.returnValue(mockAudio);
-
     const item = { name: "Test Sound", url: "test.mp3" };
     component.onPlayPreview(item);
     expect(window.Audio).toHaveBeenCalled();
-    expect(mockAudio.play).toHaveBeenCalled();
+    expect(mockAudioInstance.play).toHaveBeenCalled();
   });
 
   it("should handle none type", () => {
@@ -176,7 +180,6 @@ describe("AudioSelectorComponent", () => {
     expect(component.typeChange.emit).toHaveBeenCalledWith("none");
 
     // Test that play() doesn't do anything for none
-    spyOn(window, "Audio");
     component.play();
     expect(window.Audio).not.toHaveBeenCalled();
   });
@@ -189,5 +192,108 @@ describe("AudioSelectorComponent", () => {
     ];
 
     expect(component.selectedAssetName).toBe("My Cool Audio Set");
+  });
+
+  it("should play audio set sequentially and toggle isPlaying", async () => {
+    const audioSet = {
+      entity_id: "set-1",
+      name: "Set 1",
+      type: "audio_set",
+      audioEntries: [
+        { url: "1.mp3", timeSeconds: 1 },
+        { url: "2.mp3", timeSeconds: 2 },
+      ],
+    };
+    component.assets = [audioSet];
+    component.type = "audio_set";
+    component.url = "set-1";
+
+    const audioSpy = (window.Audio as unknown as jasmine.Spy).and.callFake(
+      function (url: string) {
+        // Simulate sound ending after a short delay
+        setTimeout(() => {
+          if (mockAudioInstance.onended) mockAudioInstance.onended();
+        }, 0);
+        return mockAudioInstance;
+      },
+    );
+
+    component.play();
+    expect(component.isPlaying).toBeTrue();
+
+    // Wait for playback to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(component.isPlaying).toBeFalse();
+    expect(audioSpy).toHaveBeenCalledTimes(2);
+    expect(audioSpy.calls.argsFor(0)[0]).toContain("1.mp3");
+    expect(audioSpy.calls.argsFor(1)[0]).toContain("2.mp3");
+  });
+
+  it("should stop playback when stop is called", async () => {
+    const audioSet = {
+      entity_id: "set-1",
+      name: "Set 1",
+      type: "audio_set",
+      audioEntries: [{ url: "1.mp3", timeSeconds: 1 }],
+    };
+    component.assets = [audioSet];
+    component.type = "audio_set";
+    component.url = "set-1";
+
+    mockAudioInstance.play.and.returnValue(new Promise(() => {})); // Never resolves to simulate playing
+
+    component.play();
+    expect(component.isPlaying).toBeTrue();
+
+    component.stop();
+    expect(component.isPlaying).toBeFalse();
+    expect(mockAudioInstance.pause).toHaveBeenCalled();
+  });
+
+  it("should toggle playback when clicking play while already playing", () => {
+    spyOn(component, "stop");
+    component.isPlaying = true;
+    component.play();
+    expect(component.stop).toHaveBeenCalled();
+  });
+
+  it("should handle TTS playback state", () => {
+    component.type = "tts";
+    component.text = "Hello world";
+
+    const mockUtterance = {
+      onend: null as any,
+      text: "",
+    };
+    spyOn(window, "SpeechSynthesisUtterance").and.callFake(function (
+      this: any,
+      text?: string,
+    ) {
+      (mockUtterance as any).text = text || "";
+      return mockUtterance;
+    } as any);
+
+    if (window.speechSynthesis) {
+      if (!(window.speechSynthesis.speak as any).and) {
+        spyOn(window.speechSynthesis, "speak");
+      }
+      if (!(window.speechSynthesis.cancel as any).and) {
+        spyOn(window.speechSynthesis, "cancel");
+      }
+    } else {
+      (window as any).speechSynthesis = jasmine.createSpyObj(
+        "SpeechSynthesis",
+        ["speak", "cancel"],
+      );
+    }
+
+    component.play();
+    expect(component.isPlaying).toBeTrue();
+    expect(window.speechSynthesis.speak).toHaveBeenCalled();
+
+    // Simulate end
+    if (mockUtterance.onend) mockUtterance.onend();
+    expect(component.isPlaying).toBeFalse();
   });
 });

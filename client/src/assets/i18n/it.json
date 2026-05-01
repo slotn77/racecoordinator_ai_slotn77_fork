@@ -154,6 +154,7 @@
   "AS_BOARD_TYPE": "Tipo di scheda",
   "AS_BOARD_UNO": "Arduino Uno",
   "AS_BTN_PLAY": "RIPRODUCI",
+  "AS_BTN_STOP": "STOP",
   "AS_COM_PORT": "Porta COM",
   "AS_CONFIGURED_LEDS": "LED RGB Configurati",
   "AS_CONFIGURED_PINS": "Pin configurati",

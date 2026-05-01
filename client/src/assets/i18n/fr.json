@@ -154,6 +154,7 @@
   "AS_BOARD_TYPE": "Type de carte",
   "AS_BOARD_UNO": "Arduino Uno",
   "AS_BTN_PLAY": "JOUER",
+  "AS_BTN_STOP": "ARRÊTER",
   "AS_COM_PORT": "Port COM",
   "AS_CONFIGURED_LEDS": "LEDs RGB Configuré",
   "AS_CONFIGURED_PINS": "Pins configurés",

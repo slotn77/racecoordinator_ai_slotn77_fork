@@ -9,10 +9,6 @@ describe("playSound Utility", () => {
   const SERVER_URL = "http://localhost:8080";
 
   beforeAll(() => {
-    // Save original implementations
-    originalAudio = window.Audio;
-    originalSpeechSynthesis = window.speechSynthesis;
-
     // Mock SpeechSynthesisUtterance if it doesn't exist (e.g. in some text environments)
     if (!window.SpeechSynthesisUtterance) {
       (window as any).SpeechSynthesisUtterance = class {
@@ -25,25 +21,16 @@ describe("playSound Utility", () => {
   });
 
   afterAll(() => {
-    // Restore original implementations
-    window.Audio = originalAudio;
-    if (originalSpeechSynthesis) {
-      Object.defineProperty(window, "speechSynthesis", {
-        value: originalSpeechSynthesis,
-        writable: true,
-        configurable: true,
-      });
-    }
+    // Cleanup if needed
   });
 
   beforeEach(() => {
     // Mock Audio
-    mockAudioInstance = jasmine.createSpyObj("Audio", ["play"]);
+    mockAudioInstance = jasmine.createSpyObj("AudioInstance", ["play"]);
     mockAudioInstance.play.and.returnValue(Promise.resolve());
-    // Mock the constructor
-    (window as any).Audio = jasmine
-      .createSpy("Audio")
-      .and.returnValue(mockAudioInstance);
+    spyOn(window, "Audio").and.callFake(function (this: any) {
+      return mockAudioInstance;
+    });
 
     // Mock SpeechSynthesis
     mockSpeechSynthesis = jasmine.createSpyObj("SpeechSynthesis", [
