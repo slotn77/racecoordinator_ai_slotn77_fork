@@ -1,9 +1,10 @@
 import {
-  CdkDragDrop,
-  CdkDropList,
   CdkDrag,
+  CdkDragDrop,
   CdkDragHandle,
+  CdkDropList,
 } from "@angular/cdk/drag-drop";
+import { DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -12,40 +13,39 @@ import {
   OnDestroy,
   OnInit,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Observable, Subject, Subscription } from "rxjs";
-import { DriverConverter } from "src/app/converters/driver.converter";
-import { HeatConverter } from "src/app/converters/heat.converter";
-import { LaneConverter } from "src/app/converters/lane.converter";
-import { RaceConverter } from "src/app/converters/race.converter";
-import { TrackConverter } from "src/app/converters/track.converter";
-import { DataService } from "src/app/data.service";
-import { CanComponentDeactivate } from "src/app/guards/raceday.guard";
-import { Driver } from "src/app/models/driver";
-import { FinishMethod, HeatScoring } from "src/app/models/heat_scoring";
-import { Race } from "src/app/models/race";
-import { RaceParticipant } from "src/app/models/race_participant";
-import { ColumnVisibility, Settings } from "src/app/models/settings";
-import { THEME_SLOT_KEYS } from "src/app/models/theme";
-import { Track } from "src/app/models/track";
-import { DriverHeatData } from "src/app/race/driver_heat_data";
-import { Heat } from "src/app/race/heat";
-import { RaceService } from "src/app/services/race.service";
-import { FlagType, RaceFlagService } from "src/app/services/race-flag.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { ThemeService } from "src/app/services/theme.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { createTTSContext, playSound } from "src/app/utils/audio";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import { RaceState } from "src/app/proto/antigravity";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { DriverConverter } from "@app/converters/driver.converter";
+import { HeatConverter } from "@app/converters/heat.converter";
+import { LaneConverter } from "@app/converters/lane.converter";
+import { RaceConverter } from "@app/converters/race.converter";
+import { TrackConverter } from "@app/converters/track.converter";
+import { DataService } from "@app/data.service";
+import { CanComponentDeactivate } from "@app/guards/raceday.guard";
+import { Driver } from "@app/models/driver";
+import { FinishMethod, HeatScoring } from "@app/models/heat_scoring";
+import { Race } from "@app/models/race";
+import { RaceParticipant } from "@app/models/race_participant";
+import { ColumnVisibility, Settings } from "@app/models/settings";
+import { THEME_SLOT_KEYS } from "@app/models/theme";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { RaceState } from "@app/proto/antigravity";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+import { Heat } from "@app/race/heat";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import { FlagType, RaceFlagService } from "@app/services/race-flag.service";
+import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
+import { TranslationService } from "@app/services/translation.service";
+import { createTTSContext, playSound } from "@app/utils/audio";
 
 import { ColumnDefinition } from "./column_definition";
 import { AnchorPoint } from "./column_definition";
-import { AcknowledgementModalComponent } from "../shared/acknowledgement-modal/acknowledgement-modal.component";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { DecimalPipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
 /**
  * The raceday component is the main component for the raceday screen.

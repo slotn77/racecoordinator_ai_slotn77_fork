@@ -1,7 +1,7 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Pipe, PipeTransform } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslationService } from "src/app/services/translation.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { InputDialogComponent } from "./input-dialog.component";
 import { InputDialogHarness } from "./testing/input-dialog.harness";

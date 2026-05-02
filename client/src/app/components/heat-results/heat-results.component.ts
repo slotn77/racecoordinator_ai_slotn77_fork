@@ -1,12 +1,12 @@
+import { DecimalPipe } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Race } from "src/app/models/race";
-import { Heat } from "src/app/race/heat";
-import { RaceService } from "src/app/services/race.service";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { DecimalPipe } from "@angular/common";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { Race } from "@app/models/race";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { Heat } from "@app/race/heat";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import { TranslationService } from "@app/services/translation.service";
 
 interface GraphPoint {
   x: number;

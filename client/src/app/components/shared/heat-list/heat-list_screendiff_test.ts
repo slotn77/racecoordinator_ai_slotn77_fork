@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { HeatListHarnessBase } from "./testing/heat-list.harness.base";
 import { HeatListHarnessE2e } from "./testing/heat-list.harness.e2e";

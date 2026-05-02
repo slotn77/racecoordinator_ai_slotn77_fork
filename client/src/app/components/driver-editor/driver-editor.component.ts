@@ -7,26 +7,25 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { forkJoin, Subscription } from "rxjs";
-import { EditorTitleComponent } from "src/app/components/shared/editor-title/editor-title.component";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
-import { DataService } from "src/app/data.service";
-import { Driver } from "src/app/models/driver";
+import { AudioSelectorComponent } from "@app/components/shared/audio-selector/audio-selector.component";
+import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
+import { EditorTitleComponent as EditorTitleComponent_1 } from "@app/components/shared/editor-title/editor-title.component";
+import { ImageSelectorComponent } from "@app/components/shared/image-selector/image-selector.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
+import { DataService } from "@app/data.service";
+import { Driver } from "@app/models/driver";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { createTTSContext, mockTTSContext } from "src/app/utils/audio";
-import { EditorTitleComponent as EditorTitleComponent_1 } from "../shared/editor-title/editor-title.component";
-import { ImageSelectorComponent } from "../shared/image-selector/image-selector.component";
-import { FormsModule } from "@angular/forms";
-import { AudioSelectorComponent } from "../shared/audio-selector/audio-selector.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+} from "@app/services/connection-monitor.service";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { createTTSContext, mockTTSContext } from "@app/utils/audio";
 
 @Component({
   standalone: true,

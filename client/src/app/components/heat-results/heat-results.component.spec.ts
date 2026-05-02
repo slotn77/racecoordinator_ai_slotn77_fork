@@ -1,12 +1,12 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
-import { Driver } from "src/app/models/driver";
-import { Race } from "src/app/models/race";
-import { DriverHeatData } from "src/app/race/driver_heat_data";
-import { Heat } from "src/app/race/heat";
-import { RaceService } from "src/app/services/race.service";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
+import { Driver } from "@app/models/driver";
+import { Race } from "@app/models/race";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+import { Heat } from "@app/race/heat";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
 
 import { HeatResultsComponent } from "./heat-results.component";
 

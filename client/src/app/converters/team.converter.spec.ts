@@ -1,6 +1,6 @@
-import { TeamConverter } from "./team.converter";
+import { ITeamModel } from "@app/proto/antigravity";
 
-import { ITeamModel } from "src/app/proto/antigravity";
+import { TeamConverter } from "./team.converter";
 
 describe("TeamConverter", () => {
   beforeEach(() => {

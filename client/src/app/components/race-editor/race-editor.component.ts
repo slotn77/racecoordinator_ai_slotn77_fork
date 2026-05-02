@@ -6,20 +6,19 @@ import {
   OnDestroy,
   OnInit,
 } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
-import { DataService } from "src/app/data.service";
-import { FuelUsageType } from "src/app/models/fuel_options";
-import { Track } from "src/app/models/track";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { AcknowledgementModalComponent } from "../shared/acknowledgement-modal/acknowledgement-modal.component";
-import { EditorTitleComponent } from "../shared/editor-title/editor-title.component";
 import { FormsModule } from "@angular/forms";
-import { HeatListComponent } from "../shared/heat-list/heat-list.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
+import { HeatListComponent } from "@app/components/shared/heat-list/heat-list.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
+import { DataService } from "@app/data.service";
+import { FuelUsageType } from "@app/models/fuel_options";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
 @Component({
   standalone: true,

@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -5,35 +6,34 @@ import {
   OnDestroy,
   OnInit,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { forkJoin, of, Subscription } from "rxjs";
-import { AnchorPoint } from "src/app/components/raceday/column_definition";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
+import { AudioSelectorComponent } from "@app/components/shared/audio-selector/audio-selector.component";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
+import { ImageSelectorComponent } from "@app/components/shared/image-selector/image-selector.component";
+import { ToolbarComponent } from "@app/components/shared/toolbar/toolbar.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
 import {
   ReorderDialogData,
   ReorderDialogResult,
-} from "src/app/components/ui-editor/reorder-dialog/reorder-dialog.component";
-import { DataService } from "src/app/data.service";
-import { DirtyComponent } from "src/app/interfaces/dirty-component";
-import { AudioConfig } from "src/app/models/driver";
-import { Settings } from "src/app/models/settings";
-import { Theme } from "src/app/models/theme";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { ThemeService } from "src/app/services/theme.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { mockTTSContext } from "src/app/utils/audio";
-import { EditorTitleComponent } from "../shared/editor-title/editor-title.component";
-import { NgTemplateOutlet } from "@angular/common";
-import { ColumnPreviewComponent } from "./column-preview/column-preview.component";
-import { FormsModule } from "@angular/forms";
-import { ImageSelectorComponent } from "../shared/image-selector/image-selector.component";
-import { AudioSelectorComponent } from "../shared/audio-selector/audio-selector.component";
-import { ToolbarComponent } from "../shared/toolbar/toolbar.component";
-import { ReorderDialogComponent } from "./reorder-dialog/reorder-dialog.component";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
+} from "@app/components/ui-editor/reorder-dialog/reorder-dialog.component";
+import { DataService } from "@app/data.service";
+import { DirtyComponent } from "@app/interfaces/dirty-component";
+import { AudioConfig } from "@app/models/driver";
+import { Settings } from "@app/models/settings";
+import { Theme } from "@app/models/theme";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { FileSystemService } from "@app/services/file-system.service";
+import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
+import { TranslationService } from "@app/services/translation.service";
+import { mockTTSContext } from "@app/utils/audio";
 
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ColumnPreviewComponent } from "./column-preview/column-preview.component";
+import { ReorderDialogComponent } from "./reorder-dialog/reorder-dialog.component";
 
 export interface UIEditorState {
   settings: Settings;

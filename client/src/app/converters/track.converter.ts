@@ -1,10 +1,9 @@
-import { Track } from "src/app/models/track";
+import { Track } from "@app/models/track";
+import { ITrackModel } from "@app/proto/antigravity";
 
 import { ArduinoConfigConverter } from "./arduino_config.converter";
 import { ConverterCache } from "./converter_cache";
 import { LaneConverter } from "./lane.converter";
-
-import { ITrackModel } from "src/app/proto/antigravity";
 
 export class TrackConverter {
   private static cache = new ConverterCache<Track>();

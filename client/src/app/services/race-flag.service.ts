@@ -1,9 +1,8 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
+import { RaceFlag } from "@app/proto/antigravity";
 
 import { RaceConnectionService } from "./race-connection.service";
-
-import { RaceFlag } from "src/app/proto/antigravity";
 
 export type FlagType =
   | "red"

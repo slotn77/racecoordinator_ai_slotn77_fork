@@ -1,7 +1,6 @@
-import { DigitalFuelOptions } from "src/app/models/digital_fuel_options";
-import { FuelUsageType } from "src/app/models/fuel_options";
-
-import { IDigitalFuelOptions } from "src/app/proto/antigravity";
+import { DigitalFuelOptions } from "@app/models/digital_fuel_options";
+import { FuelUsageType } from "@app/models/fuel_options";
+import { IDigitalFuelOptions } from "@app/proto/antigravity";
 
 export class DigitalFuelOptionsConverter {
   static fromProto(proto?: IDigitalFuelOptions | null): DigitalFuelOptions {

@@ -1,14 +1,12 @@
-import { Driver } from "src/app/models/driver";
-
-import { DriverHeatData } from "src/app/race/driver_heat_data";
-import { Heat } from "src/app/race/heat";
-import { RaceParticipant } from "src/app/race/race_participant";
+import { Driver } from "@app/models/driver";
+import { IHeat } from "@app/proto/antigravity";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+import { Heat } from "@app/race/heat";
+import { RaceParticipant } from "@app/race/race_participant";
 
 import { ConverterCache } from "./converter_cache";
 import { DriverConverter } from "./driver.converter";
 import { RaceParticipantConverter } from "./race_participant.converter";
-
-import { IHeat } from "src/app/proto/antigravity";
 
 export class HeatConverter {
   private static participantCache = new Map<string, RaceParticipant>();

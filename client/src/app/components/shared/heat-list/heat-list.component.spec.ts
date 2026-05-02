@@ -7,8 +7,8 @@ import {
   tick,
 } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { TranslationService } from "src/app/services/translation.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { TranslationService } from "@app/services/translation.service";
 
 import { HeatListComponent } from "./heat-list.component";
 import { HeatListHarness } from "./testing/heat-list.harness";

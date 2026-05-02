@@ -1,10 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
+import { RaceFlag } from "@app/proto/antigravity";
 
 import { RaceConnectionService } from "./race-connection.service";
 import { RaceFlagService } from "./race-flag.service";
-
-import { RaceFlag } from "src/app/proto/antigravity";
 
 describe("RaceFlagService", () => {
   let service: RaceFlagService;

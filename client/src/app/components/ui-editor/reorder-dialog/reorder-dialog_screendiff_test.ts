@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { UIEditorHarnessE2e } from "src/app/components/ui-editor/testing/ui-editor.harness.e2e";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { UIEditorHarnessE2e } from "@app/components/ui-editor/testing/ui-editor.harness.e2e";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 test.describe("Reorder Dialog Visuals", () => {
   test.beforeEach(async ({ page }) => {

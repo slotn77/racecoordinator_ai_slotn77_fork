@@ -1,10 +1,9 @@
 import { Component, computed, input, output, signal } from "@angular/core";
-import { Router } from "@angular/router";
-
-import { BackButtonComponent } from "../back-button/back-button.component";
 import { FormsModule } from "@angular/forms";
-import { AssetPreviewComponent } from "../asset-preview/asset-preview.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { Router } from "@angular/router";
+import { AssetPreviewComponent } from "@app/components/shared/asset-preview/asset-preview.component";
+import { BackButtonComponent } from "@app/components/shared/back-button/back-button.component";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

@@ -7,8 +7,8 @@ import {
   OnDestroy,
   signal,
 } from "@angular/core";
-import { DataService } from "src/app/data.service";
-import {} from "src/app/proto/message";
+import { DataService } from "@app/data.service";
+import {} from "@app/proto/message";
 
 @Component({
   standalone: true,

@@ -2,8 +2,8 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
-import { DataService } from "src/app/data.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { DataService } from "@app/data.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { AudioSelectorComponent } from "./audio-selector.component";
 import { AudioSelectorHarness } from "./testing/audio-selector.harness";

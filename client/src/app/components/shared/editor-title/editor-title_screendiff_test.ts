@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { EditorTitleHarnessE2e } from "./testing/editor-title.harness.e2e";
 

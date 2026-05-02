@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { AnalyticsService } from "src/app/analytics.service";
+import { AnalyticsService } from "@app/analytics.service";
 
 import { GuideStep, HelpService } from "./help.service";
 

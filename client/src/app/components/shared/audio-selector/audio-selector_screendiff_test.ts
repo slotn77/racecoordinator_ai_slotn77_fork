@@ -1,11 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { ItemSelectorHarnessE2e } from "src/app/components/shared/item-selector/testing/item-selector.harness.e2e";
-
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { ItemSelectorHarnessE2e } from "@app/components/shared/item-selector/testing/item-selector.harness.e2e";
+import { ListAssetsResponse } from "@app/proto/antigravity";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { AudioSelectorHarnessE2e } from "./testing/audio-selector.harness.e2e";
-
-import { ListAssetsResponse } from "src/app/proto/antigravity";
 
 test.describe("Audio Selector Visuals", () => {
   test.beforeEach(async ({ page }) => {

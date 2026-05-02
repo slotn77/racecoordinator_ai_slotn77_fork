@@ -1,6 +1,5 @@
-import { ArduinoConfig, LedString } from "src/app/models/track";
-
-import { IArduinoConfig } from "src/app/proto/antigravity";
+import { ArduinoConfig, LedString } from "@app/models/track";
+import { IArduinoConfig } from "@app/proto/antigravity";
 
 export class ArduinoConfigConverter {
   static fromProto(proto: IArduinoConfig): ArduinoConfig {

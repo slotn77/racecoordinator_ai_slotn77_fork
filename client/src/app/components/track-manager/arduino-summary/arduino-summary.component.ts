@@ -1,11 +1,8 @@
 import { Component, input } from "@angular/core";
-import { ArduinoConfig } from "src/app/models/track";
-
-import { TranslationService } from "src/app/services/translation.service";
-
-import { PinBehavior } from "src/app/proto/antigravity";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ArduinoConfig } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { PinBehavior } from "@app/proto/antigravity";
+import { TranslationService } from "@app/services/translation.service";
 
 @Component({
   standalone: true,

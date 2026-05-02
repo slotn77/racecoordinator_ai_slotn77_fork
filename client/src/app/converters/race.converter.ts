@@ -4,22 +4,21 @@ import {
   HeatRanking,
   HeatRankingTiebreaker,
   HeatScoring,
-} from "src/app/models/heat_scoring";
+} from "@app/models/heat_scoring";
 import {
   OverallRanking,
   OverallRankingTiebreaker,
   OverallScoring,
-} from "src/app/models/overall_scoring";
-import { Race } from "src/app/models/race";
-import { TeamOptions } from "src/app/models/team_options";
-import { Track } from "src/app/models/track";
+} from "@app/models/overall_scoring";
+import { Race } from "@app/models/race";
+import { TeamOptions } from "@app/models/team_options";
+import { Track } from "@app/models/track";
+import { IRaceModel } from "@app/proto/antigravity";
 
 import { AnalogFuelOptionsConverter } from "./analog_fuel_options.converter";
 import { ConverterCache } from "./converter_cache";
 import { DigitalFuelOptionsConverter } from "./digital_fuel_options.converter";
 import { TrackConverter } from "./track.converter";
-
-import { IRaceModel } from "src/app/proto/antigravity";
 
 export class RaceConverter {
   private static cache = new ConverterCache<Race>();

@@ -2,8 +2,8 @@ import { DOCUMENT } from "@angular/common";
 import { TestBed } from "@angular/core/testing";
 import { NavigationEnd, Router } from "@angular/router";
 import { of, Subject } from "rxjs";
-import { Settings } from "src/app/models/settings";
-import { SettingsService } from "src/app/services/settings.service";
+import { Settings } from "@app/models/settings";
+import { SettingsService } from "@app/services/settings.service";
 
 import { AnalyticsService } from "./analytics.service";
 import { DataService } from "./data.service";

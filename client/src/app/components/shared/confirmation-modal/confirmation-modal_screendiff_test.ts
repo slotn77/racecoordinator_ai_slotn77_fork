@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { ConfirmationModalHarnessE2e } from "./testing/confirmation-modal.harness.e2e";
 

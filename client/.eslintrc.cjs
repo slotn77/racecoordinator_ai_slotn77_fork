@@ -74,7 +74,24 @@ module.exports = {
           }
         ],
         "@angular-eslint/prefer-inject": "off",
-        "@angular-eslint/prefer-standalone": "error"
+        "@angular-eslint/prefer-standalone": "error",
+        "no-restricted-imports": ["error", {
+          "patterns": [
+            {
+              "group": ["../*"],
+              "message": "Use absolute imports (@app/...) instead of relative parent imports (../)."
+            }
+          ]
+        }],
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              ["^\\u0000", "^@?\\w", "^@app"],
+              ["^\\."]
+            ]
+          }
+        ]
       },
       "plugins": [
         "@typescript-eslint",
@@ -106,6 +123,12 @@ module.exports = {
       },
       "parserOptions": {
         "ecmaVersion": 2021
+      }
+    },
+    {
+      "files": ["**/testing/**/*.ts", "**/*.spec.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
       }
     }
   ]

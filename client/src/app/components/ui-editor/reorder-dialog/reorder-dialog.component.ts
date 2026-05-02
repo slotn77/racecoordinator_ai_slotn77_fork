@@ -1,10 +1,10 @@
 import {
-  CdkDragDrop,
-  moveItemInArray,
-  CdkDropList,
-  ɵɵCdkScrollable,
   CdkDrag,
+  CdkDragDrop,
   CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+  ɵɵCdkScrollable,
 } from "@angular/cdk/drag-drop";
 import {
   ApplicationRef,
@@ -18,16 +18,15 @@ import {
   output,
   ViewEncapsulation,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
-import { AnchorPoint } from "src/app/components/raceday/column_definition";
-import { ColumnVisibility, Settings } from "src/app/models/settings";
-import { TranslationService } from "src/app/services/translation.service";
-
-import { BackButtonComponent } from "../../shared/back-button/back-button.component";
-import { FormsModule } from "@angular/forms";
-import { ColumnPreviewComponent } from "../column-preview/column-preview.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
+import { BackButtonComponent } from "@app/components/shared/back-button/back-button.component";
+import { ColumnPreviewComponent } from "@app/components/ui-editor/column-preview/column-preview.component";
+import { ColumnVisibility, Settings } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { TranslationService } from "@app/services/translation.service";
 
 export interface ReorderDialogData {
   availableValues: { key: string; label: string }[];

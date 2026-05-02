@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { DefaultRacedayHarnessE2e } from "./testing/default-raceday.harness.e2e";
 

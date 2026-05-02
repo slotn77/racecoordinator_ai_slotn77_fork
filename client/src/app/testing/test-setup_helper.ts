@@ -1,19 +1,18 @@
 import { Page } from "@playwright/test";
+import {
+  InitializeInterfaceResponse,
+  IRaceTime,
+  ListAssetsResponse,
+  RaceData,
+  RaceState,
+  UpdateInterfaceConfigResponse,
+} from "@app/proto/antigravity";
 
 import {} from "./data/assets_data";
 import { MOCK_DRIVERS } from "./data/drivers_data";
 import { MOCK_RACES } from "./data/races_data";
 import { MOCK_TEAMS } from "./data/teams_data";
 import { MOCK_FACTORY_SETTINGS, MOCK_TRACKS } from "./data/tracks_data";
-
-import {
-  IRaceTime,
-  InitializeInterfaceResponse,
-  ListAssetsResponse,
-  RaceData,
-  RaceState,
-  UpdateInterfaceConfigResponse,
-} from "src/app/proto/antigravity";
 
 export interface SetupOptions {
   skipIntro?: boolean;

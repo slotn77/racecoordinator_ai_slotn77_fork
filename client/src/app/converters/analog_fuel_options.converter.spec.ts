@@ -1,20 +1,20 @@
-import { FuelUsageType } from "src/app/models/fuel_options";
+import { FuelUsageType } from "@app/models/fuel_options";
 
 import { AnalogFuelOptionsConverter } from "./analog_fuel_options.converter";
 
-describe('AnalogFuelOptionsConverter', () => {
-  it('should convert from proto with default values', () => {
+describe("AnalogFuelOptionsConverter", () => {
+  it("should convert from proto with default values", () => {
     const result = AnalogFuelOptionsConverter.fromProto(null);
     expect(result.enabled).toBeFalse();
     expect(result.capacity).toBe(100);
     expect(result.usage_type).toBe(FuelUsageType.LINEAR);
   });
 
-  it('should convert from proto with provided values', () => {
+  it("should convert from proto with provided values", () => {
     const mockProto = {
       enabled: true,
       capacity: 80,
-      usageType: 1 // QUADRATIC
+      usageType: 1, // QUADRATIC
     };
     const result = AnalogFuelOptionsConverter.fromProto(mockProto as any);
     expect(result.enabled).toBeTrue();
@@ -22,9 +22,9 @@ describe('AnalogFuelOptionsConverter', () => {
     expect(result.usage_type).toBe(FuelUsageType.QUADRATIC);
   });
 
-  it('should handle string usage types', () => {
+  it("should handle string usage types", () => {
     const mockProto = {
-      usageType: 'CUBIC'
+      usageType: "CUBIC",
     };
     const result = AnalogFuelOptionsConverter.fromProto(mockProto as any);
     expect(result.usage_type).toBe(FuelUsageType.CUBIC);

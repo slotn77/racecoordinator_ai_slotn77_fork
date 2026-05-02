@@ -9,23 +9,20 @@ import {
   OnInit,
   output,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Subject, Subscription, timer } from "rxjs";
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
-import { DataService } from "src/app/data.service";
-import { Lane } from "src/app/models/lane";
+import { DataService } from "@app/data.service";
+import { Lane } from "@app/models/lane";
 import {
   ArduinoConfig,
   LedString,
   MAX_ANALOG_PINS,
   MAX_DIGITAL_PINS,
-} from "src/app/models/track";
-
-import { TranslationService } from "src/app/services/translation.service";
-
-import { PinBehavior, RgbLedBehavior } from "src/app/proto/antigravity";
-
-import { FormsModule } from "@angular/forms";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+} from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { PinBehavior, RgbLedBehavior } from "@app/proto/antigravity";
+import { TranslationService } from "@app/services/translation.service";
 
 interface PinAction {
   label: string;

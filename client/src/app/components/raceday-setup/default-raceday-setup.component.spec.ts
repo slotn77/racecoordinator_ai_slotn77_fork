@@ -11,29 +11,28 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject as _BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { HelpOverlayComponent } from "src/app/components/shared/help-overlay/help-overlay.component";
-import { DataService } from "src/app/data.service";
-import { Settings as _Settings } from "src/app/models/settings";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-
-import { FileSystemService } from "src/app/services/file-system.service";
-import { HelpService } from "src/app/services/help.service";
-import { RaceService } from "src/app/services/race.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { MOCK_DRIVERS as _MOCK_DRIVERS } from "src/app/testing/data/drivers_data";
-import { MOCK_RACES as _MOCK_RACES } from "src/app/testing/data/races_data";
-import { createDefaultSettings } from "src/app/testing/data/settings_data";
-import { MOCK_TEAMS as _MOCK_TEAMS } from "src/app/testing/data/teams_data";
+import { AnalyticsService } from "@app/analytics.service";
+import { HelpOverlayComponent } from "@app/components/shared/help-overlay/help-overlay.component";
+import { DataService } from "@app/data.service";
+import { Settings as _Settings } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { InitializeRaceResponse, Race } from "@app/proto/antigravity";
+import { FileSystemService } from "@app/services/file-system.service";
+import { HelpService } from "@app/services/help.service";
+import { RaceService } from "@app/services/race.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { MOCK_DRIVERS as _MOCK_DRIVERS } from "@app/testing/data/drivers_data";
+import { MOCK_RACES as _MOCK_RACES } from "@app/testing/data/races_data";
+import { createDefaultSettings } from "@app/testing/data/settings_data";
+import { MOCK_TEAMS as _MOCK_TEAMS } from "@app/testing/data/teams_data";
 import {
   mockAnalyticsService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
-import { InitializeRaceResponse, Race } from "src/app/proto/antigravity";
+} from "@app/testing/unit-test-mocks";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
 import { DefaultRacedaySetupHarness } from "./testing/default-raceday-setup.harness";

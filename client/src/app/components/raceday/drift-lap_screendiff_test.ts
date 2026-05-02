@@ -1,10 +1,8 @@
 import { expect, test } from "@playwright/test";
-
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { RaceData } from "@app/proto/antigravity";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import {} from "./testing/default-raceday.harness.e2e";
-
-import { RaceData } from "src/app/proto/antigravity";
 
 test.describe("Drift Lap Indicator Visuals", () => {
   test.beforeEach(async ({ page }) => {

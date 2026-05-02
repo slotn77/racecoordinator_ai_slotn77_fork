@@ -7,9 +7,9 @@ import {
   tick,
 } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { HelpOverlayComponent } from "./help-overlay.component";
 import { HelpOverlayHarness } from "./testing/help-overlay.harness";

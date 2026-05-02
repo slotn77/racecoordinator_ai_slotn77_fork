@@ -4,17 +4,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
 import { Subject } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { FinishMethod } from "src/app/models/heat_scoring";
-
-import { RaceService } from "src/app/services/race.service";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import { RaceFlagService } from "src/app/services/race-flag.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { DataService } from "@app/data.service";
+import { FinishMethod } from "@app/models/heat_scoring";
+import { RaceFlag, RaceState } from "@app/proto/antigravity";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { DriverStationComponent } from "./driver-station.component";
-
-import { RaceFlag, RaceState } from "src/app/proto/antigravity";
 
 @Pipe({ name: "translate" })
 class MockTranslatePipe implements PipeTransform {

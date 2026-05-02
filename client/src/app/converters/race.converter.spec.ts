@@ -1,9 +1,8 @@
 // Force refresh for unit tests
+import { IRaceModel } from "@app/proto/antigravity";
+
 import {} from "../models/race";
-
 import { RaceConverter } from "./race.converter";
-
-import { IRaceModel } from "src/app/proto/antigravity";
 
 describe("RaceConverter", () => {
   beforeEach(() => {

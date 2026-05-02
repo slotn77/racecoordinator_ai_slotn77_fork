@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
-
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
-
-import { RaceState } from "src/app/proto/antigravity";
+import { RaceState } from "@app/proto/antigravity";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 test.describe("Raceday Start Sequence Visuals", () => {
   test.beforeEach(async ({ page }) => {

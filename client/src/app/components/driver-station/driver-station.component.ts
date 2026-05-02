@@ -1,21 +1,19 @@
+import { DecimalPipe } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { FinishMethod } from "src/app/models/heat_scoring";
-import { Race } from "src/app/models/race";
-import { Track } from "src/app/models/track";
-
-import { DriverHeatData } from "src/app/race/driver_heat_data";
-import { Heat } from "src/app/race/heat";
-import { RaceService } from "src/app/services/race.service";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import { RaceFlagService } from "src/app/services/race-flag.service";
-import { createTTSContext, playSound } from "src/app/utils/audio";
-
-import { RaceState } from "src/app/proto/antigravity";
-import { DecimalPipe } from "@angular/common";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { DataService } from "@app/data.service";
+import { FinishMethod } from "@app/models/heat_scoring";
+import { Race } from "@app/models/race";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { RaceState } from "@app/proto/antigravity";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+import { Heat } from "@app/race/heat";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
+import { createTTSContext, playSound } from "@app/utils/audio";
 
 @Component({
   standalone: true,

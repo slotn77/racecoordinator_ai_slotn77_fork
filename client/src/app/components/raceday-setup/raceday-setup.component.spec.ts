@@ -7,22 +7,20 @@ import {
   tick,
 } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
-import { Settings } from "src/app/models/settings";
-
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
+import { Settings } from "@app/models/settings";
+import { RaceFlag } from "@app/proto/antigravity";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { DynamicComponentService } from "src/app/services/dynamic-component.service";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+} from "@app/services/connection-monitor.service";
+import { DynamicComponentService } from "@app/services/dynamic-component.service";
+import { FileSystemService } from "@app/services/file-system.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { RacedaySetupComponent } from "./raceday-setup.component";
-
-import { RaceFlag } from "src/app/proto/antigravity";
 
 describe("RacedaySetupComponent", () => {
   let component: RacedaySetupComponent;

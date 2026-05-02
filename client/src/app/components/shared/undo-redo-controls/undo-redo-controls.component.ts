@@ -1,7 +1,7 @@
 import { Component, input } from "@angular/core";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 import { UndoManager } from "./undo-manager";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

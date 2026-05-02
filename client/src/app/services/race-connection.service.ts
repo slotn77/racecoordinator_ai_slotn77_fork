@@ -1,19 +1,17 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
-import { DriverConverter } from "src/app/converters/driver.converter";
-import { HeatConverter } from "src/app/converters/heat.converter";
-import { LaneConverter } from "src/app/converters/lane.converter";
-import { RaceConverter } from "src/app/converters/race.converter";
-import { RaceParticipantConverter } from "src/app/converters/race_participant.converter";
-import { TrackConverter } from "src/app/converters/track.converter";
-import { DataService } from "src/app/data.service";
-
-import { RaceService } from "./race.service";
-
+import { DriverConverter } from "@app/converters/driver.converter";
+import { HeatConverter } from "@app/converters/heat.converter";
+import { LaneConverter } from "@app/converters/lane.converter";
+import { RaceConverter } from "@app/converters/race.converter";
+import { RaceParticipantConverter } from "@app/converters/race_participant.converter";
+import { TrackConverter } from "@app/converters/track.converter";
+import { DataService } from "@app/data.service";
 import {
   ICarData,
   IInterfaceEvent,
   ILap,
+  InterfaceStatus,
   IOverallStandingsUpdate,
   IRace,
   IRaceTime,
@@ -21,10 +19,11 @@ import {
   IRecordData,
   ISegment,
   IStandingsUpdate,
-  InterfaceStatus,
   RaceFlag,
   RaceState,
-} from "src/app/proto/antigravity";
+} from "@app/proto/antigravity";
+
+import { RaceService } from "./race.service";
 
 @Injectable({
   providedIn: "root",

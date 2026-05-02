@@ -10,26 +10,24 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
-import { DataService } from "src/app/data.service";
+import { AboutDialogComponent } from "@app/components/shared/about-dialog/about-dialog.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { DynamicComponentService } from "src/app/services/dynamic-component.service";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { HelpService } from "src/app/services/help.service";
-import { RaceService } from "src/app/services/race.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+} from "@app/services/connection-monitor.service";
+import { DynamicComponentService } from "@app/services/dynamic-component.service";
+import { FileSystemService } from "@app/services/file-system.service";
+import { HelpService } from "@app/services/help.service";
+import { RaceService } from "@app/services/race.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
-
-import { FormsModule } from "@angular/forms";
-import { AboutDialogComponent } from "../shared/about-dialog/about-dialog.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
 class CustomUiBaseComponent extends DefaultRacedaySetupComponent {
   constructor(

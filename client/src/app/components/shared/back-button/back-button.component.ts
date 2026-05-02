@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, input, output } from "@angular/core";
 import { Router } from "@angular/router";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { ConfirmationModalComponent } from "../confirmation-modal/confirmation-modal.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+} from "@app/services/connection-monitor.service";
 
 @Component({
   standalone: true,

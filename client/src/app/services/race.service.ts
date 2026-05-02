@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { Driver } from "src/app/models/driver";
-import { Race } from "src/app/models/race";
-import { RaceParticipant } from "src/app/models/race_participant";
-import { Heat } from "src/app/race/heat";
+import { Driver } from "@app/models/driver";
+import { Race } from "@app/models/race";
+import { RaceParticipant } from "@app/models/race_participant";
+import { Heat } from "@app/race/heat";
 
 @Injectable({
   providedIn: "root",

@@ -2,25 +2,25 @@ import { Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
-import {} from "src/app/models/settings";
-import { Track } from "src/app/models/track";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
+import {} from "@app/models/settings";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 import {
   MOCK_TRACK_INSTANCES,
   MOCK_TRACKS as _MOCK_TRACKS,
-} from "src/app/testing/data/tracks_data";
+} from "@app/testing/data/tracks_data";
 import {
   mockAnalyticsService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
+} from "@app/testing/unit-test-mocks";
 
 import { createTrackManagerDataServiceMock } from "./testing/track-manager_helper";
 import { TrackManagerComponent } from "./track-manager.component";

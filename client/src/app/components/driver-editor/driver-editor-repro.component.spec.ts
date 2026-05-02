@@ -10,11 +10,11 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
-import { ConnectionMonitorService } from "src/app/services/connection-monitor.service";
-import { HelpService } from "src/app/services/help.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
+import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
+import { HelpService } from "@app/services/help.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { DriverEditorComponent } from "./driver-editor.component";
 

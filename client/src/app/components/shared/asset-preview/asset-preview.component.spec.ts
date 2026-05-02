@@ -5,7 +5,7 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
-import { DataService } from "src/app/data.service";
+import { DataService } from "@app/data.service";
 
 import { AssetPreviewComponent } from "./asset-preview.component";
 

@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { of } from "rxjs";
-import { DataService } from "src/app/data.service";
+import { DataService } from "@app/data.service";
 
 import { AssetPickerComponent } from "./asset-picker.component";
 

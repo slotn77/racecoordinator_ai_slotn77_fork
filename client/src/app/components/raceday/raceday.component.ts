@@ -11,16 +11,16 @@ import {
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { CanComponentDeactivate } from "src/app/guards/raceday.guard";
-import { DynamicComponentService } from "src/app/services/dynamic-component.service";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { RaceService } from "src/app/services/race.service";
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import { RaceFlagService } from "src/app/services/race-flag.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { ThemeService } from "src/app/services/theme.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { DataService } from "@app/data.service";
+import { CanComponentDeactivate } from "@app/guards/raceday.guard";
+import { DynamicComponentService } from "@app/services/dynamic-component.service";
+import { FileSystemService } from "@app/services/file-system.service";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
+import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRacedayComponent } from "./default-raceday.component";
 

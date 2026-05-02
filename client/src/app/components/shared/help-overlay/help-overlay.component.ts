@@ -1,3 +1,4 @@
+import { NgClass, NgStyle } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -9,10 +10,8 @@ import {
   ViewChild,
 } from "@angular/core";
 import { Subscription } from "rxjs";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { NgStyle, NgClass } from "@angular/common";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep, HelpService } from "@app/services/help.service";
 
 @Component({
   standalone: true,

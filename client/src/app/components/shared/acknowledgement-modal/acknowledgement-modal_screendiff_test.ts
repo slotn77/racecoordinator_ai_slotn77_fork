@@ -1,10 +1,8 @@
 import { expect, test } from "@playwright/test";
-
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { InterfaceEvent, InterfaceStatus } from "@app/proto/antigravity";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { AcknowledgementModalHarnessE2e } from "./testing/acknowledgement-modal.harness.e2e";
-
-import { InterfaceEvent, InterfaceStatus } from "src/app/proto/antigravity";
 
 test.describe("Acknowledgement Modal Visuals", () => {
   // Helper to dispatch an InterfaceEvent to all interface-data sockets

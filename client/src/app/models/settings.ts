@@ -1,4 +1,4 @@
-import { AnchorPoint } from "src/app/components/raceday/column_definition";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
 
 export enum ColumnVisibility {
   Always = "Always",

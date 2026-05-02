@@ -3,7 +3,7 @@ import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
-import { TranslationService } from "src/app/services/translation.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { EditorTitleComponent } from "./editor-title.component";
 import { EditorTitleHarness } from "./testing/editor-title.harness";

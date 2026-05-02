@@ -1,20 +1,20 @@
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { TranslationService } from "src/app/services/translation.service";
-import { MOCK_DATABASES } from "src/app/testing/data/databases_data";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { TranslationService } from "@app/services/translation.service";
+import { MOCK_DATABASES } from "@app/testing/data/databases_data";
 import {
   mockDataService,
   mockRouter,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+} from "@app/testing/unit-test-mocks";
 
 import { DatabaseManagerComponent } from "./database-manager.component";
 

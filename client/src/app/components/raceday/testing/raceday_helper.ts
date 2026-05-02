@@ -1,23 +1,22 @@
 import { BehaviorSubject, of, Subject } from "rxjs";
-
-import { MOCK_DRIVERS } from "../../../testing/data/drivers_data";
-import { MOCK_HEATS } from "../../../testing/data/heats_data";
-import { MOCK_RACES } from "../../../testing/data/races_data";
-import { MOCK_TEAMS as _MOCK_TEAMS } from "../../../testing/data/teams_data";
 import {
   ICarData,
   IInterfaceEvent,
   ILap,
+  InterfaceStatus,
   IRaceTime,
   IReactionTime,
   IRecordData,
   ISegment,
   IStandingsUpdate,
-  InterfaceStatus,
   RaceFlag,
   RaceState,
-} from "src/app/proto/antigravity";
+} from "@app/proto/antigravity";
 
+import { MOCK_DRIVERS } from "../../../testing/data/drivers_data";
+import { MOCK_HEATS } from "../../../testing/data/heats_data";
+import { MOCK_RACES } from "../../../testing/data/races_data";
+import { MOCK_TEAMS as _MOCK_TEAMS } from "../../../testing/data/teams_data";
 import {
   MOCK_TRACK_INSTANCES,
   MOCK_TRACKS as _MOCK_TRACKS,

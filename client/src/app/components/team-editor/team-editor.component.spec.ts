@@ -11,29 +11,29 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
-import { Driver } from "src/app/models/driver";
-import { Team } from "src/app/models/team";
-import { ConnectionMonitorService } from "src/app/services/connection-monitor.service";
-import { HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
+import { Driver } from "@app/models/driver";
+import { Team } from "@app/models/team";
+import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
+import { HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 import {
   MOCK_DRIVER_INSTANCES,
   MOCK_DRIVERS as _MOCK_DRIVERS,
-} from "src/app/testing/data/drivers_data";
+} from "@app/testing/data/drivers_data";
 import {
   MOCK_TEAM_INSTANCES,
   MOCK_TEAMS as _MOCK_TEAMS,
-} from "src/app/testing/data/teams_data";
+} from "@app/testing/data/teams_data";
 import {
   mockAnalyticsService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
+} from "@app/testing/unit-test-mocks";
 
 import { createTeamManagerDataServiceMock } from "../team-manager/testing/team-manager_helper";
 import { TeamEditorComponent } from "./team-editor.component";

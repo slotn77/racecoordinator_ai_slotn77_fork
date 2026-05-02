@@ -4,30 +4,30 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Router } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
-import { Race } from "src/app/models/race";
-import { Track } from "src/app/models/track";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { ConnectionMonitorService } from "src/app/services/connection-monitor.service";
-import { HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
+import { Race } from "@app/models/race";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
+import { HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 import {
   MOCK_RACE_INSTANCES,
   MOCK_RACES as _MOCK_RACES,
-} from "src/app/testing/data/races_data";
+} from "@app/testing/data/races_data";
 import {
   MOCK_TRACK_INSTANCES,
   MOCK_TRACKS,
-} from "src/app/testing/data/tracks_data";
+} from "@app/testing/data/tracks_data";
 import {
   mockAnalyticsService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
+} from "@app/testing/unit-test-mocks";
 
 import { RaceManagerComponent } from "./race-manager.component";
 import { createRaceManagerDataServiceMock } from "./testing/race-manager_helper";

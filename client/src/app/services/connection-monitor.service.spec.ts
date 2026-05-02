@@ -5,8 +5,8 @@ import {
   tick,
 } from "@angular/core/testing";
 import { of, throwError } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { mockDataService } from "src/app/testing/unit-test-mocks";
+import { DataService } from "@app/data.service";
+import { mockDataService } from "@app/testing/unit-test-mocks";
 
 import {
   ConnectionMonitorService,

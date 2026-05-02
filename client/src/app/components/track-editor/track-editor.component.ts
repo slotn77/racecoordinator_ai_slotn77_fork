@@ -1,9 +1,9 @@
 import {
-  CdkDragDrop,
-  moveItemInArray,
-  CdkDropList,
   CdkDrag,
+  CdkDragDrop,
   CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
 } from "@angular/cdk/drag-drop";
 import { Location } from "@angular/common";
 import {
@@ -16,31 +16,31 @@ import {
   ViewChild,
   ViewChildren,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
-import { EditorTitleComponent } from "src/app/components/shared/editor-title/editor-title.component";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
-import { ArduinoEditorComponent } from "src/app/components/track-editor/arduino-editor/arduino-editor.component";
-import { DataService } from "src/app/data.service";
-import { Lane } from "src/app/models/lane";
+import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
+import { EditorTitleComponent as EditorTitleComponent_1 } from "@app/components/shared/editor-title/editor-title.component";
+import { InputDialogComponent } from "@app/components/shared/input-dialog/input-dialog.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
+import { ArduinoEditorComponent } from "@app/components/track-editor/arduino-editor/arduino-editor.component";
+import { DataService } from "@app/data.service";
+import { Lane } from "@app/models/lane";
 import {
   ArduinoConfig,
   LedString,
   MAX_ANALOG_PINS,
   MAX_DIGITAL_PINS,
   Track,
-} from "src/app/models/track";
-import {} from "src/app/proto/message";
-import { PinBehavior, RgbLedBehavior } from "src/app/proto/antigravity";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { EditorTitleComponent as EditorTitleComponent_1 } from "../shared/editor-title/editor-title.component";
-import { FormsModule } from "@angular/forms";
-import { ArduinoEditorComponent as ArduinoEditorComponent_1 } from "./arduino-editor/arduino-editor.component";
-import { InputDialogComponent } from "../shared/input-dialog/input-dialog.component";
+} from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { PinBehavior, RgbLedBehavior } from "@app/proto/antigravity";
+import {} from "@app/proto/message";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ArduinoEditorComponent as ArduinoEditorComponent_1 } from "./arduino-editor/arduino-editor.component";
 
 @Component({
   standalone: true,

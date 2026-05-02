@@ -1,5 +1,5 @@
 import { expect, Page, test } from "@playwright/test";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { HelpOverlayHarnessE2e } from "./testing/help-overlay.harness.e2e";
 

@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { Settings } from "src/app/models/settings";
+import { Settings } from "@app/models/settings";
 
 import { SettingsService } from "./settings.service";
 

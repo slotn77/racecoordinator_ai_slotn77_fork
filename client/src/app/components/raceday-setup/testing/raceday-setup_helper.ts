@@ -1,11 +1,10 @@
 import { BehaviorSubject, of } from "rxjs";
+import { InitializeRaceResponse, RaceFlag } from "@app/proto/antigravity";
 
 import { MOCK_DRIVERS } from "../../../testing/data/drivers_data";
 import { MOCK_RACES } from "../../../testing/data/races_data";
 import { createDefaultSettings as _createDefaultSettings } from "../../../testing/data/settings_data";
 import { MOCK_TEAMS } from "../../../testing/data/teams_data";
-
-import { InitializeRaceResponse, RaceFlag } from "src/app/proto/antigravity";
 
 export const MOCK_AUTOSAVE_RACES = ["autosave_r1.json", "autosave_r2.json"];
 

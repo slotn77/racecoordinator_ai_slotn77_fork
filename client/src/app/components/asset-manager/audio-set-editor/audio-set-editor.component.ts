@@ -8,16 +8,12 @@ import {
   OnInit,
   output,
 } from "@angular/core";
-import { DataService } from "src/app/data.service";
-
-import { TranslationService } from "src/app/services/translation.service";
-
-import { IAssetMessage, ISaveAudioSetEntry } from "src/app/proto/antigravity";
-
 import { FormsModule } from "@angular/forms";
-import { AudioSelectorComponent } from "../../shared/audio-selector/audio-selector.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AudioSelectorComponent } from "@app/components/shared/audio-selector/audio-selector.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { IAssetMessage, ISaveAudioSetEntry } from "@app/proto/antigravity";
+import { TranslationService } from "@app/services/translation.service";
 
 @Component({
   standalone: true,

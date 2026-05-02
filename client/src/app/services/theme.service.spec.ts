@@ -1,9 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { of, throwError } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { Settings } from "src/app/models/settings";
-import { Theme } from "src/app/models/theme";
-import { SettingsService } from "src/app/services/settings.service";
+import { DataService } from "@app/data.service";
+import { Settings } from "@app/models/settings";
+import { Theme } from "@app/models/theme";
+import { SettingsService } from "@app/services/settings.service";
 
 import { ThemeService } from "./theme.service";
 

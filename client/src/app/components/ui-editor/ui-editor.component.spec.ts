@@ -10,14 +10,14 @@ import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { delay, of } from "rxjs";
-import { AnchorPoint } from "src/app/components/raceday/column_definition";
-import { DataService } from "src/app/data.service";
-import { Settings } from "src/app/models/settings";
-import { Theme } from "src/app/models/theme";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { ThemeService } from "src/app/services/theme.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
+import { DataService } from "@app/data.service";
+import { Settings } from "@app/models/settings";
+import { Theme } from "@app/models/theme";
+import { FileSystemService } from "@app/services/file-system.service";
+import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { UIEditorComponent } from "./ui-editor.component";
 

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ChildrenOutletContexts, NavigationEnd, Router } from "@angular/router";
 import { of, Subject } from "rxjs";
+import { RaceFlag } from "@app/proto/antigravity";
 
 import { AnalyticsService } from "./analytics.service";
 import { AppComponent } from "./app.component";
@@ -10,8 +11,6 @@ import { DataService } from "./data.service";
 import { NavigationService } from "./services/navigation.service";
 import { SettingsService } from "./services/settings.service";
 import { ThemeService } from "./services/theme.service";
-
-import { RaceFlag } from "src/app/proto/antigravity";
 
 describe("AppComponent", () => {
   let fixture: ComponentFixture<AppComponent>;

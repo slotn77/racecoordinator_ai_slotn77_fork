@@ -2,8 +2,9 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable, NgZone } from "@angular/core";
 import { BehaviorSubject, Observable, ReplaySubject, Subject } from "rxjs";
 import { map } from "rxjs/operators";
-import { ArduinoConfig } from "src/app/models/track";
+import { ArduinoConfig } from "@app/models/track";
 import {
+  ArduinoConfig as ProtoArduinoConfig,
   DeferHeatRequest,
   DeferHeatResponse,
   DeleteAssetRequest,
@@ -12,6 +13,11 @@ import {
   ICarData,
   IInterfaceEvent,
   ILap,
+  InitializeInterfaceRequest,
+  InitializeInterfaceResponse,
+  InitializeRaceRequest,
+  InitializeRaceResponse,
+  InterfaceEvent,
   IOverallStandingsUpdate,
   IRace,
   IRaceTime,
@@ -23,11 +29,7 @@ import {
   ISegment,
   IStandingsUpdate,
   ITeamModel,
-  InitializeInterfaceRequest,
-  InitializeInterfaceResponse,
-  InitializeRaceRequest,
-  InitializeRaceResponse,
-  InterfaceEvent,
+  LedString as ProtoLedString,
   ListAssetsResponse,
   NextHeatRequest,
   NextHeatResponse,
@@ -58,12 +60,10 @@ import {
   UpdateInterfaceConfigResponse,
   UploadAssetRequest,
   UploadAssetResponse,
-  VoltageConfig,
-  ArduinoConfig as ProtoArduinoConfig,
-  LedString as ProtoLedString,
   VoltageConfig as ProtoVoltageConfig,
-} from "src/app/proto/antigravity";
-import { SettingsService } from "src/app/services/settings.service";
+  VoltageConfig,
+} from "@app/proto/antigravity";
+import { SettingsService } from "@app/services/settings.service";
 
 @Injectable({
   providedIn: "root",

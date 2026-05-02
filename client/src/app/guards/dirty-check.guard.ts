@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { CanDeactivate } from "@angular/router";
 import { Observable } from "rxjs";
-import { DirtyComponent } from "src/app/interfaces/dirty-component";
-import { TranslationService } from "src/app/services/translation.service";
+import { DirtyComponent } from "@app/interfaces/dirty-component";
+import { TranslationService } from "@app/services/translation.service";
 
 @Injectable({
   providedIn: "root",

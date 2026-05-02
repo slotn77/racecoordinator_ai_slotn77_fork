@@ -1,6 +1,5 @@
 import { of } from "rxjs";
-
-import { InitializeRaceResponse } from "src/app/proto/antigravity";
+import { InitializeRaceResponse } from "@app/proto/antigravity";
 
 export class DataServiceMock {
   getDrivers = jasmine.createSpy("getDrivers").and.returnValue(

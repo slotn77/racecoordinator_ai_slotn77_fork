@@ -2,8 +2,8 @@ import { ChangeDetectorRef, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { of, throwError } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { DataService } from "@app/data.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { AudioSetEditorComponent } from "./audio-set-editor.component";
 

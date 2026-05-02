@@ -1,9 +1,8 @@
 import { ChangeDetectorRef, Component, input, output } from "@angular/core";
-import { DataService } from "src/app/data.service";
-
-import { AssetPreviewComponent } from "../asset-preview/asset-preview.component";
-import { ItemSelectorComponent } from "../item-selector/item-selector.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AssetPreviewComponent } from "@app/components/shared/asset-preview/asset-preview.component";
+import { ItemSelectorComponent } from "@app/components/shared/item-selector/item-selector.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

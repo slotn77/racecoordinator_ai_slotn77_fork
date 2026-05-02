@@ -1,11 +1,12 @@
 import {
+  CdkDrag,
   CdkDragDrop,
+  CdkDragPreview,
+  CdkDropList,
   moveItemInArray,
   ɵɵCdkScrollable,
-  CdkDropList,
-  CdkDrag,
-  CdkDragPreview,
 } from "@angular/cdk/drag-drop";
+import { NgClass } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -15,26 +16,24 @@ import {
   output,
   ViewChild,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { forkJoin } from "rxjs";
-import { ToolbarComponent } from "src/app/components/shared/toolbar/toolbar.component";
-import { DataService } from "src/app/data.service";
-import { Driver } from "src/app/models/driver";
-import { Race } from "src/app/models/race";
-import { Team } from "src/app/models/team";
-import { FileSystemService } from "src/app/services/file-system.service";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { RaceService } from "src/app/services/race.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { naturalSortCompare } from "src/app/utils/sorting.utils";
-import { NgClass } from "@angular/common";
-import { ToolbarComponent as ToolbarComponent_1 } from "../shared/toolbar/toolbar.component";
-import { FormsModule } from "@angular/forms";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { AcknowledgementModalComponent } from "../shared/acknowledgement-modal/acknowledgement-modal.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { ToolbarComponent } from "@app/components/shared/toolbar/toolbar.component";
+import { ToolbarComponent as ToolbarComponent_1 } from "@app/components/shared/toolbar/toolbar.component";
+import { DataService } from "@app/data.service";
+import { Driver } from "@app/models/driver";
+import { Race } from "@app/models/race";
+import { Team } from "@app/models/team";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { FileSystemService } from "@app/services/file-system.service";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { RaceService } from "@app/services/race.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 type Participant = Driver | Team;
 

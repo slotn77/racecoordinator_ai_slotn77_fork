@@ -3,10 +3,10 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { HelpService } from "src/app/services/help.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { HelpService } from "@app/services/help.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { ManagerHeaderComponent } from "./manager-header.component";
 import { ManagerHeaderHarness } from "./testing/manager-header.harness";

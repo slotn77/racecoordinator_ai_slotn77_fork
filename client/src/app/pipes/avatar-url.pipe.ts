@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import { DataService } from "src/app/data.service";
+import { DataService } from "@app/data.service";
 
 @Pipe({
   standalone: true,

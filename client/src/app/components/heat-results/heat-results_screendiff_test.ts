@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
-
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
-
-import { RaceData } from "src/app/proto/antigravity";
+import { RaceData } from "@app/proto/antigravity";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 test.describe("Heat Results Visuals", () => {
   test.beforeEach(async ({ page }) => {

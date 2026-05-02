@@ -1,8 +1,8 @@
+import { IRaceParticipant } from "@app/proto/antigravity";
+
 import { DriverConverter } from "./driver.converter";
 import { RaceParticipantConverter } from "./race_participant.converter";
 import { TeamConverter } from "./team.converter";
-
-import { IRaceParticipant } from "src/app/proto/antigravity";
 
 describe("RaceParticipantConverter", () => {
   beforeEach(() => {

@@ -8,15 +8,15 @@ import {
 } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { AcknowledgementModalComponent } from "src/app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
-import { Settings } from "src/app/models/settings";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { createTestSettings } from "src/app/testing/unit-test-mocks";
+import { AnalyticsService } from "@app/analytics.service";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
+import { Settings } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { createTestSettings } from "@app/testing/unit-test-mocks";
 
 import { ToolbarHarness } from "./testing/toolbar.harness";
 import { ToolbarComponent } from "./toolbar.component";

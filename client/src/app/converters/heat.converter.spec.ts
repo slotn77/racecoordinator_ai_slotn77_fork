@@ -1,7 +1,7 @@
+import { IHeat } from "@app/proto/antigravity";
+
 import { DriverConverter } from "./driver.converter";
 import { HeatConverter } from "./heat.converter";
-
-import { IHeat } from "src/app/proto/antigravity";
 
 describe("HeatConverter", () => {
   beforeEach(() => {

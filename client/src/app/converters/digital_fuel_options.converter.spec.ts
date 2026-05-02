@@ -1,16 +1,16 @@
-import { FuelUsageType } from "src/app/models/fuel_options";
+import { FuelUsageType } from "@app/models/fuel_options";
 
 import { DigitalFuelOptionsConverter } from "./digital_fuel_options.converter";
 
-describe('DigitalFuelOptionsConverter', () => {
-  it('should convert from proto with default values', () => {
+describe("DigitalFuelOptionsConverter", () => {
+  it("should convert from proto with default values", () => {
     const result = DigitalFuelOptionsConverter.fromProto(null);
     expect(result.enabled).toBeFalse();
     expect(result.capacity).toBe(100);
     expect(result.usage_type).toBe(FuelUsageType.LINEAR);
   });
 
-  it('should convert from proto with provided values', () => {
+  it("should convert from proto with provided values", () => {
     const mockProto = {
       enabled: true,
       capacity: 120,
@@ -20,7 +20,7 @@ describe('DigitalFuelOptionsConverter', () => {
       refuelRate: 15,
       pitStopDelay: 3.0,
       resetFuelAtHeatStart: true,
-      endHeatOnOutOfFuel: true
+      endHeatOnOutOfFuel: true,
     };
     const result = DigitalFuelOptionsConverter.fromProto(mockProto as any);
     expect(result.enabled).toBeTrue();
@@ -34,9 +34,9 @@ describe('DigitalFuelOptionsConverter', () => {
     expect(result.end_heat_on_out_of_fuel).toBeTrue();
   });
 
-  it('should handle string usage types', () => {
+  it("should handle string usage types", () => {
     const mockProto = {
-      usageType: 'CUBIC'
+      usageType: "CUBIC",
     };
     const result = DigitalFuelOptionsConverter.fromProto(mockProto as any);
     expect(result.usage_type).toBe(FuelUsageType.CUBIC);

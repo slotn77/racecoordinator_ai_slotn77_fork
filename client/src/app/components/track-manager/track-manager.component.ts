@@ -6,18 +6,17 @@ import {
   ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ManagerHeaderComponent } from "src/app/components/shared/manager-header/manager-header.component";
-import { DataService } from "src/app/data.service";
-import { Track } from "src/app/models/track";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "../shared/manager-header/manager-header.component";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { ManagerHeaderComponent } from "@app/components/shared/manager-header/manager-header.component";
+import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "@app/components/shared/manager-header/manager-header.component";
+import { DataService } from "@app/data.service";
+import { Track } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { ArduinoSummaryComponent } from "./arduino-summary/arduino-summary.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

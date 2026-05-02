@@ -5,13 +5,12 @@ import {
   input,
   output,
 } from "@angular/core";
-import { DataService } from "src/app/data.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { mockTTSContext, playSound } from "src/app/utils/audio";
-
 import { FormsModule } from "@angular/forms";
-import { ItemSelectorComponent } from "../item-selector/item-selector.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ItemSelectorComponent } from "@app/components/shared/item-selector/item-selector.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { TranslationService } from "@app/services/translation.service";
+import { mockTTSContext, playSound } from "@app/utils/audio";
 
 @Component({
   standalone: true,

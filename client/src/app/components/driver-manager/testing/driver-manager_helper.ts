@@ -1,5 +1,5 @@
 import { of } from "rxjs";
-import { MOCK_DRIVERS } from "src/app/testing/data/drivers_data";
+import { MOCK_DRIVERS } from "@app/testing/data/drivers_data";
 
 /**
  * Shared test helper for DriverManager and DriverEditor.

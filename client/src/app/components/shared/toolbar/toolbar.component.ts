@@ -6,15 +6,14 @@ import {
   output,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { AnalyticsService } from "src/app/analytics.service";
-import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
-import { Settings } from "src/app/models/settings";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-
-import { AcknowledgementModalComponent } from "../acknowledgement-modal/acknowledgement-modal.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AnalyticsService } from "@app/analytics.service";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
+import { Settings } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 
 @Component({
   standalone: true,

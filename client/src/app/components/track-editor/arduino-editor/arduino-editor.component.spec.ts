@@ -8,21 +8,19 @@ import {
 } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { of, Subject } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { Lane } from "src/app/models/lane";
+import { DataService } from "@app/data.service";
+import { Lane } from "@app/models/lane";
 import {
   ArduinoConfig,
   MAX_ANALOG_PINS,
   MAX_DIGITAL_PINS,
-} from "src/app/models/track";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-
-import { TranslationService } from "src/app/services/translation.service";
-import { TranslationServiceMock } from "src/app/testing/translation-service.mock";
+} from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { PinBehavior, RgbLedBehavior } from "@app/proto/antigravity";
+import { TranslationService } from "@app/services/translation.service";
+import { TranslationServiceMock } from "@app/testing/translation-service.mock";
 
 import { ArduinoEditorComponent } from "./arduino-editor.component";
-
-import { PinBehavior, RgbLedBehavior } from "src/app/proto/antigravity";
 
 // BEHAVIOR_VOLTAGE_LEVEL_BASE = 7000
 const VOLTAGE_BASE = 7000;

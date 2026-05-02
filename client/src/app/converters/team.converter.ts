@@ -1,8 +1,7 @@
-import { Team } from "src/app/models/team";
+import { Team } from "@app/models/team";
+import { ITeamModel } from "@app/proto/antigravity";
 
 import { ConverterCache } from "./converter_cache";
-
-import { ITeamModel } from "src/app/proto/antigravity";
 
 export class TeamConverter {
   private static cache = new ConverterCache<Team>();

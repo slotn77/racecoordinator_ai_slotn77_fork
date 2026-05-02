@@ -1,17 +1,16 @@
 import { fakeAsync, flush, TestBed, tick } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
-import { DataService } from "src/app/data.service";
-
-import { RaceService } from "./race.service";
-import { RaceConnectionService } from "./race-connection.service";
-
+import { DataService } from "@app/data.service";
 import {
   IInterfaceEvent,
   ILap,
   InterfaceStatus,
   RaceFlag,
   RaceState,
-} from "src/app/proto/antigravity";
+} from "@app/proto/antigravity";
+
+import { RaceService } from "./race.service";
+import { RaceConnectionService } from "./race-connection.service";
 
 describe("RaceConnectionService", () => {
   let service: RaceConnectionService;

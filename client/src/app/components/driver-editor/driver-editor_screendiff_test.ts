@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { MOCK_DRIVERS } from "src/app/testing/data/drivers_data";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { MOCK_DRIVERS } from "@app/testing/data/drivers_data";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { DriverEditorHarnessE2e } from "./testing/driver-editor.harness.e2e";
 

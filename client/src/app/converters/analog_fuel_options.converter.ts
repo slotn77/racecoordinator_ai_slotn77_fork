@@ -1,7 +1,6 @@
-import { AnalogFuelOptions } from "src/app/models/analog_fuel_options";
-import { FuelUsageType } from "src/app/models/fuel_options";
-
-import { IAnalogFuelOptions } from "src/app/proto/antigravity";
+import { AnalogFuelOptions } from "@app/models/analog_fuel_options";
+import { FuelUsageType } from "@app/models/fuel_options";
+import { IAnalogFuelOptions } from "@app/proto/antigravity";
 
 export class AnalogFuelOptionsConverter {
   static fromProto(proto?: IAnalogFuelOptions | null): AnalogFuelOptions {

@@ -3,10 +3,9 @@ import {
   HttpTestingController,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { SaveAudioSetResponse } from "@app/proto/antigravity";
 
 import { DataService } from "./data.service";
-
-import { SaveAudioSetResponse } from "src/app/proto/antigravity";
 
 describe("DataService", () => {
   let service: DataService;

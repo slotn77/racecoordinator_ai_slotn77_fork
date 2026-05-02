@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { AudioConfig } from "src/app/models/driver";
-import {} from "src/app/models/settings";
-import { Theme } from "src/app/models/theme";
-import { SettingsService } from "src/app/services/settings.service";
+import { DataService } from "@app/data.service";
+import { AudioConfig } from "@app/models/driver";
+import {} from "@app/models/settings";
+import { Theme } from "@app/models/theme";
+import { SettingsService } from "@app/services/settings.service";
 
 /**
  * ThemeService manages the active theme and resolves asset IDs for theme slots.

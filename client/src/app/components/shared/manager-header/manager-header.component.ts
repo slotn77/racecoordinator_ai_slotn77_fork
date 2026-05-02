@@ -1,11 +1,10 @@
 import { Component, input, output, ViewChild } from "@angular/core";
-import { ToolbarComponent } from "src/app/components/shared/toolbar/toolbar.component";
-import { Settings } from "src/app/models/settings";
-import { GuideStep } from "src/app/services/help.service";
-import { BackButtonComponent } from "../back-button/back-button.component";
-
-import { ToolbarComponent as ToolbarComponent_1 } from "../toolbar/toolbar.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { BackButtonComponent } from "@app/components/shared/back-button/back-button.component";
+import { ToolbarComponent } from "@app/components/shared/toolbar/toolbar.component";
+import { ToolbarComponent as ToolbarComponent_1 } from "@app/components/shared/toolbar/toolbar.component";
+import { Settings } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { GuideStep } from "@app/services/help.service";
 
 @Component({
   standalone: true,

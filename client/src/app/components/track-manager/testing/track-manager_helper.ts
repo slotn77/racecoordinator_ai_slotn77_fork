@@ -1,8 +1,7 @@
 import { of } from "rxjs";
+import { RaceState as _RaceState } from "@app/proto/antigravity";
 
 import { createDefaultSettings as _createDefaultSettings } from "../../../testing/data/settings_data";
-import { RaceState as _RaceState } from "src/app/proto/antigravity";
-
 import {
   MOCK_FACTORY_SETTINGS,
   MOCK_TRACK_INSTANCES,

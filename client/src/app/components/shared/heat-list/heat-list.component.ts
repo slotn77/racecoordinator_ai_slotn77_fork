@@ -1,13 +1,12 @@
 import {
-  CdkDragDrop,
-  CdkDropList,
   CdkDrag,
+  CdkDragDrop,
   CdkDragHandle,
   CdkDragPlaceholder,
+  CdkDropList,
 } from "@angular/cdk/drag-drop";
 import { Component, effect, input, output } from "@angular/core";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

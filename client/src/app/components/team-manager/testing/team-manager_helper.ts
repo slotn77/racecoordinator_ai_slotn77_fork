@@ -1,6 +1,6 @@
 import { of } from "rxjs";
-import { MOCK_DRIVERS } from "src/app/testing/data/drivers_data";
-import { MOCK_TEAMS } from "src/app/testing/data/teams_data";
+import { MOCK_DRIVERS } from "@app/testing/data/drivers_data";
+import { MOCK_TEAMS } from "@app/testing/data/teams_data";
 
 /**
  * Shared test helper for TeamManager and TeamEditor.

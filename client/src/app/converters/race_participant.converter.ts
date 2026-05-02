@@ -1,10 +1,9 @@
-import { RaceParticipant } from "src/app/models/race_participant";
+import { RaceParticipant } from "@app/models/race_participant";
+import { IRaceParticipant } from "@app/proto/antigravity";
 
 import { ConverterCache } from "./converter_cache";
 import { DriverConverter } from "./driver.converter";
 import { TeamConverter } from "./team.converter";
-
-import { IRaceParticipant } from "src/app/proto/antigravity";
 
 export class RaceParticipantConverter {
   private static cache = new ConverterCache<RaceParticipant>();

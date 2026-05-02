@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ArduinoConfig } from "src/app/models/track";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-
-import { TranslationService } from "src/app/services/translation.service";
-import { TranslationServiceMock } from "src/app/testing/translation-service.mock";
+import { ArduinoConfig } from "@app/models/track";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { PinBehavior } from "@app/proto/antigravity";
+import { TranslationService } from "@app/services/translation.service";
+import { TranslationServiceMock } from "@app/testing/translation-service.mock";
 
 import { ArduinoSummaryComponent } from "./arduino-summary.component";
-
-import { PinBehavior } from "src/app/proto/antigravity";
 
 describe("ArduinoSummaryComponent", () => {
   let component: ArduinoSummaryComponent;

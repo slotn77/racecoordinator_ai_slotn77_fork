@@ -1,8 +1,8 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { TranslationService } from "src/app/services/translation.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { TranslationService } from "@app/services/translation.service";
 
 import { AboutDialogComponent } from "./about-dialog.component";
 import { AboutDialogHarness } from "./testing/about-dialog.harness";

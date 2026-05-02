@@ -1,27 +1,27 @@
-import { Driver } from "src/app/models/driver";
-import { Team } from "src/app/models/team";
+import { Driver } from "@app/models/driver";
+import { Team } from "@app/models/team";
 
 export class RaceParticipant {
-    readonly driver: Driver;
-    readonly objectId: string;
-    readonly team?: Team;
+  readonly driver: Driver;
+  readonly objectId: string;
+  readonly team?: Team;
 
-    constructor(
-        objectId: string,
-        driver: Driver,
-        public rank: number = 0,
-        public totalLaps: number = 0,
-        public totalTime: number = 0,
-        public bestLapTime: number = 0,
-        public averageLapTime: number = 0,
-        public medianLapTime: number = 0,
-        public rankValue: number = 0,
-        public seed: number = 0,
-        public fuelLevel: number = 100,
-        team?: Team
-    ) {
-        this.driver = driver;
-        this.objectId = objectId;
-        this.team = team;
-    }
+  constructor(
+    objectId: string,
+    driver: Driver,
+    public rank: number = 0,
+    public totalLaps: number = 0,
+    public totalTime: number = 0,
+    public bestLapTime: number = 0,
+    public averageLapTime: number = 0,
+    public medianLapTime: number = 0,
+    public rankValue: number = 0,
+    public seed: number = 0,
+    public fuelLevel: number = 100,
+    team?: Team,
+  ) {
+    this.driver = driver;
+    this.objectId = objectId;
+    this.team = team;
+  }
 }

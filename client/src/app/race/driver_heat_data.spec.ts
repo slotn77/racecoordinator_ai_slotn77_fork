@@ -1,4 +1,4 @@
-import { Driver } from "src/app/models/driver";
+import { Driver } from "@app/models/driver";
 
 import { DriverHeatData } from "./driver_heat_data";
 import { RaceParticipant } from "./race_participant";

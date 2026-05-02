@@ -1,6 +1,5 @@
 import { Component, input, output } from "@angular/core";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,

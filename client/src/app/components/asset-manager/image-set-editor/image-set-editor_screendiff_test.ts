@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { AssetManagerHarnessE2e } from "src/app/components/asset-manager/testing/asset-manager.harness.e2e";
-import { TestSetupHelper } from "src/app/testing/test-setup_helper";
+import { AssetManagerHarnessE2e } from "@app/components/asset-manager/testing/asset-manager.harness.e2e";
+import { TestSetupHelper } from "@app/testing/test-setup_helper";
 
 import { ImageSetEditorHarnessE2e } from "./testing/image-set-editor.harness.e2e";
 

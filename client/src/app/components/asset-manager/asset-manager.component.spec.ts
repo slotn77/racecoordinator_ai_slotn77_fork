@@ -9,15 +9,15 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "src/app/analytics.service";
-import { DataService } from "src/app/data.service";
+import { AnalyticsService } from "@app/analytics.service";
+import { DataService } from "@app/data.service";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
+} from "@app/services/connection-monitor.service";
+import { HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 import {
   mockAnalyticsService,
   mockDataService,
@@ -25,7 +25,7 @@ import {
   mockSettingsService,
   mockTranslationService,
   resetMocks,
-} from "src/app/testing/unit-test-mocks";
+} from "@app/testing/unit-test-mocks";
 
 import { AssetManagerComponent } from "./asset-manager.component";
 
@@ -36,7 +36,7 @@ class MockTranslatePipe implements PipeTransform {
   }
 }
 
-import { MOCK_ASSETS } from "src/app/testing/data/assets_data";
+import { MOCK_ASSETS } from "@app/testing/data/assets_data";
 
 describe("AssetManagerComponent", () => {
   let component: AssetManagerComponent;

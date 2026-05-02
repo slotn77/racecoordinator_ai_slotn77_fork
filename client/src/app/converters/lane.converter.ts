@@ -1,8 +1,7 @@
-import { Lane } from "src/app/models/lane";
+import { Lane } from "@app/models/lane";
+import { ILaneModel } from "@app/proto/antigravity";
 
 import { ConverterCache } from "./converter_cache";
-
-import { ILaneModel } from "src/app/proto/antigravity";
 
 export class LaneConverter {
   private static cache = new ConverterCache<Lane>();

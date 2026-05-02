@@ -4,10 +4,9 @@ import {
   computed,
   input,
 } from "@angular/core";
-import { AnchorPoint } from "src/app/components/raceday/column_definition";
-import { ColumnVisibility } from "src/app/models/settings";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
+import { ColumnVisibility } from "@app/models/settings";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 // TODO(aufderheide): This may be the third time this list appears in code
 const PREVIEW_LABELS: { [key: string]: string } = {

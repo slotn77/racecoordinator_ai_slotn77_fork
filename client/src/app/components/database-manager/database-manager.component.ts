@@ -1,20 +1,19 @@
+import { DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
   HostListener,
   OnInit,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { forkJoin } from "rxjs";
-import { DataService } from "src/app/data.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { BackButtonComponent } from "../shared/back-button/back-button.component";
-import { DecimalPipe } from "@angular/common";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { AcknowledgementModalComponent } from "../shared/acknowledgement-modal/acknowledgement-modal.component";
-import { FormsModule } from "@angular/forms";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { BackButtonComponent } from "@app/components/shared/back-button/back-button.component";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { SettingsService } from "@app/services/settings.service";
 
 @Component({
   standalone: true,

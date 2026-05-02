@@ -1,35 +1,33 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { ViewChild } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
 import { forkJoin } from "rxjs";
-import { ManagerHeaderComponent } from "src/app/components/shared/manager-header/manager-header.component";
-import { DataService } from "src/app/data.service";
-
-import {
-  ConnectionMonitorService,
-  ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { mockTTSContext, playSound } from "src/app/utils/audio";
-
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { ManagerHeaderComponent } from "@app/components/shared/manager-header/manager-header.component";
+import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "@app/components/shared/manager-header/manager-header.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 import {
   IAssetMessage,
   IAudioSetEntry,
   IImageSetEntry,
   ISaveAudioSetEntry,
   ISaveImageSetEntry,
-} from "src/app/proto/antigravity";
-import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "../shared/manager-header/manager-header.component";
+} from "@app/proto/antigravity";
+import {
+  ConnectionMonitorService,
+  ConnectionState,
+} from "@app/services/connection-monitor.service";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { mockTTSContext, playSound } from "@app/utils/audio";
 
-import { FormsModule } from "@angular/forms";
-import { ImageSetEditorComponent } from "./image-set-editor/image-set-editor.component";
 import { AudioSetEditorComponent } from "./audio-set-editor/audio-set-editor.component";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { ImageSetEditorComponent } from "./image-set-editor/image-set-editor.component";
 
 // Interface matching the mock/view needs, mapped from Protobuf
 export interface AssetView {

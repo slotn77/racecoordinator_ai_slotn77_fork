@@ -6,13 +6,11 @@ import {
   output,
   signal,
 } from "@angular/core";
-import { DataService } from "src/app/data.service";
-
-import { IAssetMessage } from "src/app/proto/antigravity";
-
 import { FormsModule } from "@angular/forms";
-import { AssetPreviewComponent } from "../asset-preview/asset-preview.component";
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
+import { AssetPreviewComponent } from "@app/components/shared/asset-preview/asset-preview.component";
+import { DataService } from "@app/data.service";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { IAssetMessage } from "@app/proto/antigravity";
 
 export interface AssetPickerData {
   currentAssetId?: string;

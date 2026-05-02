@@ -9,23 +9,22 @@ import {
 import { ActivatedRoute } from "@angular/router";
 import { Router } from "@angular/router";
 import { forkJoin, Subscription } from "rxjs";
-import { ManagerHeaderComponent } from "src/app/components/shared/manager-header/manager-header.component";
-import { DataService } from "src/app/data.service";
-import { Driver } from "src/app/models/driver";
-import { Team } from "src/app/models/team";
+import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import { ManagerHeaderComponent } from "@app/components/shared/manager-header/manager-header.component";
+import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "@app/components/shared/manager-header/manager-header.component";
+import { DataService } from "@app/data.service";
+import { Driver } from "@app/models/driver";
+import { Team } from "@app/models/team";
+import { AvatarUrlPipe } from "@app/pipes/avatar-url.pipe";
+import { TranslatePipe } from "@app/pipes/translate.pipe";
 import {
   ConnectionMonitorService,
   ConnectionState,
-} from "src/app/services/connection-monitor.service";
-import { GuideStep, HelpService } from "src/app/services/help.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { TranslationService } from "src/app/services/translation.service";
-import { naturalSortCompare } from "src/app/utils/sorting.utils";
-import { ConfirmationModalComponent } from "../shared/confirmation-modal/confirmation-modal.component";
-import { ManagerHeaderComponent as ManagerHeaderComponent_1 } from "../shared/manager-header/manager-header.component";
-
-import { TranslatePipe } from "src/app/pipes/translate.pipe";
-import { AvatarUrlPipe } from "src/app/pipes/avatar-url.pipe";
+} from "@app/services/connection-monitor.service";
+import { GuideStep, HelpService } from "@app/services/help.service";
+import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
+import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 @Component({
   standalone: true,

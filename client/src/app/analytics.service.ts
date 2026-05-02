@@ -2,9 +2,8 @@ import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, of } from "rxjs";
-import { catchError, map } from "rxjs/operators";
-import { filter } from "rxjs/operators";
-import { SettingsService } from "src/app/services/settings.service";
+import { catchError, filter, map } from "rxjs/operators";
+import { SettingsService } from "@app/services/settings.service";
 
 import { DataService } from "./data.service";
 

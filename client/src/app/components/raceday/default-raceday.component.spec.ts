@@ -15,14 +15,14 @@ import {
   tick,
 } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { DataService } from "src/app/data.service";
-import { AllowFinish, FinishMethod } from "src/app/models/heat_scoring";
-import { ColumnVisibility, Settings } from "src/app/models/settings";
-import { RaceService } from "src/app/services/race.service";
-import { RaceFlagService } from "src/app/services/race-flag.service";
-import { SettingsService } from "src/app/services/settings.service";
-import { ThemeService } from "src/app/services/theme.service";
-import { TranslationService } from "src/app/services/translation.service";
+import { DataService } from "@app/data.service";
+import { AllowFinish, FinishMethod } from "@app/models/heat_scoring";
+import { ColumnVisibility, Settings } from "@app/models/settings";
+import { RaceService } from "@app/services/race.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
+import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
+import { TranslationService } from "@app/services/translation.service";
 
 @Pipe({ name: "translate" })
 class MockTranslatePipe implements PipeTransform {
@@ -40,10 +40,9 @@ class MockSvgTextScalerDirective {
   scaleToFit = input<boolean>(false);
 }
 import { of, Subject } from "rxjs";
-import { THEME_SLOT_KEYS } from "src/app/models/theme";
-
-import { RaceConnectionService } from "src/app/services/race-connection.service";
-import * as _audio from "src/app/utils/audio";
+import { THEME_SLOT_KEYS } from "@app/models/theme";
+import { RaceConnectionService } from "@app/services/race-connection.service";
+import * as _audio from "@app/utils/audio";
 
 @Component({
   selector: "app-acknowledgement-modal",
@@ -75,21 +74,6 @@ class DefaultRacedayMockConfirmationModalComponent {
   cancel = output<void>();
 }
 
-import { MOCK_HEATS } from "src/app/testing/data/heats_data";
-import { MOCK_RACES } from "src/app/testing/data/races_data";
-import { createDefaultSettings } from "src/app/testing/data/settings_data";
-import { MOCK_TRACKS } from "src/app/testing/data/tracks_data";
-import {
-  mockRouter,
-  mockSettingsService as _mockSettingsService,
-  mockTranslationService,
-  resetMocks,
-} from "src/app/testing/unit-test-mocks";
-
-import { AnchorPoint } from "./column_definition";
-import { DefaultRacedayComponent } from "./default-raceday.component";
-import { createRacedayMocks } from "./testing/raceday_helper";
-
 import {
   IInterfaceEvent,
   ILap,
@@ -97,7 +81,21 @@ import {
   IRecordData,
   IStandingsUpdate,
   RaceState,
-} from "src/app/proto/antigravity";
+} from "@app/proto/antigravity";
+import { MOCK_HEATS } from "@app/testing/data/heats_data";
+import { MOCK_RACES } from "@app/testing/data/races_data";
+import { createDefaultSettings } from "@app/testing/data/settings_data";
+import { MOCK_TRACKS } from "@app/testing/data/tracks_data";
+import {
+  mockRouter,
+  mockSettingsService as _mockSettingsService,
+  mockTranslationService,
+  resetMocks,
+} from "@app/testing/unit-test-mocks";
+
+import { AnchorPoint } from "./column_definition";
+import { DefaultRacedayComponent } from "./default-raceday.component";
+import { createRacedayMocks } from "./testing/raceday_helper";
 
 describe("DefaultRacedayComponent", () => {
   let component: DefaultRacedayComponent;

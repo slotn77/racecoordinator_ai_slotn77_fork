@@ -1,6 +1,6 @@
 import { of } from "rxjs";
-import { MOCK_RACES } from "src/app/testing/data/races_data";
-import { MOCK_TRACKS } from "src/app/testing/data/tracks_data";
+import { MOCK_RACES } from "@app/testing/data/races_data";
+import { MOCK_TRACKS } from "@app/testing/data/tracks_data";
 
 /**
  * RaceManagerHelper centralizes mock data and service behaviors for race-related components.

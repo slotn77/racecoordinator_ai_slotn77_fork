@@ -6,14 +6,14 @@ import {
   RouterOutlet,
 } from "@angular/router";
 import { filter } from "rxjs/operators";
-import { slideInAnimation } from "src/app/utils/animations";
+import { slideInAnimation } from "@app/utils/animations";
 
 import { AnalyticsService } from "./analytics.service";
+import { HelpOverlayComponent } from "./components/shared/help-overlay/help-overlay.component";
 import { DataService } from "./data.service";
 import { NavigationService } from "./services/navigation.service";
 import { SettingsService } from "./services/settings.service";
 import { ThemeService } from "./services/theme.service";
-import { HelpOverlayComponent } from "./components/shared/help-overlay/help-overlay.component";
 
 @Component({
   standalone: true,
