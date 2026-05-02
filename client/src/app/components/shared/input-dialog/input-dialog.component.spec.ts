@@ -47,15 +47,15 @@ describe("InputDialogComponent", () => {
   });
 
   it("should not be visible by default", async () => {
-    expect(component.visible).toBeFalse();
+    expect(component.visible()).toBeFalse();
     expect(await harness.isVisible()).toBeFalse();
   });
 
   it("should be visible and show data when visible input is true", async () => {
-    component.title = "TEST_TITLE";
-    component.message = "TEST_MESSAGE";
-    component.initialValue = "123";
-    component.visible = true;
+    fixture.componentRef.setInput("title", "TEST_TITLE");
+    fixture.componentRef.setInput("message", "TEST_MESSAGE");
+    fixture.componentRef.setInput("initialValue", "123");
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
 
     expect(await harness.isVisible()).toBeTrue();
@@ -66,7 +66,7 @@ describe("InputDialogComponent", () => {
 
   it("should emit cancel event on cancel click", async () => {
     spyOn(component.cancel, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
 
     await harness.clickCancel();
@@ -76,8 +76,8 @@ describe("InputDialogComponent", () => {
 
   it("should emit confirm event with input value on confirm click", async () => {
     spyOn(component.confirm, "emit");
-    component.initialValue = "initial";
-    component.visible = true;
+    fixture.componentRef.setInput("initialValue", "initial");
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -98,10 +98,10 @@ describe("InputDialogComponent", () => {
   });
 
   it("should disable confirm button if numeric input is below min", async () => {
-    component.type = "number";
-    component.min = 10;
-    component.initialValue = 10;
-    component.visible = true;
+    fixture.componentRef.setInput("type", "number");
+    fixture.componentRef.setInput("min", 10);
+    fixture.componentRef.setInput("initialValue", 10);
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
     await fixture.whenStable();
 

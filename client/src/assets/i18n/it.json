@@ -299,6 +299,8 @@
   "HR_TITLE": "RISULTATI DELLA MANCHE - GRAFICO IN DIRETTA",
   "HR_X_AXIS": "Tempo di corsa assoluto (Secondi)",
   "HR_Y_AXIS": "Tempo sul giro (Secondi)",
+  "IS_BTN_PLAY": "RIPRODUCI",
+  "IS_MSG_NO_ITEMS": "Nessun elemento trovato",
   "IS_BTN_BACK": "INDIETRO",
   "IS_PLACEHOLDER_SEARCH": "Cerca...",
   "IS_TITLE_SELECT_ITEM": "SELEZIONA ELEMENTO",

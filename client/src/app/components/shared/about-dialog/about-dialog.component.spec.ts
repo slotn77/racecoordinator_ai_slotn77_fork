@@ -47,9 +47,9 @@ describe("AboutDialogComponent", () => {
   });
 
   it("should display versions when visible", async () => {
-    component.visible = true;
-    component.clientVersion = "TEST-CLIENT-VERSION";
-    component.serverVersion = "TEST-SERVER-VERSION";
+    fixture.componentRef.setInput("visible", true);
+    fixture.componentRef.setInput("clientVersion", "TEST-CLIENT-VERSION");
+    fixture.componentRef.setInput("serverVersion", "TEST-SERVER-VERSION");
     fixture.detectChanges();
 
     expect(await harness.isVisible()).toBeTrue();
@@ -59,7 +59,7 @@ describe("AboutDialogComponent", () => {
   });
 
   it("should not be visible when visible is false", async () => {
-    component.visible = false;
+    fixture.componentRef.setInput("visible", false);
     fixture.detectChanges();
 
     expect(await harness.isVisible()).toBeFalse();
@@ -67,7 +67,7 @@ describe("AboutDialogComponent", () => {
 
   it("should emit close event when close button is clicked", async () => {
     spyOn(component.close, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
 
     await harness.clickClose();

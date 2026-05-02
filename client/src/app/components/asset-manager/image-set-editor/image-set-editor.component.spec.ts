@@ -1,12 +1,10 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  input,
+  output,
   Pipe,
   PipeTransform,
-  SimpleChange,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
@@ -18,14 +16,15 @@ import { ImageSetEditorComponent } from "./image-set-editor.component";
 
 @Component({
   selector: "app-image-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockImageSelectorComponent {
-  @Input() imageUrl?: string;
-  @Input() assets: any[] = [];
-  @Input() size?: string;
-  @Output() imageUrlChange = new EventEmitter<string>();
+  imageUrl = input<string | undefined>();
+  assets = input<any[]>([]);
+  size = input<string | undefined>();
+  imageUrlChange = output<string>();
 }
 
 @Pipe({ name: "translate" })
@@ -80,15 +79,17 @@ describe("ImageSetEditorComponent", () => {
     ];
 
     // Simulate property change from hidden to visible
-    component.ngOnChanges({
-      visible: new SimpleChange(false, true, true),
-    });
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
 
     expect(component.name).toBe("");
     expect(component.entries.length).toBe(0);
   });
 
   it("should NOT reset form if visible changes but was already true", () => {
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
+
     component.name = "Persisted Name";
     component.entries = [
       {
@@ -99,10 +100,8 @@ describe("ImageSetEditorComponent", () => {
       },
     ];
 
-    // Simulate some other update while visible
-    component.ngOnChanges({
-      visible: new SimpleChange(true, true, false),
-    });
+    // Trigger another update that doesn't toggle visible
+    fixture.detectChanges();
 
     expect(component.name).toBe("Persisted Name");
     expect(component.entries.length).toBe(1);
@@ -222,15 +221,16 @@ describe("ImageSetEditorComponent", () => {
   });
 
   it("should reset form with initialEntries", () => {
-    component.initialName = "Original Name";
-    component.initialEntries = [
+    fixture.componentRef.setInput("initialName", "Original Name");
+    fixture.componentRef.setInput("initialEntries", [
       {
         name: "orig.png",
         percentage: 100,
         url: "orig_url",
         data: new Uint8Array(),
       },
-    ];
+    ]);
+    fixture.detectChanges();
 
     component.resetForm();
 

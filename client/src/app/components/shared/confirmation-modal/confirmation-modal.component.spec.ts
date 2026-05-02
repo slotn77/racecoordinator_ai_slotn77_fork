@@ -38,18 +38,20 @@ describe("ConfirmationModalComponent", () => {
   });
 
   it("should not be visible by default", async () => {
-    expect(component.visible).toBeFalse();
+    expect(component.visible()).toBeFalse();
     expect(await harness.isVisible()).toBeFalse();
   });
 
   it("should be visible when visible input is true", async () => {
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
     expect(await harness.isVisible()).toBeTrue();
   });
 
   it("should emit cancel event on cancel click", async () => {
     spyOn(component.cancel, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
 
     await harness.clickCancel();
 
@@ -58,7 +60,8 @@ describe("ConfirmationModalComponent", () => {
 
   it("should emit confirm event on confirm click", async () => {
     spyOn(component.confirm, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
 
     await harness.clickConfirm();
 

@@ -13,19 +13,20 @@ class MockTranslatePipe implements PipeTransform {
   }
 }
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 @Component({
   selector: "app-asset-preview",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockAssetPreviewComponent {
-  @Input() assetId?: string;
-  @Input() type: string = "image";
-  @Input() imageUrl?: string;
-  @Input() name: string = "";
-  @Input() images?: any[];
-  @Input() animate: boolean = true;
+  assetId = input<string | undefined>();
+  type = input<string>("image");
+  imageUrl = input<string | undefined>();
+  name = input<string>("");
+  images = input<any[] | undefined>();
+  animate = input<boolean>(true);
 }
 
 describe("AssetPickerComponent", () => {
@@ -74,40 +75,38 @@ describe("AssetPickerComponent", () => {
   });
 
   it("should load and filter assets by type (IMAGE)", () => {
-    component.type = "image";
+    fixture.componentRef.setInput("type", "image");
     component.loadAssets();
-    expect(component.assets.length).toBe(1);
-    expect(component.assets[0].name).toBe("Image 1");
+    expect(component.assets().length).toBe(1);
+    expect(component.assets()[0].name).toBe("Image 1");
   });
 
   it("should load and filter assets by type (AUDIO)", () => {
-    component.type = "audio";
+    fixture.componentRef.setInput("type", "audio");
     component.loadAssets();
-    expect(component.assets.length).toBe(1);
-    expect(component.assets[0].name).toBe("Audio 1");
+    expect(component.assets().length).toBe(1);
+    expect(component.assets()[0].name).toBe("Audio 1");
   });
 
   it("should apply search filter", () => {
-    component.type = "image";
+    fixture.componentRef.setInput("type", "image");
     component.loadAssets();
-    component.searchQuery = "non-existent";
-    component.applyFilter();
-    expect(component.filteredAssets.length).toBe(0);
+    component.searchQuery.set("non-existent");
+    expect(component.filteredAssets().length).toBe(0);
 
-    component.searchQuery = "Image";
-    component.applyFilter();
-    expect(component.filteredAssets.length).toBe(1);
+    component.searchQuery.set("Image");
+    expect(component.filteredAssets().length).toBe(1);
   });
 
   it("should select an asset", () => {
     const asset = mockAssets[0];
     component.selectAsset(asset as any);
-    expect(component.selectedAssetId).toBe("id-1");
+    expect(component.selectedAssetId()).toBe("id-1");
   });
 
   it("should emit selected asset ID on confirm", () => {
     spyOn(component.close, "emit");
-    component.selectedAssetId = "id-1";
+    component.selectedAssetId.set("id-1");
     component.confirm();
     expect(component.close.emit).toHaveBeenCalledWith("id-1");
   });

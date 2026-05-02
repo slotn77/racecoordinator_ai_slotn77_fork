@@ -1,7 +1,12 @@
-<button class="back-btn" (click)="onBack()" [attr.data-confirm]="confirm">
-  <span class="back-icon">‹</span> {{ label | translate }}
+<button class="back-btn" (click)="onBack()" [attr.data-confirm]="confirm()">
+  <span class="back-icon">‹</span> {{ label() | translate }}
 </button>
 
-<app-confirmation-modal [visible]="showModal" [title]="confirmTitle" [message]="confirmMessage"
-  (confirm)="onModalConfirm()" (cancel)="onModalCancel()">
+<app-confirmation-modal
+  [visible]="showModal"
+  [title]="confirmTitle()"
+  [message]="confirmMessage()"
+  (confirm)="onModalConfirm()"
+  (cancel)="onModalCancel()"
+>
 </app-confirmation-modal>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { NgIf } from "@angular/common";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
@@ -9,17 +9,19 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
     <div
       id="confirmation-modal-backdrop"
       class="modal-backdrop"
-      *ngIf="visible"
+      *ngIf="visible()"
     >
       <div id="confirmation-modal-content" class="modal-content">
-        <h2 class="modal-title">{{ title | translate }}</h2>
-        <p class="modal-message">{{ message | translate: messageParams }}</p>
+        <h2 class="modal-title">{{ title() | translate }}</h2>
+        <p class="modal-message">
+          {{ message() | translate: messageParams() }}
+        </p>
         <div class="modal-actions">
           <button class="btn-cancel" (click)="onCancel()">
-            {{ cancelText | translate }}
+            {{ cancelText() | translate }}
           </button>
           <button class="btn-confirm" (click)="onConfirm()">
-            {{ confirmText | translate }}
+            {{ confirmText() | translate }}
           </button>
         </div>
       </div>
@@ -92,15 +94,15 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, TranslatePipe],
 })
 export class ConfirmationModalComponent {
-  @Input() visible = false;
-  @Input() title = "";
-  @Input() message = "";
-  @Input() messageParams: any = {};
-  @Input() cancelText = "NO";
-  @Input() confirmText = "YES";
+  visible = input(false);
+  title = input("");
+  message = input("");
+  messageParams = input<any>({});
+  cancelText = input("NO");
+  confirmText = input("YES");
 
-  @Output() cancel = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<void>();
+  cancel = output<void>();
+  confirm = output<void>();
 
   onCancel() {
     this.cancel.emit();

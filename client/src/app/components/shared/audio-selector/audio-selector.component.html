@@ -1,26 +1,26 @@
-<div class="audio-section" [class.readonly]="readonly">
+<div class="audio-section" [class.readonly]="readonly()">
   <div class="audio-header">
-    <label>{{ label }}</label>
-    <div class="toggle-group" *ngIf="!readonly">
+    <label>{{ label() }}</label>
+    <div class="toggle-group" *ngIf="!readonly()">
       <span
-        *ngIf="mode === 'single'"
-        [class.active]="type === 'preset'"
+        *ngIf="mode() === 'single'"
+        [class.active]="type() === 'preset'"
         (click)="onTypeChange('preset')"
         >{{ "AS_OPTION_PRESET" | translate }}</span
       >
       <span
-        *ngIf="mode === 'set'"
-        [class.active]="type === 'audio_set'"
+        *ngIf="mode() === 'set'"
+        [class.active]="type() === 'audio_set'"
         (click)="onTypeChange('audio_set')"
         >{{ "AS_OPTION_AUDIO_SET" | translate }}</span
       >
       <span
-        *ngIf="mode === 'single'"
-        [class.active]="type === 'tts'"
+        *ngIf="mode() === 'single'"
+        [class.active]="type() === 'tts'"
         (click)="onTypeChange('tts')"
         >{{ "AS_OPTION_TTS" | translate }}</span
       >
-      <span [class.active]="type === 'none'" (click)="onTypeChange('none')">{{
+      <span [class.active]="type() === 'none'" (click)="onTypeChange('none')">{{
         "AS_OPTION_NONE" | translate
       }}</span>
     </div>
@@ -29,7 +29,7 @@
   <!-- Regular Editing Mode -->
   <div
     class="audio-controls"
-    *ngIf="!readonly && (type === 'preset' || type === 'audio_set')"
+    *ngIf="!readonly() && (type() === 'preset' || type() === 'audio_set')"
   >
     <div
       class="dm-select trigger-div"
@@ -37,7 +37,7 @@
       (drop)="onDrop($event)"
       (dragover)="onDragOver($event)"
     >
-      {{ selectedAssetName }}
+      {{ selectedAssetName() }}
     </div>
     <button class="btn-play" (click)="play()">
       <span *ngIf="!isPlaying">▶ {{ "AS_BTN_PLAY" | translate }}</span>
@@ -45,10 +45,10 @@
     </button>
   </div>
 
-  <div class="audio-controls" *ngIf="!readonly && type === 'tts'">
+  <div class="audio-controls" *ngIf="!readonly() && type() === 'tts'">
     <input
       type="text"
-      [ngModel]="text"
+      [ngModel]="text()"
       (ngModelChange)="onTextChange($event)"
       class="dm-input"
       [placeholder]="'AS_PLACEHOLDER_TEXT' | translate"
@@ -56,12 +56,12 @@
   </div>
 
   <!-- Readonly Mode -->
-  <div class="audio-controls readonly-controls" *ngIf="readonly">
+  <div class="audio-controls readonly-controls" *ngIf="readonly()">
     <div class="dm-select readonly-text">
       {{
-        type === "preset" || type === "audio_set"
-          ? selectedAssetName
-          : text || "---"
+        type() === "preset" || type() === "audio_set"
+          ? selectedAssetName()
+          : text() || "---"
       }}
     </div>
     <button class="btn-play" (click)="play()">
@@ -73,10 +73,11 @@
   <app-item-selector
     [visible]="showItemSelector"
     [title]="'AS_TITLE_SELECT_SOUND' | translate"
-    [items]="assets"
-    [itemType]="mode === 'set' ? 'audio_set' : 'sound'"
-    [backButtonRoute]="backButtonRoute"
-    [backButtonQueryParams]="backButtonQueryParams"
+    [items]="assets()"
+    [itemType]="mode() === 'set' ? 'audio_set' : 'sound'"
+    [backButtonRoute]="backButtonRoute()"
+    [backButtonQueryParams]="backButtonQueryParams()"
+    [backButtonLabel]="backButtonLabel()"
     (select)="onAssetSelected($event)"
     (play)="onPlayPreview($event)"
     (close)="closeItemSelector()"

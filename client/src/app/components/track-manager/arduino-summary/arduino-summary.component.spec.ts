@@ -34,7 +34,7 @@ describe("ArduinoSummaryComponent", () => {
 
   describe("getBoardName", () => {
     it("should return empty string if no track", () => {
-      component.config = undefined;
+      fixture.componentRef.setInput("config", undefined);
       expect(component.getBoardName()).toBe("");
     });
 
@@ -43,7 +43,7 @@ describe("ArduinoSummaryComponent", () => {
         hardwareType: 1,
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.getBoardName()).toBe("AS_BOARD_MEGA");
     });
 
@@ -52,14 +52,14 @@ describe("ArduinoSummaryComponent", () => {
         hardwareType: 0,
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.getBoardName()).toBe("AS_BOARD_UNO");
     });
   });
 
   describe("getConfiguredPinCount", () => {
     it("should return 0 if no config", () => {
-      component.config = undefined;
+      fixture.componentRef.setInput("config", undefined);
       expect(component.getConfiguredPinCount()).toBe(0);
     });
 
@@ -81,7 +81,7 @@ describe("ArduinoSummaryComponent", () => {
         analogIds,
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.getConfiguredPinCount()).toBe(3);
     });
   });
@@ -93,7 +93,7 @@ describe("ArduinoSummaryComponent", () => {
         digitalIds,
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("lap")).toBeTrue();
     });
 
@@ -103,31 +103,31 @@ describe("ArduinoSummaryComponent", () => {
         digitalIds,
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("segment")).toBeTrue();
     });
 
     it("should detect call buttons", () => {
       let digitalIds = [PinBehavior.BEHAVIOR_CALL_BUTTON]; // 2
       let config: Partial<ArduinoConfig> = { digitalIds, lapPinPitBehavior: 3 };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("call")).toBeTrue();
 
       digitalIds = [PinBehavior.BEHAVIOR_CALL_BUTTON_BASE]; // 3000
       config = { digitalIds };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("call")).toBeTrue();
     });
 
     it("should detect relays", () => {
       let digitalIds = [PinBehavior.BEHAVIOR_RELAY]; // 3
       let config: Partial<ArduinoConfig> = { digitalIds, lapPinPitBehavior: 3 };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("relay")).toBeTrue();
 
       digitalIds = [PinBehavior.BEHAVIOR_RELAY_BASE]; // 4000
       config = { digitalIds };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("relay")).toBeTrue();
     });
 
@@ -137,7 +137,7 @@ describe("ArduinoSummaryComponent", () => {
         analogIds: [],
         lapPinPitBehavior: 3,
       };
-      component.config = config as ArduinoConfig;
+      fixture.componentRef.setInput("config", config as ArduinoConfig);
       expect(component.hasBehavior("lap")).toBeFalse();
       expect(component.hasBehavior("segment")).toBeFalse();
       expect(component.hasBehavior("call")).toBeFalse();

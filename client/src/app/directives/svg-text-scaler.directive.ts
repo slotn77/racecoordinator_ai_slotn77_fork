@@ -1,29 +1,26 @@
 import {
   AfterViewInit,
   Directive,
+  effect,
   ElementRef,
-  Input,
-  OnChanges,
+  input,
   OnDestroy,
-  SimpleChanges,
 } from "@angular/core";
 
 @Directive({
   standalone: true,
   selector: "[appSvgTextScaler]",
 })
-export class SvgTextScalerDirective
-  implements OnChanges, AfterViewInit, OnDestroy
-{
-  @Input() maxWidth: number = 0;
-  @Input() scaleToFit: boolean = false;
+export class SvgTextScalerDirective implements AfterViewInit, OnDestroy {
+  maxWidth = input<number>(0);
+  scaleToFit = input<boolean>(false);
 
-  constructor(private el: ElementRef<SVGTextElement>) {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["maxWidth"] || changes["scaleToFit"] || changes["text"]) {
+  constructor(private el: ElementRef<SVGTextElement>) {
+    effect(() => {
+      this.maxWidth();
+      this.scaleToFit();
       this.scaleText();
-    }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -44,7 +41,7 @@ export class SvgTextScalerDirective
     textElement.removeAttribute("textLength");
     textElement.removeAttribute("lengthAdjust");
 
-    if (!this.scaleToFit || this.maxWidth <= 0) {
+    if (!this.scaleToFit() || this.maxWidth() <= 0) {
       if (this.timer) {
         clearTimeout(this.timer);
         this.timer = null;
@@ -60,8 +57,8 @@ export class SvgTextScalerDirective
     this.timer = setTimeout(() => {
       try {
         const currentLength = (textElement as any).getComputedTextLength();
-        if (currentLength > this.maxWidth) {
-          textElement.setAttribute("textLength", this.maxWidth.toString());
+        if (currentLength > this.maxWidth()) {
+          textElement.setAttribute("textLength", this.maxWidth().toString());
           textElement.setAttribute("lengthAdjust", "spacingAndGlyphs");
         }
       } catch (e) {

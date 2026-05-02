@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { NgIf } from "@angular/common";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
@@ -6,13 +6,15 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   standalone: true,
   selector: "app-acknowledgement-modal",
   template: `
-    <div class="modal-backdrop" *ngIf="visible">
+    <div class="modal-backdrop" *ngIf="visible()">
       <div class="modal-content">
-        <h2 class="modal-title">{{ title | translate }}</h2>
-        <p class="modal-message">{{ message | translate: messageParams }}</p>
+        <h2 class="modal-title">{{ title() | translate }}</h2>
+        <p class="modal-message">
+          {{ message() | translate: messageParams() }}
+        </p>
         <div class="modal-actions">
           <button class="btn-confirm" (click)="onAcknowledge()">
-            {{ buttonText | translate }}
+            {{ buttonText() | translate }}
           </button>
         </div>
       </div>
@@ -78,13 +80,13 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, TranslatePipe],
 })
 export class AcknowledgementModalComponent {
-  @Input() visible = false;
-  @Input() title = "";
-  @Input() message = "";
-  @Input() messageParams: any = {};
-  @Input() buttonText = "ACK_MODAL_BTN_OK";
+  visible = input(false);
+  title = input("");
+  message = input("");
+  messageParams = input<any>({});
+  buttonText = input("ACK_MODAL_BTN_OK");
 
-  @Output() acknowledge = new EventEmitter<void>();
+  acknowledge = output<void>();
 
   onAcknowledge() {
     this.acknowledge.emit();

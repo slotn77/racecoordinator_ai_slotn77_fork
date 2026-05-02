@@ -1,10 +1,11 @@
 import {
   ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
+  computed,
+  effect,
+  input,
   OnDestroy,
-  OnInit,
+  signal,
 } from "@angular/core";
 import { DataService } from "src/app/data.service";
 import {} from "src/app/proto/message";
@@ -16,9 +17,9 @@ import { NgIf } from "@angular/common";
   template: `
     <div class="preview-container">
       <ng-container
-        *ngIf="normalizedType === 'image' || normalizedType === 'image_set'"
+        *ngIf="normalizedType() === 'image' || normalizedType() === 'image_set'"
       >
-        <img [src]="currentUrl" class="preview-img" [alt]="name" />
+        <img [src]="currentUrl()" class="preview-img" [alt]="name()" />
       </ng-container>
       <ng-container *ngIf="isSoundType()">
         <img
@@ -55,70 +56,69 @@ import { NgIf } from "@angular/common";
   ],
   imports: [NgIf],
 })
-export class AssetPreviewComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() assetId?: string;
-  @Input() type: "image" | "image_set" | "sound" | "audio" = "image";
-  @Input() imageUrl?: string;
-  @Input() name: string = "";
-  @Input() images?: any[];
-  @Input() animate: boolean = true;
+export class AssetPreviewComponent implements OnDestroy {
+  assetId = input<string>();
+  type = input<"image" | "image_set" | "sound" | "audio">("image");
+  imageUrl = input<string>();
+  name = input<string>("");
+  images = input<any[]>();
+  animate = input(true);
 
   private intervalId: any;
-  private currentIndex = 0;
-  currentUrl: string = "";
+  currentIndex = signal(0);
+
+  currentUrl = computed(() => {
+    const images = this.images();
+    const type = this.type();
+    const index = this.currentIndex();
+
+    if (type === "image_set" && images && images.length > 0) {
+      const entry = images[index % images.length];
+      return this.getFullUrl(entry.url || "");
+    } else {
+      const url = this.imageUrl();
+      const id = this.assetId();
+      return (
+        this.getFullUrl(url || "") ||
+        (id ? this.dataService.getAssetUrl(id) : "")
+      );
+    }
+  });
 
   constructor(
     private dataService: DataService,
     private cdr: ChangeDetectorRef,
-  ) {}
-
-  ngOnInit() {
-    this.updateUrl();
-    if (this.type === "image_set" && this.animate) {
-      this.startAnimation();
-    }
+  ) {
+    // Effect to handle animation start/stop when type or animate changes
+    effect(() => {
+      if (this.type() === "image_set" && this.animate()) {
+        this.startAnimation();
+      } else {
+        this.stopAnimation();
+      }
+    });
   }
 
   ngOnDestroy() {
     this.stopAnimation();
   }
 
-  ngOnChanges() {
-    this.updateUrl();
-    if (this.type === "image_set" && this.animate) {
-      this.startAnimation();
-    } else {
-      this.stopAnimation();
-    }
-  }
-
-  private updateUrl() {
-    if (this.type === "image_set" && this.images && this.images.length > 0) {
-      const entry = this.images[this.currentIndex];
-      this.currentUrl = this.getFullUrl(entry.url || "");
-    } else {
-      this.currentUrl =
-        this.getFullUrl(this.imageUrl || "") ||
-        (this.assetId ? this.dataService.getAssetUrl(this.assetId) : "");
-    }
-  }
-
   public isSoundType(): boolean {
-    const t = this.normalizedType;
+    const t = this.normalizedType();
     return t === "sound" || t === "audio";
   }
 
-  get normalizedType(): string {
-    return (this.type || "").toLowerCase();
-  }
+  normalizedType = computed(() => {
+    return (this.type() || "").toLowerCase();
+  });
 
   private startAnimation() {
     this.stopAnimation();
-    if (!this.images || this.images.length <= 1) return;
+    const images = this.images();
+    if (!images || images.length <= 1) return;
 
     this.intervalId = setInterval(() => {
-      this.currentIndex = (this.currentIndex + 1) % this.images!.length;
-      this.updateUrl();
+      this.currentIndex.update((i) => (i + 1) % images.length);
       this.cdr.detectChanges();
     }, 1000);
   }

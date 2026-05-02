@@ -10,10 +10,9 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   HostListener,
   OnInit,
-  Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { Router } from "@angular/router";
@@ -62,7 +61,7 @@ type Participant = Driver | Team;
 })
 export class DefaultRacedaySetupComponent implements OnInit {
   @ViewChild(ToolbarComponent) toolbar!: ToolbarComponent;
-  @Output() requestServerConfig = new EventEmitter<void>();
+  requestServerConfig = output<void>();
   @ViewChild("scrollContainer") scrollContainer?: ElementRef;
 
   // Driver/Team State
@@ -905,7 +904,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
     this.requestAbout.emit();
   }
 
-  @Output() requestAbout = new EventEmitter<void>();
+  requestAbout = output<void>();
 
   openDatabaseManager() {
     this.closeFileDropdown();

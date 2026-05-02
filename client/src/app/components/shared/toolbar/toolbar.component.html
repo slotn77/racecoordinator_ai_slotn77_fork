@@ -1,21 +1,21 @@
 <div class="toolbar-container">
   <!-- Activate -->
   <button
-    *ngIf="showActivate"
+    *ngIf="showActivate()"
     id="activate-item-btn"
     class="toolbar-btn ghost"
     (click)="onActivate()"
-    [disabled]="isSaving || disabledActivate"
+    [disabled]="isSaving() || disabledActivate()"
     [title]="'TEM_BTN_ACTIVATE' | translate"
   >
     <span class="material-icons">{{
-      disabledActivate ? "check_circle" : "check_circle_outline"
+      disabledActivate() ? "check_circle" : "check_circle_outline"
     }}</span>
   </button>
 
   <!-- Undo -->
   <button
-    *ngIf="showUndo"
+    *ngIf="showUndo()"
     id="undo-btn"
     class="toolbar-btn undo"
     (click)="undo()"
@@ -27,7 +27,7 @@
 
   <!-- Redo -->
   <button
-    *ngIf="showRedo"
+    *ngIf="showRedo()"
     id="redo-btn"
     class="toolbar-btn redo"
     (click)="redo()"
@@ -39,11 +39,11 @@
 
   <!-- Edit -->
   <button
-    *ngIf="showEdit"
+    *ngIf="showEdit()"
     id="edit-track-btn"
     class="toolbar-btn ghost"
     (click)="onEdit()"
-    [disabled]="isSaving || disabledEdit"
+    [disabled]="isSaving() || disabledEdit()"
     [title]="'TM_EDIT' | translate"
   >
     <span class="material-icons">edit</span>
@@ -51,11 +51,11 @@
 
   <!-- Copy -->
   <button
-    *ngIf="showCopy"
+    *ngIf="showCopy()"
     id="copy-item-btn"
     class="toolbar-btn info"
     (click)="onCopy()"
-    [disabled]="isSaving || disabledCopy"
+    [disabled]="isSaving() || disabledCopy()"
     [title]="'TEM_BTN_SAVE_AS_NEW' | translate"
   >
     <span class="material-icons">content_copy</span>
@@ -63,11 +63,11 @@
 
   <!-- Add -->
   <button
-    *ngIf="showAdd"
+    *ngIf="showAdd()"
     id="add-item-btn"
     class="toolbar-btn info"
     (click)="onAdd()"
-    [disabled]="isSaving || disabledAdd"
+    [disabled]="isSaving() || disabledAdd()"
     [title]="'TM_CREATE_NEW' | translate"
   >
     <span class="material-icons">add</span>
@@ -75,11 +75,11 @@
 
   <!-- Delete -->
   <button
-    *ngIf="showDelete"
+    *ngIf="showDelete()"
     id="delete-track-btn"
     class="toolbar-btn danger"
     (click)="onDelete()"
-    [disabled]="isSaving || disabledDelete"
+    [disabled]="isSaving() || disabledDelete()"
     [title]="'TM_DELETE' | translate"
   >
     <span class="delete-x">X</span>
@@ -90,7 +90,7 @@
   <div class="toolbar-utility-group">
     <!-- Google Analytics Toggle -->
     <button
-      *ngIf="showAnalytics"
+      *ngIf="showAnalytics()"
       id="analytics-btn"
       class="toolbar-btn analytics"
       (click)="onToggleAnalytics()"
@@ -142,7 +142,7 @@
 
     <!-- Help -->
     <button
-      *ngIf="showHelp"
+      *ngIf="showHelp()"
       id="help-track-btn"
       class="toolbar-btn help"
       (click)="onHelp()"

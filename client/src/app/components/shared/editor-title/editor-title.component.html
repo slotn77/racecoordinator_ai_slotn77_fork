@@ -1,28 +1,28 @@
 <div class="header">
   <div class="header-left">
     <app-back-button
-      [route]="backRoute"
-      [confirm]="backConfirm"
-      [queryParams]="backQueryParams"
-      [confirmTitle]="backConfirmTitle"
-      [confirmMessage]="backConfirmMessage"
+      [route]="backRoute()"
+      [confirm]="backConfirm()"
+      [queryParams]="backQueryParams()"
+      [confirmTitle]="backConfirmTitle()"
+      [confirmMessage]="backConfirmMessage()"
       (back)="onBack()"
     ></app-back-button>
-    <h1 class="page-title">{{ titleKey | translate }}</h1>
+    <h1 class="page-title">{{ titleKey() | translate }}</h1>
   </div>
   <div class="header-right">
     <app-toolbar
-      [showUndo]="showUndo"
-      [showRedo]="showRedo"
-      [showHelp]="showHelp"
-      [showAdd]="showAdd"
-      [showDelete]="showDelete"
-      [showCopy]="showCopy"
-      [isSaving]="isSaving"
-      [undoManager]="undoManager"
-      [helpSteps]="helpSteps"
-      [helpTitle]="helpTitle"
-      [helpRecordName]="helpRecordName"
+      [showUndo]="showUndo()"
+      [showRedo]="showRedo()"
+      [showHelp]="showHelp()"
+      [showAdd]="showAdd()"
+      [showDelete]="showDelete()"
+      [showCopy]="showCopy()"
+      [isSaving]="isSaving()"
+      [undoManager]="undoManager()"
+      [helpSteps]="helpSteps()"
+      [helpTitle]="helpTitle()"
+      [helpRecordName]="helpRecordName()"
       (help)="onHelp()"
       (copy)="onCopy()"
       (add)="onAdd()"

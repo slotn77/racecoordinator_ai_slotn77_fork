@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, effect, input, output, signal } from "@angular/core";
 import { NgIf } from "@angular/common";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
@@ -6,17 +6,19 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   standalone: true,
   selector: "app-input-dialog",
   template: `
-    <div class="modal-backdrop" *ngIf="visible">
+    <div class="modal-backdrop" *ngIf="visible()">
       <div class="modal-content">
-        <h2 class="modal-title">{{ title | translate }}</h2>
-        <p class="modal-message" *ngIf="message">{{ message | translate }}</p>
+        <h2 class="modal-title">{{ title() | translate }}</h2>
+        <p class="modal-message" *ngIf="message()">
+          {{ message() | translate }}
+        </p>
 
         <div class="input-container">
           <input
-            [type]="type"
-            [value]="inputValue"
+            [type]="type()"
+            [value]="inputValue()"
             (input)="onInputChange($event)"
-            [placeholder]="placeholder | translate"
+            [placeholder]="placeholder() | translate"
             (keyup.enter)="onConfirm()"
             autoFocus
           />
@@ -24,14 +26,14 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
         <div class="modal-actions">
           <button class="btn-cancel" (click)="onCancel()">
-            {{ cancelText | translate }}
+            {{ cancelText() | translate }}
           </button>
           <button
             class="btn-confirm"
             (click)="onConfirm()"
             [disabled]="isInvalid()"
           >
-            {{ confirmText | translate }}
+            {{ confirmText() | translate }}
           </button>
         </div>
       </div>
@@ -128,63 +130,45 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, TranslatePipe],
 })
 export class InputDialogComponent {
-  private _visible = false;
-  @Input()
-  get visible() {
-    return this._visible;
+  visible = input(false);
+  title = input("");
+  message = input("");
+  placeholder = input("");
+  initialValue = input<any>("");
+  type = input("text");
+  min = input<number | null>(null);
+  confirmText = input("GEN_OK");
+  cancelText = input("AM_BTN_CANCEL");
+
+  confirm = output<any>();
+  cancel = output<void>();
+
+  inputValue = signal<any>("");
+
+  constructor() {
+    effect(() => {
+      if (this.visible()) {
+        this.inputValue.set(this.initialValue());
+      }
+    });
   }
-  set visible(val: boolean) {
-    if (this._visible === val) return;
-    this._visible = val;
-    if (val) {
-      this.inputValue = this.initialValue;
-    }
-  }
-
-  @Input() title = "";
-  @Input() message = "";
-  @Input() placeholder = "";
-
-  private _initialValue: any = "";
-  @Input()
-  get initialValue() {
-    return this._initialValue;
-  }
-  set initialValue(val: any) {
-    if (this._initialValue === val) return;
-    this._initialValue = val;
-    // Update current input only if we are currently visible and presumably initializing
-    if (this.visible) {
-      this.inputValue = val;
-    }
-  }
-
-  @Input() type = "text";
-  @Input() min: number | null = null;
-  @Input() confirmText = "GEN_OK";
-  @Input() cancelText = "AM_BTN_CANCEL";
-
-  @Output() confirm = new EventEmitter<any>();
-  @Output() cancel = new EventEmitter<void>();
-
-  inputValue: any = "";
 
   onInputChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (this.type === "number") {
-      this.inputValue = target.valueAsNumber;
+    if (this.type() === "number") {
+      this.inputValue.set(target.valueAsNumber);
     } else {
-      this.inputValue = target.value;
+      this.inputValue.set(target.value);
     }
   }
 
   isInvalid(): boolean {
-    if (this.type === "number" && this.min !== null) {
+    const minVal = this.min();
+    const currentVal = this.inputValue();
+    if (this.type() === "number" && minVal !== null) {
       const val =
-        typeof this.inputValue === "string"
-          ? parseFloat(this.inputValue)
-          : this.inputValue;
-      return val === null || val === undefined || isNaN(val) || val < this.min;
+        typeof currentVal === "string" ? parseFloat(currentVal) : currentVal;
+      return val === null || val === undefined || isNaN(val) || val < minVal;
     }
     return false;
   }
@@ -193,7 +177,7 @@ export class InputDialogComponent {
     if (this.isInvalid()) {
       return;
     }
-    this.confirm.emit(this.inputValue);
+    this.confirm.emit(this.inputValue());
   }
 
   onCancel() {

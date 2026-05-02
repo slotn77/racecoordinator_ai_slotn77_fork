@@ -1,13 +1,6 @@
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { Location } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  Pipe,
-  PipeTransform,
-} from "@angular/core";
+import { Component, input, output, Pipe, PipeTransform } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -48,86 +41,92 @@ import { TeamEditorComponent } from "./team-editor.component";
 // Mock Child Components
 @Component({
   selector: "app-back-button",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockBackButtonComponent {
-  @Input() route: string | null = null;
-  @Input() queryParams: any = {};
-  @Input() label: string = "";
+  route = input<string | null>(null);
+  queryParams = input<any>({});
+  label = input<string>("");
 }
 
 @Component({
   selector: "app-image-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockImageSelectorComponent {
-  @Input() label?: string;
-  @Input() imageUrl?: string;
-  @Input() assets: any[] = [];
-  @Input() size?: string;
-  @Output() imageUrlChange = new EventEmitter<string>();
-  @Output() uploadStarted = new EventEmitter<void>();
-  @Output() uploadFinished = new EventEmitter<void>();
+  label = input<string | undefined>();
+  imageUrl = input<string | undefined>();
+  assets = input<any[]>([]);
+  size = input<string | undefined>();
+  imageUrlChange = output<string>();
+  uploadStarted = output<void>();
+  uploadFinished = output<void>();
 }
 
 @Component({
   selector: "app-item-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockItemSelectorComponent {
-  @Input() items: any[] = [];
-  @Input() visible: boolean = false;
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Input() title: string = "";
-  @Input() itemType: string = "image";
-  @Output() select = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
+  items = input<any[]>([]);
+  visible = input<boolean>(false);
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  title = input<string>("");
+  itemType = input<string>("image");
+  select = output<any>();
+  close = output<void>();
 }
 
 @Component({
   selector: "app-undo-redo-controls",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockUndoRedoControlsComponent {
-  @Input() manager: any;
+  manager = input<any>();
 }
 
 @Component({
   selector: "app-editor-title",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockEditorTitleComponent {
-  @Input() titleKey: string = "";
-  @Input() backRoute: string = "";
-  @Input() backConfirm: boolean = false;
-  @Input() backConfirmTitle: string = "";
-  @Input() backConfirmMessage: string = "";
-  @Input() undoManager: any;
-  @Input() showUndo: boolean = true;
-  @Input() showRedo: boolean = true;
-  @Input() showHelp: boolean = true;
-  @Input() showCopy: boolean = false;
-  @Input() showAdd: boolean = false;
-  @Input() showDelete: boolean = false;
-  @Input() isSaving: boolean = false;
-  @Input() helpSteps: any[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: string;
-  @Output() help = new EventEmitter<void>();
-  @Output() back = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() add = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+  titleKey = input<string>("");
+  backRoute = input<string>("");
+  backConfirm = input<boolean>(false);
+  backConfirmTitle = input<string>("");
+  backConfirmMessage = input<string>("");
+  undoManager = input<any>();
+  showUndo = input<boolean>(true);
+  showRedo = input<boolean>(true);
+  showHelp = input<boolean>(true);
+  showCopy = input<boolean>(false);
+  showAdd = input<boolean>(false);
+  showDelete = input<boolean>(false);
+  isSaving = input<boolean>(false);
+  helpSteps = input<any[]>([]);
+  helpTitle = input<string>("");
+  helpRecordName = input<string | undefined>();
+  help = output<void>();
+  back = output<void>();
+  copy = output<void>();
+  add = output<void>();
+  delete = output<void>();
 }
 
 @Component({
   selector: "app-help-overlay",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })

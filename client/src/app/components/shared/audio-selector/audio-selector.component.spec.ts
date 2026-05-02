@@ -1,5 +1,5 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { DataService } from "src/app/data.service";
@@ -10,17 +10,18 @@ import { AudioSelectorHarness } from "./testing/audio-selector.harness";
 
 @Component({
   selector: "app-item-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockItemSelectorComponent {
-  @Input() items: any[] = [];
-  @Input() visible: boolean = false;
-  @Output() select = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
-  @Input() itemType: string = "image";
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
+  items = input<any[]>([]);
+  visible = input<boolean>(false);
+  select = output<any>();
+  close = output<void>();
+  itemType = input<string>("image");
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
 }
 
 import { Pipe, PipeTransform } from "@angular/core";
@@ -86,24 +87,34 @@ describe("AudioSelectorComponent", () => {
   });
 
   it("should emit type change", () => {
-    spyOn(component.typeChange, "emit");
+    let emittedValue: any;
+    (component as any).typeChange.subscribe((val: any) => (emittedValue = val));
     component.onTypeChange("tts");
-    expect(component.type).toBe("tts");
-    expect(component.typeChange.emit).toHaveBeenCalledWith("tts");
+    expect(emittedValue).toBe("tts");
+    // State only updates if input is updated (usually by parent)
+    fixture.componentRef.setInput("type", "tts");
+    fixture.detectChanges();
+    expect(component.type()).toBe("tts");
   });
 
   it("should emit url change", () => {
-    spyOn(component.urlChange, "emit");
+    let emittedValue: any;
+    (component as any).urlChange.subscribe((val: any) => (emittedValue = val));
     component.onUrlChange("new-url");
-    expect(component.url).toBe("new-url");
-    expect(component.urlChange.emit).toHaveBeenCalledWith("new-url");
+    expect(emittedValue).toBe("new-url");
+    fixture.componentRef.setInput("url", "new-url");
+    fixture.detectChanges();
+    expect(component.url()).toBe("new-url");
   });
 
   it("should emit text change", () => {
-    spyOn(component.textChange, "emit");
+    let emittedValue: any;
+    (component as any).textChange.subscribe((val: any) => (emittedValue = val));
     component.onTextChange("hello");
-    expect(component.text).toBe("hello");
-    expect(component.textChange.emit).toHaveBeenCalledWith("hello");
+    expect(emittedValue).toBe("hello");
+    fixture.componentRef.setInput("text", "hello");
+    fixture.detectChanges();
+    expect(component.text()).toBe("hello");
   });
 
   it("should open and close item selector", async () => {
@@ -115,30 +126,46 @@ describe("AudioSelectorComponent", () => {
   });
 
   it("should handle asset selection", () => {
-    spyOn(component.urlChange, "emit");
-    spyOn(component.typeChange, "emit");
+    let urlEmitted: any;
+    let typeEmitted: any;
+    (component as any).urlChange.subscribe((val: any) => (urlEmitted = val));
+    (component as any).typeChange.subscribe((val: any) => (typeEmitted = val));
 
-    component.type = "tts";
+    fixture.componentRef.setInput("type", "tts");
+    fixture.detectChanges();
     component.onAssetSelected({ url: "asset-url" });
 
-    expect(component.url).toBe("asset-url");
-    expect(component.urlChange.emit).toHaveBeenCalledWith("asset-url");
-    expect(component.type).toBe("preset");
-    expect(component.typeChange.emit).toHaveBeenCalledWith("preset");
+    expect(urlEmitted).toBe("asset-url");
+    fixture.componentRef.setInput("url", "asset-url");
+    fixture.detectChanges();
+    expect(component.url()).toBe("asset-url");
+
+    expect(typeEmitted).toBe("preset");
+    fixture.componentRef.setInput("type", "preset");
+    fixture.detectChanges();
+    expect(component.type()).toBe("preset");
     expect(component.showItemSelector).toBeFalse();
   });
 
   it("should handle audio_set asset selection", () => {
-    spyOn(component.urlChange, "emit");
-    spyOn(component.typeChange, "emit");
+    let urlEmitted: any;
+    let typeEmitted: any;
+    (component as any).urlChange.subscribe((val: any) => (urlEmitted = val));
+    (component as any).typeChange.subscribe((val: any) => (typeEmitted = val));
 
-    component.mode = "set";
+    fixture.componentRef.setInput("mode", "set");
+    fixture.detectChanges();
     component.onAssetSelected({ id: "set-123", type: "audio_set" });
 
-    expect(component.url).toBe("set-123");
-    expect(component.urlChange.emit).toHaveBeenCalledWith("set-123");
-    expect(component.type).toBe("audio_set");
-    expect(component.typeChange.emit).toHaveBeenCalledWith("audio_set");
+    expect(urlEmitted).toBe("set-123");
+    fixture.componentRef.setInput("url", "set-123");
+    fixture.detectChanges();
+    expect(component.url()).toBe("set-123");
+
+    expect(typeEmitted).toBe("audio_set");
+    fixture.componentRef.setInput("type", "audio_set");
+    fixture.detectChanges();
+    expect(component.type()).toBe("audio_set");
   });
 
   it("should filter assets based on mode", () => {
@@ -146,20 +173,23 @@ describe("AudioSelectorComponent", () => {
       { type: "sound", name: "Single" },
       { type: "audio_set", name: "Set" },
     ];
-    component.assets = allAssets;
+    fixture.componentRef.setInput("assets", allAssets);
 
-    component.mode = "single";
-    expect(component.filteredAssets.length).toBe(1);
-    expect(component.filteredAssets[0].type).toBe("sound");
+    fixture.componentRef.setInput("mode", "single");
+    fixture.detectChanges();
+    expect(component.filteredAssets().length).toBe(1);
+    expect(component.filteredAssets()[0].type).toBe("sound");
 
-    component.mode = "set";
-    expect(component.filteredAssets.length).toBe(1);
-    expect(component.filteredAssets[0].type).toBe("audio_set");
+    fixture.componentRef.setInput("mode", "set");
+    fixture.detectChanges();
+    expect(component.filteredAssets().length).toBe(1);
+    expect(component.filteredAssets()[0].type).toBe("audio_set");
   });
 
   it("should play preset audio", () => {
-    component.type = "preset";
-    component.url = "test.mp3";
+    fixture.componentRef.setInput("type", "preset");
+    fixture.componentRef.setInput("url", "test.mp3");
+    fixture.detectChanges();
 
     component.play();
 
@@ -178,10 +208,15 @@ describe("AudioSelectorComponent", () => {
   });
 
   it("should handle none type", () => {
-    spyOn(component.typeChange, "emit");
+    let typeEmitted: any;
+    (component as any).typeChange.subscribe((val: any) => (typeEmitted = val));
+    fixture.componentRef.setInput("type", "preset");
+    fixture.detectChanges();
     component.onTypeChange("none");
-    expect(component.type).toBe("none");
-    expect(component.typeChange.emit).toHaveBeenCalledWith("none");
+    expect(typeEmitted).toBe("none");
+    fixture.componentRef.setInput("type", "none");
+    fixture.detectChanges();
+    expect(component.type()).toBe("none");
 
     // Test that play() doesn't do anything for none
     component.play();
@@ -189,13 +224,14 @@ describe("AudioSelectorComponent", () => {
   });
 
   it("should return selected asset name for audio set", () => {
-    component.type = "audio_set";
-    component.url = "set-123";
-    component.assets = [
+    fixture.componentRef.setInput("type", "audio_set");
+    fixture.componentRef.setInput("url", "set-123");
+    fixture.componentRef.setInput("assets", [
       { entity_id: "set-123", name: "My Cool Audio Set", type: "audio_set" },
-    ];
+    ]);
+    fixture.detectChanges();
 
-    expect(component.selectedAssetName).toBe("My Cool Audio Set");
+    expect(component.selectedAssetName()).toBe("My Cool Audio Set");
   });
 
   it("should play audio set sequentially and toggle isPlaying", async () => {
@@ -208,9 +244,10 @@ describe("AudioSelectorComponent", () => {
         { url: "2.mp3", timeSeconds: 2 },
       ],
     };
-    component.assets = [audioSet];
-    component.type = "audio_set";
-    component.url = "set-1";
+    fixture.componentRef.setInput("assets", [audioSet]);
+    fixture.componentRef.setInput("type", "audio_set");
+    fixture.componentRef.setInput("url", "set-1");
+    fixture.detectChanges();
 
     const audioSpy = (window.Audio as unknown as jasmine.Spy).and.callFake(
       function (_url: string) {
@@ -241,9 +278,10 @@ describe("AudioSelectorComponent", () => {
       type: "audio_set",
       audioEntries: [{ url: "1.mp3", timeSeconds: 1 }],
     };
-    component.assets = [audioSet];
-    component.type = "audio_set";
-    component.url = "set-1";
+    fixture.componentRef.setInput("assets", [audioSet]);
+    fixture.componentRef.setInput("type", "audio_set");
+    fixture.componentRef.setInput("url", "set-1");
+    fixture.detectChanges();
 
     mockAudioInstance.play.and.returnValue(new Promise(() => {})); // Never resolves to simulate playing
 
@@ -263,8 +301,9 @@ describe("AudioSelectorComponent", () => {
   });
 
   it("should handle TTS playback state", () => {
-    component.type = "tts";
-    component.text = "Hello world";
+    fixture.componentRef.setInput("type", "tts");
+    fixture.componentRef.setInput("text", "Hello world");
+    fixture.detectChanges();
 
     const mockUtterance = {
       onend: null as any,

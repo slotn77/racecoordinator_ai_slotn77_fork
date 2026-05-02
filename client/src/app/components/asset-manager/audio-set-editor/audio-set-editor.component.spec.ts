@@ -42,24 +42,19 @@ describe("AudioSetEditorComponent", () => {
   });
 
   it("should reset form when visible turns true", () => {
-    component.initialName = "Test Set";
-    component.initialEntries = [
+    fixture.componentRef.setInput("initialName", "Test Set");
+    fixture.componentRef.setInput("initialEntries", [
       {
         name: "Entry 1",
         timeSeconds: 10,
         url: "url1",
         data: new Uint8Array(),
       },
-    ];
+    ]);
+    fixture.detectChanges();
 
-    component.ngOnChanges({
-      visible: {
-        currentValue: true,
-        previousValue: false,
-        firstChange: false,
-        isFirstChange: () => false,
-      } as any,
-    });
+    fixture.componentRef.setInput("visible", true);
+    fixture.detectChanges();
 
     expect(component.name).toBe("Test Set");
     expect(component.entries.length).toBe(1);

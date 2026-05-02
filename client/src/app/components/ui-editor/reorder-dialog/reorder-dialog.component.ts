@@ -11,11 +11,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
+  effect,
+  input,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   ViewEncapsulation,
 } from "@angular/core";
 import { Subject } from "rxjs";
@@ -64,6 +64,12 @@ export interface ReorderDialogResult {
   ],
 })
 export class ReorderDialogComponent implements OnInit, OnDestroy {
+  visible = input(false);
+  data = input<ReorderDialogData | null>(null);
+
+  save = output<ReorderDialogResult>();
+  cancel = output<void>();
+
   private _visible = false;
   private autoSaveSubject = new Subject<void>();
   private destroy$ = new Subject<void>();
@@ -71,85 +77,87 @@ export class ReorderDialogComponent implements OnInit, OnDestroy {
   // Saving state (like Driver Editor)
   isSaving: boolean = false;
   isAutoSaving: boolean = false;
-  @Input() set visible(value: boolean) {
-    if (value && !this._visible) {
-      this.initialStateSet = false;
-    }
-    this._visible = value;
-  }
-
-  get visible(): boolean {
-    return this._visible;
-  }
-  @Input() set data(value: ReorderDialogData | null) {
-    if (value) {
-      this.initialStateSet = false;
-      this.undoStack = [];
-      this.redoStack = [];
-
-      // Store screen name
-      this.screenName = value.screenName || "";
-
-      this.availableValues = [...value.availableValues].sort((a, b) => {
-        const labelA =
-          this.translationService.translate(a.label || a.key) || "";
-        const labelB =
-          this.translationService.translate(b.label || b.key) || "";
-        return labelA.localeCompare(labelB, undefined, { sensitivity: "base" });
-      });
-      this.availableValuesMap = new Map(
-        this.availableValues.map((v) => [v.key, v]),
-      );
-
-      const newSlots = value.columnSlots.map((s) => ({ ...s }));
-      const newLayouts = JSON.parse(JSON.stringify(value.columnLayouts || {}));
-      const newVisibility = JSON.parse(
-        JSON.stringify(value.columnVisibility || {}),
-      );
-
-      // Initialize items if missing or empty. Every slot MUST have at least one anchor filled.
-      newSlots.forEach((slot) => {
-        if (
-          !newLayouts[slot.key] ||
-          Object.keys(newLayouts[slot.key]).length === 0
-        ) {
-          const layout = newLayouts[slot.key] || {};
-          newLayouts[slot.key] = {
-            ...layout,
-            [AnchorPoint.CenterCenter]: slot.key,
-          };
-        }
-        if (!newVisibility[slot.key]) {
-          newVisibility[slot.key] = ColumnVisibility.Always;
-        }
-      });
-
-      this.columnSlots = newSlots;
-      this.columnLayouts = newLayouts;
-      this.columnVisibility = newVisibility;
-
-      // Store initial state for change detection (only once) - AFTER defaults applied
-      if (!this.initialStateSet) {
-        this.originalState = {
-          slots: this.columnSlots.map((s) => s.key),
-          layouts: JSON.stringify(this.columnLayouts),
-          visibility: JSON.stringify(this.columnVisibility),
-        };
-        this.initialStateSet = true;
-      }
-
-      this.hasUnsavedChanges = false;
-
-      this.updateDropListIds();
-      this.cdr.markForCheck();
-    }
-  }
 
   constructor(
     public cdr: ChangeDetectorRef,
     private appRef: ApplicationRef,
     private translationService: TranslationService,
-  ) {}
+  ) {
+    effect(() => {
+      const visible = this.visible();
+      if (visible && !this._visible) {
+        this.initialStateSet = false;
+      }
+      this._visible = visible;
+    });
+
+    effect(() => {
+      const data = this.data();
+      if (data) {
+        this.initialStateSet = false;
+        this.undoStack = [];
+        this.redoStack = [];
+
+        // Store screen name
+        this.screenName = data.screenName || "";
+
+        this.availableValues = [...data.availableValues].sort((a, b) => {
+          const labelA =
+            this.translationService.translate(a.label || a.key) || "";
+          const labelB =
+            this.translationService.translate(b.label || b.key) || "";
+          return labelA.localeCompare(labelB, undefined, {
+            sensitivity: "base",
+          });
+        });
+        this.availableValuesMap = new Map(
+          this.availableValues.map((v) => [v.key, v]),
+        );
+
+        const newSlots = data.columnSlots.map((s) => ({ ...s }));
+        const newLayouts = JSON.parse(JSON.stringify(data.columnLayouts || {}));
+        const newVisibility = JSON.parse(
+          JSON.stringify(data.columnVisibility || {}),
+        );
+
+        // Initialize items if missing or empty. Every slot MUST have at least one anchor filled.
+        newSlots.forEach((slot) => {
+          if (
+            !newLayouts[slot.key] ||
+            Object.keys(newLayouts[slot.key]).length === 0
+          ) {
+            const layout = newLayouts[slot.key] || {};
+            newLayouts[slot.key] = {
+              ...layout,
+              [AnchorPoint.CenterCenter]: slot.key,
+            };
+          }
+          if (!newVisibility[slot.key]) {
+            newVisibility[slot.key] = ColumnVisibility.Always;
+          }
+        });
+
+        this.columnSlots = newSlots;
+        this.columnLayouts = newLayouts;
+        this.columnVisibility = newVisibility;
+
+        // Store initial state for change detection (only once) - AFTER defaults applied
+        if (!this.initialStateSet) {
+          this.originalState = {
+            slots: this.columnSlots.map((s) => s.key),
+            layouts: JSON.stringify(this.columnLayouts),
+            visibility: JSON.stringify(this.columnVisibility),
+          };
+          this.initialStateSet = true;
+        }
+
+        this.hasUnsavedChanges = false;
+
+        this.updateDropListIds();
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngOnInit() {
     // Auto-save on changes (debounced like Driver Editor)
@@ -177,9 +185,6 @@ export class ReorderDialogComponent implements OnInit, OnDestroy {
       }, 500);
     }
   }
-
-  @Output() save = new EventEmitter<ReorderDialogResult>();
-  @Output() cancel = new EventEmitter<void>();
 
   availableValues: { key: string; label: string }[] = [];
   availableValuesMap = new Map<string, { key: string; label: string }>();

@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 import { AnchorPoint } from "src/app/components/raceday/column_definition";
 import { ColumnVisibility } from "src/app/models/settings";
 import { NgFor, NgIf } from "@angular/common";
@@ -39,23 +44,18 @@ const PREVIEW_LABELS: { [key: string]: string } = {
   imports: [NgFor, NgIf, TranslatePipe],
 })
 export class ColumnPreviewComponent {
-  @Input() resizingColumnKey: string | null = null;
-
-  private columnSlotsMap = new Map<string, { key: string; label: string }>();
-  private _columnSlots: { key: string; label: string }[] = [];
-  @Input() set columnSlots(value: { key: string; label: string }[]) {
-    this._columnSlots = value;
-    this.columnSlotsMap.clear();
-    value.forEach((s) => this.columnSlotsMap.set(s.key, s));
-  }
-  get columnSlots() {
-    return this._columnSlots;
-  }
-
-  @Input() columnLayouts: {
+  resizingColumnKey = input<string | null>(null);
+  columnSlots = input<{ key: string; label: string }[]>([]);
+  columnLayouts = input<{
     [columnKey: string]: { [A in AnchorPoint]?: string };
-  } = {};
-  @Input() columnVisibility: { [columnKey: string]: ColumnVisibility } = {};
+  }>({});
+  columnVisibility = input<{ [columnKey: string]: ColumnVisibility }>({});
+
+  private columnSlotsMap = computed(() => {
+    const map = new Map<string, { key: string; label: string }>();
+    this.columnSlots().forEach((s) => map.set(s.key, s));
+    return map;
+  });
 
   anchorOptions = Object.values(AnchorPoint);
 
@@ -80,7 +80,7 @@ export class ColumnPreviewComponent {
     // TODO(aufderheide): I'm not sure we want this or not.  As long as it's not showing the
     // uuid prefix for the asset it might be okay.
     if (prop.startsWith("imageset_")) {
-      const slot = this.columnSlots.find((s) => s.key === prop);
+      const slot = this.columnSlots().find((s) => s.key === prop);
       if (slot) return slot.label;
     }
 
@@ -94,12 +94,12 @@ export class ColumnPreviewComponent {
     }
 
     // Fallback to the slot label if center is truly empty
-    const slot = this.columnSlotsMap.get(columnKey);
+    const slot = this.columnSlotsMap().get(columnKey);
     return slot ? slot.label : columnKey;
   }
 
   getAnchorValue(slotKey: string, anchor: string): string | undefined {
-    const layout = this.columnLayouts[slotKey];
+    const layout = this.columnLayouts()[slotKey];
     const val = layout ? layout[anchor as AnchorPoint] : undefined;
     if (val) return val;
 
@@ -112,7 +112,7 @@ export class ColumnPreviewComponent {
   }
 
   isOptional(columnKey: string): boolean {
-    const visibility = this.columnVisibility[columnKey];
+    const visibility = this.columnVisibility()[columnKey];
     return visibility !== undefined && visibility !== ColumnVisibility.Always;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import {
   ComponentFixture,
   discardPeriodicTasks,
@@ -20,116 +20,123 @@ import { TranslationService } from "src/app/services/translation.service";
 // Mock Child Components
 @Component({
   selector: "app-back-button",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockBackButtonComponent {
-  @Input() route: string | null = null;
-  @Input() queryParams: any = {};
-  @Input() label: string = "";
-  @Input() confirm: boolean = false;
-  @Input() confirmTitle: string = "";
-  @Input() confirmMessage: string = "";
+  route = input<string | null>(null);
+  queryParams = input<any>({});
+  label = input<string>("");
+  confirm = input<boolean>(false);
+  confirmTitle = input<string>("");
+  confirmMessage = input<string>("");
 }
 
 @Component({
   selector: "app-audio-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockAudioSelectorComponent {
-  @Input() label: string = "";
-  @Input() type: any;
-  @Output() typeChange = new EventEmitter<any>();
-  @Input() url: any;
-  @Output() urlChange = new EventEmitter<any>();
-  @Input() text: any;
-  @Output() textChange = new EventEmitter<any>();
-  @Input() assets: any[] = [];
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Input() context: any;
+  label = input<string>("");
+  type = input<any>();
+  typeChange = output<any>();
+  url = input<any>();
+  urlChange = output<any>();
+  text = input<any>();
+  textChange = output<any>();
+  assets = input<any[]>([]);
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  context = input<any>();
 }
 
 @Component({
   selector: "app-image-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockImageSelectorComponent {
-  @Input() label?: string;
-  @Input() imageUrl?: string;
-  @Input() assets: any[] = [];
-  @Input() size?: string;
-  @Output() imageUrlChange = new EventEmitter<string>();
-  @Output() uploadStarted = new EventEmitter<void>();
-  @Output() uploadFinished = new EventEmitter<void>();
+  label = input<string | undefined>();
+  imageUrl = input<string | undefined>();
+  assets = input<any[]>([]);
+  size = input<string | undefined>();
+  imageUrlChange = output<string>();
+  uploadStarted = output<void>();
+  uploadFinished = output<void>();
 }
 
 @Component({
   selector: "app-item-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockItemSelectorComponent {
-  @Input() items: any[] = [];
-  @Input() visible: boolean = false;
-  @Output() select = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
-  @Input() itemType: string = "image";
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Input() title: string = "";
+  items = input<any[]>([]);
+  visible = input<boolean>(false);
+  select = output<any>();
+  close = output<void>();
+  itemType = input<string>("image");
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  title = input<string>("");
 }
 
 @Component({
   selector: "app-undo-redo-controls",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockUndoRedoControlsComponent {
-  @Input() manager: any;
+  manager = input<any>();
 }
 
 @Component({
   selector: "app-editor-title",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockEditorTitleComponent {
-  @Input() titleKey: string = "";
-  @Input() backRoute: string = "";
-  @Input() backConfirm: boolean = false;
-  @Input() backQueryParams: any = {};
-  @Input() backConfirmTitle: string = "";
-  @Input() backConfirmMessage: string = "";
-  @Input() undoManager: any;
-  @Input() showUndo: boolean = true;
-  @Input() showRedo: boolean = true;
-  @Input() showHelp: boolean = true;
-  @Input() showCopy: boolean = false;
-  @Input() showAdd: boolean = false;
-  @Input() showDelete: boolean = false;
-  @Input() isSaving: boolean = false;
-  @Input() helpSteps: any[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: string;
-  @Output() help = new EventEmitter<void>();
-  @Output() back = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() add = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+  titleKey = input<string>("");
+  backRoute = input<string>("");
+  backConfirm = input<boolean>(false);
+  backQueryParams = input<any>({});
+  backConfirmTitle = input<string>("");
+  backConfirmMessage = input<string>("");
+  undoManager = input<any>();
+  showUndo = input<boolean>(true);
+  showRedo = input<boolean>(true);
+  showHelp = input<boolean>(true);
+  showCopy = input<boolean>(false);
+  showAdd = input<boolean>(false);
+  showDelete = input<boolean>(false);
+  isSaving = input<boolean>(false);
+  helpSteps = input<any[]>([]);
+  helpTitle = input<string>("");
+  helpRecordName = input<string | undefined>();
+  help = output<void>();
+  back = output<void>();
+  copy = output<void>();
+  add = output<void>();
+  delete = output<void>();
 }
 
 @Component({
   selector: "app-help-overlay",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockHelpOverlayComponent {
-  @Input() steps: any[] = [];
-  @Input() showHelp: boolean = false;
-  @Output() helpClosed = new EventEmitter<void>();
+  steps = input<any[]>([]);
+  showHelp = input<boolean>(false);
+  helpClosed = output<void>();
 }
 
 import { Pipe, PipeTransform } from "@angular/core";

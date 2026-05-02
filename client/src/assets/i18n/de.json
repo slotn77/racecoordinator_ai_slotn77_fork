@@ -299,6 +299,8 @@
   "HR_TITLE": "LAUFERGEBNISSE - LIVE GRAPH",
   "HR_X_AXIS": "Absolute Laufzeit (Sekunden)",
   "HR_Y_AXIS": "Rundenzeit (Sekunden)",
+  "IS_BTN_PLAY": "ABSPIELEN",
+  "IS_MSG_NO_ITEMS": "Keine Einträge gefunden",
   "IS_BTN_BACK": "ZURÜCK",
   "IS_PLACEHOLDER_SEARCH": "Suchen...",
   "IS_TITLE_SELECT_ITEM": "ELEMENT AUSWÄHLEN",

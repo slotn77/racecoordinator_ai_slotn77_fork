@@ -2,9 +2,8 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  input,
+  output,
   Pipe,
   PipeTransform,
 } from "@angular/core";
@@ -22,30 +21,32 @@ import { ImageSelectorHarness } from "./testing/image-selector.harness";
 
 @Component({
   selector: "app-item-selector",
+  standalone: true,
   template: "",
 })
 class MockItemSelectorComponent {
-  @Input() items: any[] = [];
-  @Input() visible: boolean = false;
-  @Input() title: string = "";
-  @Input() itemType: string = "image";
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Output() select = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
+  items = input<any[]>([]);
+  visible = input<boolean>(false);
+  title = input<string>("");
+  itemType = input<string>("image");
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  select = output<any>();
+  close = output<void>();
 }
 
 @Component({
   selector: "app-asset-preview",
+  standalone: true,
   template: "",
 })
 class MockAssetPreviewComponent {
-  @Input() assetId?: string;
-  @Input() type: string = "image";
-  @Input() imageUrl?: string;
-  @Input() name: string = "";
-  @Input() images?: any[];
-  @Input() animate: boolean = true;
+  assetId = input<string | undefined>();
+  type = input<string>("image");
+  imageUrl = input<string | undefined>();
+  name = input<string>("");
+  images = input<any[] | undefined>();
+  animate = input<boolean>(true);
 }
 
 @Pipe({ name: "translate" })
@@ -126,7 +127,10 @@ describe("ImageSelectorComponent", () => {
     const mockAsset = { url: "/assets/test.png" };
     mockDataService.uploadAsset.and.returnValue(of(mockAsset));
 
-    spyOn(component.imageUrlChange, "emit");
+    let urlEmitted: string | undefined;
+    (component as any).imageUrlChange.subscribe(
+      (val: any) => (urlEmitted = val),
+    );
     spyOn(component.uploadStarted, "emit");
     spyOn(component.uploadFinished, "emit");
 
@@ -156,8 +160,10 @@ describe("ImageSelectorComponent", () => {
 
     expect(component.uploadStarted.emit).toHaveBeenCalled();
     expect(mockDataService.uploadAsset).toHaveBeenCalled();
-    expect(component.imageUrl).toBe(mockAsset.url);
-    expect(component.imageUrlChange.emit).toHaveBeenCalledWith(mockAsset.url);
+    expect(urlEmitted).toBe(mockAsset.url);
+    fixture.componentRef.setInput("imageUrl", mockAsset.url);
+    fixture.detectChanges();
+    expect(component.imageUrl()).toBe(mockAsset.url);
     expect(component.uploadFinished.emit).toHaveBeenCalled();
     expect(component.isUploading).toBeFalse();
   }));
@@ -210,13 +216,18 @@ describe("ImageSelectorComponent", () => {
   });
 
   it("should handle asset selection", () => {
-    spyOn(component.imageUrlChange, "emit");
+    let urlEmitted: string | undefined;
+    (component as any).imageUrlChange.subscribe(
+      (val: any) => (urlEmitted = val),
+    );
     const asset = { url: "/assets/selected.png" };
 
     component.onAssetSelected(asset);
 
-    expect(component.imageUrl).toBe(asset.url);
-    expect(component.imageUrlChange.emit).toHaveBeenCalledWith(asset.url);
+    expect(urlEmitted).toBe(asset.url);
+    fixture.componentRef.setInput("imageUrl", asset.url);
+    fixture.detectChanges();
+    expect(component.imageUrl()).toBe(asset.url);
     expect(component.showSelector).toBeFalse();
   });
 });

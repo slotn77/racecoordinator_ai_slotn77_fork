@@ -1,9 +1,9 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  Output,
+  computed,
+  input,
+  output,
 } from "@angular/core";
 import { DataService } from "src/app/data.service";
 import { TranslationService } from "src/app/services/translation.service";
@@ -21,44 +21,43 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, FormsModule, ItemSelectorComponent, TranslatePipe],
 })
 export class AudioSelectorComponent {
-  @Input() label: string = "Audio";
-  @Input() type: "preset" | "tts" | "none" | "audio_set" | undefined = "preset";
-  @Input() mode: "single" | "set" = "single";
-  @Input() readonly: boolean = false;
+  label = input("Audio");
+  type = input<"preset" | "tts" | "none" | "audio_set">("preset");
+  typeChange = output<"preset" | "tts" | "none" | "audio_set">();
+  mode = input<"single" | "set">("single");
+  readonly = input(false);
 
-  @Output() typeChange = new EventEmitter<
-    "preset" | "tts" | "none" | "audio_set"
-  >();
+  url = input<string | undefined>();
+  urlChange = output<string | undefined>();
 
-  @Input() url?: string;
-  @Output() urlChange = new EventEmitter<string>();
+  assetId = input<string>();
+  fallbackName = input<string | null>();
 
-  @Input() assetId?: string;
-  @Input() fallbackName?: string | null;
+  text = input<string | undefined>();
+  textChange = output<string | undefined>();
 
-  @Input() text?: string;
-  @Output() textChange = new EventEmitter<string>();
+  assetSelected = output<any>();
 
-  @Output() assetSelected = new EventEmitter<any>();
-
-  @Input() assets: any[] = [];
+  assets = input<any[]>([]);
 
   // Back button configuration passed through to Item Selector
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Input() context?: any;
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  backButtonLabel = input<string>();
+  context = input<any>();
 
   showItemSelector = false;
 
-  get filteredAssets(): any[] {
-    if (this.mode === "set") {
-      return this.assets.filter((a) => a.type === "audio_set");
+  filteredAssets = computed(() => {
+    const assets = this.assets();
+    if (this.mode() === "set") {
+      return assets.filter((a) => a.type === "audio_set");
     }
-    return this.assets.filter((a) => a.type !== "audio_set");
-  }
+    return assets.filter((a) => a.type !== "audio_set");
+  });
 
-  get selectedAsset(): any {
-    const lookupValue = this.assetId || this.url;
+  selectedAsset = computed(() => {
+    const lookupValue = this.assetId() || this.url();
     if (!lookupValue) return null;
 
     const normalize = (u: string) => {
@@ -73,38 +72,40 @@ export class AudioSelectorComponent {
 
     const normalizedLookup = normalize(lookupValue);
 
-    return this.assets.find((a) => {
+    return this.assets().find((a) => {
       if (a.model?.entityId === lookupValue || a.entity_id === lookupValue)
         return true;
       if (normalize(a.url) === normalizedLookup) return true;
       return false;
     });
-  }
+  });
 
-  get selectedAssetName(): string {
-    if (this.type === "none") {
+  selectedAssetName = computed(() => {
+    if (this.type() === "none") {
       return this.translationService
         ? this.translationService.translate("AS_OPTION_NONE")
         : "None";
     }
 
-    const asset = this.selectedAsset;
+    const asset = this.selectedAsset();
 
     if (!asset) {
-      if (this.fallbackName) return this.fallbackName;
+      const fallback = this.fallbackName();
+      if (fallback) return fallback;
       return this.translationService
         ? this.translationService.translate("AS_SELECT_SOUND")
         : "Select Sound...";
     }
 
+    const fallback = this.fallbackName();
     return (
       asset.name ||
-      this.fallbackName ||
+      fallback ||
       (this.translationService
         ? this.translationService.translate("AS_UNKNOWN_ASSET")
         : "Unknown Asset")
     );
-  }
+  });
 
   constructor(
     private dataService: DataService,
@@ -112,21 +113,18 @@ export class AudioSelectorComponent {
     private translationService: TranslationService,
   ) {}
 
-  onTypeChange(newType: "preset" | "tts" | "none" | "audio_set" | undefined) {
+  onTypeChange(newType: "preset" | "tts" | "none" | "audio_set") {
     if (newType) {
-      this.type = newType;
-      this.typeChange.emit(this.type);
+      this.typeChange.emit(newType);
     }
   }
 
   onUrlChange(newUrl: string) {
-    this.url = newUrl;
-    this.urlChange.emit(this.url);
+    this.urlChange.emit(newUrl);
   }
 
   onTextChange(newText: string) {
-    this.text = newText;
-    this.textChange.emit(this.text);
+    this.textChange.emit(newText);
   }
 
   openItemSelector() {
@@ -141,8 +139,9 @@ export class AudioSelectorComponent {
     if (!asset) return;
 
     // Prevent cross-mode selection
-    if (this.mode === "set" && asset.type !== "audio_set") return;
-    if (this.mode === "single" && asset.type === "audio_set") return;
+    const mode = this.mode();
+    if (mode === "set" && asset.type !== "audio_set") return;
+    if (mode === "single" && asset.type === "audio_set") return;
 
     const val =
       asset?.model?.entityId || asset?.entity_id || asset?.url || asset?.id;
@@ -150,7 +149,7 @@ export class AudioSelectorComponent {
       this.onUrlChange(val);
       this.assetSelected.emit(asset);
       const targetType = asset.type === "audio_set" ? "audio_set" : "preset";
-      if (this.type !== targetType) {
+      if (this.type() !== targetType) {
         this.onTypeChange(targetType);
       }
     }
@@ -166,7 +165,7 @@ export class AudioSelectorComponent {
       // If we clicked play on a different item while playing, we should play the new one.
       // But for now let's just stop.
     }
-    const playContext = this.context || mockTTSContext();
+    const playContext = this.context() || mockTTSContext();
     playSound(
       item.type === "audio_set" ? "audio_set" : "preset",
       item.url || item.model?.entityId || item.entity_id,
@@ -182,9 +181,9 @@ export class AudioSelectorComponent {
       return;
     }
 
-    if (this.type === "none") return;
+    if (this.type() === "none") return;
 
-    if (this.type === "audio_set") {
+    if (this.type() === "audio_set") {
       this.playAudioSet();
     } else {
       this.playStandard();
@@ -204,7 +203,7 @@ export class AudioSelectorComponent {
   }
 
   private async playAudioSet() {
-    const asset = this.selectedAsset;
+    const asset = this.selectedAsset();
     if (!asset || !asset.audioEntries || asset.audioEntries.length === 0) {
       return;
     }
@@ -228,8 +227,8 @@ export class AudioSelectorComponent {
     this.isPlaying = true;
     this.cdr.detectChanges();
 
-    if (this.type === "preset") {
-      this.playUrl(this.url)
+    if (this.type() === "preset") {
+      this.playUrl(this.url())
         .then(() => {
           this.isPlaying = false;
           this.cdr.detectChanges();
@@ -238,8 +237,8 @@ export class AudioSelectorComponent {
           this.isPlaying = false;
           this.cdr.detectChanges();
         });
-    } else if (this.type === "tts") {
-      this.playTTS(this.text);
+    } else if (this.type() === "tts") {
+      this.playTTS(this.text());
     }
   }
 

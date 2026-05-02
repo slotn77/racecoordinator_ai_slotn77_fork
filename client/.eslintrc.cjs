@@ -63,6 +63,14 @@ module.exports = {
           {
             "selector": "ImportEqualsDeclaration[moduleReference.type='QualifiedName']",
             "message": "Use standard ES6 imports (import { ... } from '...') instead of namespace aliases (import X = Y.X)."
+          },
+          {
+            "selector": "Decorator[expression.callee.name='Input']",
+            "message": "Use signal-based input() instead of @Input()."
+          },
+          {
+            "selector": "Decorator[expression.callee.name='Output']",
+            "message": "Use signal-based output() instead of @Output()."
           }
         ],
         "@angular-eslint/prefer-inject": "off",

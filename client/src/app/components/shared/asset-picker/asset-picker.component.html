@@ -1,12 +1,12 @@
-<div class="modal-backdrop" *ngIf="visible">
+<div class="modal-backdrop" *ngIf="visible()">
   <div class="asset-picker-container">
     <div class="picker-header">
       <h2>{{ "UE_SELECT_ASSET" | translate }}</h2>
       <div class="search-box">
         <input
           type="text"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="applyFilter()"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
           [placeholder]="'UE_SEARCH_ASSETS' | translate"
         />
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -17,20 +17,26 @@
       </div>
     </div>
 
-    <div class="picker-content" [class.loading]="isLoading">
-      <div *ngIf="isLoading" class="spinner-container">
+    <div class="picker-content" [class.loading]="isLoading()">
+      <div *ngIf="isLoading()" class="spinner-container">
         <div class="spinner"></div>
       </div>
 
-      <div *ngIf="!isLoading && filteredAssets.length === 0" class="no-assets">
+      <div
+        *ngIf="!isLoading() && filteredAssets().length === 0"
+        class="no-assets"
+      >
         <p>{{ "UE_NO_ASSETS_FOUND" | translate }}</p>
       </div>
 
-      <div *ngIf="!isLoading && filteredAssets.length > 0" class="asset-grid">
+      <div
+        *ngIf="!isLoading() && filteredAssets().length > 0"
+        class="asset-grid"
+      >
         <div
-          *ngFor="let asset of filteredAssets"
+          *ngFor="let asset of filteredAssets()"
           class="asset-item"
-          [class.selected]="selectedAssetId === asset.model?.entityId"
+          [class.selected]="selectedAssetId() === asset.model?.entityId"
           (click)="selectAsset(asset)"
           (dblclick)="confirm()"
         >
@@ -62,7 +68,7 @@
       </button>
       <button
         class="btn btn-primary"
-        [disabled]="!selectedAssetId"
+        [disabled]="!selectedAssetId()"
         (click)="confirm()"
       >
         {{ "GEN_SELECT" | translate }}

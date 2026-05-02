@@ -1,10 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  ViewChild,
-} from "@angular/core";
+import { Component, input, output, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToolbarComponent } from "src/app/components/shared/toolbar/toolbar.component";
 import { UndoManager } from "src/app/components/shared/undo-redo-controls/undo-manager";
@@ -23,29 +17,29 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
 })
 export class EditorTitleComponent {
   @ViewChild(ToolbarComponent) toolbar!: ToolbarComponent;
-  @Input() titleKey: string = "";
-  @Input() backRoute: string = "";
-  @Input() backQueryParams: any = {};
-  @Input() backConfirm: boolean = false;
-  @Input() backConfirmTitle: string = "";
-  @Input() backConfirmMessage: string = "";
-  @Input() undoManager!: UndoManager<any>;
-  @Input() showUndo: boolean = true;
-  @Input() showRedo: boolean = true;
-  @Input() showHelp: boolean = true;
-  @Input() showCopy: boolean = false;
-  @Input() showAdd: boolean = false;
-  @Input() showDelete: boolean = false;
-  @Input() isSaving: boolean = false;
-  @Input() helpSteps: GuideStep[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: keyof Settings;
+  titleKey = input("");
+  backRoute = input("");
+  backQueryParams = input<any>({});
+  backConfirm = input(false);
+  backConfirmTitle = input("");
+  backConfirmMessage = input("");
+  undoManager = input<UndoManager<any>>();
+  showUndo = input(true);
+  showRedo = input(true);
+  showHelp = input(true);
+  showCopy = input(false);
+  showAdd = input(false);
+  showDelete = input(false);
+  isSaving = input(false);
+  helpSteps = input<GuideStep[]>([]);
+  helpTitle = input("");
+  helpRecordName = input<keyof Settings>();
 
-  @Output() help = new EventEmitter<void>();
-  @Output() back = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() add = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+  back = output<void>();
+  help = output<void>();
+  copy = output<void>();
+  add = output<void>();
+  delete = output<void>();
 
   constructor(private router: Router) {}
 
@@ -66,11 +60,10 @@ export class EditorTitleComponent {
   }
 
   onBack() {
-    if (this.back.observed) {
-      this.back.emit();
-    } else {
-      this.router.navigate([this.backRoute], {
-        queryParams: this.backQueryParams,
+    this.back.emit();
+    if (this.backRoute() && this.backRoute() !== "") {
+      this.router.navigate([this.backRoute()], {
+        queryParams: this.backQueryParams(),
       });
     }
   }

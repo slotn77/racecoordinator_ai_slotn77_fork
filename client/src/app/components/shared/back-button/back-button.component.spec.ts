@@ -44,14 +44,14 @@ describe("BackButtonComponent", () => {
   });
 
   it("should have default inputs", () => {
-    expect(component.label).toBe("BACK");
-    expect(component.route).toBe("/raceday-setup");
-    expect(component.queryParams).toEqual({});
+    expect(component.label()).toBe("GEN_BTN_BACK");
+    expect(component.route()).toBe("/raceday-setup");
+    expect(component.queryParams()).toEqual({});
   });
 
   it("should set sessionStorage and navigate on back", async () => {
-    component.route = "/test-route";
-    component.queryParams = { foo: "bar" };
+    fixture.componentRef.setInput("route", "/test-route");
+    fixture.componentRef.setInput("queryParams", { foo: "bar" });
     fixture.detectChanges();
 
     await harness.click();
@@ -63,7 +63,7 @@ describe("BackButtonComponent", () => {
   });
 
   it("should show modal if confirm is true", async () => {
-    component.confirm = true;
+    fixture.componentRef.setInput("confirm", true);
     fixture.detectChanges();
 
     await harness.click();
@@ -73,7 +73,8 @@ describe("BackButtonComponent", () => {
   });
 
   it("should navigate on modal confirm", () => {
-    component.route = "/test-route";
+    fixture.componentRef.setInput("route", "/test-route");
+    fixture.detectChanges();
     component.onModalConfirm();
     expect(component.showModal).toBeFalse();
     expect(mockRouter.navigate).toHaveBeenCalledWith(["/test-route"], {

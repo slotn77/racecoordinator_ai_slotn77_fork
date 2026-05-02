@@ -108,11 +108,11 @@ describe("ArduinoEditorComponent", () => {
     fixture = TestBed.createComponent(ArduinoEditorComponent);
     component = fixture.componentInstance;
 
-    component.config = makeConfig();
-    component.lanes = [
+    fixture.componentRef.setInput("config", makeConfig());
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
-    ];
+    ]);
 
     fixture.detectChanges();
   });
@@ -128,8 +128,8 @@ describe("ArduinoEditorComponent", () => {
   });
 
   it("should initialize with config", () => {
-    expect(component.config!.name).toBe("Test Arduino");
-    expect(component.lanes.length).toBe(2);
+    expect(component.config()!.name).toBe("Test Arduino");
+    expect(component.lanes().length).toBe(2);
   });
 
   it("should fetch serial ports on init", () => {
@@ -140,8 +140,10 @@ describe("ArduinoEditorComponent", () => {
     // Re-create component to capture ngOnInit with spy
     fixture = TestBed.createComponent(ArduinoEditorComponent);
     component = fixture.componentInstance;
-    component.config = makeConfig();
-    component.lanes = [new Lane("l1", "#fff", "#ff0000", 10)];
+    fixture.componentRef.setInput("config", makeConfig());
+    fixture.componentRef.setInput("lanes", [
+      new Lane("l1", "#fff", "#ff0000", 10),
+    ]);
 
     spyOn(component, "fetchPorts").and.callThrough();
     fixture.detectChanges(); // triggers ngOnInit
@@ -178,11 +180,12 @@ describe("ArduinoEditorComponent", () => {
   });
 
   it("should regenerate actions when lanes change", () => {
-    component.lanes = [
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
       new Lane("l3", "#fff", "#0000ff", 10),
-    ];
+    ]);
+    fixture.detectChanges();
 
     const voltage0 = component.analogPinActions.find(
       (a) => a.value === "voltage_0",
@@ -201,7 +204,7 @@ describe("ArduinoEditorComponent", () => {
 
   it("should update ledBehaviors when lanes change", () => {
     // Initial lanes: 2
-    expect(component.lanes.length).toBe(2);
+    expect(component.lanes().length).toBe(2);
 
     const heatLeaderLanes = component.ledBehaviors.filter((b) =>
       b.label.includes("AE_LED_BEHAVIOR_HEAT_LEADER_LANE"),
@@ -209,12 +212,12 @@ describe("ArduinoEditorComponent", () => {
     expect(heatLeaderLanes.length).toBe(2);
 
     // Change lanes to 4
-    component.lanes = [
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
       new Lane("l3", "#fff", "#0000ff", 10),
       new Lane("l4", "#fff", "#ffff00", 10),
-    ];
+    ]);
     fixture.detectChanges();
 
     const updatedHeatLeaderLanes = component.ledBehaviors.filter((b) =>
@@ -227,16 +230,16 @@ describe("ArduinoEditorComponent", () => {
     // Add an LED string
     const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
     component.setPinBehavior(true, 5, rgbBehavior.toString());
-    const ls = component.config!.ledStrings[0];
+    const ls = component.config()!.ledStrings[0];
     expect(ls.ledLaneColorOverrides.length).toBe(2);
 
     // Change lanes to 4
-    component.lanes = [
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
       new Lane("l3", "#fff", "#0000ff", 10),
       new Lane("l4", "#fff", "#ffff00", 10),
-    ];
+    ]);
     fixture.detectChanges();
 
     expect(ls.ledLaneColorOverrides.length).toBe(4);
@@ -247,13 +250,13 @@ describe("ArduinoEditorComponent", () => {
   it("should heal empty color overrides when lanes change", () => {
     const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
     component.setPinBehavior(true, 5, rgbBehavior.toString());
-    const ls = component.config!.ledStrings[0];
+    const ls = component.config()!.ledStrings[0];
 
     // Manually mess up one entry
     ls.ledLaneColorOverrides[1] = "";
 
     // Trigger refresh by re-assigning lanes
-    component.lanes = [...component.lanes];
+    fixture.componentRef.setInput("lanes", [...component.lanes()]);
     fixture.detectChanges();
 
     expect(ls.ledLaneColorOverrides[1]).toBe("#00ff00"); // Healed to L2 track color
@@ -262,11 +265,13 @@ describe("ArduinoEditorComponent", () => {
   it("should remove color overrides when lanes are removed", () => {
     const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
     component.setPinBehavior(true, 5, rgbBehavior.toString());
-    const ls = component.config!.ledStrings[0];
+    const ls = component.config()!.ledStrings[0];
     expect(ls.ledLaneColorOverrides.length).toBe(2);
 
     // Remove one lane
-    component.lanes = [new Lane("l1", "#fff", "#ff0000", 10)];
+    fixture.componentRef.setInput("lanes", [
+      new Lane("l1", "#fff", "#ff0000", 10),
+    ]);
     fixture.detectChanges();
 
     expect(ls.ledLaneColorOverrides.length).toBe(1);
@@ -275,16 +280,16 @@ describe("ArduinoEditorComponent", () => {
   it("should reset lane-based LED behaviors to unused when exceeding lane count", () => {
     const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
     component.setPinBehavior(true, 5, rgbBehavior.toString());
-    const ls = component.config!.ledStrings[0];
+    const ls = component.config()!.ledStrings[0];
 
     // Map LED 0 to Lane 6 behavior (5000 + 5)
     ls.leds[0] = RgbLedBehavior.RGB_LED_BEHAVIOR_REFUELING_BASE + 5;
 
     // Trigger refresh with only 2 lanes
-    component.lanes = [
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
-    ];
+    ]);
     fixture.detectChanges();
 
     // Behavior 5005 should be reset to UNUSED because lane 5 doesn't exist
@@ -292,8 +297,8 @@ describe("ArduinoEditorComponent", () => {
   });
 
   it("should find lanes with voltage pins", () => {
-    component.config!.analogIds[1] = VOLTAGE_BASE; // Lane 0
-    component.config!.analogIds[2] = VOLTAGE_BASE + 1; // Lane 1
+    component.config()!.analogIds[1] = VOLTAGE_BASE; // Lane 0
+    component.config()!.analogIds[2] = VOLTAGE_BASE + 1; // Lane 1
     fixture.detectChanges();
     const lanes = component.getVoltageLanes();
     expect(lanes).toContain(0);
@@ -319,7 +324,7 @@ describe("ArduinoEditorComponent", () => {
   it("should store live voltage when analogData event received", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Analog pin 0 => Lane 0
-    component.config = makeConfig(analogIds);
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
     fixture.detectChanges();
 
     mockDataService.interfaceEvents$.next({
@@ -332,7 +337,7 @@ describe("ArduinoEditorComponent", () => {
   it("should return correct live voltage for a lane via getLiveVoltageForLane", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[2] = VOLTAGE_BASE + 1; // Analog pin 2 => Lane 1
-    component.config = makeConfig(analogIds);
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
     fixture.detectChanges();
 
     component.liveVoltages[2] = 800;
@@ -342,7 +347,7 @@ describe("ArduinoEditorComponent", () => {
   });
 
   it("should return 0 for live voltage when no pin assigned to lane", () => {
-    component.config = makeConfig();
+    fixture.componentRef.setInput("config", makeConfig());
     expect(component.getLiveVoltageForLane(0)).toBe(0);
   });
 
@@ -350,7 +355,7 @@ describe("ArduinoEditorComponent", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Analog pin 0 => Lane 0
     analogIds[3] = VOLTAGE_BASE + 1; // Analog pin 3 => Lane 1
-    component.config = makeConfig(analogIds);
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
     fixture.detectChanges();
 
     component.liveVoltages[0] = 300;
@@ -365,7 +370,7 @@ describe("ArduinoEditorComponent", () => {
   it("should track max voltage seen per lane", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Analog pin 0 => Lane 0
-    component.config = makeConfig(analogIds);
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
     fixture.detectChanges();
 
     mockDataService.interfaceEvents$.next({
@@ -384,7 +389,7 @@ describe("ArduinoEditorComponent", () => {
   it("should not update max if new value is lower", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE;
-    component.config = makeConfig(analogIds);
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
     fixture.detectChanges();
 
     mockDataService.interfaceEvents$.next({
@@ -402,11 +407,11 @@ describe("ArduinoEditorComponent", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Lane 0
     analogIds[1] = VOLTAGE_BASE + 1; // Lane 1
-    component.config = makeConfig(analogIds);
-    component.lanes = [
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
-    ];
+    ]);
     component.isVoltageLinked = false;
     fixture.detectChanges();
 
@@ -440,12 +445,12 @@ describe("ArduinoEditorComponent", () => {
     analogIds[0] = VOLTAGE_BASE; // Lane 0
     analogIds[1] = VOLTAGE_BASE + 1; // Lane 1
     analogIds[2] = VOLTAGE_BASE + 2; // Lane 2
-    component.config = makeConfig(analogIds);
-    component.lanes = [
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
       new Lane("l3", "#fff", "#0000ff", 10),
-    ];
+    ]);
     component.isVoltageLinked = true;
     fixture.detectChanges();
 
@@ -461,11 +466,11 @@ describe("ArduinoEditorComponent", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Lane 0
     analogIds[1] = VOLTAGE_BASE + 1; // Lane 1
-    component.config = makeConfig(analogIds);
-    component.lanes = [
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
-    ];
+    ]);
     component.isVoltageLinked = false;
     fixture.detectChanges();
 
@@ -480,11 +485,11 @@ describe("ArduinoEditorComponent", () => {
     const analogIds = new Array(MAX_ANALOG_PINS).fill(-1);
     analogIds[0] = VOLTAGE_BASE; // Lane 0
     analogIds[1] = VOLTAGE_BASE + 1; // Lane 1
-    component.config = makeConfig(analogIds);
-    component.lanes = [
+    fixture.componentRef.setInput("config", makeConfig(analogIds));
+    fixture.componentRef.setInput("lanes", [
       new Lane("l1", "#fff", "#ff0000", 10),
       new Lane("l2", "#fff", "#00ff00", 10),
-    ];
+    ]);
     component.isVoltageLinked = true;
     fixture.detectChanges();
 
@@ -500,30 +505,32 @@ describe("ArduinoEditorComponent", () => {
 
   it("should clear out-of-range pins when switching from Mega to Uno", () => {
     // 1. Setup as Mega (1) with high pin assignments
-    component.config!.hardwareType = 1;
-    component.config!.digitalIds[10] = 1000; // D10 (within Uno range)
-    component.config!.digitalIds[50] = 1001; // D50 (outside Uno range)
-    component.config!.analogIds[2] = VOLTAGE_BASE; // A2 (within Uno range)
-    component.config!.analogIds[10] = VOLTAGE_BASE + 1; // A10 (outside Uno range)
+    component.config()!.hardwareType = 1;
+    component.config()!.digitalIds[10] = 1000; // D10 (within Uno range)
+    component.config()!.digitalIds[50] = 1001; // D50 (outside Uno range)
+    component.config()!.analogIds[2] = VOLTAGE_BASE; // A2 (within Uno range)
+    component.config()!.analogIds[10] = VOLTAGE_BASE + 1; // A10 (outside Uno range)
 
     // 2. Switch to Uno (0)
     component.onHardwareTypeChange(0);
 
     // 3. Verify
-    expect(component.config!.hardwareType).toBe(0);
-    expect(component.config!.digitalIds[10]).toBe(1000); // Should remain
-    expect(component.config!.digitalIds[50]).toBe(0); // Should be BEHAVIOR_UNUSED (0)
-    expect(component.config!.analogIds[2]).toBe(7000); // Should remain
-    expect(component.config!.analogIds[10]).toBe(0); // Should be BEHAVIOR_UNUSED (0)
+    expect(component.config()!.hardwareType).toBe(0);
+    expect(component.config()!.digitalIds[10]).toBe(1000); // Should remain
+    expect(component.config()!.digitalIds[50]).toBe(0); // Should be BEHAVIOR_UNUSED (0)
+    expect(component.config()!.analogIds[2]).toBe(7000); // Should remain
+    expect(component.config()!.analogIds[10]).toBe(0); // Should be BEHAVIOR_UNUSED (0)
   });
 
   describe("Link State Persistence", () => {
     function setupComponentWithIndex(idx: number) {
       fixture = TestBed.createComponent(ArduinoEditorComponent);
       component = fixture.componentInstance;
-      component.config = makeConfig();
-      component.lanes = [new Lane("l1", "#fff", "#ff0000", 10)];
-      component.index = idx;
+      fixture.componentRef.setInput("config", makeConfig());
+      fixture.componentRef.setInput("lanes", [
+        new Lane("l1", "#fff", "#ff0000", 10),
+      ]);
+      fixture.componentRef.setInput("index", idx);
     }
 
     beforeEach(() => {
@@ -591,8 +598,10 @@ describe("ArduinoEditorComponent", () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(ArduinoEditorComponent);
       component = fixture.componentInstance;
-      component.config = makeConfig();
-      component.lanes = [new Lane("l1", "#fff", "#ff0000", 10)];
+      fixture.componentRef.setInput("config", makeConfig());
+      fixture.componentRef.setInput("lanes", [
+        new Lane("l1", "#fff", "#ff0000", 10),
+      ]);
       fixture.detectChanges();
     });
 
@@ -601,12 +610,12 @@ describe("ArduinoEditorComponent", () => {
       const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
       const _unusedBehavior = PinBehavior.BEHAVIOR_UNUSED;
 
-      expect(component.config!.ledStrings.length).toBe(0);
+      expect(component.config()!.ledStrings.length).toBe(0);
 
       component.setPinBehavior(true, pinIndex, rgbBehavior.toString());
 
-      expect(component.config!.ledStrings.length).toBe(1);
-      expect(component.config!.ledStrings[0].pin).toBe(5); // D5
+      expect(component.config()!.ledStrings.length).toBe(1);
+      expect(component.config()!.ledStrings[0].pin).toBe(5); // D5
     });
 
     it("should remove the LedString when a pin is unassigned from BEHAVIOR_LED_RGB_STRING", () => {
@@ -616,11 +625,11 @@ describe("ArduinoEditorComponent", () => {
 
       // 1. Add it
       component.setPinBehavior(true, pinIndex, rgbBehavior.toString());
-      expect(component.config!.ledStrings.length).toBe(1);
+      expect(component.config()!.ledStrings.length).toBe(1);
 
       // 2. Remove it
       component.setPinBehavior(true, pinIndex, unusedBehavior.toString());
-      expect(component.config!.ledStrings.length).toBe(0);
+      expect(component.config()!.ledStrings.length).toBe(0);
     });
 
     it("should remove only the specific LedString matching the pin", () => {
@@ -631,30 +640,30 @@ describe("ArduinoEditorComponent", () => {
 
       component.setPinBehavior(true, pinIndex5, rgbBehavior.toString());
       component.setPinBehavior(true, pinIndex6, rgbBehavior.toString());
-      expect(component.config!.ledStrings.length).toBe(2);
+      expect(component.config()!.ledStrings.length).toBe(2);
 
       // Remove pin 5
       component.setPinBehavior(true, pinIndex5, unusedBehavior.toString());
 
-      expect(component.config!.ledStrings.length).toBe(1);
-      expect(component.config!.ledStrings[0].pin).toBe(6);
+      expect(component.config()!.ledStrings.length).toBe(1);
+      expect(component.config()!.ledStrings[0].pin).toBe(6);
     });
 
     it("should reset lane-based LED behaviors to unused when a lane is deleted", () => {
       // Setup 4 lanes
-      component.lanes = [
+      fixture.componentRef.setInput("lanes", [
         new Lane("l1", "#fff", "#ff0000", 10),
         new Lane("l2", "#fff", "#00ff00", 10),
         new Lane("l3", "#fff", "#0000ff", 10),
         new Lane("l4", "#fff", "#ffff00", 10),
-      ];
+      ]);
       fixture.detectChanges();
 
       // Add an LED string with behavior for Lane 4 (index 3)
       const pinIndex = 5;
       const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
       component.setPinBehavior(true, pinIndex, rgbBehavior.toString());
-      const ls = component.config!.ledStrings[0];
+      const ls = component.config()!.ledStrings[0];
 
       // Set first LED to Heat Leader Lane 4
       const heatLeaderBase = RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_LEADER_BASE;
@@ -665,11 +674,11 @@ describe("ArduinoEditorComponent", () => {
       ls.leds[1] = fuelLevelBase + 3;
 
       // Delete lane 4 (now only 3 lanes)
-      component.lanes = [
+      fixture.componentRef.setInput("lanes", [
         new Lane("l1", "#fff", "#ff0000", 10),
         new Lane("l2", "#fff", "#00ff00", 10),
         new Lane("l3", "#fff", "#0000ff", 10),
-      ];
+      ]);
       fixture.detectChanges();
 
       // Verify behaviors are reset to UNUSED
@@ -682,11 +691,11 @@ describe("ArduinoEditorComponent", () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(ArduinoEditorComponent);
       component = fixture.componentInstance;
-      component.config = makeConfig();
-      component.lanes = [
+      fixture.componentRef.setInput("config", makeConfig());
+      fixture.componentRef.setInput("lanes", [
         new Lane("l1", "#fff", "#ff0000", 10),
         new Lane("l2", "#fff", "#00ff00", 10),
-      ];
+      ]);
 
       // Add two strings
       const rgbBehavior = (PinBehavior as any).BEHAVIOR_LED_RGB_STRING;
@@ -702,8 +711,8 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringBrightnessChange(0, 128);
 
-      expect(component.config!.ledStrings[0].brightness).toBe(128);
-      expect(component.config!.ledStrings[1].brightness).toBe(128);
+      expect(component.config()!.ledStrings[0].brightness).toBe(128);
+      expect(component.config()!.ledStrings[1].brightness).toBe(128);
     });
 
     it("should NOT sync brightness when unlinked", () => {
@@ -711,8 +720,8 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringBrightnessChange(0, 128);
 
-      expect(component.config!.ledStrings[0].brightness).toBe(128);
-      expect(component.config!.ledStrings[1].brightness).not.toBe(128);
+      expect(component.config()!.ledStrings[0].brightness).toBe(128);
+      expect(component.config()!.ledStrings[1].brightness).not.toBe(128);
     });
 
     it("should sync update rate across all strings when linked", () => {
@@ -720,8 +729,8 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringFlashRateChange(0, 60);
 
-      expect(component.config!.ledStrings[0].flagFlashRate).toBe(60);
-      expect(component.config!.ledStrings[1].flagFlashRate).toBe(60);
+      expect(component.config()!.ledStrings[0].flagFlashRate).toBe(60);
+      expect(component.config()!.ledStrings[1].flagFlashRate).toBe(60);
     });
 
     it("should sync color overrides across all strings when linked", () => {
@@ -729,10 +738,10 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringLaneColorChange(0, 1, "#0000ff"); // String 0, Lane 1 (index 1)
 
-      expect(component.config!.ledStrings[0].ledLaneColorOverrides[1]).toBe(
+      expect(component.config()!.ledStrings[0].ledLaneColorOverrides[1]).toBe(
         "#0000ff",
       );
-      expect(component.config!.ledStrings[1].ledLaneColorOverrides[1]).toBe(
+      expect(component.config()!.ledStrings[1].ledLaneColorOverrides[1]).toBe(
         "#0000ff",
       );
     });
@@ -742,12 +751,12 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringLaneColorChange(0, 1, "#0000ff");
 
-      expect(component.config!.ledStrings[0].ledLaneColorOverrides[1]).toBe(
+      expect(component.config()!.ledStrings[0].ledLaneColorOverrides[1]).toBe(
         "#0000ff",
       );
-      expect(component.config!.ledStrings[1].ledLaneColorOverrides[1]).not.toBe(
-        "#0000ff",
-      );
+      expect(
+        component.config()!.ledStrings[1].ledLaneColorOverrides[1],
+      ).not.toBe("#0000ff");
     });
 
     it("should sync color order across all strings when linked", () => {
@@ -755,8 +764,8 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringColorOrderChange(0, 1); // GRB
 
-      expect(component.config!.ledStrings[0].colorOrder).toBe(1);
-      expect(component.config!.ledStrings[1].colorOrder).toBe(1);
+      expect(component.config()!.ledStrings[0].colorOrder).toBe(1);
+      expect(component.config()!.ledStrings[1].colorOrder).toBe(1);
     });
 
     it("should NOT sync color order when unlinked", () => {
@@ -764,14 +773,14 @@ describe("ArduinoEditorComponent", () => {
 
       component.onLedStringColorOrderChange(0, 2); // BGR
 
-      expect(component.config!.ledStrings[0].colorOrder).toBe(2);
-      expect(component.config!.ledStrings[1].colorOrder).not.toBe(2);
+      expect(component.config()!.ledStrings[0].colorOrder).toBe(2);
+      expect(component.config()!.ledStrings[1].colorOrder).not.toBe(2);
     });
   });
 
   describe("Real-time Pin Status", () => {
     it("should update pinActivity when digitalPin event received (Normally Open)", () => {
-      component.config!.normallyClosedLaneSensors = false;
+      component.config()!.normallyClosedLaneSensors = false;
       fixture.detectChanges();
 
       // Trip D2 (State 0)
@@ -788,7 +797,7 @@ describe("ArduinoEditorComponent", () => {
     });
 
     it("should update pinActivity when digitalPin event received (Normally Closed)", () => {
-      component.config!.normallyClosedLaneSensors = true;
+      component.config()!.normallyClosedLaneSensors = true;
       fixture.detectChanges();
 
       // Trip D2 (State 1)
@@ -805,7 +814,7 @@ describe("ArduinoEditorComponent", () => {
     });
 
     it("should update pinActivity for analog pins in digital mode", () => {
-      component.config!.normallyClosedLaneSensors = false;
+      component.config()!.normallyClosedLaneSensors = false;
       fixture.detectChanges();
 
       // Trip A3 (State 0)
@@ -846,8 +855,10 @@ describe("ArduinoEditorComponent", () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(ArduinoEditorComponent);
       component = fixture.componentInstance;
-      component.config = makeConfig();
-      component.lanes = [new Lane("l1", "#fff", "#ff0000", 10)];
+      fixture.componentRef.setInput("config", makeConfig());
+      fixture.componentRef.setInput("lanes", [
+        new Lane("l1", "#fff", "#ff0000", 10),
+      ]);
       fixture.detectChanges();
     });
 
@@ -874,7 +885,7 @@ describe("ArduinoEditorComponent", () => {
 
     it("should use correct default values for a new LED string", () => {
       component.addLedString(10, 5); // Pin 5
-      const ls = component.config!.ledStrings[0];
+      const ls = component.config()!.ledStrings[0];
       expect(ls.brightness).toBe(32);
       expect(ls.ledType).toBe(1); // WS2811
       expect(ls.colorOrder).toBe(0); // RGB
@@ -914,11 +925,11 @@ describe("ArduinoEditorComponent", () => {
         // use pin 0 to avoid collision
         component.addLedString(10, 0);
       }
-      expect(component.config!.ledStrings.length).toBe(5);
+      expect(component.config()!.ledStrings.length).toBe(5);
 
       // Try 6th
       component.addLedString(10, 0);
-      expect(component.config!.ledStrings.length).toBe(5); // Blocked
+      expect(component.config()!.ledStrings.length).toBe(5); // Blocked
     });
 
     it("should limit Mega to 8 LED strings", () => {
@@ -928,11 +939,11 @@ describe("ArduinoEditorComponent", () => {
       for (let i = 0; i < 8; i++) {
         component.addLedString(10, 0);
       }
-      expect(component.config!.ledStrings.length).toBe(8);
+      expect(component.config()!.ledStrings.length).toBe(8);
 
       // Try 9th
       component.addLedString(10, 0);
-      expect(component.config!.ledStrings.length).toBe(8); // Blocked
+      expect(component.config()!.ledStrings.length).toBe(8); // Blocked
     });
 
     it("should restrict LED types for Uno to WS2811 and OTHER", () => {
@@ -946,17 +957,17 @@ describe("ArduinoEditorComponent", () => {
     it("should default unsupported LED types to WS2811 when switching to Uno", () => {
       component.onHardwareTypeChange(1); // Start on Mega
       component.addLedString(10, 0); // String 1
-      component.config!.ledStrings[0].ledType = 3; // WS2812B (Not supported on Uno)
+      component.config()!.ledStrings[0].ledType = 3; // WS2812B (Not supported on Uno)
 
       component.addLedString(10, 0); // String 2
-      component.config!.ledStrings[1].ledType = 12; // OTHER (Supported on Uno)
+      component.config()!.ledStrings[1].ledType = 12; // OTHER (Supported on Uno)
 
       component.onHardwareTypeChange(0); // Switch to Uno
 
       // Unsupported WS2812B should become WS2811 (1)
-      expect(component.config!.ledStrings[0].ledType).toBe(1);
+      expect(component.config()!.ledStrings[0].ledType).toBe(1);
       // Supported OTHER should remain OTHER (12)
-      expect(component.config!.ledStrings[1].ledType).toBe(12);
+      expect(component.config()!.ledStrings[1].ledType).toBe(12);
     });
 
     it("should support 5 LED types for Mega", () => {

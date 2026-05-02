@@ -38,19 +38,19 @@ describe("AcknowledgementModalComponent", () => {
   });
 
   it("should not be visible by default", async () => {
-    expect(component.visible).toBeFalse();
+    expect(component.visible()).toBeFalse();
     expect(await harness.isVisible()).toBeFalse();
   });
 
   it("should be visible when visible input is true", async () => {
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
     expect(await harness.isVisible()).toBeTrue();
   });
 
   it("should emit acknowledge event on button click", async () => {
     spyOn(component.acknowledge, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
     fixture.detectChanges();
 
     await harness.clickAcknowledge();

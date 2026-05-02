@@ -100,44 +100,51 @@ describe("ToolbarComponent", () => {
   });
 
   it("should show edit button when showEdit is true", async () => {
-    component.showEdit = true;
+    fixture.componentRef.setInput("showEdit", true);
+    fixture.detectChanges();
     expect(await harness.isEditVisible()).toBeTrue();
   });
 
   it("should emit edit event when edit button is clicked", async () => {
     spyOn(component.edit, "emit");
-    component.showEdit = true;
+    fixture.componentRef.setInput("showEdit", true);
+    fixture.detectChanges();
     await harness.clickEdit();
     expect(component.edit.emit).toHaveBeenCalled();
   });
 
   it("should show help button when showHelp is true", async () => {
-    component.showHelp = true;
+    fixture.componentRef.setInput("showHelp", true);
+    fixture.detectChanges();
     expect(await harness.isHelpVisible()).toBeTrue();
   });
 
   it("should emit help event when help button is clicked", async () => {
     spyOn(component.help, "emit");
-    component.showHelp = true;
+    fixture.componentRef.setInput("showHelp", true);
+    fixture.detectChanges();
     await harness.clickHelp();
     expect(component.help.emit).toHaveBeenCalled();
   });
 
   it("should show delete button when showDelete is true", async () => {
-    component.showDelete = true;
+    fixture.componentRef.setInput("showDelete", true);
+    fixture.detectChanges();
     expect(await harness.isDeleteVisible()).toBeTrue();
   });
 
   it("should emit delete event when delete button is clicked", async () => {
     spyOn(component.delete, "emit");
-    component.showDelete = true;
+    fixture.componentRef.setInput("showDelete", true);
+    fixture.detectChanges();
     await harness.clickDelete();
     expect(component.delete.emit).toHaveBeenCalled();
   });
 
   it("should show undo/redo when showUndo/showRedo are true", async () => {
-    component.showUndo = true;
-    component.showRedo = true;
+    fixture.componentRef.setInput("showUndo", true);
+    fixture.componentRef.setInput("showRedo", true);
+    fixture.detectChanges();
     expect(await harness.isUndoVisible()).toBeTrue();
     expect(await harness.isRedoVisible()).toBeTrue();
   });
@@ -152,8 +159,9 @@ describe("ToolbarComponent", () => {
     const manager = new UndoManager<any>(config, () => state);
     spyOn(manager, "undo");
 
-    component.showUndo = true;
-    component.undoManager = manager;
+    fixture.componentRef.setInput("showUndo", true);
+    fixture.componentRef.setInput("undoManager", manager);
+    fixture.detectChanges();
 
     // First commit captures initial snapshot
     manager.commitState();
@@ -177,8 +185,9 @@ describe("ToolbarComponent", () => {
     const manager = new UndoManager<any>(config, () => state);
     spyOn(manager, "redo");
 
-    component.showRedo = true;
-    component.undoManager = manager;
+    fixture.componentRef.setInput("showRedo", true);
+    fixture.componentRef.setInput("undoManager", manager);
+    fixture.detectChanges();
 
     manager.commitState();
     state = { foo: "baz" };
@@ -191,9 +200,10 @@ describe("ToolbarComponent", () => {
   });
 
   it("should disable buttons when isSaving is true", async () => {
-    component.showEdit = true;
-    component.showDelete = true;
-    component.isSaving = true;
+    fixture.componentRef.setInput("showEdit", true);
+    fixture.componentRef.setInput("showDelete", true);
+    fixture.componentRef.setInput("isSaving", true);
+    fixture.detectChanges();
 
     expect(await harness.isEditDisabled()).toBeTrue();
     expect(await harness.isDeleteDisabled()).toBeTrue();
@@ -251,7 +261,7 @@ describe("ToolbarComponent", () => {
       settings.trackManagerHelpShown = false;
       settingsServiceSpy.getSettings.and.returnValue(settings);
 
-      component.helpRecordName = "trackManagerHelpShown";
+      fixture.componentRef.setInput("helpRecordName", "trackManagerHelpShown");
       component.ngOnInit();
       tick(600); // Wait for the 500ms delay in ngOnInit
 
@@ -267,7 +277,7 @@ describe("ToolbarComponent", () => {
       settings.trackManagerHelpShown = true;
       settingsServiceSpy.getSettings.and.returnValue(settings);
 
-      component.helpRecordName = "trackManagerHelpShown";
+      fixture.componentRef.setInput("helpRecordName", "trackManagerHelpShown");
       component.ngOnInit();
       tick(600);
 
@@ -281,7 +291,7 @@ describe("ToolbarComponent", () => {
       settingsServiceSpy.getSettings.and.returnValue(settings);
       queryParamsSubject.next({ help: "true" });
 
-      component.helpRecordName = "trackManagerHelpShown";
+      fixture.componentRef.setInput("helpRecordName", "trackManagerHelpShown");
       component.ngOnInit();
       tick(600);
 

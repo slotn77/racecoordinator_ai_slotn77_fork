@@ -3,9 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Directive,
-  EventEmitter,
-  Input,
-  Output,
+  input,
+  output,
   Pipe,
   PipeTransform,
 } from "@angular/core";
@@ -32,10 +31,13 @@ class MockTranslatePipe implements PipeTransform {
   }
 }
 
-@Directive({ selector: "[appSvgTextScaler]" })
+@Directive({
+  selector: "[appSvgTextScaler]",
+  standalone: true,
+})
 class MockSvgTextScalerDirective {
-  @Input() maxWidth: number = 0;
-  @Input() scaleToFit: boolean = false;
+  maxWidth = input<number>(0);
+  scaleToFit = input<boolean>(false);
 }
 import { of, Subject } from "rxjs";
 import { THEME_SLOT_KEYS } from "src/app/models/theme";
@@ -45,30 +47,32 @@ import * as _audio from "src/app/utils/audio";
 
 @Component({
   selector: "app-acknowledgement-modal",
+  standalone: true,
   template: "",
   imports: [DragDropModule],
 })
 class DefaultRacedayMockAcknowledgementModalComponent {
-  @Input() visible: boolean = false;
-  @Input() title: string = "";
-  @Input() message: string = "";
-  @Input() buttonText: string = "";
-  @Output() acknowledge = new EventEmitter<void>();
+  visible = input<boolean>(false);
+  title = input<string>("");
+  message = input<string>("");
+  buttonText = input<string>("");
+  acknowledge = output<void>();
 }
 
 @Component({
   selector: "app-confirmation-modal",
+  standalone: true,
   template: "",
   imports: [DragDropModule],
 })
 class DefaultRacedayMockConfirmationModalComponent {
-  @Input() visible: boolean = false;
-  @Input() title: string = "";
-  @Input() message: string = "";
-  @Input() confirmText: string = "";
-  @Input() cancelText: string = "";
-  @Output() confirm = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  visible = input<boolean>(false);
+  title = input<string>("");
+  message = input<string>("");
+  confirmText = input<string>("");
+  cancelText = input<string>("");
+  confirm = output<void>();
+  cancel = output<void>();
 }
 
 import { MOCK_HEATS } from "src/app/testing/data/heats_data";

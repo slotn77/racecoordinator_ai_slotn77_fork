@@ -1,6 +1,6 @@
 <div
   class="modal-backdrop"
-  *ngIf="visible"
+  *ngIf="visible()"
   (dragenter)="onElementDragEnter($event)"
   (dragover)="onElementDragOver($event)"
   (dragleave)="onElementDragLeave($event)"
@@ -25,7 +25,7 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <h2 class="modal-title">
       {{
-        (assetId ? "AM_SET_EDITOR_TITLE_EDIT" : "AM_SET_EDITOR_TITLE_NEW")
+        (assetId() ? "AM_SET_EDITOR_TITLE_EDIT" : "AM_SET_EDITOR_TITLE_NEW")
           | translate
       }}
     </h2>
@@ -74,7 +74,7 @@
         <div class="entry-preview">
           <app-image-selector
             [imageUrl]="entry.url ?? undefined"
-            [assets]="allImages"
+            [assets]="allImages()"
             (imageUrlChange)="
               entry.url = $event; entry.name = entry.name || entry.url
             "

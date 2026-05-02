@@ -1,4 +1,4 @@
-import { Component, Input, NO_ERRORS_SCHEMA } from "@angular/core";
+import { Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
@@ -27,15 +27,16 @@ import { TrackManagerComponent } from "./track-manager.component";
 
 @Component({
   selector: "app-back-button",
+  standalone: true,
   template: "",
 })
 class MockBackButtonComponent {
-  @Input() targetUrl?: string;
-  @Input() route?: string;
-  @Input() confirm?: boolean;
-  @Input() queryParams?: any;
-  @Input() confirmTitle?: string;
-  @Input() confirmMessage?: string;
+  targetUrl = input<string | undefined>();
+  route = input<string | undefined>();
+  confirm = input<boolean | undefined>();
+  queryParams = input<any | undefined>();
+  confirmTitle = input<string | undefined>();
+  confirmMessage = input<string | undefined>();
 }
 
 describe("TrackManagerComponent", () => {

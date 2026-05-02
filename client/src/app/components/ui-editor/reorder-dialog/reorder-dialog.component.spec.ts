@@ -3,7 +3,7 @@ import { CdkDragDrop, DragDropModule } from "@angular/cdk/drag-drop";
 import {
   ChangeDetectorRef,
   Component,
-  Input,
+  input,
   Pipe,
   PipeTransform,
 } from "@angular/core";
@@ -27,12 +27,13 @@ class MockTranslatePipe implements PipeTransform {
 
 @Component({
   selector: "app-column-preview",
+  standalone: true,
   template: "",
   imports: [DragDropModule],
 })
 class MockColumnPreviewComponent {
-  @Input() columnSlots: any[] = [];
-  @Input() columnLayouts: any = {};
+  columnSlots = input<any[]>([]);
+  columnLayouts = input<any>({});
 }
 
 describe("ReorderDialogComponent", () => {
@@ -84,7 +85,7 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should initialize data and alphabetize available values", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
     fixture.detectChanges();
     expect(component.availableValues.length).toBe(2);
     // driver.name (RD_COL_NAME) should come after lapCount (RD_COL_LAP) because R comes after L? No, RD_COL_LAP comes before RD_COL_NAME.
@@ -93,26 +94,29 @@ describe("ReorderDialogComponent", () => {
     expect(component.availableValues[1].key).toBe("driver.name");
 
     // Test reverse to be sure
-    component.data = {
+    fixture.componentRef.setInput("data", {
       ...mockData,
       availableValues: [
         { key: "z", label: "Z" },
         { key: "a", label: "A" },
       ],
-    };
+    });
+    fixture.detectChanges();
     fixture.detectChanges();
     expect(component.availableValues[0].key).toBe("a");
     expect(component.availableValues[1].key).toBe("z");
   });
 
   it("should handle drop column (reorder)", () => {
-    component.data = {
+    fixture.componentRef.setInput("data", {
       ...mockData,
       columnSlots: [
         { key: "s1", label: "L1" },
         { key: "s2", label: "L2" },
       ],
-    };
+    });
+    fixture.detectChanges();
+    fixture.detectChanges();
     const event = {
       previousIndex: 0,
       currentIndex: 1,
@@ -124,7 +128,8 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should handle value drop on anchor", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     component.onValueDrop("slot1", AnchorPoint.TopLeft, "lapCount");
     expect(component.columnLayouts["slot1"]![AnchorPoint.TopLeft]).toBe(
       "lapCount",
@@ -132,7 +137,8 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should clear anchor", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     component.onValueDrop("slot1", AnchorPoint.TopLeft, "lapCount");
     expect(component.columnLayouts["slot1"]![AnchorPoint.TopLeft]).toBe(
       "lapCount",
@@ -145,7 +151,8 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should remove column", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     expect(component.columnSlots.length).toBe(1);
     component.removeColumn("slot1");
     expect(component.columnSlots.length).toBe(0);
@@ -153,7 +160,8 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should handle add column drop", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     const event = {
       item: { data: "lapCount" },
     } as CdkDragDrop<any>;
@@ -167,10 +175,11 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should handle add column drop with duplicate keys", () => {
-    component.data = {
+    fixture.componentRef.setInput("data", {
       ...mockData,
       columnSlots: [{ key: "lapCount", label: "L" }],
-    };
+    });
+    fixture.detectChanges();
     const event = {
       item: { data: "lapCount" },
     } as CdkDragDrop<any>;
@@ -185,7 +194,8 @@ describe("ReorderDialogComponent", () => {
 
   it("should emit save on onSave", () => {
     spyOn(component.save, "emit");
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     component.onSave();
     expect(component.save.emit).toHaveBeenCalledWith({
       columns: ["slot1"],
@@ -195,15 +205,17 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should initialize visibility if missing", () => {
-    component.data = {
+    fixture.componentRef.setInput("data", {
       ...mockData,
       columnVisibility: {},
-    };
+    });
+    fixture.detectChanges();
     expect(component.columnVisibility["slot1"]).toBe(ColumnVisibility.Always);
   });
 
   it("should handle visibility changes", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     component.columnVisibility["slot1"] = ColumnVisibility.FuelRaceOnly;
     // Template would handle this via ngModel, but we check the state
     expect(component.columnVisibility["slot1"]).toBe(
@@ -212,7 +224,8 @@ describe("ReorderDialogComponent", () => {
   });
 
   it("should handle remove column and delete its visibility", () => {
-    component.data = mockData;
+    fixture.componentRef.setInput("data", mockData);
+    fixture.detectChanges();
     expect(component.columnVisibility["slot1"]).toBeDefined();
     component.removeColumn("slot1");
     expect(component.columnVisibility["slot1"]).toBeUndefined();
@@ -226,7 +239,7 @@ describe("ReorderDialogComponent", () => {
 
   it("should reset to defaults when onReset is called", () => {
     // 1. Initialize with some non-default data
-    component.data = {
+    fixture.componentRef.setInput("data", {
       availableValues: [
         { key: "lapCount", label: "L" },
         { key: "driver.nickname", label: "N" },
@@ -238,7 +251,8 @@ describe("ReorderDialogComponent", () => {
       columnLayouts: { custom_slot: { [AnchorPoint.TopLeft]: "lapCount" } },
       columnVisibility: { custom_slot: ColumnVisibility.NonFuelRaceOnly },
       screenName: "Reset Test",
-    };
+    });
+    fixture.detectChanges();
 
     expect(component.columnSlots.length).toBe(1);
     expect(component.columnSlots[0].key).toBe("custom_slot");
@@ -268,7 +282,7 @@ describe("ReorderDialogComponent", () => {
 
   describe("reindexAllSegments", () => {
     it("should reset segment indices per column", () => {
-      component.data = {
+      fixture.componentRef.setInput("data", {
         ...mockData,
         columnSlots: [
           { key: "col1", label: "C1" },
@@ -283,7 +297,8 @@ describe("ReorderDialogComponent", () => {
             [AnchorPoint.BottomLeft]: "segmentTime_5",
           },
         },
-      };
+      });
+      fixture.detectChanges();
 
       (component as any).reindexAllSegments();
 
@@ -302,7 +317,7 @@ describe("ReorderDialogComponent", () => {
     });
 
     it("should preserve non-segment properties during re-indexing", () => {
-      component.data = {
+      fixture.componentRef.setInput("data", {
         ...mockData,
         columnSlots: [{ key: "col1", label: "C1" }],
         columnLayouts: {
@@ -311,7 +326,8 @@ describe("ReorderDialogComponent", () => {
             [AnchorPoint.TopLeft]: "segmentTime_2",
           },
         },
-      };
+      });
+      fixture.detectChanges();
 
       (component as any).reindexAllSegments();
 

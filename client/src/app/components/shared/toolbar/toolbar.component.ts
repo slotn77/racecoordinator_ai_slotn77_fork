@@ -1,10 +1,9 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
+  input,
   OnInit,
-  Output,
+  output,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { AnalyticsService } from "src/app/analytics.service";
@@ -25,25 +24,25 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, AcknowledgementModalComponent, TranslatePipe],
 })
 export class ToolbarComponent implements OnInit {
-  @Input() showAdd = false;
-  @Input() showEdit = false;
-  @Input() showHelp = false;
-  @Input() showDelete = false;
-  @Input() showCopy = false;
-  @Input() showUndo = false;
-  @Input() showRedo = false;
-  @Input() isSaving = false;
-  @Input() showAnalytics = true;
-  @Input() disabledAdd = false;
-  @Input() disabledEdit = false;
-  @Input() disabledDelete = false;
-  @Input() disabledCopy = false;
-  @Input() showActivate = false;
-  @Input() disabledActivate = false;
-  @Input() undoManager?: UndoManager<any>;
-  @Input() helpSteps: GuideStep[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: keyof Settings;
+  showAdd = input(false);
+  showEdit = input(false);
+  showHelp = input(false);
+  showDelete = input(false);
+  showCopy = input(false);
+  showUndo = input(false);
+  showRedo = input(false);
+  isSaving = input(false);
+  showAnalytics = input(true);
+  disabledAdd = input(false);
+  disabledEdit = input(false);
+  disabledDelete = input(false);
+  disabledCopy = input(false);
+  showActivate = input(false);
+  disabledActivate = input(false);
+  undoManager = input<UndoManager<any>>();
+  helpSteps = input<GuideStep[]>([]);
+  helpTitle = input("");
+  helpRecordName = input<keyof Settings>();
 
   showAnalyticsModal = false;
   analyticsModalTitle = "";
@@ -62,8 +61,8 @@ export class ToolbarComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const forceHelp = params["help"] === "true";
       const settings = this.settingsService.getSettings();
-      const needsHelp =
-        this.helpRecordName && !settings[this.helpRecordName as keyof Settings];
+      const helpRecName = this.helpRecordName();
+      const needsHelp = helpRecName && !settings[helpRecName as keyof Settings];
 
       if (forceHelp || needsHelp) {
         // Small delay to ensure the view and translations are ready
@@ -71,8 +70,8 @@ export class ToolbarComponent implements OnInit {
           this.onHelp();
 
           // If it was the first visit, mark as shown
-          if (needsHelp && !forceHelp && this.helpRecordName) {
-            (settings as any)[this.helpRecordName] = true;
+          if (needsHelp && !forceHelp && helpRecName) {
+            (settings as any)[helpRecName] = true;
             this.settingsService.saveSettings(settings);
           }
         }, 500);
@@ -80,13 +79,13 @@ export class ToolbarComponent implements OnInit {
     });
   }
 
-  @Output() add = new EventEmitter<void>();
-  @Output() edit = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() help = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+  add = output<void>();
+  edit = output<void>();
+  copy = output<void>();
+  help = output<void>();
+  delete = output<void>();
 
-  @Output() activate = new EventEmitter<void>();
+  activate = output<void>();
 
   onActivate() {
     this.activate.emit();
@@ -103,7 +102,7 @@ export class ToolbarComponent implements OnInit {
   getToolbarHelpSteps(): GuideStep[] {
     const defaultSteps: GuideStep[] = [];
 
-    if (this.showActivate) {
+    if (this.showActivate()) {
       defaultSteps.push({
         targetId: "activate-item-btn",
         title: this.translationService.translate("TOOLBAR_HELP_ACTIVATE_TITLE"),
@@ -114,7 +113,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showUndo) {
+    if (this.showUndo()) {
       defaultSteps.push({
         targetId: "undo-btn",
         title: this.translationService.translate("TOOLBAR_HELP_UNDO_TITLE"),
@@ -123,7 +122,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showRedo) {
+    if (this.showRedo()) {
       defaultSteps.push({
         targetId: "redo-btn",
         title: this.translationService.translate("TOOLBAR_HELP_REDO_TITLE"),
@@ -132,7 +131,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showEdit) {
+    if (this.showEdit()) {
       defaultSteps.push({
         targetId: "edit-track-btn",
         title: this.translationService.translate("TOOLBAR_HELP_EDIT_TITLE"),
@@ -141,7 +140,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showCopy) {
+    if (this.showCopy()) {
       defaultSteps.push({
         targetId: "copy-item-btn",
         title: this.translationService.translate("TOOLBAR_HELP_COPY_TITLE"),
@@ -150,7 +149,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showAdd) {
+    if (this.showAdd()) {
       defaultSteps.push({
         targetId: "add-item-btn",
         title: this.translationService.translate("TOOLBAR_HELP_ADD_TITLE"),
@@ -159,7 +158,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showDelete) {
+    if (this.showDelete()) {
       defaultSteps.push({
         targetId: "delete-track-btn",
         title: this.translationService.translate("TOOLBAR_HELP_DELETE_TITLE"),
@@ -170,7 +169,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showAnalytics) {
+    if (this.showAnalytics()) {
       defaultSteps.push({
         targetId: "analytics-btn",
         title: this.translationService.translate(
@@ -183,7 +182,7 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showHelp) {
+    if (this.showHelp()) {
       defaultSteps.push({
         targetId: "help-track-btn",
         title: this.translationService.translate("TOOLBAR_HELP_HELP_TITLE"),
@@ -196,7 +195,7 @@ export class ToolbarComponent implements OnInit {
   }
 
   onHelp() {
-    const steps = [...this.helpSteps, ...this.getToolbarHelpSteps()];
+    const steps = [...this.helpSteps(), ...this.getToolbarHelpSteps()];
     this.helpService.startGuide(steps);
     this.help.emit();
   }
@@ -234,18 +233,18 @@ export class ToolbarComponent implements OnInit {
   }
 
   undo() {
-    this.undoManager?.undo();
+    this.undoManager()?.undo();
   }
 
   redo() {
-    this.undoManager?.redo();
+    this.undoManager()?.redo();
   }
 
   get canUndo(): boolean {
-    return (this.undoManager?.undoStackCount ?? 0) > 0;
+    return (this.undoManager()?.undoStackCount ?? 0) > 0;
   }
 
   get canRedo(): boolean {
-    return (this.undoManager?.redoStackCount ?? 0) > 0;
+    return (this.undoManager()?.redoStackCount ?? 0) > 0;
   }
 }

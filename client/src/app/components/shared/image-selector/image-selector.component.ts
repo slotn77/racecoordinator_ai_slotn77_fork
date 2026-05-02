@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, input, output } from "@angular/core";
 import { DataService } from "src/app/data.service";
 import { NgIf } from "@angular/common";
 import { AssetPreviewComponent } from "../asset-preview/asset-preview.component";
@@ -19,19 +13,19 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, AssetPreviewComponent, ItemSelectorComponent, TranslatePipe],
 })
 export class ImageSelectorComponent {
-  @Input() label?: string;
-  @Input() imageUrl?: string;
-  @Input() assets: any[] = [];
-  @Input() size: "small" | "medium" | "large" = "medium";
-  @Input() disabled: boolean = false;
-  @Input() assetId?: string;
-  @Input() assetType: "image" | "image_set" = "image";
-  @Input() images?: any[];
+  label = input<string>();
+  imageUrl = input<string | undefined>();
+  imageUrlChange = output<string | undefined>();
+  assets = input<any[]>([]);
+  size = input<"small" | "medium" | "large">("medium");
+  disabled = input(false);
+  assetId = input<string>();
+  assetType = input<"image" | "image_set">("image");
+  images = input<any[]>();
 
-  @Output() imageUrlChange = new EventEmitter<string>();
-  @Output() assetSelected = new EventEmitter<any>();
-  @Output() uploadStarted = new EventEmitter<void>();
-  @Output() uploadFinished = new EventEmitter<void>();
+  assetSelected = output<any>();
+  uploadStarted = output<void>();
+  uploadFinished = output<void>();
 
   isDragging = false;
   isUploading = false;
@@ -44,7 +38,7 @@ export class ImageSelectorComponent {
   ) {}
 
   onDragOver(event: DragEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
     event.preventDefault();
     event.stopPropagation();
     this.isDragging = true;
@@ -57,7 +51,7 @@ export class ImageSelectorComponent {
   }
 
   onDrop(event: DragEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
     event.preventDefault();
     event.stopPropagation();
     this.isDragging = false;
@@ -90,8 +84,7 @@ export class ImageSelectorComponent {
         next: (asset) => {
           this.isUploading = false;
           this.pendingPreview = null;
-          this.imageUrl = asset.url ?? undefined;
-          this.imageUrlChange.emit(this.imageUrl);
+          this.imageUrlChange.emit(asset.url ?? undefined);
           this.assetSelected.emit(asset);
           this.uploadFinished.emit();
           this.cdr.detectChanges();
@@ -109,7 +102,7 @@ export class ImageSelectorComponent {
   }
 
   openSelector() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
     this.showSelector = true;
   }
 
@@ -118,17 +111,15 @@ export class ImageSelectorComponent {
   }
 
   onAssetSelected(asset: any) {
-    this.imageUrl = asset.url;
-    this.imageUrlChange.emit(this.imageUrl);
+    this.imageUrlChange.emit(asset.url);
     this.assetSelected.emit(asset);
     this.closeSelector();
   }
 
   removeImage(event: MouseEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
     event.stopPropagation();
-    this.imageUrl = undefined;
-    this.imageUrlChange.emit(this.imageUrl);
+    this.imageUrlChange.emit(undefined);
     this.assetSelected.emit(null);
     this.cdr.detectChanges();
   }

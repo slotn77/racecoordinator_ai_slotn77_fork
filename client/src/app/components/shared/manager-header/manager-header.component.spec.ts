@@ -73,7 +73,7 @@ describe("ManagerHeaderComponent", () => {
   });
 
   it("should display title correctly", async () => {
-    component.title = "TEST_MANAGER";
+    fixture.componentRef.setInput("title", "TEST_MANAGER");
     fixture.detectChanges();
     expect(await harness.getTitle()).toBe("TEST_MANAGER");
   });
@@ -83,11 +83,11 @@ describe("ManagerHeaderComponent", () => {
   });
 
   it("should toggle toolbar based on showActions", async () => {
-    component.showActions = true;
+    fixture.componentRef.setInput("showActions", true);
     fixture.detectChanges();
     expect(await harness.hasToolbar()).toBeTrue();
 
-    component.showActions = false;
+    fixture.componentRef.setInput("showActions", false);
     fixture.detectChanges();
     expect(await harness.hasToolbar()).toBeFalse();
   });

@@ -20,19 +20,20 @@ class MockTranslatePipe implements PipeTransform {
   }
 }
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 @Component({
   selector: "app-asset-preview",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockAssetPreviewComponent {
-  @Input() assetId?: string;
-  @Input() type: string = "image";
-  @Input() imageUrl?: string;
-  @Input() name: string = "";
-  @Input() images?: any[];
-  @Input() animate: boolean = true;
+  assetId = input<string | undefined>();
+  type = input<string>("image");
+  imageUrl = input<string | undefined>();
+  name = input<string>("");
+  images = input<any[] | undefined>();
+  animate = input<boolean>(true);
 }
 
 describe("ItemSelectorComponent", () => {
@@ -67,13 +68,13 @@ describe("ItemSelectorComponent", () => {
   });
 
   it("should not be visible by default", async () => {
-    expect(component.visible).toBeFalse();
+    expect(component.visible()).toBeFalse();
     expect(await harness.isVisible()).toBeFalse();
   });
 
   it("should display items when visible", async () => {
-    component.visible = true;
-    component.items = [
+    fixture.componentRef.setInput("visible", true);
+    fixture.componentRef.setInput("items", [
       {
         name: "Item 1",
         url: "assets/images/default_avatar.svg",
@@ -84,7 +85,7 @@ describe("ItemSelectorComponent", () => {
         url: "assets/images/default_avatar.svg",
         type: "image",
       },
-    ];
+    ]);
     fixture.detectChanges();
 
     expect(await harness.getItemsCount()).toBe(2);
@@ -92,18 +93,18 @@ describe("ItemSelectorComponent", () => {
   });
 
   it("should filter items by itemType", () => {
-    component.items = [
+    fixture.componentRef.setInput("items", [
       { name: "Image 1", type: "image" },
       { name: "Set 1", type: "image_set" },
       { name: "Sound 1", type: "sound" },
-    ];
-    component.itemType = "image";
-    expect(component.filteredItems.length).toBe(1);
-    expect(component.filteredItems[0].name).toBe("Image 1");
+    ]);
+    fixture.componentRef.setInput("itemType", "image");
+    expect(component.filteredItems().length).toBe(1);
+    expect(component.filteredItems()[0].name).toBe("Image 1");
 
-    component.itemType = "image_set";
-    expect(component.filteredItems.length).toBe(1);
-    expect(component.filteredItems[0].name).toBe("Set 1");
+    fixture.componentRef.setInput("itemType", "image_set");
+    expect(component.filteredItems().length).toBe(1);
+    expect(component.filteredItems()[0].name).toBe("Set 1");
   });
 
   it("should emit select event when item is clicked", () => {
@@ -132,7 +133,7 @@ describe("ItemSelectorComponent", () => {
 
   it("should emit close event on close button click", async () => {
     spyOn(component.close, "emit");
-    component.visible = true;
+    fixture.componentRef.setInput("visible", true);
 
     await harness.clickClose();
 

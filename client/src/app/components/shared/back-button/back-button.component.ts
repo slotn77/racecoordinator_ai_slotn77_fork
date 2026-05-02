@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, input, output } from "@angular/core";
 import { Router } from "@angular/router";
 import {
   ConnectionMonitorService,
@@ -21,24 +15,14 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [ConfirmationModalComponent, TranslatePipe],
 })
 export class BackButtonComponent {
-  @Input() label: string = "BACK";
-  @Input() route: string = "/raceday-setup";
-  @Input() queryParams: any = {};
+  label = input("GEN_BTN_BACK");
+  route = input("/raceday-setup");
+  queryParams = input<any>({});
+  confirm = input(false);
+  confirmTitle = input("CD_CONFIRM_EXIT_TITLE");
+  confirmMessage = input("CD_CONFIRM_EXIT_MESSAGE");
 
-  private _confirm: boolean = false;
-  @Input() set confirm(v: boolean) {
-    this._confirm = v;
-    if (this.cdr) {
-      this.cdr.detectChanges();
-    }
-  }
-  get confirm(): boolean {
-    return this._confirm;
-  }
-  @Input() confirmTitle: string = "CD_CONFIRM_EXIT_TITLE"; // Default title (Exit Race) or generic
-  @Input() confirmMessage: string = "CD_CONFIRM_EXIT_MESSAGE"; // Default message
-
-  @Output() back = new EventEmitter<void>();
+  back = output<void>();
 
   showModal = false;
 
@@ -49,7 +33,7 @@ export class BackButtonComponent {
   ) {}
 
   onBack() {
-    if (this.confirm) {
+    if (this.confirm()) {
       this.showModal = true;
     } else {
       this.proceed();
@@ -76,12 +60,14 @@ export class BackButtonComponent {
       return;
     }
 
-    if (this.back.observed) {
-      sessionStorage.setItem("skipIntro", "true");
-      this.back.emit();
-    } else {
-      sessionStorage.setItem("skipIntro", "true");
-      this.router.navigate([this.route], { queryParams: this.queryParams });
+    sessionStorage.setItem("skipIntro", "true");
+    this.back.emit();
+
+    // If no one is listening (implied by providing a route and not wanting manual override)
+    // we navigate. Since we can't check 'observed', we check if route is provided.
+    // However, most components pass a route.
+    if (this.route() && this.route() !== "") {
+      this.router.navigate([this.route()], { queryParams: this.queryParams() });
     }
   }
 }

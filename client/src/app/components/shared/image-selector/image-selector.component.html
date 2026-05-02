@@ -1,34 +1,34 @@
 <div class="image-selector-container">
-  <label *ngIf="label" class="image-label">{{ label }}</label>
+  <label *ngIf="label()" class="image-label">{{ label() }}</label>
   <div
     class="image-preview"
     [class.dragging]="isDragging"
-    [class.small]="size === 'small'"
-    [class.medium]="size === 'medium'"
-    [class.large]="size === 'large'"
+    [class.small]="size() === 'small'"
+    [class.medium]="size() === 'medium'"
+    [class.large]="size() === 'large'"
     (drop)="onDrop($event)"
     (dragover)="onDragOver($event)"
     (dragleave)="onDragLeave($event)"
     (click)="openSelector()"
   >
     <app-asset-preview
-      *ngIf="imageUrl || pendingPreview"
-      [assetId]="assetId"
-      [type]="assetType"
-      [imageUrl]="pendingPreview || imageUrl"
-      [images]="images"
+      *ngIf="imageUrl() || pendingPreview"
+      [assetId]="assetId()"
+      [type]="assetType()"
+      [imageUrl]="pendingPreview || imageUrl()"
+      [images]="images()"
       [animate]="true"
     >
     </app-asset-preview>
     <div
       class="remove-button"
-      *ngIf="imageUrl && !pendingPreview && !isUploading && !disabled"
+      *ngIf="imageUrl() && !pendingPreview && !isUploading && !disabled()"
       (click)="removeImage($event)"
       [title]="'UE_BTN_REMOVE_IMAGE' | translate"
     >
       <span class="material-icons" style="font-size: 1.2rem">close</span>
     </div>
-    <div class="drop-hint" *ngIf="!imageUrl && !pendingPreview">
+    <div class="drop-hint" *ngIf="!imageUrl() && !pendingPreview">
       {{ "UE_HINT_DRAG_IMAGE" | translate }}
     </div>
     <div class="upload-overlay" *ngIf="isUploading">
@@ -40,8 +40,8 @@
 <app-item-selector
   [visible]="showSelector"
   [title]="'UE_TITLE_SELECT_IMAGE' | translate"
-  [items]="assets"
-  [itemType]="assetType"
+  [items]="assets()"
+  [itemType]="assetType()"
   (select)="onAssetSelected($event)"
   (close)="closeSelector()"
 >

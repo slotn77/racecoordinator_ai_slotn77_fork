@@ -10,7 +10,8 @@
     "postinstall": "npm run proto:gen",
     "test": "ng test --watch=false",
     "test:visual": "PLAYWRIGHT_BROWSERS_PATH=./.playwright-browsers npx playwright test",
-    "test:visual:serve": "node scripts/test-visual-serve.js"
+    "test:visual:serve": "node scripts/test-visual-serve.js",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {

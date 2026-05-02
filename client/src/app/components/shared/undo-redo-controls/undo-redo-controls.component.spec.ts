@@ -38,7 +38,7 @@ describe("UndoRedoControlsComponent", () => {
   beforeEach(async () => {
     fixture = TestBed.createComponent(UndoRedoControlsComponent);
     component = fixture.componentInstance;
-    component.manager = mockManager;
+    fixture.componentRef.setInput("manager", mockManager);
     harness = await TestbedHarnessEnvironment.harnessForFixture(
       fixture,
       UndoRedoControlsHarness,
@@ -91,7 +91,7 @@ describe("UndoRedoControlsComponent", () => {
   });
 
   it("should fail gracefully if manager is undefined", () => {
-    component.manager = undefined;
+    fixture.componentRef.setInput("manager", undefined);
     expect(() => component.undo()).not.toThrow();
     expect(() => component.redo()).not.toThrow();
     expect(component.canUndo).toBeFalse();

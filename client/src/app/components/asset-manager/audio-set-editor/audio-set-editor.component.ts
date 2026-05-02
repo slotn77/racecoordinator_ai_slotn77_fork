@@ -1,14 +1,12 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
+  effect,
   HostListener,
-  Input,
-  OnChanges,
+  input,
   OnDestroy,
   OnInit,
-  Output,
-  SimpleChanges,
+  output,
 } from "@angular/core";
 import { DataService } from "src/app/data.service";
 
@@ -35,15 +33,15 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
     TranslatePipe,
   ],
 })
-export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() visible = false;
-  @Input() assetId?: string;
-  @Input() initialName = "";
-  @Input() initialEntries: ISaveAudioSetEntry[] = [];
-  @Input() allAudio: any[] = [];
+export class AudioSetEditorComponent implements OnInit, OnDestroy {
+  visible = input(false);
+  assetId = input<string>();
+  initialName = input("");
+  initialEntries = input<ISaveAudioSetEntry[]>([]);
+  allAudio = input<any[]>([]);
 
-  @Output() close = new EventEmitter<void>();
-  @Output() saved = new EventEmitter<IAssetMessage>();
+  close = output<void>();
+  saved = output<IAssetMessage>();
 
   id = "audio-set-editor-" + Math.random().toString(36).substr(2, 9);
   name = "";
@@ -57,27 +55,22 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
     private dataService: DataService,
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef,
-  ) {}
-
-  ngOnInit() {
-    this.resetForm();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["visible"]) {
-      const wasVisible = changes["visible"].previousValue;
-      const isVisible = changes["visible"].currentValue;
-
-      if (isVisible && !wasVisible) {
+  ) {
+    effect(() => {
+      if (this.visible()) {
         console.log("AudioSetEditor: Opening modal, resetting form");
         this.resetForm();
         this.dragCounter = 0;
         this.isDragging = false;
         this.cdr.detectChanges();
-      } else if (!isVisible && wasVisible) {
+      } else {
         this.cleanupBlobUrls();
       }
-    }
+    });
+  }
+
+  ngOnInit() {
+    this.resetForm();
   }
 
   ngOnDestroy() {
@@ -90,9 +83,10 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   resetForm() {
-    this.name = this.initialName || "";
-    if (this.initialEntries && this.initialEntries.length > 0) {
-      this.entries = this.initialEntries.map((e) => ({
+    this.name = this.initialName() || "";
+    const entries = this.initialEntries();
+    if (entries && entries.length > 0) {
+      this.entries = entries.map((e) => ({
         timeSeconds: e.timeSeconds,
         url: e.url,
         name: e.name,
@@ -105,7 +99,7 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener("window:dragenter", ["$event"])
   onDragEnter(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     event.preventDefault();
     this.dragCounter++;
     this.isDragging = true;
@@ -114,14 +108,14 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener("window:dragover", ["$event"])
   onDragOver(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     event.preventDefault();
     this.isDragging = true;
   }
 
   @HostListener("window:dragleave", ["$event"])
   onDragLeave(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     event.preventDefault();
     this.dragCounter--;
     if (this.dragCounter <= 0) {
@@ -133,7 +127,7 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostListener("window:drop", ["$event"])
   onDrop(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     console.log("AudioSetEditor: window:drop caught (bubbled)");
     this.handleDropEvent(event);
   }
@@ -232,7 +226,7 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     fileArray.forEach((file, index) => {
       // Try to find a match in existing assets
-      const existingAsset = this.allAudio.find((a) => a.name === file.name);
+      const existingAsset = this.allAudio().find((a) => a.name === file.name);
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -328,7 +322,7 @@ export class AudioSetEditorComponent implements OnInit, OnChanges, OnDestroy {
     }));
 
     this.dataService
-      .saveAudioSet(this.name, sanitizedEntries, this.assetId)
+      .saveAudioSet(this.name, sanitizedEntries, this.assetId())
       .subscribe({
         next: (asset) => {
           this.isSaving = false;

@@ -1,6 +1,6 @@
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -45,22 +45,23 @@ import {
 
 @Component({
   selector: "app-toolbar",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockToolbarComponent {
-  @Input() showAdd = false;
-  @Input() showEdit = false;
-  @Input() showHelp = false;
-  @Input() showDelete = false;
-  @Input() showCopy = false;
-  @Input() showUndo = false;
-  @Input() showRedo = false;
-  @Input() isSaving = false;
-  @Input() undoManager?: any;
-  @Input() helpSteps: any[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: string;
+  showAdd = input(false);
+  showEdit = input(false);
+  showHelp = input(false);
+  showDelete = input(false);
+  showCopy = input(false);
+  showUndo = input(false);
+  showRedo = input(false);
+  isSaving = input(false);
+  undoManager = input<any>();
+  helpSteps = input<any[]>([]);
+  helpTitle = input<string>("");
+  helpRecordName = input<string | undefined>();
 }
 
 describe("DefaultRacedaySetupComponent", () => {

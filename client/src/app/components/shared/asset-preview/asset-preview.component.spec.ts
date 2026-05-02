@@ -35,8 +35,8 @@ describe("AssetPreviewComponent", () => {
   });
 
   it("should show static image for type image", () => {
-    component.type = "image";
-    component.imageUrl = "http://test.com/img.png";
+    fixture.componentRef.setInput("type", "image");
+    fixture.componentRef.setInput("imageUrl", "http://test.com/img.png");
     fixture.detectChanges();
 
     const img = fixture.nativeElement.querySelector("img");
@@ -45,7 +45,7 @@ describe("AssetPreviewComponent", () => {
   });
 
   it("should show sound icon for type sound", () => {
-    component.type = "sound";
+    fixture.componentRef.setInput("type", "sound");
     fixture.detectChanges();
 
     const img = fixture.nativeElement.querySelector(".preview-icon");
@@ -54,7 +54,7 @@ describe("AssetPreviewComponent", () => {
   });
 
   it("should show sound icon for type audio", () => {
-    component.type = "audio";
+    fixture.componentRef.setInput("type", "audio");
     fixture.detectChanges();
 
     const img = fixture.nativeElement.querySelector(".preview-icon");
@@ -63,19 +63,18 @@ describe("AssetPreviewComponent", () => {
   });
 
   it("should animate image set", fakeAsync(() => {
-    component.type = "image_set";
-    component.images = [
+    fixture.componentRef.setInput("type", "image_set");
+    fixture.componentRef.setInput("images", [
       { url: "/assets/frame1.png", name: "Frame 1" },
       { url: "/assets/frame2.png", name: "Frame 2" },
-    ];
-    component.animate = true;
+    ]);
+    fixture.componentRef.setInput("animate", true);
 
     // Trigger onInit/Changes
-    component.ngOnInit();
     fixture.detectChanges();
 
     // Initial frame
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
 
@@ -84,7 +83,7 @@ describe("AssetPreviewComponent", () => {
     fixture.detectChanges();
 
     // Second frame
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame2.png",
     );
 
@@ -93,7 +92,7 @@ describe("AssetPreviewComponent", () => {
     fixture.detectChanges();
 
     // Loop back to first frame
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
 
@@ -102,17 +101,16 @@ describe("AssetPreviewComponent", () => {
   }));
 
   it("should not animate if animate is false", fakeAsync(() => {
-    component.type = "image_set";
-    component.images = [
+    fixture.componentRef.setInput("type", "image_set");
+    fixture.componentRef.setInput("images", [
       { url: "/assets/frame1.png", name: "Frame 1" },
       { url: "/assets/frame2.png", name: "Frame 2" },
-    ];
-    component.animate = false;
+    ]);
+    fixture.componentRef.setInput("animate", false);
 
-    component.ngOnInit();
     fixture.detectChanges();
 
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
 
@@ -120,7 +118,7 @@ describe("AssetPreviewComponent", () => {
     fixture.detectChanges();
 
     // Should still be frame 1
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
 
@@ -128,17 +126,16 @@ describe("AssetPreviewComponent", () => {
   }));
 
   it("should stop animation on destroy", fakeAsync(() => {
-    component.type = "image_set";
-    component.images = [
+    fixture.componentRef.setInput("type", "image_set");
+    fixture.componentRef.setInput("images", [
       { url: "/assets/frame1.png", name: "Frame 1" },
       { url: "/assets/frame2.png", name: "Frame 2" },
-    ];
-    component.animate = true;
+    ]);
+    fixture.componentRef.setInput("animate", true);
 
-    component.ngOnInit();
     fixture.detectChanges();
 
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
 
@@ -148,22 +145,21 @@ describe("AssetPreviewComponent", () => {
     fixture.detectChanges();
 
     // Should not have advanced
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/assets/frame1.png",
     );
   }));
 
   it("should use assetId if imageUrl is not provided", () => {
-    component.type = "image";
-    component.assetId = "asset-123";
+    fixture.componentRef.setInput("type", "image");
+    fixture.componentRef.setInput("assetId", "asset-123");
     dataServiceSpy.getAssetUrl.and.returnValue(
       "http://localhost:7070/api/asset/asset-123",
     );
 
-    component.ngOnInit();
     fixture.detectChanges();
 
-    expect(component.currentUrl).toBe(
+    expect(component.currentUrl()).toBe(
       "http://localhost:7070/api/asset/asset-123",
     );
     expect(dataServiceSpy.getAssetUrl).toHaveBeenCalledWith("asset-123");

@@ -1,7 +1,7 @@
 <div
-  *ngIf="config"
+  *ngIf="config()"
   class="arduino-config-container"
-  [id]="'arduino-editor-' + index"
+  [id]="'arduino-editor-' + index()"
 >
   <div class="config-section">
     <div class="section-header" (click)="toggleSection('arduino')">
@@ -9,7 +9,8 @@
         >▼</span
       >
       <h1>
-        {{ "AE_HEADER" | translate }}{{ count > 1 ? " #" + (index + 1) : "" }}
+        {{ "AE_HEADER" | translate
+        }}{{ count() > 1 ? " #" + (index() + 1) : "" }}
       </h1>
       <div class="spacer"></div>
       <button class="action-btn danger small" (click)="removeInterface($event)">
@@ -36,8 +37,8 @@
                 <div class="control-group">
                   <label>{{ "AE_BOARD_TYPE" | translate }}</label>
                   <select
-                    [id]="'arduino-board-type-' + index"
-                    [ngModel]="config.hardwareType.toString()"
+                    [id]="'arduino-board-type-' + index()"
+                    [ngModel]="config()?.hardwareType?.toString()"
                     (ngModelChange)="onHardwareTypeChange(+$event)"
                   >
                     <option value="0">{{ "AE_BOARD_UNO" | translate }}</option>
@@ -49,8 +50,8 @@
                   <label>{{ "AE_COM_PORT" | translate }}</label>
                   <div class="com-port-row">
                     <select
-                      [id]="'arduino-com-port-' + index"
-                      [(ngModel)]="config.commPort"
+                      [id]="'arduino-com-port-' + index()"
+                      [(ngModel)]="config()!.commPort"
                       (change)="updateArduinoConfig()"
                     >
                       <option value="" disabled>
@@ -65,7 +66,7 @@
                     </select>
                     <button
                       type="button"
-                      [id]="'arduino-status-badge-' + index"
+                      [id]="'arduino-status-badge-' + index()"
                       class="status-badge"
                       [class.connected]="interfaceStatus == 0"
                       [title]="
@@ -82,9 +83,9 @@
                     <span class="unit-lowercase">(µs)</span></label
                   >
                   <input
-                    [id]="'arduino-debounce-' + index"
+                    [id]="'arduino-debounce-' + index()"
                     type="number"
-                    [ngModel]="config.debounceUs"
+                    [ngModel]="config()?.debounceUs"
                     (ngModelChange)="onDebounceChange($event)"
                     min="0"
                     step="100"
@@ -94,13 +95,13 @@
 
               <div class="board-preview">
                 <img
-                  *ngIf="config.hardwareType == 0"
+                  *ngIf="config()?.hardwareType == 0"
                   src="assets/images/arduino_uno_board.png"
                   [alt]="'AE_BOARD_UNO' | translate"
                   class="board-image"
                 />
                 <img
-                  *ngIf="config.hardwareType == 1"
+                  *ngIf="config()?.hardwareType == 1"
                   src="assets/images/arduino_mega_board.png"
                   [alt]="'AE_BOARD_MEGA' | translate"
                   class="board-image"
@@ -111,8 +112,8 @@
                 <div class="control-group">
                   <label>{{ "AE_LAP_PIN_PIT_BEHAVIOR" | translate }}</label>
                   <select
-                    [id]="'arduino-pit-behavior-' + index"
-                    [(ngModel)]="config.lapPinPitBehavior"
+                    [id]="'arduino-pit-behavior-' + index()"
+                    [(ngModel)]="config()!.lapPinPitBehavior"
                     (change)="updateArduinoConfig()"
                   >
                     <option [value]="0">
@@ -140,13 +141,10 @@
                     "
                   >
                     <input
-                      [id]="'arduino-nc-sensors-' + index"
+                      [id]="'arduino-nc-sensors-' + index()"
                       type="checkbox"
-                      [ngModel]="config.normallyClosedLaneSensors"
-                      (ngModelChange)="
-                        config.normallyClosedLaneSensors = $event;
-                        updateArduinoConfig()
-                      "
+                      [(ngModel)]="config()!.normallyClosedLaneSensors"
+                      (change)="updateArduinoConfig()"
                     />
                     {{ "AE_NORMALLY_CLOSED_SENSORS" | translate }}
                   </label>
@@ -162,13 +160,10 @@
                     "
                   >
                     <input
-                      [id]="'arduino-nc-relays-' + index"
+                      [id]="'arduino-nc-relays-' + index()"
                       type="checkbox"
-                      [ngModel]="config.normallyClosedRelays"
-                      (ngModelChange)="
-                        config.normallyClosedRelays = $event;
-                        updateArduinoConfig()
-                      "
+                      [(ngModel)]="config()!.normallyClosedRelays"
+                      (change)="updateArduinoConfig()"
                     />
                     {{ "AE_NORMALLY_CLOSED_RELAYS" | translate }}
                   </label>
@@ -266,7 +261,7 @@
             <div
               *ngIf="getVoltageLanes().length > 0"
               class="config-section voltage-config-section"
-              [id]="'arduino-voltage-section-' + index"
+              [id]="'arduino-voltage-section-' + index()"
             >
               <div class="section-header" (click)="toggleSection('voltage')">
                 <span
@@ -288,7 +283,7 @@
                   "
                 >
                   <button
-                    [id]="'arduino-voltage-reset-' + index"
+                    [id]="'arduino-voltage-reset-' + index()"
                     class="link-toggle-btn"
                     (click)="resetMaxSeenAll()"
                     title="Reset all tracked max voltage values"
@@ -310,7 +305,7 @@
                         "AE_PIN_VOLTAGE_LANE" | translate: { lane: lane + 1 }
                       }}</label>
                       <span
-                        [id]="'arduino-voltage-link-' + index + '-' + lane"
+                        [id]="'arduino-voltage-link-' + index() + '-' + lane"
                         class="material-icons clickable-link-icon"
                         [class.linked]="isVoltageLinked"
                         (click)="toggleVoltageLink()"
@@ -335,7 +330,7 @@
                         "AE_VOLTAGE_MAX_VAL" | translate
                       }}</span>
                       <input
-                        [id]="'arduino-voltage-max-' + index + '-' + lane"
+                        [id]="'arduino-voltage-max-' + index() + '-' + lane"
                         type="number"
                         [ngModel]="getVoltageMax(lane)"
                         (ngModelChange)="setVoltageMax(lane, $event)"
@@ -356,13 +351,13 @@
                         >{{ "AE_LIVE_VOLTAGE_LABEL" | translate }}:</span
                       >
                       <span
-                        [id]="'arduino-voltage-live-' + index + '-' + lane"
+                        [id]="'arduino-voltage-live-' + index() + '-' + lane"
                         class="live-value"
                         >{{ getLiveVoltageForLane(lane) }}</span
                       >
                     </div>
                     <button
-                      [id]="'arduino-voltage-set-max-' + index + '-' + lane"
+                      [id]="'arduino-voltage-set-max-' + index() + '-' + lane"
                       class="set-max-btn"
                       (click)="setMaxToSeen(lane)"
                       [disabled]="(maxVoltagesSeen[lane] ?? 0) === 0"
@@ -394,7 +389,7 @@
                 <div class="led-strings-list">
                   <div
                     *ngFor="
-                      let ls of config.ledStrings;
+                      let ls of config()?.ledStrings;
                       let i = index;
                       trackBy: trackByLedString
                     "
@@ -525,7 +520,7 @@
                         <div class="lane-colors-grid">
                           <div
                             *ngFor="
-                              let lane of lanes;
+                              let lane of lanes();
                               let laneIdx = index;
                               trackBy: trackByLane
                             "

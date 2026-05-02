@@ -1,5 +1,5 @@
 import { DragDropModule } from "@angular/cdk/drag-drop";
-import { Component, Input, NO_ERRORS_SCHEMA } from "@angular/core";
+import { Component, input, output, NO_ERRORS_SCHEMA } from "@angular/core";
 import {
   ComponentFixture,
   discardPeriodicTasks,
@@ -36,57 +36,58 @@ import { createTrackManagerDataServiceMock } from "../track-manager/testing/trac
 
 @Component({
   selector: "app-back-button",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockBackButtonComponent {
-  @Input() targetUrl?: string;
-  @Input() route?: string;
-  @Input() confirm?: boolean;
-  @Input() queryParams?: any;
-  @Input() confirmTitle?: string;
-  @Input() confirmMessage?: string;
+  targetUrl = input<string | undefined>();
+  route = input<string | undefined>();
+  confirm = input<boolean | undefined>();
+  queryParams = input<any | undefined>();
+  confirmTitle = input<string | undefined>();
+  confirmMessage = input<string | undefined>();
 }
 
 @Component({
   selector: "app-undo-redo-controls",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockUndoRedoControlsComponent {
-  @Input() manager: any;
+  manager = input<any>();
 }
-
-import { EventEmitter, Output } from "@angular/core";
 
 @Component({
   selector: "app-editor-title",
+  standalone: true,
   template: "",
   imports: [FormsModule, DragDropModule],
 })
 class MockEditorTitleComponent {
-  @Input() titleKey: string = "";
-  @Input() backRoute: string = "";
-  @Input() backConfirm: boolean = false;
-  @Input() backQueryParams: any = {};
-  @Input() backConfirmTitle: string = "";
-  @Input() backConfirmMessage: string = "";
-  @Input() undoManager: any;
-  @Input() showUndo: boolean = true;
-  @Input() showRedo: boolean = true;
-  @Input() showHelp: boolean = true;
-  @Input() showCopy: boolean = false;
-  @Input() showAdd: boolean = false;
-  @Input() showDelete: boolean = false;
-  @Input() isSaving: boolean = false;
-  @Input() helpSteps: any[] = [];
-  @Input() helpTitle: string = "";
-  @Input() helpRecordName?: string;
-  @Output() help = new EventEmitter<void>();
-  @Output() back = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() add = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+  titleKey = input<string>("");
+  backRoute = input<string>("");
+  backConfirm = input<boolean>(false);
+  backQueryParams = input<any>({});
+  backConfirmTitle = input<string>("");
+  backConfirmMessage = input<string>("");
+  undoManager = input<any>();
+  showUndo = input<boolean>(true);
+  showRedo = input<boolean>(true);
+  showHelp = input<boolean>(true);
+  showCopy = input<boolean>(false);
+  showAdd = input<boolean>(false);
+  showDelete = input<boolean>(false);
+  isSaving = input<boolean>(false);
+  helpSteps = input<any[]>([]);
+  helpTitle = input<string>("");
+  helpRecordName = input<string | undefined>();
+  help = output<void>();
+  back = output<void>();
+  copy = output<void>();
+  add = output<void>();
+  delete = output<void>();
 }
 
 import { TrackEditorComponent } from "./track-editor.component";

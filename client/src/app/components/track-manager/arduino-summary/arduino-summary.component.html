@@ -1,4 +1,4 @@
-<div class="arduino-summary" *ngIf="config">
+<div class="arduino-summary" *ngIf="config()">
   <div
     class="section-header"
     (click)="toggleExpanded()"
@@ -6,7 +6,8 @@
   >
     <span class="expander-icon" [class.collapsed]="!isExpanded">▼</span>
     <h1>
-      {{ "AS_TITLE" | translate }}{{ index !== undefined ? " " + index : "" }}
+      {{ "AS_TITLE" | translate
+      }}{{ index() !== undefined ? " " + index() : "" }}
     </h1>
   </div>
   <div class="section-content" *ngIf="isExpanded">
@@ -18,7 +19,7 @@
       <div class="summary-item">
         <span class="label">{{ "AS_COM_PORT" | translate }}:</span>
         <span class="value">{{
-          config.commPort || ("AS_NO_PORT" | translate)
+          config()?.commPort || ("AS_NO_PORT" | translate)
         }}</span>
       </div>
       <div class="summary-item">

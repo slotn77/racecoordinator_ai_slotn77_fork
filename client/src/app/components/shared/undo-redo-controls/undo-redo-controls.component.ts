@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 import { UndoManager } from "./undo-manager";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
@@ -11,21 +11,21 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [TranslatePipe],
 })
 export class UndoRedoControlsComponent {
-  @Input() manager?: UndoManager<any>;
+  manager = input<UndoManager<any>>();
 
   undo() {
-    this.manager?.undo();
+    this.manager()?.undo();
   }
 
   redo() {
-    this.manager?.redo();
+    this.manager()?.redo();
   }
 
   get canUndo(): boolean {
-    return this.manager?.canUndo() ?? false;
+    return this.manager()?.canUndo() ?? false;
   }
 
   get canRedo(): boolean {
-    return this.manager?.canRedo() ?? false;
+    return this.manager()?.canRedo() ?? false;
   }
 }

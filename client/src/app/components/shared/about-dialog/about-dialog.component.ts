@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { NgIf } from "@angular/common";
 import { TranslatePipe } from "src/app/pipes/translate.pipe";
 
@@ -6,24 +6,26 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   standalone: true,
   selector: "app-about-dialog",
   template: `
-    <div class="modal-backdrop" *ngIf="visible">
+    <div class="modal-backdrop" *ngIf="visible()">
       <div class="modal-content">
         <h2 class="modal-title">{{ "RDS_ABOUT_TITLE" | translate }}</h2>
         <div class="version-info">
           <p>
             {{
-              "RDS_ABOUT_CLIENT_VERSION" | translate: { version: clientVersion }
+              "RDS_ABOUT_CLIENT_VERSION"
+                | translate: { version: clientVersion() }
             }}
           </p>
           <p>
             {{
-              "RDS_ABOUT_SERVER_VERSION" | translate: { version: serverVersion }
+              "RDS_ABOUT_SERVER_VERSION"
+                | translate: { version: serverVersion() }
             }}
           </p>
-          <p *ngIf="serverIp">
+          <p *ngIf="serverIp()">
             {{
               "RDS_ABOUT_SERVER_ADDRESS"
-                | translate: { ip: serverIp, port: serverPort }
+                | translate: { ip: serverIp(), port: serverPort() }
             }}
           </p>
         </div>
@@ -100,13 +102,13 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, TranslatePipe],
 })
 export class AboutDialogComponent {
-  @Input() visible = false;
-  @Input() clientVersion = "";
-  @Input() serverVersion = "";
-  @Input() serverIp = "";
-  @Input() serverPort = 7070;
+  visible = input(false);
+  clientVersion = input("");
+  serverVersion = input("");
+  serverIp = input("");
+  serverPort = input(7070);
 
-  @Output() close = new EventEmitter<void>();
+  close = output<void>();
 
   onClose() {
     this.close.emit();

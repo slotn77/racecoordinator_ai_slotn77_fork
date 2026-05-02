@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, computed, input, output, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { NgIf, NgFor } from "@angular/common";
 import { BackButtonComponent } from "../back-button/back-button.component";
@@ -21,52 +21,56 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   ],
 })
 export class ItemSelectorComponent {
-  @Input() visible = false;
-  @Input() title?: string;
-  @Input() items: any[] = [];
-  searchTerm: string = "";
+  visible = input(false);
+  title = input<string>();
+  items = input<any[]>([]);
+  searchTerm = signal("");
 
-  @Input() itemType: "image" | "sound" | "image_set" | "audio" | "audio_set" =
-    "image";
+  itemType = input<"image" | "sound" | "image_set" | "audio" | "audio_set">(
+    "image",
+  );
 
-  @Input() backButtonRoute: string | null = null;
-  @Input() backButtonQueryParams: any = {};
-  @Input() backButtonLabel?: string;
+  backButtonRoute = input<string | null>(null);
+  backButtonQueryParams = input<any>({});
+  backButtonLabel = input<string>();
 
-  get filteredItems() {
-    let results = this.items;
+  filteredItems = computed(() => {
+    let results = this.items();
+    const type = this.itemType();
 
     // Filter by type if itemType is specified
-    if (this.itemType) {
-      if (this.itemType === "audio") {
+    if (type) {
+      if (type === "audio") {
         results = results.filter(
           (item) => item.type === "sound" || item.type === "audio_set",
         );
       } else {
-        results = results.filter((item) => item.type === this.itemType);
+        results = results.filter((item) => item.type === type);
       }
     }
 
-    if (!this.searchTerm) {
+    const term = this.searchTerm();
+    if (!term) {
       return results;
     }
 
-    const lowerTerm = this.searchTerm.toLowerCase();
+    const lowerTerm = term.toLowerCase();
     return results.filter(
       (item) => item.name && item.name.toLowerCase().includes(lowerTerm),
     );
-  }
+  });
 
-  @Output() select = new EventEmitter<any>();
-  @Output() play = new EventEmitter<any>();
-  @Output() close = new EventEmitter<void>();
+  select = output<any>();
+  play = output<any>();
+  close = output<void>();
 
   constructor(private router: Router) {}
 
   onBack() {
-    if (this.backButtonRoute) {
-      this.router.navigate([this.backButtonRoute], {
-        queryParams: this.backButtonQueryParams,
+    const route = this.backButtonRoute();
+    if (route) {
+      this.router.navigate([route], {
+        queryParams: this.backButtonQueryParams(),
       });
     }
     this.close.emit();

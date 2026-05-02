@@ -1,18 +1,18 @@
-<div class="heat-list" *ngIf="heats.length > 0">
-  <div class="heat-list-header" *ngIf="showHeader">
+<div class="heat-list" *ngIf="heats().length > 0">
+  <div class="heat-list-header" *ngIf="showHeader()">
     {{ "RM_HEADER_HEAT_LIST" | translate }}
   </div>
   <div class="heats-container">
     <div
       class="heat-item"
-      *ngFor="let heat of heats; trackBy: trackByHeatNumber"
+      *ngFor="let heat of heats(); trackBy: trackByHeatNumber"
     >
       <div class="heat-number">
         {{ "RM_LABEL_HEAT_NUMBER" | translate: { number: heat.heatNumber } }}
       </div>
       <div
         class="heat-lanes"
-        [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
+        [style.grid-template-columns]="'repeat(' + columns() + ', 1fr)'"
         cdkDropList
         cdkDropListOrientation="horizontal"
         (cdkDropListDropped)="onDrop($event, heat)"
@@ -22,10 +22,10 @@
           *ngFor="let lane of heat.lanes; trackBy: trackByLaneNumber"
           [style.background-color]="lane.backgroundColor"
           [style.color]="lane.foregroundColor"
-          [class.draggable]="canDragLanes && isLaneOccupied(lane)"
-          [class.clickable]="canDragLanes && !isLaneOccupied(lane)"
+          [class.draggable]="canDragLanes() && isLaneOccupied(lane)"
+          [class.clickable]="canDragLanes() && !isLaneOccupied(lane)"
           cdkDrag
-          [cdkDragDisabled]="!isLaneOccupied(lane) || !canDragLanes"
+          [cdkDragDisabled]="!isLaneOccupied(lane) || !canDragLanes()"
           (click)="onLaneClick(lane.laneNumber - 1)"
         >
           <div class="lane-content">
@@ -42,7 +42,7 @@
           </div>
           <div
             class="drag-handle"
-            *ngIf="canDragLanes && isLaneOccupied(lane)"
+            *ngIf="canDragLanes() && isLaneOccupied(lane)"
             cdkDragHandle
           >
             <span class="material-icons">drag_indicator</span>

@@ -1,13 +1,11 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
+  effect,
   HostListener,
-  Input,
-  OnChanges,
+  input,
   OnInit,
-  Output,
-  SimpleChanges,
+  output,
 } from "@angular/core";
 import { DataService } from "src/app/data.service";
 
@@ -34,15 +32,15 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
     TranslatePipe,
   ],
 })
-export class ImageSetEditorComponent implements OnInit, OnChanges {
-  @Input() visible = false;
-  @Input() assetId?: string;
-  @Input() initialName = "";
-  @Input() initialEntries: ISaveImageSetEntry[] = [];
-  @Input() allImages: any[] = [];
+export class ImageSetEditorComponent implements OnInit {
+  visible = input(false);
+  assetId = input<string>();
+  initialName = input("");
+  initialEntries = input<ISaveImageSetEntry[]>([]);
+  allImages = input<any[]>([]);
 
-  @Output() close = new EventEmitter<void>();
-  @Output() saved = new EventEmitter<IAssetMessage>();
+  close = output<void>();
+  saved = output<IAssetMessage>();
 
   id = "image-set-editor-" + Math.random().toString(36).substr(2, 9);
   name = "";
@@ -55,31 +53,27 @@ export class ImageSetEditorComponent implements OnInit, OnChanges {
     private dataService: DataService,
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef,
-  ) {}
-
-  ngOnInit() {
-    this.resetForm();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["visible"]) {
-      const wasVisible = changes["visible"].previousValue;
-      const isVisible = changes["visible"].currentValue;
-
-      if (isVisible && !wasVisible) {
+  ) {
+    effect(() => {
+      if (this.visible()) {
         console.log("ImageSetEditor: Opening modal, resetting form");
         this.resetForm();
         this.dragCounter = 0;
         this.isDragging = false;
         this.cdr.detectChanges();
       }
-    }
+    });
+  }
+
+  ngOnInit() {
+    this.resetForm();
   }
 
   resetForm() {
-    this.name = this.initialName || "";
-    if (this.initialEntries && this.initialEntries.length > 0) {
-      this.entries = this.initialEntries.map((e) => ({
+    this.name = this.initialName() || "";
+    const entries = this.initialEntries();
+    if (entries && entries.length > 0) {
+      this.entries = entries.map((e) => ({
         percentage: e.percentage,
         url: e.url,
         name: e.name,
@@ -92,7 +86,7 @@ export class ImageSetEditorComponent implements OnInit, OnChanges {
 
   @HostListener("window:dragenter", ["$event"])
   onDragEnter(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     // We don't stop propagation on window level usually, but we want to prevent default
     event.preventDefault();
     this.dragCounter++;
@@ -102,14 +96,14 @@ export class ImageSetEditorComponent implements OnInit, OnChanges {
 
   @HostListener("window:dragover", ["$event"])
   onDragOver(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     event.preventDefault();
     this.isDragging = true;
   }
 
   @HostListener("window:dragleave", ["$event"])
   onDragLeave(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     event.preventDefault();
     this.dragCounter--;
     if (this.dragCounter <= 0) {
@@ -121,7 +115,7 @@ export class ImageSetEditorComponent implements OnInit, OnChanges {
 
   @HostListener("window:drop", ["$event"])
   onDrop(event: DragEvent) {
-    if (!this.visible) return;
+    if (!this.visible()) return;
     // If it reached window, it means it wasn't caught and stopped by the element handlers
     console.log("ImageSetEditor: window:drop caught (bubbled)");
     this.handleDropEvent(event);
@@ -340,7 +334,7 @@ export class ImageSetEditorComponent implements OnInit, OnChanges {
 
     this.isSaving = true;
     this.dataService
-      .saveImageSet(this.name, this.entries, this.assetId)
+      .saveImageSet(this.name, this.entries, this.assetId())
       .subscribe({
         next: (asset) => {
           this.isSaving = false;

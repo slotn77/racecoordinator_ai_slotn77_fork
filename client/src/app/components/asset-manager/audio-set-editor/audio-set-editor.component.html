@@ -1,6 +1,6 @@
 <div
   class="modal-backdrop"
-  *ngIf="visible"
+  *ngIf="visible()"
   (dragenter)="onElementDragEnter($event)"
   (dragover)="onElementDragOver($event)"
   (dragleave)="onElementDragLeave($event)"
@@ -25,7 +25,7 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <h2 class="modal-title">
       {{
-        (assetId
+        (assetId()
           ? "AM_AUDIO_SET_EDITOR_TITLE_EDIT"
           : "AM_AUDIO_SET_EDITOR_TITLE_NEW"
         ) | translate
@@ -77,7 +77,7 @@
           <app-audio-selector
             [url]="entry.url ?? undefined"
             [fallbackName]="entry.name"
-            [assets]="allAudio"
+            [assets]="allAudio()"
             (urlChange)="
               entry.url = $event; entry.name = entry.name || entry.url
             "

@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  OnInit,
+  output,
+  signal,
+} from "@angular/core";
 import { DataService } from "src/app/data.service";
 
 import { IAssetMessage } from "src/app/proto/antigravity";
@@ -20,64 +27,61 @@ export interface AssetPickerData {
   imports: [NgIf, FormsModule, NgFor, AssetPreviewComponent, TranslatePipe],
 })
 export class AssetPickerComponent implements OnInit {
-  @Input() visible: boolean = false;
-  @Input() type: "image" | "audio" | "image_set" = "image";
-  @Input() currentAssetId: string | null = null;
+  visible = input(false);
+  type = input<"image" | "audio" | "image_set">("image");
+  currentAssetId = input<string | null>(null);
 
-  @Output() close = new EventEmitter<string | null>();
+  close = output<string | null>();
 
-  assets: IAssetMessage[] = [];
-  filteredAssets: IAssetMessage[] = [];
-  isLoading: boolean = true;
-  searchQuery: string = "";
-  selectedAssetId: string | null = null;
+  assets = signal<IAssetMessage[]>([]);
+  isLoading = signal(true);
+  searchQuery = signal("");
+  selectedAssetId = signal<string | null>(null);
 
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
-    this.selectedAssetId = this.currentAssetId;
+    this.selectedAssetId.set(this.currentAssetId());
     this.loadAssets();
   }
 
   loadAssets() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.dataService.listAssets().subscribe({
       next: (assets) => {
         // Filter by type
-        this.assets = assets.filter((a) => {
-          if (this.type === "image") return a.type === "IMAGE";
-          if (this.type === "audio") return a.type === "AUDIO";
-          if (this.type === "image_set") return a.type === "IMAGE_SET";
+        const type = this.type();
+        const filtered = assets.filter((a) => {
+          if (type === "image") return a.type === "IMAGE";
+          if (type === "audio") return a.type === "AUDIO";
+          if (type === "image_set") return a.type === "IMAGE_SET";
           return true;
         });
-        this.applyFilter();
-        this.isLoading = false;
+        this.assets.set(filtered);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error("Failed to load assets", err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
 
-  applyFilter() {
-    if (!this.searchQuery) {
-      this.filteredAssets = this.assets;
-    } else {
-      const q = this.searchQuery.toLowerCase();
-      this.filteredAssets = this.assets.filter((a) =>
-        a.name?.toLowerCase().includes(q),
-      );
-    }
-  }
+  filteredAssets = computed(() => {
+    const q = this.searchQuery().toLowerCase();
+    const all = this.assets();
+    if (!q) return all;
+    return all.filter((a) => a.name?.toLowerCase().includes(q));
+  });
 
   selectAsset(asset: IAssetMessage) {
-    this.selectedAssetId = asset.model?.entityId || null;
+    this.selectedAssetId.set(asset.model?.entityId || null);
   }
 
   confirm() {
-    if (this.selectedAssetId) {
-      this.close.emit(this.selectedAssetId);
+    const id = this.selectedAssetId();
+    if (id) {
+      this.close.emit(id);
     }
   }
 

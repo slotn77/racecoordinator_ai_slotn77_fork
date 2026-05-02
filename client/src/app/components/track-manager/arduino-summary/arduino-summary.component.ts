@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { ArduinoConfig } from "src/app/models/track";
 
 import { TranslationService } from "src/app/services/translation.service";
@@ -15,8 +15,8 @@ import { TranslatePipe } from "src/app/pipes/translate.pipe";
   imports: [NgIf, TranslatePipe],
 })
 export class ArduinoSummaryComponent {
-  @Input() config?: ArduinoConfig;
-  @Input() index?: number;
+  config = input<ArduinoConfig>();
+  index = input<number>();
   isExpanded = true;
 
   constructor(public translationService: TranslationService) {}
@@ -26,12 +26,14 @@ export class ArduinoSummaryComponent {
   }
 
   getBoardName(): string {
-    if (!this.config) return "";
-    return this.config.hardwareType === 1 ? "AS_BOARD_MEGA" : "AS_BOARD_UNO";
+    const config = this.config();
+    if (!config) return "";
+    return config.hardwareType === 1 ? "AS_BOARD_MEGA" : "AS_BOARD_UNO";
   }
 
   getConfiguredPinCount(): number {
-    if (!this.config) return 0;
+    const config = this.config();
+    if (!config) return 0;
     const isConfigured = (id: number) => {
       // 0 = BEHAVIOR_UNUSED, 1 = BEHAVIOR_RESERVED
       return (
@@ -40,21 +42,18 @@ export class ArduinoSummaryComponent {
         id !== -1
       );
     };
-    const digitalCount = (this.config.digitalIds || []).filter(
-      isConfigured,
-    ).length;
-    const analogCount = (this.config.analogIds || []).filter(
-      isConfigured,
-    ).length;
+    const digitalCount = (config.digitalIds || []).filter(isConfigured).length;
+    const analogCount = (config.analogIds || []).filter(isConfigured).length;
     return digitalCount + analogCount;
   }
 
   hasBehavior(
     behaviorType: "lap" | "segment" | "call" | "relay" | "voltage" | "led",
   ): boolean {
-    if (!this.config) return false;
-    const digitalIds = this.config.digitalIds || [];
-    const analogIds = this.config.analogIds || [];
+    const config = this.config();
+    if (!config) return false;
+    const digitalIds = config.digitalIds || [];
+    const analogIds = config.analogIds || [];
     const allPins = [...digitalIds, ...analogIds];
 
     const PB = PinBehavior;
@@ -92,7 +91,7 @@ export class ArduinoSummaryComponent {
         return allPins.some(
           (id) =>
             id === (PB as any).BEHAVIOR_LED_RGB_STRING ||
-            (this.config?.ledStrings && this.config.ledStrings.length > 0),
+            (config?.ledStrings && config.ledStrings.length > 0),
         );
       default:
         return false;

@@ -47,7 +47,7 @@ describe("HeatListComponent", () => {
   });
 
   it("should not display heat list when heats array is empty", async () => {
-    component.heats = [];
+    fixture.componentRef.setInput("heats", []);
     fixture.detectChanges();
 
     // We expect an error if it doesn't exist, wait no, getHeatCount() returns 0.
@@ -56,7 +56,7 @@ describe("HeatListComponent", () => {
   });
 
   it("should display heats when heats array has data", async () => {
-    component.heats = [
+    fixture.componentRef.setInput("heats", [
       {
         heatNumber: 1,
         lanes: [
@@ -74,7 +74,7 @@ describe("HeatListComponent", () => {
           },
         ],
       },
-    ];
+    ]);
     fixture.detectChanges();
     expect(await harness.getHeatCount()).toBe(1);
     expect(await harness.getHeatNumberLabel(0)).toContain(
@@ -83,18 +83,18 @@ describe("HeatListComponent", () => {
   });
 
   it("should render correct number of heat items", async () => {
-    component.heats = [
+    fixture.componentRef.setInput("heats", [
       { heatNumber: 1, lanes: [] },
       { heatNumber: 2, lanes: [] },
       { heatNumber: 3, lanes: [] },
-    ];
+    ]);
     fixture.detectChanges();
     const count = await harness.getHeatCount();
     expect(count).toBe(3);
   });
 
   it("should apply lane colors correctly", async () => {
-    component.heats = [
+    fixture.componentRef.setInput("heats", [
       {
         heatNumber: 1,
         lanes: [
@@ -106,7 +106,7 @@ describe("HeatListComponent", () => {
           },
         ],
       },
-    ];
+    ]);
     fixture.detectChanges();
     const lanes = await harness.getLanesForHeat(0);
     expect(lanes.length).toBe(1);
@@ -115,23 +115,23 @@ describe("HeatListComponent", () => {
   });
 
   it("should show header when showHeader is true", async () => {
-    component.heats = [{ heatNumber: 1, lanes: [] }];
-    component.showHeader = true;
+    fixture.componentRef.setInput("heats", [{ heatNumber: 1, lanes: [] }]);
+    fixture.componentRef.setInput("showHeader", true);
     fixture.detectChanges();
     expect(await harness.hasHeader()).toBeTrue();
   });
 
   it("should hide header when showHeader is false", async () => {
-    component.heats = [{ heatNumber: 1, lanes: [] }];
-    component.showHeader = false;
+    fixture.componentRef.setInput("heats", [{ heatNumber: 1, lanes: [] }]);
+    fixture.componentRef.setInput("showHeader", false);
     fixture.detectChanges();
     expect(await harness.hasHeader()).toBeFalse();
   });
 
   describe("Solo Rotation", () => {
     beforeEach(() => {
-      component.canDragLanes = true;
-      component.heats = [
+      fixture.componentRef.setInput("canDragLanes", true);
+      fixture.componentRef.setInput("heats", [
         {
           heatNumber: 1,
           lanes: [
@@ -141,7 +141,7 @@ describe("HeatListComponent", () => {
             { laneNumber: 4, driverNumber: null },
           ],
         },
-      ];
+      ]);
       fixture.detectChanges();
     });
 
@@ -162,7 +162,7 @@ describe("HeatListComponent", () => {
     }));
 
     it("should not emit laneSelected when clicking if canDragLanes is false", fakeAsync(() => {
-      component.canDragLanes = false;
+      fixture.componentRef.setInput("canDragLanes", false);
       fixture.detectChanges();
       spyOn(component.laneSelected, "emit");
       const laneItems = fixture.debugElement.queryAll(By.css(".lane-item"));

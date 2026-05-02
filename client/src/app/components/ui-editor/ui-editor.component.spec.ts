@@ -1,11 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  Pipe,
-  PipeTransform,
-} from "@angular/core";
+import { Component, input, output, Pipe, PipeTransform } from "@angular/core";
 import {
   ComponentFixture,
   fakeAsync,
@@ -30,135 +23,143 @@ import { UIEditorComponent } from "./ui-editor.component";
 
 @Component({
   selector: "app-image-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockImageSelectorComponent {
-  @Input() label?: string;
-  @Input() imageUrl?: string;
-  @Input() assets: any[] = [];
-  @Input() size?: string;
-  @Input() disabled: boolean = false;
-  @Input() assetType: string = "image";
-  @Input() assetId?: string;
-  @Input() images?: any[];
-  @Output() imageUrlChange = new EventEmitter<string>();
-  @Output() assetSelected = new EventEmitter<any>();
-  @Output() uploadStarted = new EventEmitter<void>();
-  @Output() uploadFinished = new EventEmitter<void>();
+  label = input<string | undefined>();
+  imageUrl = input<string | undefined>();
+  assets = input<any[]>([]);
+  size = input<string | undefined>();
+  disabled = input<boolean>(false);
+  assetType = input<string>("image");
+  assetId = input<string | undefined>();
+  images = input<any[] | undefined>();
+  imageUrlChange = output<string>();
+  assetSelected = output<any>();
+  uploadStarted = output<void>();
+  uploadFinished = output<void>();
 }
 
 @Component({
   selector: "app-asset-preview",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockAssetPreviewComponent {
-  @Input() assetId?: string;
-  @Input() type: string = "image";
-  @Input() imageUrl?: string;
-  @Input() name: string = "";
-  @Input() images?: any[];
-  @Input() animate: boolean = true;
+  assetId = input<string | undefined>();
+  type = input<string>("image");
+  imageUrl = input<string | undefined>();
+  name = input<string>("");
+  images = input<any[] | undefined>();
+  animate = input<boolean>(true);
 }
 
 @Component({
   selector: "app-editor-title",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockEditorTitleComponent {
-  @Input() titleKey: string = "";
-  @Input() backRoute: string = "";
-  @Input() undoManager: any;
+  titleKey = input<string>("");
+  backRoute = input<string>("");
+  undoManager = input<any>();
 }
 
 @Component({
   selector: "app-column-preview",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockColumnPreviewComponent {
-  @Input() columnSlots: any[] = [];
-  @Input() columnLayouts: any = {};
-  @Input() resizingColumnKey: string | null = null;
-  @Input() columnVisibility: any = {};
+  columnSlots = input<any[]>([]);
+  columnLayouts = input<any>({});
+  resizingColumnKey = input<string | null>(null);
+  columnVisibility = input<any>({});
 }
 
 @Component({
   selector: "app-toolbar",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockToolbarComponent {
-  @Input() showAdd = false;
-  @Input() showEdit = false;
-  @Input() showHelp = false;
-  @Input() showDelete = false;
-  @Input() showCopy = false;
-  @Input() showUndo = false;
-  @Input() showRedo = false;
-  @Input() isSaving = false;
-  @Input() disabledAdd = false;
-  @Input() disabledEdit = false;
-  @Input() disabledDelete = false;
-  @Input() disabledCopy = false;
-  @Input() showActivate = false;
-  @Input() disabledActivate = false;
-  @Input() showAnalytics = true;
-  @Input() undoManager?: any;
-  @Output() add = new EventEmitter<void>();
-  @Output() edit = new EventEmitter<void>();
-  @Output() copy = new EventEmitter<void>();
-  @Output() help = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
-  @Output() activate = new EventEmitter<void>();
+  showAdd = input<boolean>(false);
+  showEdit = input<boolean>(false);
+  showHelp = input<boolean>(false);
+  showDelete = input<boolean>(false);
+  showCopy = input<boolean>(false);
+  showUndo = input<boolean>(false);
+  showRedo = input<boolean>(false);
+  isSaving = input<boolean>(false);
+  disabledAdd = input<boolean>(false);
+  disabledEdit = input<boolean>(false);
+  disabledDelete = input<boolean>(false);
+  disabledCopy = input<boolean>(false);
+  showActivate = input<boolean>(false);
+  disabledActivate = input<boolean>(false);
+  showAnalytics = input<boolean>(true);
+  undoManager = input<any>();
+  add = output<void>();
+  edit = output<void>();
+  copy = output<void>();
+  help = output<void>();
+  delete = output<void>();
+  activate = output<void>();
 }
 
 @Component({
   selector: "app-confirmation-modal",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockConfirmationModalComponent {
-  @Input() visible = false;
-  @Input() title = "";
-  @Input() message = "";
-  @Input() messageParams: any = {};
-  @Input() cancelText = "NO";
-  @Input() confirmText = "YES";
-  @Output() cancel = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<void>();
+  visible = input<boolean>(false);
+  title = input<string>("");
+  message = input<string>("");
+  messageParams = input<any>({});
+  cancelText = input<string>("NO");
+  confirmText = input<string>("YES");
+  cancel = output<void>();
+  confirm = output<void>();
 }
 @Component({
   selector: "app-reorder-dialog",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockReorderDialogComponent {
-  @Input() visible: boolean = false;
-  @Input() data: any;
-  @Output() save = new EventEmitter<any>();
-  @Output() cancel = new EventEmitter<void>();
+  visible = input<boolean>(false);
+  data = input<any>();
+  save = output<any>();
+  cancel = output<void>();
 }
 
 @Component({
   selector: "app-audio-selector",
+  standalone: true,
   template: "",
   imports: [FormsModule],
 })
 class MockAudioSelectorComponent {
-  @Input() label: string = "";
-  @Input() assets: any[] = [];
-  @Input() type: string = "preset";
-  @Input() url?: string;
-  @Input() text?: string;
-  @Input() readonly: boolean = false;
-  @Input() context?: any;
-  @Input() mode: "single" | "set" = "single";
-  @Output() typeChange = new EventEmitter<string>();
-  @Output() urlChange = new EventEmitter<string>();
-  @Output() textChange = new EventEmitter<string>();
+  label = input<string>("");
+  assets = input<any[]>([]);
+  type = input<string>("preset");
+  url = input<string | undefined>();
+  text = input<string | undefined>();
+  readonly = input<boolean>(false);
+  context = input<any>();
+  mode = input<"single" | "set">("single");
+  typeChange = output<string>();
+  urlChange = output<string>();
+  textChange = output<string>();
 }
 
 @Pipe({ name: "translate" })
@@ -609,11 +610,11 @@ describe("UIEditorComponent", () => {
       );
 
       // Default theme toolbar - Delete should be hidden
-      expect(toolbars[0].componentInstance.showDelete).toBeFalse();
+      expect(toolbars[0].componentInstance.showDelete()).toBeFalse();
 
       // Custom theme toolbar - Delete should be shown and enabled
-      expect(toolbars[1].componentInstance.showDelete).toBeTrue();
-      expect(toolbars[1].componentInstance.disabledDelete).toBeFalse();
+      expect(toolbars[1].componentInstance.showDelete()).toBeTrue();
+      expect(toolbars[1].componentInstance.disabledDelete()).toBeFalse();
     });
 
     it("should hide Add button only on the default theme toolbar", () => {
@@ -641,10 +642,10 @@ describe("UIEditorComponent", () => {
       );
 
       // Default theme toolbar - Add should be hidden
-      expect(toolbars[0].componentInstance.showAdd).toBeFalse();
+      expect(toolbars[0].componentInstance.showAdd()).toBeFalse();
 
       // Custom theme toolbar - Add should be shown
-      expect(toolbars[1].componentInstance.showAdd).toBeTrue();
+      expect(toolbars[1].componentInstance.showAdd()).toBeTrue();
     });
 
     it("should enable Edit and Copy on all theme toolbars", () => {
@@ -671,8 +672,8 @@ describe("UIEditorComponent", () => {
         By.css(".theme-toolbar-container app-toolbar"),
       );
       toolbars.forEach((toolbar) => {
-        expect(toolbar.componentInstance.disabledEdit).toBeFalse();
-        expect(toolbar.componentInstance.disabledCopy).toBeFalse();
+        expect(toolbar.componentInstance.disabledEdit()).toBeFalse();
+        expect(toolbar.componentInstance.disabledCopy()).toBeFalse();
       });
     });
 
@@ -717,12 +718,12 @@ describe("UIEditorComponent", () => {
       );
 
       // Default theme (active) - Activate should be disabled
-      expect(toolbars[0].componentInstance.showActivate).toBeTrue();
-      expect(toolbars[0].componentInstance.disabledActivate).toBeTrue();
+      expect(toolbars[0].componentInstance.showActivate()).toBeTrue();
+      expect(toolbars[0].componentInstance.disabledActivate()).toBeTrue();
 
       // Custom theme (inactive) - Activate should be enabled
-      expect(toolbars[1].componentInstance.showActivate).toBeTrue();
-      expect(toolbars[1].componentInstance.disabledActivate).toBeFalse();
+      expect(toolbars[1].componentInstance.showActivate()).toBeTrue();
+      expect(toolbars[1].componentInstance.disabledActivate()).toBeFalse();
 
       // Click activate on custom theme
       toolbars[1].componentInstance.activate.emit();
@@ -811,7 +812,7 @@ describe("UIEditorComponent", () => {
       );
       expect(selectors.length).toBeGreaterThan(0);
       selectors.forEach((s) => {
-        expect(s.componentInstance.disabled).toBeTrue();
+        expect(s.componentInstance.disabled()).toBeTrue();
       });
     });
 
@@ -837,7 +838,7 @@ describe("UIEditorComponent", () => {
       );
       expect(selectors.length).toBeGreaterThan(0);
       selectors.forEach((s) => {
-        expect(s.componentInstance.disabled).toBeFalse();
+        expect(s.componentInstance.disabled()).toBeFalse();
       });
     });
 
