@@ -411,7 +411,9 @@ public class DatabaseService {
 
   public void saveRaceHistory(
       MongoDatabase database, com.antigravity.race.Race runtimeRace) { // fqn-collision
-    if (runtimeRace == null) return;
+    if (runtimeRace == null) {
+      return;
+    }
     boolean isDemo = runtimeRace.isDemoMode();
     try {
       MongoCollection<RaceHistoryRecord> collection =
@@ -512,7 +514,9 @@ public class DatabaseService {
 
   public GlobalStatistics getGlobalStatistics(
       MongoDatabase database, String raceEntityId, boolean isDemo) {
-    if (raceEntityId == null) return new GlobalStatistics();
+    if (raceEntityId == null) {
+      return new GlobalStatistics();
+    }
     MongoCollection<GlobalStatistics> statsCollection =
         database.getCollection(
             getCollectionName("global_statistics", isDemo), GlobalStatistics.class);
@@ -541,7 +545,9 @@ public class DatabaseService {
   }
 
   public void upsertAutoSave(MongoDatabase database, RaceSaveData data) {
-    if (data == null) return;
+    if (data == null) {
+      return;
+    }
     boolean isDemo = data.isDemoMode();
     try {
       MongoCollection<RaceSaveData> collection =
@@ -555,7 +561,9 @@ public class DatabaseService {
   }
 
   public void saveManualRace(MongoDatabase database, RaceSaveData data) {
-    if (data == null) return;
+    if (data == null) {
+      return;
+    }
     boolean isDemo = data.isDemoMode();
     try {
       MongoCollection<RaceSaveData> collection =
@@ -621,14 +629,18 @@ public class DatabaseService {
   }
 
   public RaceSaveData getSavedRace(MongoDatabase database, String saveName, boolean isDemo) {
-    if (database == null) return null;
+    if (database == null) {
+      return null;
+    }
     MongoCollection<RaceSaveData> collection =
         database.getCollection(getCollectionName("saved_races", isDemo), RaceSaveData.class);
     return collection.find(Filters.eq("saveName", saveName)).first();
   }
 
   public boolean deleteSavedRace(MongoDatabase database, String saveName, boolean isDemo) {
-    if (database == null) return false;
+    if (database == null) {
+      return false;
+    }
     MongoCollection<RaceSaveData> collection =
         database.getCollection(getCollectionName("saved_races", isDemo), RaceSaveData.class);
     DeleteResult result = collection.deleteOne(Filters.eq("saveName", saveName));
@@ -636,7 +648,9 @@ public class DatabaseService {
   }
 
   public void deleteAllRaceData(MongoDatabase database, String raceEntityId) {
-    if (database == null || raceEntityId == null || raceEntityId.isEmpty()) return;
+    if (database == null || raceEntityId == null || raceEntityId.isEmpty()) {
+      return;
+    }
 
     try {
       // 1. Delete history records
