@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HeatStandings {
+  private static final Logger logger = LoggerFactory.getLogger(HeatStandings.class);
 
   private final HeatScoring scoring;
   private final HeatRanking sortType;
@@ -88,22 +91,24 @@ public class HeatStandings {
     List<String> standings =
         sortedDrivers.stream().map(DriverHeatData::getObjectId).collect(Collectors.toList());
 
-    System.out.println(
-        "HeatStandings: Calculated standings: "
-            + standings.stream()
-                .map(
-                    id -> {
-                      DriverHeatData d =
-                          driverHeatData.stream()
-                              .filter(dhd -> dhd.getObjectId().equals(id))
-                              .findFirst()
-                              .orElse(null);
-                      return (d != null ? d.getDriver().getDriver().getName() : "unknown")
-                          + "("
-                          + (d != null ? d.getAdjustedLapCount() : 0)
-                          + " laps)";
-                    })
-                .collect(Collectors.joining(", ")));
+    if (logger.isDebugEnabled()) {
+      logger.debug(
+          "Calculated standings: {}",
+          standings.stream()
+              .map(
+                  id -> {
+                    DriverHeatData d =
+                        driverHeatData.stream()
+                            .filter(dhd -> dhd.getObjectId().equals(id))
+                            .findFirst()
+                            .orElse(null);
+                    return (d != null ? d.getDriver().getDriver().getName() : "unknown")
+                        + "("
+                        + (d != null ? d.getAdjustedLapCount() : 0)
+                        + " laps)";
+                  })
+              .collect(Collectors.joining(", ")));
+    }
 
     return standings;
   }

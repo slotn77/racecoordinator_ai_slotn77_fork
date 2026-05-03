@@ -57,10 +57,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -72,9 +68,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientCommandTaskHandler {
 
+  private static final Logger logger = LoggerFactory.getLogger(ClientCommandTaskHandler.class);
   private final DatabaseContext databaseContext;
 
   public ClientCommandTaskHandler(DatabaseContext databaseContext, Javalin app) {
@@ -108,11 +107,10 @@ public class ClientCommandTaskHandler {
   private void initializeRace(Context ctx) {
     try {
       InitializeRaceRequest request = InitializeRaceRequest.parseFrom(ctx.bodyAsBytes());
-      System.out.println(
-          "InitializeRaceRequest received: race_id="
-              + request.getRaceId()
-              + ", driver_ids="
-              + request.getDriverIdsList());
+      logger.info(
+          "InitializeRaceRequest received: race_id={}, driver_ids={}",
+          request.getRaceId(),
+          request.getDriverIdsList());
 
       TaskResult result = handleInitializeRace(request);
 
@@ -129,11 +127,10 @@ public class ClientCommandTaskHandler {
       }
 
     } catch (InvalidProtocolBufferException e) {
-      System.err.println("Error parsing InitializeRaceRequest: " + e.getMessage());
+      logger.error("Error parsing InitializeRaceRequest", e);
       ctx.status(400).result("Invalid Protobuf message: " + e.getMessage());
     } catch (Exception e) {
-      System.err.println("Error initializing race: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error initializing race", e);
       ctx.status(500).result("Internal Server Error: " + e.toString());
     }
   }
@@ -287,8 +284,8 @@ public class ClientCommandTaskHandler {
           List<Driver> teamDrivers =
               dbService.getDrivers(databaseContext.getDatabase(), team.getDriverIds());
 
-          logToFile("Hydrating team " + team.getName() + " with IDs: " + team.getDriverIds());
-          logToFile("Found " + teamDrivers.size() + " drivers in DB.");
+          logger.debug("Hydrating team {} with IDs: {}", team.getName(), team.getDriverIds());
+          logger.debug("Found {} drivers in DB.", teamDrivers.size());
 
           rp.setTeamDrivers(teamDrivers);
           participants.add(rp);
@@ -312,12 +309,12 @@ public class ClientCommandTaskHandler {
       ClientSubscriptionManager.getInstance().setRace(runtimeRace);
       runtimeRace.init();
     } catch (Exception e) {
-      System.err.println("Failed to set or initialize race: " + e.getMessage());
+      logger.error("Failed to set or initialize race", e);
       runtimeRace.stop(); // Ensure protocols are closed
       return TaskResult.error(409, e.getMessage());
     }
 
-    System.out.println("Initialized race: " + runtimeRace.getRaceModel().getName());
+    logger.info("Initialized race: {}", runtimeRace.getRaceModel().getName());
     AnalyticsService.getInstance().trackRaceStart(runtimeRace);
 
     // Track track = race.getTrack();
@@ -355,8 +352,7 @@ public class ClientCommandTaskHandler {
       }
 
     } catch (Exception e) {
-      System.err.println("Error processing startRace: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing startRace", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -385,8 +381,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error processing pauseRace: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing pauseRace", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -413,8 +408,7 @@ public class ClientCommandTaskHandler {
               .build();
       ctx.contentType("application/octet-stream").result(response.toByteArray());
     } catch (Exception e) {
-      System.err.println("Error processing abortTimers: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing abortTimers", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -444,8 +438,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error processing nextHeat: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing nextHeat", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -475,8 +468,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error processing restartHeat: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing restartHeat", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -506,8 +498,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error processing skipHeat: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing skipHeat", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -532,8 +523,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error processing deferHeat: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error processing deferHeat", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -579,8 +569,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error updating interface config: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error updating interface config", e);
       ctx.status(500).result("Internal Server Error: " + e.toString());
     }
   }
@@ -626,8 +615,7 @@ public class ClientCommandTaskHandler {
     } catch (InvalidProtocolBufferException e) {
       ctx.status(400).result("Invalid message: " + e.getMessage());
     } catch (Exception e) {
-      System.err.println("Error initializing interface: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error initializing interface", e);
       ctx.status(500).result("Internal Server Error: " + e.toString());
     }
   }
@@ -647,7 +635,7 @@ public class ClientCommandTaskHandler {
       race.changeLane(fromLane, toLane);
       ctx.status(200).result("Lane changed");
     } catch (Exception e) {
-      System.err.println("Error changing lane: " + e.getMessage());
+      logger.error("Error changing lane", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -657,8 +645,7 @@ public class ClientCommandTaskHandler {
       List<String> ports = SerialConnection.getAvailableSerialPorts();
       ctx.json(ports);
     } catch (Exception e) {
-      System.err.println("Error getting serial ports: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error getting serial ports", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -703,8 +690,7 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error setting interface pin state: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error setting interface pin state", e);
       ctx.status(500).result("Internal Server Error: " + e.toString());
     }
   }
@@ -749,33 +735,18 @@ public class ClientCommandTaskHandler {
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
     } catch (Exception e) {
-      System.err.println("Error setting interface RGB LED state: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error setting interface RGB LED state", e);
       ctx.status(500).result("Internal Server Error: " + e.toString());
-    }
-  }
-
-  private void logToFile(String message) {
-    try {
-      String tmpDir = System.getProperty("java.io.tmpdir");
-      Path logPath = Paths.get(tmpDir, "race_debug.log");
-      Files.write(
-          logPath,
-          (message + "\n").getBytes(),
-          StandardOpenOption.CREATE,
-          StandardOpenOption.APPEND);
-    } catch (Exception e) {
-      // Ignore
     }
   }
 
   private void closeInterface(Context ctx) {
     try {
-      System.out.println("Explicit close-interface requested");
+      logger.info("Explicit close-interface requested");
       ClientSubscriptionManager.getInstance().setProtocol(null);
       ctx.status(200).result("OK");
     } catch (Exception e) {
-      System.err.println("Error closing interface: " + e.getMessage());
+      logger.error("Error closing interface", e);
       ctx.status(500).result("Error closing interface: " + e.getMessage());
     }
   }
@@ -900,8 +871,7 @@ public class ClientCommandTaskHandler {
           .header("Content-Disposition", "attachment; filename=\"race_export.csv\"")
           .result(csv);
     } catch (Exception e) {
-      System.err.println("Error exporting CSV: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error exporting CSV", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -954,8 +924,7 @@ public class ClientCommandTaskHandler {
 
       ctx.status(200).result("Race saved successfully: " + saveName);
     } catch (Exception e) {
-      System.err.println("Error saving race: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error saving race", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }
@@ -970,15 +939,14 @@ public class ClientCommandTaskHandler {
       ObjectMapper mapper = getObjectMapper();
       ctx.contentType("application/json").result(mapper.writeValueAsString(files));
     } catch (Exception e) {
-      System.err.println("Error getting saved races: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error getting saved races", e);
       ctx.status(500).result("Error: " + e.getMessage());
     }
   }
 
   void deleteSavedRace(Context ctx) {
+    String saveName = ctx.pathParam("filename");
     try {
-      String saveName = ctx.pathParam("filename");
       boolean isDemo = "true".equals(ctx.queryParam("demo"));
       DatabaseService dbService = DatabaseService.getInstance();
       boolean deleted = dbService.deleteSavedRace(databaseContext.getDatabase(), saveName, isDemo);
@@ -988,7 +956,7 @@ public class ClientCommandTaskHandler {
         ctx.status(404).result("Save not found or failed to delete: " + saveName);
       }
     } catch (Exception e) {
-      System.err.println("Error deleting saved race: " + e.getMessage());
+      logger.error("Error deleting saved race: {}", saveName, e);
       ctx.status(500).result("Error: " + e.getMessage());
     }
   }
@@ -1054,8 +1022,7 @@ public class ClientCommandTaskHandler {
 
       ctx.status(200).result("Race loaded successfully");
     } catch (Exception e) {
-      System.err.println("Error loading race: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error loading race", e);
       ctx.status(500).result("Internal Server Error: " + e.getMessage());
     }
   }

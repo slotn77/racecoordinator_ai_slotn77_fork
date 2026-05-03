@@ -16,8 +16,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotStarted implements IRaceState {
+  private static final Logger logger = LoggerFactory.getLogger(NotStarted.class);
 
   @Override
   public RaceFlag getFlagType(Race race) {
@@ -43,7 +46,7 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void enter(Race race) {
-    System.out.println("NotStarted state entered.");
+    logger.info("NotStarted state entered.");
     this.race = race;
     race.setHasRacedInCurrentHeat(false);
     race.prepareHeat();
@@ -78,7 +81,7 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void exit(Race race) {
-    System.out.println("NotStarted state exited.");
+    logger.info("NotStarted state exited.");
     stopTimer();
     race.setAutoStartRemaining(0);
   }
@@ -91,7 +94,7 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void start(Race race) {
-    System.out.println("NotStarted.start() called. Starting new race.");
+    logger.info("NotStarted.start() called. Starting new race.");
     stopTimer();
     race.resetRaceTime();
     race.changeState(new Starting());
@@ -99,14 +102,14 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void pause(Race race) {
-    System.out.println("NotStarted.pause() called. Terminating auto-start.");
+    logger.info("NotStarted.pause() called. Terminating auto-start.");
 
     double autoStartTime = race.getRaceModel().getAutoStartTime();
     double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
     double elapsed = autoStartTime - race.getAutoStartRemaining();
 
     if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
-      System.out.println("NotStarted.pause(): Warmup was active, resetting heat.");
+      logger.info("NotStarted.pause(): Warmup was active, resetting heat.");
       race.resetCurrentHeat();
     }
 
@@ -119,7 +122,7 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void restartHeat(Race race) {
-    System.out.println("NotStarted.restartHeat() called. Resetting current heat.");
+    logger.info("NotStarted.restartHeat() called. Resetting current heat.");
     race.resetCurrentHeat();
     // Re-enter NotStarted state to restart the auto-start timer if configured
     race.changeState(new NotStarted());
@@ -127,16 +130,16 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void skipHeat(Race race) {
-    System.out.println("NotStarted.skipHeat() called. Advancing to HeatOver.");
+    logger.info("NotStarted.skipHeat() called. Advancing to HeatOver.");
     race.changeState(new HeatOver());
   }
 
   @Override
   public void deferHeat(Race race) {
-    System.out.println("NotStarted.deferHeat() called.");
+    logger.info("NotStarted.deferHeat() called.");
     List<Heat> heats = race.getHeats();
     if (heats == null || heats.size() <= 1) {
-      System.out.println("NotStarted.deferHeat(): Not enough heats to defer.");
+      logger.info("NotStarted.deferHeat(): Not enough heats to defer.");
       return;
     }
 
@@ -187,7 +190,7 @@ public class NotStarted implements IRaceState {
     double elapsed = autoStartTime - race.getAutoStartRemaining();
 
     if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
-      System.out.println("NotStarted: Warmup lap detected, delegating to executor.");
+      logger.debug("NotStarted: Warmup lap detected, delegating to executor.");
       return executionManager.onLap(
           lane,
           lapTime,
@@ -210,7 +213,7 @@ public class NotStarted implements IRaceState {
     double elapsed = autoStartTime - race.getAutoStartRemaining();
 
     if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
-      System.out.println("NotStarted: Warmup segment detected, delegating to executor.");
+      logger.debug("NotStarted: Warmup segment detected, delegating to executor.");
       executionManager.onSegment(lane, segmentTime, interfaceId);
     }
   }
@@ -309,7 +312,7 @@ public class NotStarted implements IRaceState {
                   } else {
                     if (race.isMainPower()) {
                       // Warmup just ended
-                      System.out.println(
+                      logger.info(
                           "NotStarted: Warmup ended. Turning off power and resetting heat.");
                       race.setMainPower(false);
                       race.resetCurrentHeat();
@@ -321,7 +324,7 @@ public class NotStarted implements IRaceState {
                 broadcastTime(race);
               }
             } catch (Exception e) {
-              e.printStackTrace();
+              logger.error("Error in auto-start ticker", e);
             }
           }
         };
@@ -343,7 +346,7 @@ public class NotStarted implements IRaceState {
 
   @Override
   public void onCallbutton(Race race, int lane) {
-    System.out.println("NotStarted.onCallbutton() called. Starting race.");
+    logger.info("NotStarted.onCallbutton() called. Starting race.");
     race.startRace();
   }
 }

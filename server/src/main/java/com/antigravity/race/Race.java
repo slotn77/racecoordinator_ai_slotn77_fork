@@ -180,10 +180,10 @@ public class Race implements ProtocolListener {
         Class<?> clazz = Class.forName(builder.stateClassName);
         this.state = (IRaceState) clazz.getDeclaredConstructor().newInstance();
       } catch (Exception e) {
-        System.err.println(
-            "Failed to restore race state: "
-                + builder.stateClassName
-                + ", falling back to NotStarted");
+        logger.error(
+            "Failed to restore race state: {}, falling back to NotStarted",
+            builder.stateClassName,
+            e);
         this.state = new NotStarted();
       }
     } else {
@@ -253,7 +253,7 @@ public class Race implements ProtocolListener {
 
   private void loadGlobalRecords() {
     if (databaseContext == null) {
-      System.err.println("DatabaseContext is missing - initialization of empty lane records.");
+      logger.error("DatabaseContext is missing - initialization of empty lane records.");
       initializeLaneRecords();
       return;
     }
@@ -969,8 +969,7 @@ public class Race implements ProtocolListener {
         }
       }
     } catch (Exception e) {
-      System.err.println("Error in onLap for lane " + lane + ": " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error in onLap for lane {}", lane, e);
     }
   }
 
@@ -1229,6 +1228,10 @@ public class Race implements ProtocolListener {
     state.onSegment(lane, segmentTime, interfaceId);
   }
 
+  public void onStatusMessage(String message, int interfaceId) {
+    logger.debug("Interface {} status: {}", interfaceId, message);
+  }
+
   @Override
   public void onCallbutton(int lane, int interfaceIndex) {
     state.onCallbutton(this, lane);
@@ -1290,12 +1293,10 @@ public class Race implements ProtocolListener {
         pUpdate.toBuilder().setState(getProtoState(state)).setFlag(state.getFlagType(this)).build();
 
     RecordData recordData = getRecordData();
-    System.out.println(
-        "Snapshot created with records: overallFastestLap="
-            + recordData.getOverall().getFastestLap().getValue()
-            + " ("
-            + recordData.getOverall().getFastestLap().getHolderNickname()
-            + ")");
+    logger.debug(
+        "Snapshot created with records: overallFastestLap={} ({})",
+        recordData.getOverall().getFastestLap().getValue(),
+        recordData.getOverall().getFastestLap().getHolderNickname());
 
     return com.antigravity.proto.RaceData.newBuilder() // fqn-collision
         .setRace(pUpdate)

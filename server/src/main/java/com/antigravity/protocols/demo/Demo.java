@@ -15,8 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Demo extends DefaultProtocol {
+  private static final Logger logger = LoggerFactory.getLogger(Demo.class);
 
   private ScheduledExecutorService scheduler;
   private ScheduledExecutorService statusScheduler;
@@ -69,12 +72,10 @@ public class Demo extends DefaultProtocol {
             pitEntryOffset = 500 + random.nextInt(501);
             pitExitOffset = pitEntryOffset + pitDuration;
             lapsUntilNextPit = 3 + random.nextInt(5);
-            System.out.println(
-                "Demo: Lane scheduled for pit stop. Duration: "
-                    + pitDuration
-                    + "ms, Lap Total: "
-                    + targetLapDuration
-                    + "ms");
+            logger.info(
+                "Demo: Lane scheduled for pit stop. Duration: {}ms, Lap Total: {}ms",
+                pitDuration,
+                targetLapDuration);
           } else {
             isPitLap = false;
             targetLapDuration = lapDuration;
@@ -134,7 +135,7 @@ public class Demo extends DefaultProtocol {
 
   @Override
   public boolean open() {
-    System.out.println("DEBUG: Opening Demo Protocol for " + getNumLanes() + " lanes");
+    logger.debug("Opening Demo Protocol for {} lanes", getNumLanes());
     startStatusScheduler();
     return true;
   }
@@ -165,7 +166,7 @@ public class Demo extends DefaultProtocol {
                   listener.onInterfaceStatus(InterfaceStatus.CONNECTED, getInterfaceIndex());
                 }
               } catch (Exception e) {
-                System.err.println("Demo: Error reporting status: " + e.getMessage());
+                logger.error("Demo: Error reporting status", e);
               }
             },
             0,
@@ -271,7 +272,7 @@ public class Demo extends DefaultProtocol {
                 }
               }
             } catch (Exception e) {
-              e.printStackTrace();
+              logger.error("Error in demo lap generator", e);
             }
           }
         };

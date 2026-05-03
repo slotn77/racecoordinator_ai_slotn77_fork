@@ -7,8 +7,11 @@ import com.antigravity.race.ClientSubscriptionManager;
 import com.antigravity.race.Race;
 import com.antigravity.service.DatabaseService;
 import java.time.OffsetDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RaceOver implements IRaceState {
+  private static final Logger logger = LoggerFactory.getLogger(RaceOver.class);
 
   @Override
   public RaceFlag getFlagType(Race race) {
@@ -22,7 +25,7 @@ public class RaceOver implements IRaceState {
 
   @Override
   public void enter(Race race) {
-    System.out.println("RaceOver state entered.");
+    logger.info("RaceOver state entered.");
     race.setMainPower(false);
 
     race.getStatistics().setEndTime(OffsetDateTime.now().toString());
@@ -50,14 +53,13 @@ public class RaceOver implements IRaceState {
       dbService.saveRaceHistory(db, race);
       dbService.updateGlobalStatistics(db, race);
     } catch (Exception e) {
-      System.err.println("Failed to insert race history: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to insert race history", e);
     }
   }
 
   @Override
   public void exit(Race race) {
-    System.out.println("RaceOver state exited.");
+    logger.info("RaceOver state exited.");
   }
 
   @Override
@@ -108,6 +110,6 @@ public class RaceOver implements IRaceState {
 
   @Override
   public void onCallbutton(Race race, int lane) {
-    System.out.println("RaceOver: Ignored onCallbutton - Race is over");
+    logger.info("RaceOver: Ignored onCallbutton - Race is over");
   }
 }

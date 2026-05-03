@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerConfigService {
+  private static final Logger logger = LoggerFactory.getLogger(ServerConfigService.class);
 
   private static final String CONFIG_FILE = "server_config.json";
   private final File configFile;
@@ -27,7 +30,7 @@ public class ServerConfigService {
       try {
         return mapper.readValue(configFile, Config.class);
       } catch (IOException e) {
-        System.err.println("Failed to load server config: " + e.getMessage());
+        logger.error("Failed to load server config", e);
       }
     }
     return new Config();
@@ -37,7 +40,7 @@ public class ServerConfigService {
     try {
       mapper.writerWithDefaultPrettyPrinter().writeValue(configFile, config);
     } catch (IOException e) {
-      System.err.println("Failed to save server config: " + e.getMessage());
+      logger.error("Failed to save server config", e);
     }
   }
 

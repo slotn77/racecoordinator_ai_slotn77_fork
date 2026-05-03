@@ -8,8 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HeatOver implements IRaceState {
+  private static final Logger logger = LoggerFactory.getLogger(HeatOver.class);
 
   @Override
   public RaceFlag getFlagType(Race race) {
@@ -30,7 +33,7 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void enter(Race race) {
-    System.out.println("HeatOver state entered.");
+    logger.info("HeatOver state entered.");
     race.setMainPower(false);
 
     if (race.getCurrentHeat() != null) {
@@ -53,7 +56,7 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void exit(Race race) {
-    System.out.println("HeatOver state exited.");
+    logger.info("HeatOver state exited.");
     stopTimer();
     race.setAutoAdvanceRemaining(0);
   }
@@ -77,7 +80,7 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void pause(Race race) {
-    System.out.println("HeatOver.pause() called. Terminating auto-advance.");
+    logger.info("HeatOver.pause() called. Terminating auto-advance.");
     stopTimer();
     race.setAutoAdvanceFired(true);
     race.clearAutoTimers();
@@ -85,7 +88,7 @@ public class HeatOver implements IRaceState {
 
   @Override
   public void restartHeat(Race race) {
-    System.out.println("HeatOver.restartHeat() called. Resetting current heat.");
+    logger.info("HeatOver.restartHeat() called. Resetting current heat.");
     race.resetCurrentHeat();
     race.changeState(new NotStarted());
   }
@@ -153,7 +156,7 @@ public class HeatOver implements IRaceState {
                 broadcastTime(race);
               }
             } catch (Exception e) {
-              e.printStackTrace();
+              logger.error("Error in auto-advance ticker", e);
             }
           }
         };
@@ -176,10 +179,10 @@ public class HeatOver implements IRaceState {
   @Override
   public void onCallbutton(Race race, int lane) {
     if (race.getAutoAdvanceRemaining() > 0) {
-      System.out.println("HeatOver.onCallbutton() called. Aborting auto-advance timer.");
+      logger.info("HeatOver.onCallbutton() called. Aborting auto-advance timer.");
       pause(race);
     } else {
-      System.out.println("HeatOver.onCallbutton() called. Moving to next heat.");
+      logger.info("HeatOver.onCallbutton() called. Moving to next heat.");
       nextHeat(race);
     }
   }

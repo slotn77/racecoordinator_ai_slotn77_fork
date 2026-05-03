@@ -51,7 +51,7 @@ public class DatabaseService {
   public DatabaseService() {}
 
   public void resetToFactory(DatabaseContext context, MongoDatabase database) {
-    System.out.println("Resetting database to factory settings...");
+    logger.info("Resetting database to factory settings...");
 
     resetDrivers(context, database);
     resetTeams(context, database);
@@ -59,7 +59,7 @@ public class DatabaseService {
     // Races must come after tracks because races include tracks
     resetRaces(database, track);
 
-    System.out.println("Database reset complete.");
+    logger.info("Database reset complete.");
   }
 
   private void resetDrivers(DatabaseContext context, MongoDatabase database) {
@@ -168,7 +168,7 @@ public class DatabaseService {
             getNextSequence(database, "drivers")));
 
     driverCollection.insertMany(initialDrivers);
-    System.out.println("Drivers reset.");
+    logger.info("Drivers reset.");
   }
 
   private Driver createDriver(
@@ -229,7 +229,7 @@ public class DatabaseService {
         new Track("The Heights", 100, lanes, configs, getNextSequence(database, "tracks"), null);
 
     trackCollection.insertOne(track);
-    System.out.println("Tracks reset.");
+    logger.info("Tracks reset.");
     return track;
   }
 
@@ -285,7 +285,7 @@ public class DatabaseService {
 
     raceCollection.insertOne(race);
 
-    System.out.println("Races reset.");
+    logger.info("Races reset.");
   }
 
   private void resetTeams(DatabaseContext context, MongoDatabase database) {
@@ -340,7 +340,7 @@ public class DatabaseService {
         new Team("The Girls", girlsAvatar, girlsIds, getNextSequence(database, "teams"), null));
 
     teamCollection.insertMany(teams);
-    System.out.println("Teams reset.");
+    logger.info("Teams reset.");
   }
 
   private String getNextSequence(MongoDatabase database, String collectionName) {
@@ -431,11 +431,9 @@ public class DatabaseService {
       record.setStatistics(runtimeRace.getStatistics());
 
       collection.insertOne(record);
-      System.out.println(
-          "Race successfully saved to " + collection.getNamespace().getCollectionName());
+      logger.info("Race successfully saved to {}", collection.getNamespace().getCollectionName());
     } catch (Exception e) {
-      System.err.println("Failed to save race to history: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to save race to history", e);
     }
   }
 
@@ -443,8 +441,9 @@ public class DatabaseService {
       MongoDatabase database, com.antigravity.race.Race runtimeRace) { // fqn-collision
     if (runtimeRace == null) return;
     boolean isDemo = runtimeRace.isDemoMode();
+    String raceId =
+        runtimeRace.getRaceModel() != null ? runtimeRace.getRaceModel().getEntityId() : "unknown";
     try {
-      String raceId = runtimeRace.getRaceModel().getEntityId();
       MongoCollection<GlobalStatistics> statsCollection =
           database.getCollection(
               getCollectionName("global_statistics", isDemo), GlobalStatistics.class);
@@ -505,10 +504,9 @@ public class DatabaseService {
 
       statsCollection.replaceOne(
           Filters.eq("race_entity_id", raceId), stats, new ReplaceOptions().upsert(true));
-      System.out.println("Race statistics updated for race: " + raceId);
+      logger.info("Race statistics updated for race: {}", raceId);
     } catch (Exception e) {
-      System.err.println("Failed to update global statistics: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to update global statistics for race {}", raceId, e);
     }
   }
 
@@ -555,8 +553,7 @@ public class DatabaseService {
       ReplaceOptions options = new ReplaceOptions().upsert(true);
       collection.replaceOne(Filters.eq("saveName", data.getSaveName()), data, options);
     } catch (Exception e) {
-      System.err.println("Failed to auto-save race: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to auto-save race", e);
     }
   }
 
@@ -570,8 +567,7 @@ public class DatabaseService {
           database.getCollection(getCollectionName("saved_races", isDemo), RaceSaveData.class);
       collection.insertOne(data);
     } catch (Exception e) {
-      System.err.println("Failed to save race manually: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to save race manually", e);
     }
   }
 
@@ -677,11 +673,9 @@ public class DatabaseService {
           .getCollection(getCollectionName("saved_races", true))
           .deleteMany(Filters.eq("model.entity_id", raceEntityId));
 
-      System.out.println("Cascading deletion complete for race records: " + raceEntityId);
+      logger.info("Cascading deletion complete for race records: {}", raceEntityId);
     } catch (Exception e) {
-      System.err.println(
-          "Failed to perform cascading deletion for race " + raceEntityId + ": " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to perform cascading deletion for race {}", raceEntityId, e);
     }
   }
 

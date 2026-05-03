@@ -3,8 +3,11 @@ package com.antigravity.race.states;
 import com.antigravity.proto.RaceFlag;
 import com.antigravity.protocols.CarData;
 import com.antigravity.race.Race;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Paused implements IRaceState {
+  private static final Logger logger = LoggerFactory.getLogger(Paused.class);
 
   @Override
   public RaceFlag getFlagType(Race race) {
@@ -17,7 +20,7 @@ public class Paused implements IRaceState {
   @Override
   public void enter(Race race) {
     this.race = race;
-    System.out.println("Paused state entered. Race paused.");
+    logger.info("Paused state entered. Race paused.");
     race.setMainPower(false);
     this.pauseStartTimeMillis = System.currentTimeMillis();
   }
@@ -26,7 +29,7 @@ public class Paused implements IRaceState {
   public void exit(Race race) {
     long duration = System.currentTimeMillis() - pauseStartTimeMillis;
     race.getStatistics().addPausedTime(duration);
-    System.out.println("Paused state exited.");
+    logger.info("Paused state exited.");
   }
 
   @Override
@@ -37,7 +40,7 @@ public class Paused implements IRaceState {
 
   @Override
   public void start(Race race) {
-    System.out.println("Paused.start() called. Resuming from Paused state.");
+    logger.info("Paused.start() called. Resuming from Paused state.");
     race.changeState(new Starting());
   }
 
@@ -48,14 +51,14 @@ public class Paused implements IRaceState {
 
   @Override
   public void restartHeat(Race race) {
-    System.out.println("Paused.restartHeat() called. Resetting current heat.");
+    logger.info("Paused.restartHeat() called. Resetting current heat.");
     race.resetCurrentHeat();
     race.changeState(new NotStarted());
   }
 
   @Override
   public void skipHeat(Race race) {
-    System.out.println("Paused.skipHeat() called. Advancing to HeatOver.");
+    logger.info("Paused.skipHeat() called. Advancing to HeatOver.");
     race.changeState(new HeatOver());
   }
 
@@ -72,20 +75,16 @@ public class Paused implements IRaceState {
       if (driftTime > 0) {
         long elapsedMillis = System.currentTimeMillis() - pauseStartTimeMillis;
         if (elapsedMillis <= driftTime * 1000) {
-          System.out.println(
-              "Paused: Counting lap during drift time. Elapsed: "
-                  + elapsedMillis
-                  + "ms, Drift: "
-                  + (driftTime * 1000)
-                  + "ms");
+          logger.info(
+              "Paused: Counting lap during drift time. Elapsed: {}ms, Drift: {}ms",
+              elapsedMillis,
+              (driftTime * 1000));
           return handleLap(race, lane, lapTime, interfaceId, true);
         } else {
-          System.out.println(
-              "Paused: Drift time expired. Lap ignored. Elapsed: "
-                  + elapsedMillis
-                  + "ms, Drift: "
-                  + (driftTime * 1000)
-                  + "ms");
+          logger.info(
+              "Paused: Drift time expired. Lap ignored. Elapsed: {}ms, Drift: {}ms",
+              elapsedMillis,
+              (driftTime * 1000));
         }
       }
     }
@@ -102,7 +101,7 @@ public class Paused implements IRaceState {
 
   @Override
   public void onCallbutton(Race race, int lane) {
-    System.out.println("Paused.onCallbutton() called. Resuming race.");
+    logger.info("Paused.onCallbutton() called. Resuming race.");
     race.startRace();
   }
 }

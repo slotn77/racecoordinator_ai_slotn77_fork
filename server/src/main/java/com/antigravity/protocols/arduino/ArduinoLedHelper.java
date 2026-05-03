@@ -123,8 +123,7 @@ public class ArduinoLedHelper {
 
     protocol.writeData(message);
     logger.info(
-        "[{}] Sent RGB_LED_MODE - Pin: {}, Count: {}, Brightness: {}, UpdateRate: {}, ColorOrder: {}",
-        protocol.getLogTime(),
+        "Sent RGB_LED_MODE - Pin: {}, Count: {}, Brightness: {}, UpdateRate: {}, ColorOrder: {}",
         pinId,
         ledCount,
         brightness,

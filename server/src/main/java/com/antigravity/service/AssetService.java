@@ -26,8 +26,11 @@ import java.util.Set;
 import java.util.UUID;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AssetService {
+  private static final Logger logger = LoggerFactory.getLogger(AssetService.class);
 
   private final String assetDir;
   private final MongoDatabase database;
@@ -259,18 +262,14 @@ public class AssetService {
     this.collection = database.getCollection("assets");
     this.assetDir = assetDir;
     File directory = new File(assetDir);
-    System.out.println(
-        "Path DEBUG: AssetService constructor. assetDir="
-            + assetDir
-            + " absolute="
-            + directory.getAbsolutePath());
+    logger.debug(
+        "AssetService initialized. assetDir={} absolute={}", assetDir, directory.getAbsolutePath());
     if (!directory.exists()) {
       boolean created = directory.mkdirs();
       if (!created) {
-        System.err.println(
-            "CRITICAL: Failed to create asset directory: " + directory.getAbsolutePath());
+        logger.error("CRITICAL: Failed to create asset directory: {}", directory.getAbsolutePath());
       } else {
-        System.out.println("Created asset directory: " + directory.getAbsolutePath());
+        logger.info("Created asset directory: {}", directory.getAbsolutePath());
       }
     }
   }
@@ -387,7 +386,7 @@ public class AssetService {
     File file = new File(assetDir, filename);
     if (file.exists()) {
       if (!file.delete()) {
-        System.err.println("Failed to delete file: " + file.getAbsolutePath());
+        logger.error("Failed to delete file: {}", file.getAbsolutePath());
       }
     }
   }
@@ -617,7 +616,7 @@ public class AssetService {
       if (files != null) {
         for (File file : files) {
           if (!file.delete()) {
-            System.err.println("Failed to delete file during reset: " + file.getAbsolutePath());
+            logger.error("Failed to delete file during reset: {}", file.getAbsolutePath());
           }
         }
       }
@@ -635,8 +634,7 @@ public class AssetService {
         byte[] data = readResource("/defaults/" + asset.filename);
         saveAsset(asset.id, asset.filename, "image", data);
       } catch (IOException | NumberFormatException e) {
-        System.err.println(
-            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        logger.error("Failed to restore default asset {}", asset.filename, e);
       }
     }
 
@@ -662,8 +660,7 @@ public class AssetService {
                 .build());
         fuelTotalSize += data.length;
       } catch (IOException | NumberFormatException e) {
-        System.err.println(
-            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        logger.error("Failed to restore default asset {}", asset.filename, e);
       }
     }
 
@@ -732,8 +729,7 @@ public class AssetService {
                     .build());
             countdownTotalSize += data.length;
           } catch (IOException e) {
-            System.err.println(
-                "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+            logger.error("Failed to restore default asset {}", asset.filename, e);
           }
           break;
         }
@@ -806,8 +802,7 @@ public class AssetService {
                     .build());
             secondsLeftTotalSize += data.length;
           } catch (IOException e) {
-            System.err.println(
-                "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+            logger.error("Failed to restore default asset {}", asset.filename, e);
           }
           break;
         }
@@ -842,8 +837,7 @@ public class AssetService {
         saveAsset(
             asset.id, asset.displayName, "sound", readResource("/defaults/" + asset.filename));
       } catch (IOException e) {
-        System.err.println(
-            "Failed to restore default asset " + asset.filename + ": " + e.getMessage());
+        logger.error("Failed to restore default asset {}", asset.filename, e);
       }
     }
 
@@ -872,8 +866,7 @@ public class AssetService {
           byte[] data = readResource("/defaults/" + asset.filename);
           saveAsset(asset.id, asset.filename, "image", data);
         } catch (IOException | NumberFormatException e) {
-          System.err.println(
-              "Failed to backfill default asset " + asset.filename + ": " + e.getMessage());
+          logger.error("Failed to backfill default asset {}", asset.filename, e);
         }
       }
 
@@ -900,8 +893,7 @@ public class AssetService {
                     .build());
             fuelTotalSize += data.length;
           } catch (IOException | NumberFormatException e) {
-            System.err.println(
-                "Failed to backfill default asset " + asset.filename + ": " + e.getMessage());
+            logger.error("Failed to backfill default asset {}", asset.filename, e);
           }
         }
 
@@ -969,8 +961,7 @@ public class AssetService {
                         .build());
                 countdownTotalSize += data.length;
               } catch (IOException e) {
-                System.err.println(
-                    "Failed to backfill default asset " + asset.filename + ": " + e.getMessage());
+                logger.error("Failed to backfill default asset {}", asset.filename, e);
               }
               break;
             }
@@ -1045,8 +1036,7 @@ public class AssetService {
                         .build());
                 secondsLeftTotalSize += data.length;
               } catch (IOException e) {
-                System.err.println(
-                    "Failed to backfill default asset " + asset.filename + ": " + e.getMessage());
+                logger.error("Failed to backfill default asset {}", asset.filename, e);
               }
               break;
             }
@@ -1089,8 +1079,7 @@ public class AssetService {
           saveAsset(
               asset.id, asset.displayName, "sound", readResource("/defaults/" + asset.filename));
         } catch (IOException e) {
-          System.err.println(
-              "Failed to backfill default asset " + asset.filename + ": " + e.getMessage());
+          logger.error("Failed to backfill default asset {}", asset.filename, e);
         }
       }
 
@@ -1105,8 +1094,7 @@ public class AssetService {
       // Ensure all themes have the new audio slot
       backfillThemeSlots();
     } catch (Exception e) {
-      System.err.println("Error in backfillDefaults: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error in backfillDefaults", e);
     }
   }
 
@@ -1318,6 +1306,6 @@ public class AssetService {
             .append("audio_slots", audioSlots);
 
     themes.insertOne(theme);
-    System.out.println("Default theme 'RaceCoordinator AI (default)' created.");
+    logger.info("Default theme 'RaceCoordinator AI (default)' created.");
   }
 }

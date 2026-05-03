@@ -25,8 +25,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseContext {
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseContext.class);
 
   private final MongoClient mongoClient;
   private volatile MongoDatabase currentDatabase;
@@ -51,8 +54,7 @@ public class DatabaseContext {
 
   public synchronized MongoDatabase getDatabase() {
     if (currentDatabase == null) {
-      System.err.println(
-          "DatabaseContext: currentDatabase is NULL! (Name: " + currentDatabaseName + ")");
+      logger.error("DatabaseContext: currentDatabase is NULL! (Name: {})", currentDatabaseName);
     }
     return currentDatabase;
   }
@@ -67,19 +69,18 @@ public class DatabaseContext {
 
   public synchronized void switchDatabase(String databaseName) {
     if (databaseName == null) {
-      System.err.println("DatabaseContext: Attempted to switch to NULL database name");
+      logger.error("DatabaseContext: Attempted to switch to NULL database name");
       return;
     }
     this.currentDatabaseName = databaseName;
     this.currentDatabase = mongoClient.getDatabase(databaseName);
     if (this.currentDatabase == null) {
-      System.err.println(
-          "DatabaseContext: mongoClient.getDatabase(" + databaseName + ") returned NULL!");
+      logger.error("DatabaseContext: mongoClient.getDatabase({}) returned NULL!", databaseName);
     }
     if (this.configService != null) {
       this.configService.setLastActiveDatabase(databaseName);
     }
-    System.out.println("Switched context to database: " + databaseName);
+    logger.info("Switched context to database: {}", databaseName);
   }
 
   public void createDatabase(String databaseName) {
@@ -100,7 +101,7 @@ public class DatabaseContext {
       throw new RuntimeException(
           "Failed to create assets directory: " + assetDir.getAbsolutePath());
     }
-    System.out.println("Created database: " + databaseName + " at " + assetDir.getAbsolutePath());
+    logger.info("Created database: {} at {}", databaseName, assetDir.getAbsolutePath());
   }
 
   public List<String> listDatabases() {
@@ -144,8 +145,7 @@ public class DatabaseContext {
         copyDirectory(sourceDir, targetDir);
       }
     } catch (Exception e) {
-      System.err.println("Failed to copy assets: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Failed to copy assets", e);
     }
 
     // Ensure defaults are backfilled after copy
@@ -169,9 +169,9 @@ public class DatabaseContext {
         deleteDirectory(dbDir);
       }
     } catch (Exception e) {
-      System.err.println("Failed to delete assets: " + e.getMessage());
+      logger.error("Failed to delete assets", e);
     }
-    System.out.println("Deleted database: " + dbName);
+    logger.info("Deleted database: {}", dbName);
   }
 
   private void copyDirectory(File source, File target) throws IOException {

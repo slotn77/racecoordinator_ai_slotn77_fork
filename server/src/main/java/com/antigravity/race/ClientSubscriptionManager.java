@@ -104,8 +104,7 @@ public class ClientSubscriptionManager {
       try {
         this.currentProtocol.close();
       } catch (Exception e) {
-        System.err.println("Error closing protocol: " + e.getMessage());
-        e.printStackTrace();
+        logger.error("Error closing protocol", e);
       }
     }
     this.currentProtocol = protocol;
@@ -119,7 +118,7 @@ public class ClientSubscriptionManager {
     sessions.add(ctx);
     // Remove auto-subscription: clients must call subscribe() explicitly
     // raceDataSubscribers.add(ctx);
-    System.out.println("New WebSocket session added. Total sessions: " + sessions.size());
+    logger.info("New WebSocket session added. Total sessions: {}", sessions.size());
 
     if (currentRace != null) {
       RaceData snapshot = currentRace.createSnapshot();
@@ -137,25 +136,22 @@ public class ClientSubscriptionManager {
   public void removeSession(WsContext ctx) {
     sessions.remove(ctx);
     raceDataSubscribers.remove(ctx);
-    System.out.println(
-        "WebSocket session removed. Total sessions: "
-            + sessions.size()
-            + ", Subscribers: "
-            + raceDataSubscribers.size());
+    logger.info(
+        "WebSocket session removed. Total sessions: {}, Subscribers: {}",
+        sessions.size(),
+        raceDataSubscribers.size());
 
     checkAndStopRace();
   }
 
   public synchronized void addInterfaceSession(WsContext ctx) {
-    System.out.println(
-        "DEBUG: New Interface WebSocket session added: " + System.identityHashCode(ctx));
+    logger.debug("New Interface WebSocket session added: {}", System.identityHashCode(ctx));
     sessions.add(ctx);
     interfaceSubscribers.add(ctx);
-    System.out.println(
-        "New Interface WebSocket session added. Total sessions: "
-            + sessions.size()
-            + ", Interface Subscribers: "
-            + interfaceSubscribers.size());
+    logger.info(
+        "New Interface WebSocket session added. Total sessions: {}, Interface Subscribers: {}",
+        sessions.size(),
+        interfaceSubscribers.size());
   }
 
   public synchronized void removeInterfaceSession(WsContext ctx) {

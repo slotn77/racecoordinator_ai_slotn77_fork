@@ -8,8 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Starting implements IRaceState {
+  private static final Logger logger = LoggerFactory.getLogger(Starting.class);
 
   @Override
   public RaceFlag getFlagType(Race race) {
@@ -21,7 +24,7 @@ public class Starting implements IRaceState {
 
   @Override
   public void enter(Race race) {
-    System.out.println("Starting state entered. Countdown initiating.");
+    logger.info("Starting state entered. Countdown initiating.");
     race.setMainPower(false);
 
     if (!race.hasRacedInCurrentHeat()) {
@@ -42,13 +45,11 @@ public class Starting implements IRaceState {
         delayLimitVal > 0 ? new java.util.Random().nextInt((int) (delayLimitVal * 10)) + 1 : 0;
 
     race.setAutoStartRemaining(startTimeVal);
-    System.out.println(
-        "Starting state: startTimeVal="
-            + startTimeVal
-            + ", delayLimitVal="
-            + delayLimitVal
-            + ", randomTicks="
-            + randomTicks);
+    logger.debug(
+        "Starting state: startTimeVal={}, delayLimitVal={}, randomTicks={}",
+        startTimeVal,
+        delayLimitVal,
+        randomTicks);
 
     scheduler = Executors.newScheduledThreadPool(1);
     final Runnable ticker =
@@ -73,8 +74,7 @@ public class Starting implements IRaceState {
                 race.changeState(new Racing());
               }
             } catch (Exception e) {
-              System.err.println("Error in Starting timer: " + e.getMessage());
-              e.printStackTrace();
+              logger.error("Error in Starting timer", e);
             }
           }
         };
@@ -90,7 +90,7 @@ public class Starting implements IRaceState {
       scheduler.shutdown();
     }
     race.setAutoStartRemaining(0);
-    System.out.println("Starting state exited.");
+    logger.info("Starting state exited.");
   }
 
   @Override
@@ -106,7 +106,7 @@ public class Starting implements IRaceState {
 
   @Override
   public void pause(Race race) {
-    System.out.println("Starting.pause() called. Cancelling start.");
+    logger.info("Starting.pause() called. Cancelling start.");
     race.clearAutoTimers();
     if (race.hasRacedInCurrentHeat()) {
       race.changeState(new Paused());
@@ -152,7 +152,7 @@ public class Starting implements IRaceState {
 
   @Override
   public void onCallbutton(Race race, int lane) {
-    System.out.println("Starting.onCallbutton() called. Pausing race start.");
+    logger.info("Starting.onCallbutton() called. Pausing race start.");
     pause(race);
   }
 }

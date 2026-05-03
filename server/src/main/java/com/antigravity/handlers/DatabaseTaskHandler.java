@@ -38,9 +38,12 @@ import java.util.List;
 import java.util.Map;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseTaskHandler {
 
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseTaskHandler.class);
   private final DatabaseContext databaseContext;
 
   public DatabaseTaskHandler(DatabaseContext databaseContext, Javalin app) {
@@ -118,7 +121,7 @@ public class DatabaseTaskHandler {
       }
       ctx.json(statsList);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error listing databases", e);
       ctx.status(500).result("Error listing databases: " + e.getMessage());
     }
   }
@@ -134,7 +137,7 @@ public class DatabaseTaskHandler {
       databaseContext.switchDatabase(name);
       ctx.json(databaseContext.getDatabaseStats(name));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error switching database", e);
       ctx.status(500).result("Error switching database: " + e.getMessage());
     }
   }
@@ -164,7 +167,7 @@ public class DatabaseTaskHandler {
 
       ctx.json(databaseContext.getDatabaseStats(name));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error creating database", e);
       ctx.status(500).result("Error creating database: " + e.getMessage());
     }
   }
@@ -196,7 +199,7 @@ public class DatabaseTaskHandler {
 
       ctx.json(databaseContext.getDatabaseStats(newName));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error copying database", e);
       ctx.status(500).result("Error copying database: " + e.getMessage());
     }
   }
@@ -208,7 +211,7 @@ public class DatabaseTaskHandler {
       databaseContext.resetDatabaseToFactory(current);
       ctx.json(databaseContext.getDatabaseStats(current));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error resetting database", e);
       ctx.status(500).result("Error resetting database: " + e.getMessage());
     }
   }
@@ -231,7 +234,7 @@ public class DatabaseTaskHandler {
       databaseContext.deleteDatabase(name);
       ctx.status(204);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error deleting database", e);
       ctx.status(500).result("Error deleting database: " + e.getMessage());
     }
   }
@@ -248,7 +251,7 @@ public class DatabaseTaskHandler {
     try {
       databaseContext.exportDatabase(name, ctx.res.getOutputStream());
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error exporting database", e);
       ctx.status(500).result("Error exporting database: " + e.getMessage());
     }
   }
@@ -272,7 +275,7 @@ public class DatabaseTaskHandler {
       databaseContext.importDatabase(name, file.getContent());
       ctx.json(databaseContext.getDatabaseStats(name));
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error importing database", e);
       ctx.status(500).result("Error importing database: " + e.getMessage());
     }
   }
@@ -320,7 +323,7 @@ public class DatabaseTaskHandler {
       col.insertOne(driver);
       ctx.status(201).json(driver);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error creating driver", e);
       ctx.status(500).result("Error creating driver: " + e.getMessage());
     }
   }
@@ -348,7 +351,7 @@ public class DatabaseTaskHandler {
       col.replaceOne(Filters.eq("entity_id", id), driver);
       ctx.json(driver);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error updating driver", e);
       ctx.status(500).result("Error updating driver: " + e.getMessage());
     }
   }
@@ -359,7 +362,7 @@ public class DatabaseTaskHandler {
       getDriverCollection().deleteOne(Filters.eq("entity_id", id));
       ctx.status(204);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error deleting driver", e);
       ctx.status(500).result("Error deleting driver: " + e.getMessage());
     }
   }
@@ -378,7 +381,7 @@ public class DatabaseTaskHandler {
     } catch (IllegalArgumentException e) {
       ctx.status(409).result(e.getMessage());
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error creating team", e);
       ctx.status(500).result("Error creating team: " + e.getMessage());
     }
   }
@@ -412,7 +415,7 @@ public class DatabaseTaskHandler {
     } catch (IllegalArgumentException e) {
       ctx.status(409).result(e.getMessage());
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error updating team", e);
       ctx.status(500).result("Error updating team: " + e.getMessage());
     }
   }
@@ -446,7 +449,7 @@ public class DatabaseTaskHandler {
       deleteTeam(id);
       ctx.status(204);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error deleting team", e);
       ctx.status(500).result("Error deleting team: " + e.getMessage());
     }
   }
@@ -483,7 +486,7 @@ public class DatabaseTaskHandler {
       col.insertOne(track);
       ctx.status(201).json(track);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error creating track", e);
       ctx.status(500).result("Error creating track: " + e.getMessage());
     }
   }
@@ -512,12 +515,12 @@ public class DatabaseTaskHandler {
               id,
               track.getId());
 
-      System.out.println("DEBUG: updateTrack for " + id);
+      logger.debug("updateTrack for {}", id);
       if (track.getArduinoConfigs() != null && !track.getArduinoConfigs().isEmpty()) {
-        System.out.println(
-            "DEBUG: Saving config with Digitals: " + track.getArduinoConfigs().get(0).digitalIds);
+        logger.debug(
+            "Saving config with Digitals: {}", track.getArduinoConfigs().get(0).digitalIds);
       } else {
-        System.out.println("DEBUG: Saving configs is NULL or empty");
+        logger.debug("Saving configs is NULL or empty");
       }
 
       col.replaceOne(Filters.eq("entity_id", id), track);
@@ -534,7 +537,7 @@ public class DatabaseTaskHandler {
       getTrackCollection().deleteOne(Filters.eq("entity_id", id));
       ctx.status(204);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error deleting track", e);
       ctx.status(500).result("Error deleting track: " + e.getMessage());
     }
   }
@@ -549,7 +552,7 @@ public class DatabaseTaskHandler {
         ctx.status(409).result(e.getMessage());
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error creating race", e);
       ctx.status(500).result("Error creating race: " + e.getMessage());
     }
   }
@@ -610,7 +613,7 @@ public class DatabaseTaskHandler {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error updating race", e);
       ctx.status(500).result("Error updating race: " + e.getMessage());
     }
   }
@@ -668,7 +671,7 @@ public class DatabaseTaskHandler {
         ctx.status(404).result(e.getMessage());
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error deleting race", e);
       ctx.status(500).result("Error deleting race: " + e.getMessage());
     }
   }

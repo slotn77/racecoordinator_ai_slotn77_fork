@@ -19,8 +19,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +98,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     super(numLanes);
     this.config = config;
     this.numLanes = numLanes;
-    logger.info("[{}] ArduinoProtocol initialized with {} lanes", getLogTime(), numLanes);
+    logger.info("ArduinoProtocol initialized with {} lanes", numLanes);
 
     this.serialConnection = serialConnection != null ? serialConnection : createSerialConnection();
     this.statusScheduler = statusScheduler;
@@ -129,13 +127,6 @@ public class ArduinoProtocol extends DefaultProtocol {
     this.ledHelper = new ArduinoLedHelper(this);
   }
 
-  private static final DateTimeFormatter LOG_TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-
-  protected String getLogTime() {
-    return LocalTime.now().format(LOG_TIME_FORMATTER);
-  }
-
   protected SerialConnection createSerialConnection() {
     return new SerialConnection();
   }
@@ -151,14 +142,13 @@ public class ArduinoProtocol extends DefaultProtocol {
   @Override
   public synchronized boolean open() {
     if (serialConnection.isOpen()) {
-      logger.info("[{}] ArduinoProtocol already open", getLogTime());
+      logger.info("ArduinoProtocol already open");
       return true;
     }
 
     if (config.commPort == null || config.commPort.isEmpty()) {
       logger.info(
-          "[{}] No COM port specified for ArduinoProtocol on lanes {}, status will be DISCONNECTED",
-          getLogTime(),
+          "No COM port specified for ArduinoProtocol on lanes {}, status will be DISCONNECTED",
           numLanes);
       if (listener != null) {
         listener.onInterfaceStatus(InterfaceStatus.DISCONNECTED, getInterfaceIndex());
@@ -171,11 +161,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       // Force 115200 baud for now as requested, as it's not currently configurable in
       // the UI
       int baudRateToUse = 115200;
-      logger.info(
-          "[{}] Attempting to connect to {} at {} baud",
-          getLogTime(),
-          config.commPort,
-          baudRateToUse);
+      logger.info("Attempting to connect to {} at {} baud", config.commPort, baudRateToUse);
       serialConnection.connect(config.commPort, baudRateToUse);
 
       serialConnection.addListener(
@@ -192,9 +178,9 @@ public class ArduinoProtocol extends DefaultProtocol {
 
               byte[] data = event.getReceivedData();
               if (data != null && data.length > 0) {
-                logger.info("[{}] Received: {}", getLogTime(), bytesToHex(data));
+                logger.info("Received: {}", bytesToHex(data));
                 rxBuffer.write(data);
-                logger.debug("[{}] Buffer state: {}", getLogTime(), rxBuffer.toHexString());
+                logger.debug("Buffer state: {}", rxBuffer.toHexString());
                 processData();
               }
             }
@@ -202,7 +188,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
       ledHelper.resetCache();
       writeData(RESET_COMMAND);
-      logger.info("[{}] Connected to {}. Sent RESET command.", getLogTime(), config.commPort);
+      logger.info("Connected to {}. Sent RESET command.", config.commPort);
 
       // Immediately refresh the race state to ensure LEDs turn on
       ledHelper.refreshRaceState();
@@ -212,11 +198,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       return true;
     } catch (IOException e) {
       logger.error(
-          "[{}] Failed to connect to {} on {} lanes: {}",
-          getLogTime(),
-          config.commPort,
-          numLanes,
-          e.getMessage());
+          "Failed to connect to {} on {} lanes: {}", config.commPort, numLanes, e.getMessage());
       if (listener != null) {
         listener.onInterfaceStatus(InterfaceStatus.DISCONNECTED, getInterfaceIndex());
       }
@@ -226,7 +208,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
   @Override
   public void close() {
-    logger.info("[{}] Closing ArduinoProtocol (Serial Open: {})", getLogTime(), isSerialOpen());
+    logger.info("Closing ArduinoProtocol (Serial Open: {})", isSerialOpen());
 
     // Stop all scheduled tasks first
     if (statusFuture != null) {
@@ -250,7 +232,8 @@ public class ArduinoProtocol extends DefaultProtocol {
     if (isSerialOpen()) {
       clearLeds();
 
-      // Small delay to ensure clearLeds commands are transmitted before closing the port
+      // Small delay to ensure clearLeds commands are transmitted before closing the
+      // port
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
@@ -265,7 +248,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     versionVerified = false; // Reset version verification for next open
 
     if (serialConnection != null && serialConnection.isOpen()) {
-      logger.info("[{}] Disconnecting serial port", getLogTime());
+      logger.info("Disconnecting serial port");
       serialConnection.disconnect();
     }
   }
@@ -294,9 +277,7 @@ public class ArduinoProtocol extends DefaultProtocol {
                     } else {
                       status = InterfaceStatus.DISCONNECTED;
                       logger.warn(
-                          "[{}] status dropping to DISCONNECTED due to heartbeat age: {}ms",
-                          getLogTime(),
-                          age);
+                          "status dropping to DISCONNECTED due to heartbeat age: {}ms", age);
                     }
                   }
                   listener.onInterfaceStatus(status, getInterfaceIndex());
@@ -389,11 +370,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     buildPinLookup();
 
     if (commPortChanged) {
-      logger.info(
-          "[{}] COM port changed from {} to {}. Reconnecting...",
-          getLogTime(),
-          oldPort,
-          newConfig.commPort);
+      logger.info("COM port changed from {} to {}. Reconnecting...", oldPort, newConfig.commPort);
       lastHeartbeatTimeMs = 0;
       close();
       open();
@@ -441,9 +418,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
       if (!versionVerified && opcode != OPCODE_VERSION) {
         logger.warn(
-            "[{}] Skipping byte 0x{} before version verification",
-            getLogTime(),
-            String.format("%02X", opcode));
+            "Skipping byte 0x{} before version verification", String.format("%02X", opcode));
         rxBuffer.get();
         continue;
       }
@@ -472,9 +447,7 @@ public class ArduinoProtocol extends DefaultProtocol {
         default:
           // Unknown opcode, skip one byte to resync
           logger.warn(
-              "[{}] Unknown opcode: {}, skipping one byte to resync",
-              getLogTime(),
-              String.format("0x%02X", opcode));
+              "Unknown opcode: {}, skipping one byte to resync", String.format("0x%02X", opcode));
           rxBuffer.get();
           continue;
       }
@@ -488,8 +461,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       if (rxBuffer.peek(messageLength - 1) != TERMINATOR) {
         // Invalid message (bad terminator), skip one byte to resync
         logger.error(
-            "[{}] Invalid message (bad terminator) for opcode {}, skipping one byte. Buffer: {}",
-            getLogTime(),
+            "Invalid message (bad terminator) for opcode {}, skipping one byte. Buffer: {}",
             String.format("0x%02X", opcode),
             rxBuffer.toHexString());
         rxBuffer.get();
@@ -498,7 +470,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
       // Valid message, read it
       byte[] message = rxBuffer.read(messageLength);
-      logger.debug("[{}] Processing message: {}", getLogTime(), bytesToHex(message));
+      logger.debug("Processing message: {}", bytesToHex(message));
       handleMessage(message);
     }
   }
@@ -512,8 +484,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
     if (!versionVerified && opcode != OPCODE_VERSION) {
       logger.warn(
-          "[{}] Ignoring message (opcode: 0x{}) before version verification",
-          getLogTime(),
+          "Ignoring message (opcode: 0x{}) before version verification",
           String.format("%02X", opcode));
       return;
     }
@@ -587,12 +558,7 @@ public class ArduinoProtocol extends DefaultProtocol {
         sendTimeReset();
         ledHelper.sendRgbLedMode();
       } else {
-        logger.error(
-            "[{}] Invalid firmware version: {}.{}.{}. Expected 2.1.0",
-            getLogTime(),
-            major,
-            minor,
-            patch);
+        logger.error("Invalid firmware version: {}.{}.{}. Expected 2.1.0", major, minor, patch);
       }
     }
   }
@@ -673,8 +639,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     message[idx++] = TERMINATOR;
 
     writeData(message);
-    logger.info(
-        "[{}] Sent PIN_MODE {} (opcode: 0x{})", getLogTime(), mode, String.format("%02X", opcode));
+    logger.info("Sent PIN_MODE {} (opcode: 0x{})", mode, String.format("%02X", opcode));
   }
 
   private void sendDebounce() {
@@ -687,12 +652,12 @@ public class ArduinoProtocol extends DefaultProtocol {
     message[5] = TERMINATOR;
 
     writeData(message);
-    logger.info("[{}] Sent DEBOUNCE", getLogTime());
+    logger.info("Sent DEBOUNCE");
   }
 
   private void sendTimeReset() {
     writeData(TIME_RESET_COMMAND);
-    logger.info("[{}] Sent TIME_RESET", getLogTime());
+    logger.info("Sent TIME_RESET");
     ledHelper.refreshRaceState();
   }
 
@@ -715,8 +680,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     int maxBuffer = getMaxBufferSize();
     if (message.length > maxBuffer) {
       logger.error(
-          "[{}] Attempted to send message of size {} which exceeds Arduino buffer limit of {}",
-          getLogTime(),
+          "Attempted to send message of size {} which exceeds Arduino buffer limit of {}",
           message.length,
           maxBuffer);
       return;
@@ -725,7 +689,7 @@ public class ArduinoProtocol extends DefaultProtocol {
     try {
       serialConnection.writeData(message);
     } catch (IOException e) {
-      logger.error("[{}] Failed to write data to Arduino: {}", getLogTime(), e.getMessage());
+      logger.error("Failed to write data to Arduino: {}", e.getMessage());
     }
   }
 
@@ -754,8 +718,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
     if (pinConfig != null) {
       logger.info(
-          "[{}] Received Input - Behavior: {}, Lane: {}, Pin: {}, State: {}",
-          getLogTime(),
+          "Received Input - Behavior: {}, Lane: {}, Pin: {}, State: {}",
           pinConfig.behavior,
           pinConfig.laneIndex,
           pin,
@@ -788,8 +751,7 @@ public class ArduinoProtocol extends DefaultProtocol {
           break;
         default:
           logger.warn(
-              "[{}] Received Unknown Input - Behavior: {}, Lane: {}, Pin: {}, State: {}",
-              getLogTime(),
+              "Received Unknown Input - Behavior: {}, Lane: {}, Pin: {}, State: {}",
               pinConfig.behavior,
               pinConfig.laneIndex,
               pin,
@@ -798,8 +760,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       }
     } else {
       logger.info(
-          "[{}] Received Input - Type: {}, Pin: {}, State: {}",
-          getLogTime(),
+          "Received Input - Type: {}, Pin: {}, State: {}",
           (isDigital ? "Digital" : "Analog"),
           pin,
           state);
@@ -822,7 +783,7 @@ public class ArduinoProtocol extends DefaultProtocol {
   }
 
   private void onAnalogData(int pin, int value) {
-    logger.debug("[{}] Received Analog Data - Pin: A{}, Value: {}", getLogTime(), pin, value);
+    logger.debug("Received Analog Data - Pin: A{}, Value: {}", pin, value);
 
     if (listener != null) {
       // Send the raw interface event
@@ -878,10 +839,10 @@ public class ArduinoProtocol extends DefaultProtocol {
   }
 
   private void onLapCounter(int laneIndex, int state, int interfaceId) {
-    logger.debug("[{}] Received Lap Counter - Lane: {}, State: {}", getLogTime(), laneIndex, state);
+    logger.debug("Received Lap Counter - Lane: {}, State: {}", laneIndex, state);
 
     if (laneIndex >= hwLapTime.length) {
-      logger.warn("[{}] Bad lane for lap data: {}", getLogTime(), (laneIndex + 1));
+      logger.warn("Bad lane for lap data: {}", (laneIndex + 1));
       return;
     }
 
@@ -897,7 +858,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       // Subtract the hw debounce time from our time
       time -= (config.debounceUs / (1000.0 * 1000.0));
 
-      logger.info("[{}] Handling Lap - Lane: {}, Time: {}", getLogTime(), laneIndex, time);
+      logger.info("Handling Lap - Lane: {}, Time: {}", laneIndex, time);
       if (listener != null) {
         if (config.useLapsForSegments) {
           onSegmentCounter(laneIndex, state, interfaceId);
@@ -938,11 +899,10 @@ public class ArduinoProtocol extends DefaultProtocol {
   }
 
   private void onSegmentCounter(int laneIndex, int state, int interfaceId) {
-    logger.info(
-        "[{}] Received Segment Counter - Lane: {}, State: {}", getLogTime(), laneIndex, state);
+    logger.info("Received Segment Counter - Lane: {}, State: {}", laneIndex, state);
 
     if (laneIndex >= hwSegmentTime.length) {
-      logger.warn("[{}] Bad lane for segment data: {}", getLogTime(), (laneIndex + 1));
+      logger.warn("Bad lane for segment data: {}", (laneIndex + 1));
       return;
     }
 
@@ -957,7 +917,7 @@ public class ArduinoProtocol extends DefaultProtocol {
       // Subtract the hw debounce time from our time
       time -= (config.debounceUs / (1000.0 * 1000.0));
 
-      logger.info("[{}] Handling Segment - Lane: {}, Time: {}", getLogTime(), laneIndex, time);
+      logger.info("Handling Segment - Lane: {}, Time: {}", laneIndex, time);
       if (listener != null) {
         listener.onSegment(laneIndex, time, interfaceId, getInterfaceIndex());
       }
@@ -966,8 +926,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
   private void onCallButton(int laneIndex, int state, int interfaceId) {
     logger.info(
-        "[{}] Received Call Button - Lane: {}, State: {}, InterfaceId: {}",
-        getLogTime(),
+        "Received Call Button - Lane: {}, State: {}, InterfaceId: {}",
         laneIndex,
         state,
         interfaceId);
@@ -1050,12 +1009,9 @@ public class ArduinoProtocol extends DefaultProtocol {
   protected void updatePitState(int laneIndex, boolean inPits) {
     if (laneInPits[laneIndex] != inPits) {
       logger.info(
-          "[{}] updatePitState: Lane {} transition to {}",
-          getLogTime(),
-          laneIndex,
-          inPits ? "IN_PITS" : "OUT_PITS");
+          "updatePitState: Lane {} transition to {}", laneIndex, inPits ? "IN_PITS" : "OUT_PITS");
       laneInPits[laneIndex] = inPits;
-      logger.info("[{}] Lane {} {} pits", getLogTime(), laneIndex, inPits ? "entered" : "exited");
+      logger.info("Lane {} {} pits", laneIndex, inPits ? "entered" : "exited");
 
       if (inPits) {
         lastRefuelTimeMs[laneIndex] = now();

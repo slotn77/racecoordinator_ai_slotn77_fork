@@ -53,7 +53,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -85,25 +84,24 @@ public class App {
 
   public static void main(String[] args) {
     try {
-      System.out.println("Race Coordinator AI Server " + SERVER_VERSION);
-      System.out.println("Build Time: " + new Date());
+      logger.info("Race Coordinator AI Server {}", SERVER_VERSION);
       String projectDir = System.getProperty("user.dir");
       String appDataDir =
           System.getProperty("app.data.dir", Paths.get(projectDir, "app_data").toString());
       appDataDir = Paths.get(appDataDir).toAbsolutePath().normalize().toString();
-      System.out.println("Using app data directory: " + appDataDir);
+      logger.info("Using app data directory: {}", appDataDir);
       String tmpDir = Paths.get(appDataDir, "server_temp").toString();
       System.setProperty("de.flapdoodle.embed.io.tmpdir", tmpDir);
-      System.out.println("Set de.flapdoodle.embed.io.tmpdir to: " + tmpDir);
+      logger.info("Set de.flapdoodle.embed.io.tmpdir to: {}", tmpDir);
       try {
         Path tmpPath = Paths.get(tmpDir);
         if (!Files.exists(tmpPath)) {
           Files.createDirectories(tmpPath);
         }
         // System.setProperty("java.io.tmpdir", tmpDir);
-        System.out.println("Left java.io.tmpdir as default (commented out custom setter)");
+        logger.debug("Left java.io.tmpdir as default (commented out custom setter)");
       } catch (Exception e) {
-        System.err.println("Failed to set java.io.tmpdir: " + e.getMessage());
+        logger.error("Failed to set java.io.tmpdir", e);
       }
 
       boolean useEmbeddedMongo = true;
@@ -202,12 +200,12 @@ public class App {
         try {
           mongoClient.listDatabaseNames().first();
           mongoReady = true;
-          System.out.println("MongoDB is ready.");
+          logger.info("MongoDB is ready.");
           break;
         } catch (Exception e) {
-          System.out.println("Waiting for MongoDB... (" + (i + 1) + "/30)");
+          logger.debug("Waiting for MongoDB... ({}/30)", i + 1);
           if (manualMongoProcess != null && !manualMongoProcess.isAlive()) {
-            System.err.println("Bundled MongoDB process has stopped unexpectedly!");
+            logger.error("Bundled MongoDB process has stopped unexpectedly!");
             break;
           }
           try {
@@ -219,7 +217,7 @@ public class App {
       }
 
       if (!mongoReady) {
-        System.err.println("Fatal: MongoDB failed to start correctly within 30 seconds.");
+        logger.error("Fatal: MongoDB failed to start correctly within 30 seconds.");
         System.exit(1);
       }
       // Initialize Database
@@ -228,7 +226,7 @@ public class App {
       File legacyAssets = new File("data/assets");
       File newDefaultAssets = new File("data/Race Coordinator AI DB/assets");
       if (legacyAssets.exists() && legacyAssets.isDirectory() && !newDefaultAssets.exists()) {
-        System.out.println("Migrating legacy assets to default database...");
+        logger.info("Migrating legacy assets to default database...");
         if (newDefaultAssets.mkdirs()) {
           // Actually we want to move the CONTENTS, or rename the directory if parent
           // structure allows.
@@ -254,9 +252,9 @@ public class App {
             Path newPath = newDefaultAssets.toPath();
             Files.createDirectories(newPath.getParent()); // Ensure parent exists
             Files.move(legacyPath, newPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("Assets migrated successfully.");
+            logger.info("Assets migrated successfully.");
           } catch (IOException e) {
-            System.err.println("Asset migration failed: " + e.getMessage());
+            logger.error("Asset migration failed", e);
           }
         }
       }
@@ -280,19 +278,19 @@ public class App {
       if (userDatabases.isEmpty()) {
         initialDbName = "RaceCoordinator_AI_DB";
         needsFactoryReset = true;
-        System.out.println(
-            "No existing databases found. Creating '" + initialDbName + "' with factory defaults.");
+        logger.info(
+            "No existing databases found. Creating '{}' with factory defaults.", initialDbName);
       } else {
         // Prioritize last active DB if it exists
         if (lastActiveDb != null && userDatabases.contains(lastActiveDb)) {
           initialDbName = lastActiveDb;
-          System.out.println("Resuming last active database: '" + initialDbName + "'.");
+          logger.info("Resuming last active database: '{}'.", initialDbName);
         } else if (userDatabases.contains("Race Coordinator AI DB")) {
           initialDbName = "Race Coordinator AI DB";
-          System.out.println("Found existing 'Race Coordinator AI DB'. Connecting to it.");
+          logger.info("Found existing 'Race Coordinator AI DB'. Connecting to it.");
         } else {
           initialDbName = userDatabases.get(0);
-          System.out.println("Connecting to first available database: '" + initialDbName + "'.");
+          logger.info("Connecting to first available database: '{}'.", initialDbName);
         }
       }
 
@@ -308,15 +306,15 @@ public class App {
         DatabaseService.getInstance().resetToFactory(databaseContext, db);
       }
 
-      System.out.println("Connected to MongoDB successfully.");
+      logger.info("Connected to MongoDB successfully.");
 
-      System.out.println("Starting database backfill loop...");
+      logger.info("Starting database backfill loop...");
       // Backfill defaults for all databases
       for (String dbName : databaseContext.listDatabases()) {
         if (dbName.equals("admin") || dbName.equals("local") || dbName.equals("config")) {
           continue;
         }
-        System.out.println("Backfilling default assets for database: " + dbName);
+        logger.info("Backfilling default assets for database: {}", dbName);
         MongoDatabase db = mongoClient.getDatabase(dbName);
         new AssetService(db, appDataDir + File.separator + dbName + File.separator + "assets")
             .backfillDefaults();
@@ -333,9 +331,9 @@ public class App {
       }
 
       final String staticFilePath = resolvedClientPath != null ? resolvedClientPath : "web";
-      System.out.println("Serving static files from: " + staticFilePath);
+      logger.info("Serving static files from: {}", staticFilePath);
 
-      System.out.println("Starting Javalin on port 7070...");
+      logger.info("Starting Javalin on port 7070...");
       app =
           Javalin.create(
                   config -> {
@@ -366,13 +364,12 @@ public class App {
                     config.jsonMapper(new JavalinJackson(mapper));
                   })
               .start(7070);
-      System.out.println("Javalin started successfully.");
+      logger.info("Javalin started successfully.");
 
       app.exception(
           Exception.class,
           (e, ctx) -> {
-            System.err.println("Uncaught exception in " + ctx.path() + ":");
-            e.printStackTrace();
+            logger.error("Uncaught exception in " + ctx.path(), e);
             ctx.status(500).result("Internal Server Error: " + e.getMessage());
           });
 
@@ -387,8 +384,8 @@ public class App {
                 ctx.contentType("text/html");
                 ctx.result(new String(Files.readAllBytes(indexPath)));
               } else {
-                System.err.println(
-                    "SPA Fallback: index.html not found at " + indexPath.toAbsolutePath());
+                logger.error(
+                    "SPA Fallback: index.html not found at {}", indexPath.toAbsolutePath());
               }
             }
           });
@@ -440,12 +437,11 @@ public class App {
       if (!headless) {
         openBrowser("http://localhost:7070");
       } else {
-        System.out.println("Headless mode: Browser will not be opened automatically.");
-        System.out.println("Server is running at http://localhost:7070");
+        logger.info("Headless mode: Browser will not be opened automatically.");
+        logger.info("Server is running at http://localhost:7070");
       }
     } catch (Exception e) {
-      System.err.println("Fatal error during startup:");
-      e.printStackTrace();
+      logger.error("Fatal error during startup", e);
       System.exit(1);
     }
   }
@@ -456,11 +452,11 @@ public class App {
         Desktop.getDesktop().browse(new URI(url));
       } else {
         // Fallback for systems where Desktop is not supported (print link)
-        System.out.println("Server started. Open " + url + " in your browser.");
+        logger.info("Server started. Open {} in your browser.", url);
       }
     } catch (Exception e) {
-      System.err.println("Failed to open browser automatically: " + e.getMessage());
-      System.out.println("Please open " + url + " manually.");
+      logger.error("Failed to open browser automatically: {}", e.getMessage());
+      logger.info("Please open {} manually.", url);
     }
   }
 
@@ -468,7 +464,7 @@ public class App {
 
   private static void startEmbeddedMongo() {
     try {
-      System.out.println("Starting MongoDB...");
+      logger.info("Starting MongoDB...");
 
       String appDir = System.getProperty("user.dir");
       String appDataDir =
@@ -483,7 +479,7 @@ public class App {
       // legacy Windows)
       File lockFile = new File(dataDir, "mongod.lock");
       if (lockFile.exists()) {
-        System.out.println("Stale MongoDB lock file detected. Cleaning up...");
+        logger.warn("Stale MongoDB lock file detected. Cleaning up...");
         lockFile.delete();
       }
 
@@ -496,7 +492,7 @@ public class App {
       // Look for bundled mongo in ./mongodb/bin/
       File bundledMongo = new File(appDir, "mongodb/bin/" + mongoBinName);
       if (bundledMongo.exists()) {
-        System.out.println("Found bundled MongoDB: " + bundledMongo.getAbsolutePath());
+        logger.info("Found bundled MongoDB: {}", bundledMongo.getAbsolutePath());
         List<String> command = new ArrayList<>();
         command.add(bundledMongo.getAbsolutePath());
         command.add("--dbpath");
@@ -522,7 +518,7 @@ public class App {
                   || lowerArch.contains("aarch64"));
 
           if (isLegacyWindows || is32Bit) {
-            System.out.println(
+            logger.info(
                 "Legacy/32-bit Windows detected. Adding --storageEngine mmapv1 and --journal for bundled MongoDB.");
             command.add("--storageEngine");
             command.add("mmapv1");
@@ -543,7 +539,7 @@ public class App {
                           new InputStreamReader(manualMongoProcess.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                      System.out.println("[MongoDB] " + line);
+                      logger.info("[MongoDB] {}", line);
                     }
                   } catch (IOException e) {
                     // Ignore
@@ -551,11 +547,11 @@ public class App {
                 })
             .start();
 
-        System.out.println("Bundled MongoDB started. Waiting for initialization...");
+        logger.info("Bundled MongoDB started. Waiting for initialization...");
         return;
       }
 
-      System.out.println("Bundled MongoDB not found. Starting embedded MongoDB via Flapdoodle...");
+      logger.info("Bundled MongoDB not found. Starting embedded MongoDB via Flapdoodle...");
 
       String mongoTempDir = Paths.get(appDataDir, "mongo_temp").toString();
       try {
@@ -572,7 +568,7 @@ public class App {
                   de.flapdoodle.embed.process.transitions.InitTempDirectory.with(
                       Paths.get(mongoTempDir)));
       if (osName != null) {
-        System.out.println("Detected OS: " + osName + " (" + osArch + ")");
+        logger.debug("Detected OS: {} ({})", osName, osArch);
         String lowerArch = (osArch != null) ? osArch.toLowerCase() : "";
 
         boolean isLegacyWindows =
@@ -589,10 +585,9 @@ public class App {
         boolean is32Bit = !is64Bit;
 
         if (isLegacyWindows || (lowerOs.contains("windows") && is32Bit)) {
-          System.out.println(
-              "Legacy/32-bit Windows detected ("
-                  + osArch
-                  + "). Force-downgrading MongoDB to 3.2 and using mmapv1 storage engine...");
+          logger.info(
+              "Legacy/32-bit Windows detected ({}). Force-downgrading MongoDB to 3.2 and using mmapv1 storage engine...",
+              osArch);
           mongoVersion = Version.Main.V3_2;
           mongod =
               mongod.withMongodArguments(
@@ -620,10 +615,9 @@ public class App {
                               .build()))
               .start(mongoVersion);
 
-      System.out.println("Embedded MongoDB started with storage at " + dataDir);
+      logger.info("Embedded MongoDB started with storage at {}", dataDir);
     } catch (IOException e) {
-      System.err.println("Error starting MongoDB: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Error starting MongoDB", e);
       System.exit(1);
     }
   }
