@@ -27,7 +27,7 @@ public class ArduinoLedHelperTest {
     config = new ArduinoConfig();
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
+
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper = new ArduinoLedHelper(protocol);
     helper.setLaneColors(
@@ -303,7 +303,6 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.sendRgbLedMode();
     verify(protocol, never()).writeData(any());
@@ -317,7 +316,6 @@ public class ArduinoLedHelperTest {
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.sendRgbLedMode();
     verify(protocol, never()).writeData(any());
@@ -327,7 +325,6 @@ public class ArduinoLedHelperTest {
     stringUpdated.brightness = 200;
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.sendRgbLedMode();
     verify(protocol, times(1)).writeData(argThat(data -> data[0] == 0x6C && data[3] == (byte) 200));
@@ -342,7 +339,6 @@ public class ArduinoLedHelperTest {
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.sendRgbLedMode();
     // numUsedLeds changed from 2 to 3, so it SHOULD send
@@ -471,7 +467,7 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
+
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
     helper.setFuelLevel(0, 100);
@@ -482,7 +478,7 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
+
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
     helper.setFuelLevel(0, 10);
@@ -558,7 +554,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // 1. 0% progress (p=1.0) -> All 8 ON (4G, 2Y, 2R)
     helper.setHeatProgress(0.0);
@@ -635,7 +630,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
   }
 
   @Test
@@ -687,7 +681,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // Standing: Lane 1 is leader -> LED should be GREEN
     helper.setHeatStandings(Arrays.asList(1, 0));
@@ -702,7 +695,7 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
+
     helper.setHeatStandings(Arrays.asList(0, 1));
     verify(protocol, atLeastOnce()).writeData(captor.capture());
     data = captor.getValue();
@@ -721,7 +714,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // 100% progress (p=0.0) -> Off
     helper.setHeatProgress(1.0);
@@ -742,7 +734,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.setRaceState(
         com.antigravity.proto.RaceState.NOT_STARTED, com.antigravity.proto.RaceFlag.RED, 0);
@@ -752,7 +743,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // Even if we set progress (e.g. if re-entering NOT_STARTED), it should stay GREEN (p=1.0)
     helper.setHeatProgress(0.5);
@@ -774,7 +764,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // GREEN flag
     helper.setRaceState(
@@ -799,7 +788,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // CHECKERED flag (White/Black)
     helper.setRaceState(
@@ -1042,7 +1030,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // 1. Initial State at 5.0s -> only LED with n < 1 is ON (n=0)
     helper.setRaceState(
@@ -1142,7 +1129,6 @@ public class ArduinoLedHelperTest {
     when(protocol.isSerialOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     helper.setRaceState(
         com.antigravity.proto.RaceState.NOT_STARTED, com.antigravity.proto.RaceFlag.RED, 0);
@@ -1193,7 +1179,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // Case 1: Refueling is TRUE for Lane 6 (index 5)
     helper.setRefueling(5, true);
@@ -1231,7 +1216,6 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.getMaxBufferSize()).thenReturn(128);
-    when(protocol.getLogTime()).thenReturn("12:00:00.000");
 
     // Refueling is TRUE for Lane 6 (index 5)
     helper.setRefueling(5, true);
