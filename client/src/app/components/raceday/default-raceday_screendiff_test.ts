@@ -156,7 +156,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     // Fuel column visibility checked visually
 
     await expect(page).toHaveScreenshot("raceday-fuel-levels.png", {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     });
   });
 
@@ -251,7 +252,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     // Avatar href checked visually
 
     await expect(page).toHaveScreenshot("raceday-driver-avatars.png", {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     });
   });
 
@@ -324,7 +326,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot("raceday-digital-fuel-levels.png", {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     });
   });
 
@@ -428,7 +431,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     await page.locator(".table-row").first().waitFor({ state: "visible" });
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("raceday-1-lane-fuel-gauge.png", {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     });
   });
 
@@ -520,7 +524,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     await page.locator(".table-row").first().waitFor({ state: "visible" });
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("raceday-8-lane-fuel-gauge.png", {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     });
   });
 
@@ -698,7 +703,10 @@ test.describe("Raceday Visuals for Fuel", () => {
 
     await expect(page).toHaveScreenshot(
       "raceday-team-driver-stats-dropdown.png",
-      { maxDiffPixelRatio: 0.1 },
+      {
+        maxDiffPixelRatio: 0.001,
+        maxDiffPixels: 0,
+      },
     );
   });
 });

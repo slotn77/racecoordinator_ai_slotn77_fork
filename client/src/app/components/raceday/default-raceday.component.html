@@ -177,6 +177,25 @@
           }
         </div>
       }
+      <div class="menu-wrapper">
+        <button
+          id="windows-menu-button"
+          class="menu-button-top"
+          (click)="toggleWindowsMenu()"
+        >
+          {{ "RD_MENU_WINDOWS" | translate }}
+        </button>
+        @if (isWindowsMenuOpen) {
+          <div class="menu-dropdown top-dropdown">
+            <div
+              class="menu-item"
+              (click)="onWindowsMenuSelect('HEAT_RESULTS')"
+            >
+              {{ "RD_WIN_HEAT_RESULTS" | translate }}
+            </div>
+          </div>
+        }
+      </div>
     </div>
 
     @if (heat && race) {

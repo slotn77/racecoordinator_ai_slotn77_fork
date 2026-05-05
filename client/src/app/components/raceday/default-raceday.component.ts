@@ -1105,6 +1105,7 @@ export class DefaultRacedayComponent
   // Menu logic
   isMenuOpen = false;
   isFileMenuOpen = false;
+  isWindowsMenuOpen = false;
   scale: number = 1;
 
   @HostListener("window:resize")
@@ -1123,6 +1124,7 @@ export class DefaultRacedayComponent
       this.isFileMenuOpen = false;
       this.isLanesMenuOpen = false;
       this.isDriversStationOpen = false;
+      this.isWindowsMenuOpen = false;
     }
   }
 
@@ -1150,6 +1152,7 @@ export class DefaultRacedayComponent
     this.isFileMenuOpen = false; // Close other menus
     this.isLanesMenuOpen = false;
     this.isDriversStationOpen = false;
+    this.isWindowsMenuOpen = false;
   }
 
   toggleFileMenu() {
@@ -1161,6 +1164,7 @@ export class DefaultRacedayComponent
     this.isMenuOpen = false; // Close other menus
     this.isLanesMenuOpen = false;
     this.isDriversStationOpen = false;
+    this.isWindowsMenuOpen = false;
   }
 
   isLanesMenuOpen = false;
@@ -1175,6 +1179,7 @@ export class DefaultRacedayComponent
     this.isFileMenuOpen = false;
     this.isMenuOpen = false;
     this.isDriversStationOpen = false; // Reset sub-menu on main toggle
+    this.isWindowsMenuOpen = false;
   }
 
   toggleDriversStationMenu() {
@@ -1183,6 +1188,18 @@ export class DefaultRacedayComponent
       this.isDriversStationOpen,
     );
     this.isDriversStationOpen = !this.isDriversStationOpen;
+  }
+
+  toggleWindowsMenu() {
+    this.logger.debug(
+      "Toggling Windows menu. Current state:",
+      this.isWindowsMenuOpen,
+    );
+    this.isWindowsMenuOpen = !this.isWindowsMenuOpen;
+    this.isFileMenuOpen = false;
+    this.isMenuOpen = false;
+    this.isLanesMenuOpen = false;
+    this.isDriversStationOpen = false;
   }
 
   onMenuSelect(action: string) {
@@ -1297,6 +1314,21 @@ export class DefaultRacedayComponent
       );
     }
     this.isMenuOpen = false;
+  }
+
+  onWindowsMenuSelect(action: string) {
+    this.logger.debug("Windows menu action:", action);
+    this.isWindowsMenuOpen = false;
+    if (action === "HEAT_RESULTS") {
+      const url = this.router.serializeUrl(
+        this.router.createUrlTree(["/heat-results"]),
+      );
+      this.heatResultsWindow = window.open(
+        url,
+        "_blank",
+        "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no",
+      );
+    }
   }
 
   @HostListener("window:unload", ["$event"])
