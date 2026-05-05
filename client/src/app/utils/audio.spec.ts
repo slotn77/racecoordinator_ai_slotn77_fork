@@ -1,4 +1,9 @@
-import { createTTSContext, mockTTSContext, playSound } from "./audio";
+import {
+  createTTSContext,
+  interpolate,
+  mockTTSContext,
+  playSound,
+} from "./audio";
 
 describe("playSound Utility", () => {
   let _originalAudio: any;
@@ -193,6 +198,41 @@ describe("playSound Utility", () => {
       const context = mockTTSContext();
       expect(context.driver.name).toBeDefined();
       expect(context.driver.lastLapTime).toBeGreaterThan(0);
+    });
+  });
+
+  describe("interpolate Utility", () => {
+    it("should interpolate simple paths", () => {
+      const text = "Hello {name}";
+      const data = { name: "World" };
+      expect(interpolate(text, data)).toBe("Hello World");
+    });
+
+    it("should interpolate nested paths", () => {
+      const text = "{driver.name} has {stats.laps} laps";
+      const data = {
+        driver: { name: "Alice" },
+        stats: { laps: 10 },
+      };
+      expect(interpolate(text, data)).toBe("Alice has 10 laps");
+    });
+
+    it("should handle case-insensitivity", () => {
+      const text = "{DRIVER.NAME}";
+      const data = { driver: { name: "Bob" } };
+      expect(interpolate(text, data)).toBe("Bob");
+    });
+
+    it("should format numbers to 3 decimal places", () => {
+      const text = "Value: {val}";
+      const data = { val: 1.2345678 };
+      expect(interpolate(text, data)).toBe("Value: 1.235");
+    });
+
+    it("should leave placeholders if value not found", () => {
+      const text = "Keep {missing}";
+      const data = {};
+      expect(interpolate(text, data)).toBe("Keep {missing}");
     });
   });
 });

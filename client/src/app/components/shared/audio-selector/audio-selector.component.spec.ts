@@ -339,4 +339,54 @@ describe("AudioSelectorComponent", () => {
     if (mockUtterance.onend) mockUtterance.onend();
     expect(component.isPlaying).toBeFalse();
   });
+
+  it("should interpolate TTS text with context", () => {
+    fixture.componentRef.setInput("type", "tts");
+    fixture.componentRef.setInput("text", "Hello {driver.name}");
+    fixture.componentRef.setInput("context", { driver: { name: "Dave" } });
+    fixture.detectChanges();
+
+    const mockUtterance: any = {
+      onend: null,
+      text: "",
+    };
+    spyOn(window, "SpeechSynthesisUtterance").and.callFake(function (
+      this: any,
+      text?: string,
+    ) {
+      mockUtterance.text = text || "";
+      return mockUtterance;
+    } as any);
+
+    if (!window.speechSynthesis) {
+      (window as any).speechSynthesis = jasmine.createSpyObj(
+        "SpeechSynthesis",
+        ["speak", "cancel"],
+      );
+    } else {
+      if (!(window.speechSynthesis.speak as any).and) {
+        spyOn(window.speechSynthesis, "speak");
+      }
+      if (!(window.speechSynthesis.cancel as any).and) {
+        spyOn(window.speechSynthesis, "cancel");
+      }
+    }
+
+    component.play();
+    expect(mockUtterance.text).toBe("Hello Dave");
+  });
+
+  it("should show play button in TTS mode when not readonly", async () => {
+    fixture.componentRef.setInput("type", "tts");
+    fixture.componentRef.setInput("readonly", false);
+    fixture.detectChanges();
+
+    const playButton = await harness.clickPlay().then(
+      () => true,
+      () => false,
+    );
+    // Since we can't easily check visibility without adding to harness,
+    // we check that clickPlay doesn't throw (meaning the button was found).
+    expect(playButton).toBeTrue();
+  });
 });

@@ -11,7 +11,7 @@ import { DataService } from "@app/data.service";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { LoggerService } from "@app/services/logger.service";
 import { TranslationService } from "@app/services/translation.service";
-import { mockTTSContext, playSound } from "@app/utils/audio";
+import { interpolate, mockTTSContext, playSound } from "@app/utils/audio";
 
 @Component({
   standalone: true,
@@ -275,7 +275,10 @@ export class AudioSelectorComponent {
     // Cancel any current speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const playContext = this.context() || mockTTSContext();
+    const interpolatedText = interpolate(text, playContext);
+
+    const utterance = new SpeechSynthesisUtterance(interpolatedText);
     utterance.onend = () => {
       this.isPlaying = false;
       this.cdr.detectChanges();

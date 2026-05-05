@@ -59,7 +59,7 @@ export function playSound(
   }
 }
 
-function interpolate(text: string, data: any): string {
+export function interpolate(text: string, data: any): string {
   return text.replace(/\{([^}]+)\}/g, (match, path) => {
     const parts = path.toLowerCase().split(".");
     let value = data;

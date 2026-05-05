@@ -29,6 +29,7 @@ import { GuideStep, HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
+import { createTTSContext, mockTTSContext } from "@app/utils/audio";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 @Component({
@@ -76,6 +77,22 @@ export class DriverManagerComponent implements OnInit, OnDestroy {
   // Connection Monitoring
   isConnectionLost = false;
   private connectionSubscription: Subscription | null = null;
+
+  get ttsContext(): any {
+    if (!this.selectedDriver) return mockTTSContext();
+    return createTTSContext(
+      {
+        name: this.selectedDriver.name,
+        nickname: this.selectedDriver.nickname || this.selectedDriver.name,
+      },
+      {
+        lastLapTime: 1.234,
+        bestLapTime: 1.234,
+        averageLapTime: 1.5,
+        lapCount: 10,
+      },
+    );
+  }
 
   constructor(
     private dataService: DataService,

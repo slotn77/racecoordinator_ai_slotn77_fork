@@ -426,4 +426,20 @@ describe("DriverManagerComponent", () => {
       ]);
     });
   });
+
+  describe("TTS Context", () => {
+    it("should provide mock ttsContext if no driver is selected", () => {
+      component.selectedDriver = undefined;
+      const context = component.ttsContext;
+      expect(context.driver.name).toBe("Dave");
+    });
+
+    it("should provide driver ttsContext if a driver is selected", () => {
+      const driver = component.drivers[0]; // Alice
+      component.selectDriver(driver);
+      const context = component.ttsContext;
+      expect(context.driver.name).toBe("Alice");
+      expect(context.driver.nickname).toBe("The Rocket");
+    });
+  });
 });
