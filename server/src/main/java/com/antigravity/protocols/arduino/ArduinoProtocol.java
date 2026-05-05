@@ -330,6 +330,7 @@ public class ArduinoProtocol extends DefaultProtocol {
             () -> {
               try {
                 ledHelper.refreshRaceState();
+                ledHelper.refreshThermometers();
               } catch (Exception e) {
                 logger.error("Error in led flash scheduler", e);
               }

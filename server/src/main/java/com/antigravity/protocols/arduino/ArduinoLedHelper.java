@@ -102,6 +102,7 @@ public class ArduinoLedHelper {
         lastColorOrder.remove(pinId);
       }
     }
+    refreshThermometers();
   }
 
   private void sendRgbLedModeMessage(
@@ -122,6 +123,8 @@ public class ArduinoLedHelper {
     message[8] = TERMINATOR;
 
     protocol.writeData(message);
+    // Invalidate cache for this pin so refreshThermometers can actually push data
+    lastLedColors.keySet().removeIf(k -> k.startsWith(pinId + "_"));
     logger.info(
         "Sent RGB_LED_MODE - Pin: {}, Count: {}, Brightness: {}, UpdateRate: {}, ColorOrder: {}",
         pinId,
@@ -163,6 +166,17 @@ public class ArduinoLedHelper {
   public void setStringRgbLedValues(int pinId, List<RgbLedState> rgbLeds) {
     if (!protocol.isSerialOpen() || rgbLeds == null || rgbLeds.isEmpty()) {
       return;
+    }
+
+    for (RgbLedState led : rgbLeds) {
+      if (protocol.isOpen()) {
+        String key = pinId + "_" + led.getIndex();
+        long color =
+            ((long) (led.getR() & 0xFF) << 16)
+                | ((long) (led.getG() & 0xFF) << 8)
+                | (long) (led.getB() & 0xFF);
+        lastLedColors.put(key, color);
+      }
     }
 
     // Determine how many LEDs we can fit in one packet based on hardware buffer
@@ -240,8 +254,23 @@ public class ArduinoLedHelper {
               }
             }
           }
-          updates.add(
-              RgbLedState.newBuilder().setIndex(i).setR(rgb[0]).setG(rgb[1]).setB(rgb[2]).build());
+
+          String key = ledString.pin + "_" + i;
+          long currentColor =
+              ((long) (rgb[0] & 0xFF) << 16)
+                  | ((long) (rgb[1] & 0xFF) << 8)
+                  | (long) (rgb[2] & 0xFF);
+          Long lastColor = lastLedColors.get(key);
+
+          if (lastColor == null || lastColor != currentColor) {
+            updates.add(
+                RgbLedState.newBuilder()
+                    .setIndex(i)
+                    .setR(rgb[0])
+                    .setG(rgb[1])
+                    .setB(rgb[2])
+                    .build());
+          }
         }
       }
 
@@ -289,7 +318,7 @@ public class ArduinoLedHelper {
     refreshThermometers();
   }
 
-  private void refreshThermometers() {
+  public void refreshThermometers() {
     if (lastHeatProgress != null) {
       this.setHeatProgress(lastHeatProgress);
     }
@@ -436,7 +465,6 @@ public class ArduinoLedHelper {
                     .setG(finalRgb[1])
                     .setB(finalRgb[2])
                     .build());
-            lastLedColors.put(key, currentColor);
           }
         } else if (behavior >= RgbLedBehavior.RGB_LED_BEHAVIOR_COUNTDOWN_BASE_VALUE
             && behavior < RgbLedBehavior.RGB_LED_BEHAVIOR_COUNTDOWN_BASE_VALUE + 100) {
@@ -467,7 +495,6 @@ public class ArduinoLedHelper {
 
           if (lastColor == null || lastColor != currentColor) {
             updates.add(RgbLedState.newBuilder().setIndex(i).setR(r).setG(g).setB(b).build());
-            lastLedColors.put(key, currentColor);
           }
         }
       }
@@ -683,7 +710,6 @@ public class ArduinoLedHelper {
 
           if (lastColor == null || lastColor != currentColor) {
             updates.add(RgbLedState.newBuilder().setIndex(i).setR(r).setG(g).setB(b).build());
-            lastLedColors.put(key, currentColor);
           }
           ledInThermometer++;
         }

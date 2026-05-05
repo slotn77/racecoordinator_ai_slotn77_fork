@@ -27,6 +27,7 @@ public class ArduinoLedHelperTest {
     config = new ArduinoConfig();
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper = new ArduinoLedHelper(protocol);
@@ -303,6 +304,7 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
     verify(protocol, never()).writeData(any());
@@ -316,6 +318,7 @@ public class ArduinoLedHelperTest {
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
     verify(protocol, never()).writeData(any());
@@ -325,6 +328,7 @@ public class ArduinoLedHelperTest {
     stringUpdated.brightness = 200;
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
     verify(protocol, times(1)).writeData(argThat(data -> data[0] == 0x6C && data[3] == (byte) 200));
@@ -339,6 +343,7 @@ public class ArduinoLedHelperTest {
     config.ledStrings = new ArrayList<>(Collections.singletonList(stringUpdated));
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
     // numUsedLeds changed from 2 to 3, so it SHOULD send
@@ -358,6 +363,7 @@ public class ArduinoLedHelperTest {
     config.ledStrings = null;
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     helper.sendRgbLedMode();
     // Should send cleanup message: pin 2, brightness 0 (to turn off previous string)
@@ -427,6 +433,7 @@ public class ArduinoLedHelperTest {
     // 2. 75% fuel (p=0.75) -> One Green turns off (Pixel 0)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper.setFuelLevel(0, 75);
@@ -441,6 +448,7 @@ public class ArduinoLedHelperTest {
     // 3. 50% fuel (p=0.5) -> Next Green turn off (Pixel 1)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper.setFuelLevel(0, 50);
@@ -467,6 +475,7 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -478,6 +487,7 @@ public class ArduinoLedHelperTest {
     reset(protocol);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -495,6 +505,7 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
 
     // 0% progress (p=1.0) -> Green
     helper.setHeatProgress(0.0);
@@ -506,6 +517,7 @@ public class ArduinoLedHelperTest {
     // 60% progress (p=0.4) -> Yellow (0.25 <= 0.4 < 0.5)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper.setHeatProgress(0.6);
@@ -517,6 +529,7 @@ public class ArduinoLedHelperTest {
     // 80% progress (p=0.2) -> Red (0 < 0.2 < 0.25)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper.setHeatProgress(0.8);
@@ -528,6 +541,7 @@ public class ArduinoLedHelperTest {
     // 100% progress (p=0.0) -> OFF
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     helper.setHeatProgress(1.0);
@@ -552,6 +566,7 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -628,6 +643,7 @@ public class ArduinoLedHelperTest {
 
   private void setupMocks() {
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
   }
@@ -646,6 +662,7 @@ public class ArduinoLedHelperTest {
     // Change state/flag - should trigger refresh of progress
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -693,6 +710,7 @@ public class ArduinoLedHelperTest {
     // Standing: Lane 0 is leader -> LED should be RED
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -712,6 +730,7 @@ public class ArduinoLedHelperTest {
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -732,6 +751,7 @@ public class ArduinoLedHelperTest {
     config.ledStrings = Collections.singletonList(ledString);
 
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -741,6 +761,7 @@ public class ArduinoLedHelperTest {
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -868,6 +889,7 @@ public class ArduinoLedHelperTest {
     // Phase 2: t=600ms (Toggle state 2)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -1006,6 +1028,7 @@ public class ArduinoLedHelperTest {
     // t=600ms - should still be Yellow because rate is 0
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -1127,6 +1150,7 @@ public class ArduinoLedHelperTest {
     // 2. Serial opened -> should now send the update because it wasn't cached before
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getConfig()).thenReturn(config);
     when(protocol.getMaxBufferSize()).thenReturn(128);
 
@@ -1194,6 +1218,7 @@ public class ArduinoLedHelperTest {
     // Case 2: Refueling is FALSE for Lane 6 (index 5)
     reset(protocol);
     when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
     when(protocol.getMaxBufferSize()).thenReturn(128);
     when(protocol.getConfig()).thenReturn(config);
     helper.setRefueling(5, false);
@@ -1380,5 +1405,107 @@ public class ArduinoLedHelperTest {
     for (int i = 0; i < numInPacket; i++) {
       assertEquals(255, data[5 + i * 4] & 0xFF);
     }
+  }
+
+  @Test
+  public void testHeatProgress_CacheDesync_Fix() {
+    // 1. Setup a Heat Progress LED
+    LedString ledString = new LedString();
+    ledString.pin = 2;
+    ledString.leds = Collections.singletonList(RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_PROGRESS_VALUE);
+    ledString.addressableLeds = 1;
+    config.ledStrings = Collections.singletonList(ledString);
+
+    // Initial state: serial open but version not verified (protocol.isOpen() is false)
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(false);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+
+    // 2. Call setHeatProgress.
+    // This SHOULD call writeData, but it should NOT update the cache for this LED.
+    helper.setHeatProgress(0.0);
+    verify(protocol, atLeastOnce()).writeData(any(byte[].class));
+
+    // 3. Call setHeatProgress again with SAME percentage.
+    // If the cache was correctly NOT updated, it should send the data AGAIN.
+    reset(protocol);
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(false);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+    when(protocol.getConfig()).thenReturn(config);
+
+    helper.setHeatProgress(0.0);
+    verify(protocol, atLeastOnce()).writeData(any(byte[].class));
+
+    // 4. Now "initialize" the pin by calling sendRgbLedMode
+    helper.sendRgbLedMode();
+    reset(protocol);
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+    when(protocol.getConfig()).thenReturn(config);
+
+    // 5. Call setHeatProgress again. Now the cache should be updated.
+    helper.setHeatProgress(0.0);
+    verify(protocol, atLeastOnce()).writeData(any(byte[].class));
+
+    // 6. Call setHeatProgress one more time with SAME percentage.
+    // This time it should NOT send anything because the cache is now locked in.
+    reset(protocol);
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+    when(protocol.getConfig()).thenReturn(config);
+
+    helper.setHeatProgress(0.0);
+    verify(protocol, never()).writeData(any(byte[].class));
+  }
+
+  @Test
+  public void testSendRgbLedMode_TriggersThermometerRefresh() {
+    // 1. Setup a Heat Progress LED
+    LedString ledString = new LedString();
+    ledString.pin = 2;
+    ledString.leds = Collections.singletonList(RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_PROGRESS_VALUE);
+    ledString.addressableLeds = 1;
+    ledString.brightness = 100;
+    config.ledStrings = new ArrayList<>(Collections.singletonList(ledString));
+
+    // Initialize pin
+    helper.sendRgbLedMode();
+    reset(protocol);
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+    when(protocol.getConfig()).thenReturn(config);
+
+    // 2. Set progress to 0.5 (Yellow-ish)
+    helper.setHeatProgress(0.5);
+    verify(protocol, atLeastOnce()).writeData(any(byte[].class));
+
+    // 3. Change config (e.g. brightness) to trigger sendRgbLedMode again
+    ledString.brightness = 200;
+    reset(protocol);
+    when(protocol.isSerialOpen()).thenReturn(true);
+    when(protocol.isOpen()).thenReturn(true);
+    when(protocol.getMaxBufferSize()).thenReturn(128);
+    when(protocol.getConfig()).thenReturn(config);
+
+    helper.sendRgbLedMode();
+
+    // 4. Verify that it sends both the MODE (0x6C) AND the LED update (0x4C)
+    // because sendRgbLedMode should call refreshThermometers()
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(protocol, atLeast(2)).writeData(captor.capture());
+
+    boolean foundMode = false;
+    boolean foundLedUpdate = false;
+    for (byte[] data : captor.getAllValues()) {
+      if (data[0] == 0x6C) foundMode = true;
+      if (data[0] == 0x4C) foundLedUpdate = true;
+    }
+
+    assertTrue("Should have sent RGB_LED_MODE", foundMode);
+    assertTrue("Should have refreshed thermometer LEDs", foundLedUpdate);
   }
 }
