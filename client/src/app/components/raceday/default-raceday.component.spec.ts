@@ -611,6 +611,41 @@ describe("DefaultRacedayComponent", () => {
       expect(result).toBe("http://localhost/assets/avatars/driver1.png");
     });
 
+    it("should return empty string for driver.avatarUrl if value is missing", () => {
+      const result = component.formatValue(
+        "driver.avatarUrl",
+        undefined,
+        mockHd,
+      );
+      expect(result).toBe("");
+    });
+
+    it("should not render img tag in the table when avatarUrl is empty", () => {
+      mockSettings.racedayColumns = ["driver.avatarUrl"];
+      (component as any).loadColumns();
+
+      const mockHdWithNoAvatar = {
+        objectId: "hd-no-avatar",
+        laneIndex: 0,
+        driver: { name: "No Avatar Driver", avatarUrl: "" },
+        participant: {},
+        currentLapSegments: [],
+      };
+      component["sortedHeatDrivers"] = [mockHdWithNoAvatar as any];
+
+      fixture.detectChanges();
+
+      // The anchor div should still be present to maintain layout
+      const anchorDiv = fixture.nativeElement.querySelector(
+        ".body-cell .anchor-center-center",
+      );
+      expect(anchorDiv).toBeTruthy();
+
+      // But the img tag should be missing
+      const img = anchorDiv.querySelector("img");
+      expect(img).toBeFalsy();
+    });
+
     it("should format seed in (#) format", () => {
       mockHd.participant.seed = 5;
       const result = component.formatValue("seed", 5, mockHd);

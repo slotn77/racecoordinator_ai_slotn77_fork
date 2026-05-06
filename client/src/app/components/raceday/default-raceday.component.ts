@@ -268,6 +268,11 @@ export class DefaultRacedayComponent
     );
   }
 
+  protected isAvatarProperty(prop: string): boolean {
+    if (!prop) return false;
+    return prop.split("_")[0] === "driver.avatarUrl";
+  }
+
   public shouldShowLaneColor(col: ColumnDefinition): boolean {
     if (!col) return false;
     const nameKeys = ["driver.name", "driver.nickname"];

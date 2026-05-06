@@ -406,13 +406,13 @@
                   <div
                     class="body-cell"
                     [style.background]="
-                      track.lanes[hd.laneIndex]?.background_color
+                      track?.lanes?.[hd.laneIndex]?.background_color
                     "
                     [style.border-left-color]="
-                      track.lanes[hd.laneIndex]?.foreground_color
+                      track?.lanes?.[hd.laneIndex]?.foreground_color
                     "
                     [style.border-right-color]="
-                      track.lanes[hd.laneIndex]?.foreground_color
+                      track?.lanes?.[hd.laneIndex]?.foreground_color
                     "
                     (click)="onCellClick(hd, col, $event)"
                   >
@@ -529,10 +529,11 @@
                       <!-- Image Content -->
                       @if (isImageProperty(entry.property)) {
                         <div [class]="getAnchorClass(entry.anchor)">
-                          <img
-                            [src]="formatColumnValue(hd, col, entry.property)"
-                            alt=""
-                          />
+                          @let imageUrl =
+                            formatColumnValue(hd, col, entry.property);
+                          @if (imageUrl || !isAvatarProperty(entry.property)) {
+                            <img [src]="imageUrl" alt="" />
+                          }
                         </div>
                       }
                     }
