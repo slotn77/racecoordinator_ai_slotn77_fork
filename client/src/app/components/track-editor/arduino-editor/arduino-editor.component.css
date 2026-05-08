@@ -216,8 +216,8 @@
 .sections-wrapper {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden !important;
   padding-right: 15px;
-  margin-right: -20px;
 }
 
 .sections-wrapper::-webkit-scrollbar {

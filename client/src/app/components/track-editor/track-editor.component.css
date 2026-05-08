@@ -147,7 +147,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding-right: 10px;
+  padding-right: 5px;
+  overflow-x: hidden !important;
 }
 
 /* Custom Scrollbar for Lanes List removed */
@@ -156,11 +157,10 @@
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 6px;
-  padding: 10px 20px 10px 5px;
+  padding: 10px 10px 10px 5px;
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-right: -30px;
   transition: background-color 0.2s;
 }
 
@@ -528,7 +528,6 @@
   user-select: none;
   transition: background-color 0.2s;
   border-radius: 4px;
-  margin-right: -30px;
 }
 
 .section-header:hover {
@@ -555,8 +554,8 @@
 .sections-wrapper {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 15px;
+  overflow-x: hidden !important;
+  padding-right: 5px;
   margin-right: 5px;
 }
 
