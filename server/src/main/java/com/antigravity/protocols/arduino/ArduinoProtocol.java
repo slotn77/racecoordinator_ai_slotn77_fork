@@ -578,8 +578,7 @@ public class ArduinoProtocol extends DefaultProtocol {
         sendPinModeAnalogRead();
         sendDebounce();
         sendTimeReset();
-        ledHelper.sendRgbLedMode();
-        syncPower();
+        initializeHardwareState();
       } else {
         logger.error("Invalid firmware version: {}.{}.{}. Expected 2.1.0", major, minor, patch);
       }

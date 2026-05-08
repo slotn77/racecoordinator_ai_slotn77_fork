@@ -35,6 +35,8 @@ public class ArduinoLedHelper {
   private long lastStateChangeTime = 0;
   private int startingDuration = 0;
   private final Map<Integer, Double> lastFuelLevels = new HashMap<>();
+  private List<Integer> lastHeatStandings = null;
+  private final Map<Integer, Boolean> lastRefuelingLanes = new HashMap<>();
   private List<String> laneColors = new ArrayList<>();
 
   public ArduinoLedHelper(ArduinoProtocol protocol) {
@@ -45,6 +47,12 @@ public class ArduinoLedHelper {
     sendRgbLedMode();
     refreshRaceState();
     refreshThermometers();
+    if (lastHeatStandings != null) {
+      setHeatStandings(lastHeatStandings);
+    }
+    for (Map.Entry<Integer, Boolean> entry : lastRefuelingLanes.entrySet()) {
+      setRefueling(entry.getKey(), entry.getValue());
+    }
   }
 
   public void setLaneColors(List<String> colors) {
@@ -52,7 +60,7 @@ public class ArduinoLedHelper {
   }
 
   public void sendRgbLedMode() {
-    if (!protocol.isSerialOpen()) {
+    if (!protocol.isOpen()) {
       return;
     }
 
@@ -167,10 +175,12 @@ public class ArduinoLedHelper {
     maxCountdownSeen = 0.0;
     lastCountdown = 0.0;
     lastStateChangeTime = 0;
+    lastHeatStandings = null;
+    lastRefuelingLanes.clear();
   }
 
   public void setStringRgbLedValues(int pinId, List<RgbLedState> rgbLeds) {
-    if (!protocol.isSerialOpen() || rgbLeds == null || rgbLeds.isEmpty()) {
+    if (rgbLeds == null || rgbLeds.isEmpty()) {
       return;
     }
 
@@ -183,6 +193,10 @@ public class ArduinoLedHelper {
                 | (long) (led.getB() & 0xFF);
         lastLedColors.put(key, color);
       }
+    }
+
+    if (!protocol.isOpen()) {
+      return;
     }
 
     // Determine how many LEDs we can fit in one packet based on hardware buffer
@@ -223,6 +237,11 @@ public class ArduinoLedHelper {
   }
 
   public void setRefueling(int laneIndex, boolean isRefueling) {
+    lastRefuelingLanes.put(laneIndex, isRefueling);
+    if (!protocol.isOpen()) {
+      return;
+    }
+
     ArduinoConfig config = protocol.getConfig();
     if (config.ledStrings == null) {
       return;
@@ -320,8 +339,10 @@ public class ArduinoLedHelper {
       clearLeds();
     }
 
-    refreshRaceState();
-    refreshThermometers();
+    if (protocol.isOpen()) {
+      refreshRaceState();
+      refreshThermometers();
+    }
   }
 
   public void refreshThermometers() {
@@ -334,7 +355,7 @@ public class ArduinoLedHelper {
   }
 
   public void refreshRaceState() {
-    if (!protocol.isSerialOpen()) {
+    if (!protocol.isOpen()) {
       return;
     }
     ArduinoConfig config = protocol.getConfig();
@@ -512,7 +533,8 @@ public class ArduinoLedHelper {
   }
 
   public void setHeatStandings(List<Integer> laneIndices) {
-    if (laneIndices == null || laneIndices.isEmpty()) {
+    lastHeatStandings = laneIndices != null ? new ArrayList<>(laneIndices) : null;
+    if (!protocol.isOpen() || laneIndices == null || laneIndices.isEmpty()) {
       return;
     }
 

@@ -159,6 +159,9 @@ public class ArduinoProtocolTest {
     config.ledStrings = Collections.singletonList(string0);
 
     protocol.open();
+    // Inject version to verify
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
     serialConnection.eventLog.clear();
 
     protocol.close();
@@ -1493,6 +1496,9 @@ public class ArduinoProtocolTest {
 
     protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
     protocol.open();
+    // Verify version to allow commands
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
 
     // Standings: Lane 1 is leader
     protocol.setHeatStandings(Arrays.asList(1, 0));
@@ -1542,6 +1548,9 @@ public class ArduinoProtocolTest {
 
     protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
     protocol.open();
+    // Verify version to allow commands
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
 
     serialConnection.allWrittenData.clear();
     protocol.setHeatStandings(Arrays.asList(0));
@@ -1675,6 +1684,9 @@ public class ArduinoProtocolTest {
   @Test
   public void testSetRefueling() {
     protocol.open();
+    // Verify version to allow commands
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
     // Configure Pin 8 as RGB String (Behavior 4)
     config.digitalIds =
         new ArrayList<>(Collections.nCopies(10, PinBehavior.BEHAVIOR_UNUSED.getNumber()));
@@ -1732,6 +1744,9 @@ public class ArduinoProtocolTest {
   @Test
   public void testSetHeatProgress() {
     protocol.open();
+    // Verify version to allow commands
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
     // Configure Pin 8 as RGB String
     config.digitalIds =
         new ArrayList<>(Collections.nCopies(10, PinBehavior.BEHAVIOR_UNUSED.getNumber()));
