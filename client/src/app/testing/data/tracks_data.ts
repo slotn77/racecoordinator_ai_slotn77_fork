@@ -9,14 +9,14 @@ export const MOCK_TRACKS = [
       {
         entity_id: "l1",
         length: 12.5,
-        backgroundColor: "#ff0000",
-        foregroundColor: "#ffffff",
+        background_color: "#ff0000",
+        foreground_color: "#ffffff",
       },
       {
         entity_id: "l2",
         length: 12.5,
-        backgroundColor: "#0000ff",
-        foregroundColor: "#ffffff",
+        background_color: "#0000ff",
+        foreground_color: "#ffffff",
       },
     ],
     arduino_configs: [
@@ -48,26 +48,26 @@ export const MOCK_TRACKS = [
       {
         entity_id: "l1",
         length: 15.0,
-        backgroundColor: "#ffff00",
-        foregroundColor: "#000000",
+        background_color: "#ffff00",
+        foreground_color: "#000000",
       },
       {
         entity_id: "l2",
         length: 15.0,
-        backgroundColor: "#00ff00",
-        foregroundColor: "#000000",
+        background_color: "#00ff00",
+        foreground_color: "#000000",
       },
       {
         entity_id: "l3",
         length: 15.0,
-        backgroundColor: "#ff00ff",
-        foregroundColor: "#ffffff",
+        background_color: "#ff00ff",
+        foreground_color: "#ffffff",
       },
       {
         entity_id: "l4",
         length: 15.0,
-        backgroundColor: "#00ffff",
-        foregroundColor: "#000000",
+        background_color: "#00ffff",
+        foreground_color: "#000000",
       },
     ],
     arduino_configs: [
@@ -102,7 +102,12 @@ export const MOCK_TRACK_INSTANCES = MOCK_TRACKS.map(
       t.num_track_sections || 100,
       t.lanes.map(
         (l: any) =>
-          new Lane(l.entity_id, l.foregroundColor, l.backgroundColor, l.length),
+          new Lane(
+            l.entity_id,
+            l.foreground_color,
+            l.background_color,
+            l.length,
+          ),
       ),
       t.has_digital_fuel || false,
       t.arduino_configs,

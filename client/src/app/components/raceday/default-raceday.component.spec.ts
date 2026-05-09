@@ -805,7 +805,7 @@ describe("DefaultRacedayComponent", () => {
       name: "Any Race",
       track: {
         name: trackName,
-        lanes: [],
+        lanes: MOCK_TRACKS[0].lanes,
       },
     };
     mockRaceService.getRace.and.returnValue(mockRace);
@@ -828,7 +828,7 @@ describe("DefaultRacedayComponent", () => {
       name: raceName,
       track: {
         name: "Any Track",
-        lanes: [],
+        lanes: MOCK_TRACKS[0].lanes,
       },
     };
     mockRaceService.getRace.and.returnValue(mockRace);
