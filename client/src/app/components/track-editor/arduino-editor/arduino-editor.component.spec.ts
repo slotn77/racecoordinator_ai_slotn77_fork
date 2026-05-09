@@ -1081,6 +1081,19 @@ describe("ArduinoEditorComponent", () => {
       expect(component.getCurrentActionLabel(true, 6)).toBe("AE_PIN_UNUSED");
     });
 
+    it("should include the generic Heat Leader behavior in ledBehaviors", () => {
+      const leaderGroup = component.ledBehaviors.find(
+        (g) => g.key === "AE_LED_GROUP_LEADER",
+      );
+      expect(leaderGroup).toBeTruthy();
+      const genericLeader = leaderGroup?.actions.find(
+        (a) =>
+          a.value === RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_LEADER.toString(),
+      );
+      expect(genericLeader).toBeTruthy();
+      expect(genericLeader?.label).toBe("RGB_LED_BEHAVIOR_HEAT_LEADER");
+    });
+
     it("should select a pin action and close the dropdown", () => {
       component.openPinDropdown = "digital-2";
       component.selectPinAction(true, 2, "master_call");

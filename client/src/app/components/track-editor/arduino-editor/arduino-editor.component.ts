@@ -694,6 +694,10 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
 
     // 2. Leader Group
     const leaderActions: PinAction[] = [];
+    leaderActions.push({
+      label: this.translationService.translate("RGB_LED_BEHAVIOR_HEAT_LEADER"),
+      value: RgbLedBehavior.RGB_LED_BEHAVIOR_HEAT_LEADER.toString(),
+    });
     lanes.forEach((_, i) => {
       leaderActions.push({
         label: this.translationService.translate(
