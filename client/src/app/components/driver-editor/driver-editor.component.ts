@@ -213,6 +213,7 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
       driver.avatarUrl,
       driver.lapAudio ? { ...driver.lapAudio } : undefined,
       driver.bestLapAudio ? { ...driver.bestLapAudio } : undefined,
+      driver.penaltyAudio ? { ...driver.penaltyAudio } : undefined,
     );
   }
 
@@ -251,7 +252,8 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
       nicknameMatch &&
       avatarMatch &&
       checkAudio(d1.lapAudio, d2.lapAudio) &&
-      checkAudio(d1.bestLapAudio, d2.bestLapAudio)
+      checkAudio(d1.bestLapAudio, d2.bestLapAudio) &&
+      checkAudio(d1.penaltyAudio, d2.penaltyAudio)
     );
   }
 
@@ -431,6 +433,11 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
             url: d.bestLapAudio?.url || d.bestLapSoundUrl,
             text: d.bestLapAudio?.text || d.bestLapSoundText,
           },
+          {
+            type: this.mapSoundType(d.penaltyAudio?.type || d.penaltySoundType),
+            url: d.penaltyAudio?.url || d.penaltySoundUrl,
+            text: d.penaltyAudio?.text || d.penaltySoundText,
+          },
         ),
     );
 
@@ -449,6 +456,7 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
         "",
         { type: "preset" },
         { type: "preset" },
+        { type: "preset", url: "/assets/default_penalty_Penalty" },
       );
     } else if (idParam) {
       const found = this.allDrivers.find((d) => d.entity_id === idParam);
@@ -591,6 +599,13 @@ export class DriverEditorComponent implements OnInit, OnDestroy {
                 ),
                 url: d.bestLapAudio?.url || d.bestLapSoundUrl,
                 text: d.bestLapAudio?.text || d.bestLapSoundText,
+              },
+              {
+                type: this.mapSoundType(
+                  d.penaltyAudio?.type || d.penaltySoundType,
+                ),
+                url: d.penaltyAudio?.url || d.penaltySoundUrl,
+                text: d.penaltyAudio?.text || d.penaltySoundText,
               },
             ),
         );

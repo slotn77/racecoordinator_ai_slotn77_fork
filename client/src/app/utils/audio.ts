@@ -31,6 +31,8 @@ export function playSound(
     let playableUrl = url;
     if (url.startsWith("/")) {
       playableUrl = `${serverUrl}${url}`;
+    } else if (url === "default_penalty") {
+      playableUrl = `${serverUrl}/assets/default_penalty_Penalty`;
     }
     if (logger) logger.info("Playing audio from URL:", playableUrl);
     const audio = new Audio(playableUrl);

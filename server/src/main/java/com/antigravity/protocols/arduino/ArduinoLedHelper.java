@@ -307,8 +307,14 @@ public class ArduinoLedHelper {
 
   public void setRaceState(RaceState state, RaceFlag flag, double countdown) {
     RaceState oldState = this.lastState;
-    logger.info("setRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
+    logger.debug("setRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
     if (state != oldState) {
+      logger.info(
+          "Race state changed: {} -> {} (Flag: {}, Countdown: {})",
+          oldState,
+          state,
+          flag,
+          countdown);
       lastStateChangeTime = getCurrentTimeMillis();
       if (state == RaceState.STARTING) {
         startingDuration = (int) Math.ceil(countdown);
@@ -368,7 +374,7 @@ public class ArduinoLedHelper {
     double countdown = lastCountdown;
 
     // Ensure we refresh when the state or flag changes
-    logger.info("refreshRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
+    logger.debug("refreshRaceState: state={}, flag={}, countdown={}", state, flag, countdown);
 
     if (state == RaceState.UNKNOWN_STATE) {
       return;

@@ -250,6 +250,8 @@ export class AudioSelectorComponent {
       let playableUrl = url;
       if (url.startsWith("/")) {
         playableUrl = `${this.dataService.serverUrl}${url}`;
+      } else if (url === "default_penalty") {
+        playableUrl = `${this.dataService.serverUrl}/assets/default_penalty_Penalty`;
       }
       const audio = new Audio(playableUrl);
       this.currentAudio = audio;

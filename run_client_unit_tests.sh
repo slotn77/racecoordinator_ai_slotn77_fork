@@ -8,7 +8,7 @@ echo "--- 🔹 Running Client Unit Tests 🔹 ---"
 cd "$CLIENT_DIR" || exit
 
 # Ensure isolated directory exists and is prepared
-ISOLATED_DIR="/tmp/racecoordinator-client"
+ISOLATED_DIR="/tmp/racecoordinator-client-$(id -u)"
 mkdir -p "$ISOLATED_DIR"
 
 # Sync current source and configuration to isolated directory
@@ -29,16 +29,20 @@ else
   cp -f karma.conf.js package.json angular.json tsconfig.json tsconfig.app.json tsconfig.spec.json package-lock.json "$ISOLATED_DIR/"
 fi
 
+# Dynamically update the Karma port to avoid conflicts/EPERM
+KARMA_PORT=$((9876 + $(id -u) % 100))
+sed -i '' "s/port: 9876/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js" 2>/dev/null || sed -i "s/port: 9876/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js"
+
 cd "$ISOLATED_DIR" || exit
 
 # Ensure dependencies are installed in isolated directory
 if [ ! -d "node_modules" ] || [ package.json -nt node_modules ] || [ package-lock.json -nt node_modules ] || [ ! -x "./node_modules/.bin/ng" ]; then
     echo "Installing/Updating dependencies in $ISOLATED_DIR..."
-    npm install --no-package-lock --legacy-peer-deps --cache "$ISOLATED_DIR/npm-cache" || echo "Warning: npm install failed, trying to proceed anyway..."
+    npm ci --legacy-peer-deps --cache "$ISOLATED_DIR/npm-cache" --loglevel error || echo "Warning: npm ci failed, trying to proceed anyway..."
 fi
 
-# Find the Chrome binary from Playwright browsers
-export PLAYWRIGHT_BROWSERS_PATH="/tmp/racecoordinator-client/browsers"
+# Use a shared browsers path to avoid re-downloading
+export PLAYWRIGHT_BROWSERS_PATH="/tmp/racecoordinator-browsers"
 mkdir -p "$PLAYWRIGHT_BROWSERS_PATH"
 
 # Prefer headless-shell if available as its more compatible with restricted environments

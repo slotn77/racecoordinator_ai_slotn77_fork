@@ -185,7 +185,7 @@ public class ArduinoProtocol extends DefaultProtocol {
 
               byte[] data = event.getReceivedData();
               if (data != null && data.length > 0) {
-                logger.info("Received: {}", bytesToHex(data));
+                logger.debug("Received: {}", bytesToHex(data));
                 rxBuffer.write(data);
                 logger.debug("Buffer state: {}", rxBuffer.toHexString());
                 processData();

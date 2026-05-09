@@ -112,6 +112,26 @@ public class Race extends Model {
   @JsonAlias("reverseHeats")
   private final boolean reverseHeats;
 
+  @BsonProperty("hot_start")
+  @JsonProperty("hot_start")
+  @JsonAlias("hotStart")
+  private final boolean hotStart;
+
+  @BsonProperty("restart_on_false_start")
+  @JsonProperty("restart_on_false_start")
+  @JsonAlias("restartOnFalseStart")
+  private final boolean restartOnFalseStart;
+
+  @BsonProperty("false_start_lap_penalty")
+  @JsonProperty("false_start_lap_penalty")
+  @JsonAlias("falseStartLapPenalty")
+  private final double falseStartLapPenalty;
+
+  @BsonProperty("false_start_time_penalty")
+  @JsonProperty("false_start_time_penalty")
+  @JsonAlias("falseStartTimePenalty")
+  private final double falseStartTimePenalty;
+
   @BsonCreator
   @JsonCreator
   public Race(
@@ -181,6 +201,19 @@ public class Race extends Model {
           Integer heatTimesThrough,
       @BsonProperty("reverse_heats") @JsonProperty("reverse_heats") @JsonAlias("reverseHeats")
           Boolean reverseHeats,
+      @BsonProperty("hot_start") @JsonProperty("hot_start") @JsonAlias("hotStart") Boolean hotStart,
+      @BsonProperty("restart_on_false_start")
+          @JsonProperty("restart_on_false_start")
+          @JsonAlias("restartOnFalseStart")
+          Boolean restartOnFalseStart,
+      @BsonProperty("false_start_lap_penalty")
+          @JsonProperty("false_start_lap_penalty")
+          @JsonAlias("falseStartLapPenalty")
+          Double falseStartLapPenalty,
+      @BsonProperty("false_start_time_penalty")
+          @JsonProperty("false_start_time_penalty")
+          @JsonAlias("falseStartTimePenalty")
+          Double falseStartTimePenalty,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
       @BsonId @JsonProperty("_id") ObjectId id) {
     super(id, entityId);
@@ -213,6 +246,10 @@ public class Race extends Model {
     this.customRotations = customRotations != null ? customRotations : new ArrayList<>();
     this.heatTimesThrough = heatTimesThrough != null ? heatTimesThrough : 1;
     this.reverseHeats = reverseHeats != null ? reverseHeats : false;
+    this.hotStart = hotStart != null ? hotStart : false;
+    this.restartOnFalseStart = restartOnFalseStart != null ? restartOnFalseStart : false;
+    this.falseStartLapPenalty = falseStartLapPenalty != null ? falseStartLapPenalty : 0.0;
+    this.falseStartTimePenalty = falseStartTimePenalty != null ? falseStartTimePenalty : 0.0;
   }
 
   public static class Builder {
@@ -241,8 +278,46 @@ public class Race extends Model {
     private List<CustomRotation> customRotations = new ArrayList<>();
     private int heatTimesThrough = 1;
     private boolean reverseHeats = false;
+    private boolean hotStart = false;
+    private boolean restartOnFalseStart = false;
+    private double falseStartLapPenalty = 0.0;
+    private double falseStartTimePenalty = 0.0;
     private String entityId;
     private ObjectId id;
+
+    public Builder from(Race other) {
+      this.name = other.getName();
+      this.trackEntityId = other.getTrackEntityId();
+      this.heatRotationType = other.getHeatRotationType();
+      this.heatScoring = other.getHeatScoring();
+      this.overallScoring = other.getOverallScoring();
+      this.minLapTime = other.getMinLapTime();
+      this.fuelOptions = other.getFuelOptions();
+      this.digitalFuelOptions = other.getDigitalFuelOptions();
+      this.teamOptions = other.getTeamOptions();
+      this.autoAdvanceTime = other.getAutoAdvanceTime();
+      this.autoStartTime = other.getAutoStartTime();
+      this.autoAdvanceWarmupTime = other.getAutoAdvanceWarmupTime();
+      this.autoStartWarmupTime = other.getAutoStartWarmupTime();
+      this.driftTime = other.getDriftTime();
+      this.startTime = other.getStartTime();
+      this.restartTime = other.getRestartTime();
+      this.startDelay = other.getStartDelay();
+      this.restartDelay = other.getRestartDelay();
+      this.soloLaneIndex = other.getSoloLaneIndex();
+      this.customRotationSequence = other.getCustomRotationSequence();
+      this.customRotationAssetId = other.getCustomRotationAssetId();
+      this.customRotations = other.getCustomRotations();
+      this.heatTimesThrough = other.getHeatTimesThrough();
+      this.reverseHeats = other.isReverseHeats();
+      this.hotStart = other.isHotStart();
+      this.restartOnFalseStart = other.isRestartOnFalseStart();
+      this.falseStartLapPenalty = other.getFalseStartLapPenalty();
+      this.falseStartTimePenalty = other.getFalseStartTimePenalty();
+      this.entityId = other.getEntityId();
+      this.id = other.getId();
+      return this;
+    }
 
     public Builder withName(String name) {
       this.name = name;
@@ -364,6 +439,26 @@ public class Race extends Model {
       return this;
     }
 
+    public Builder withHotStart(boolean hotStart) {
+      this.hotStart = hotStart;
+      return this;
+    }
+
+    public Builder withRestartOnFalseStart(boolean restartOnFalseStart) {
+      this.restartOnFalseStart = restartOnFalseStart;
+      return this;
+    }
+
+    public Builder withFalseStartLapPenalty(double falseStartLapPenalty) {
+      this.falseStartLapPenalty = falseStartLapPenalty;
+      return this;
+    }
+
+    public Builder withFalseStartTimePenalty(double falseStartTimePenalty) {
+      this.falseStartTimePenalty = falseStartTimePenalty;
+      return this;
+    }
+
     public Builder withEntityId(String entityId) {
       this.entityId = entityId;
       return this;
@@ -401,6 +496,10 @@ public class Race extends Model {
           customRotations,
           heatTimesThrough,
           reverseHeats,
+          hotStart,
+          restartOnFalseStart,
+          falseStartLapPenalty,
+          falseStartTimePenalty,
           entityId,
           id);
     }
@@ -505,5 +604,25 @@ public class Race extends Model {
   @BsonProperty("reverse_heats")
   public boolean isReverseHeats() {
     return reverseHeats;
+  }
+
+  @BsonProperty("hot_start")
+  public boolean isHotStart() {
+    return hotStart;
+  }
+
+  @BsonProperty("restart_on_false_start")
+  public boolean isRestartOnFalseStart() {
+    return restartOnFalseStart;
+  }
+
+  @BsonProperty("false_start_lap_penalty")
+  public double getFalseStartLapPenalty() {
+    return falseStartLapPenalty;
+  }
+
+  @BsonProperty("false_start_time_penalty")
+  public double getFalseStartTimePenalty() {
+    return falseStartTimePenalty;
   }
 }

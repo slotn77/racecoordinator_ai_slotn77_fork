@@ -1,4 +1,5 @@
 import { Driver } from "@app/models/driver";
+import { LapType } from "@app/proto/antigravity";
 
 import { RaceParticipant } from "./race_participant";
 
@@ -80,9 +81,18 @@ export class DriverHeatData {
     adjustedLapCount: number,
     driverId?: string,
     isDrift?: boolean,
+    _type?: LapType,
   ): void {
-    const lapIndex = lapNumber - 1;
     this._adjustedLapCount = adjustedLapCount;
+    if (
+      lapNumber === undefined ||
+      lapNumber === null ||
+      isNaN(lapNumber) ||
+      lapNumber <= 0
+    ) {
+      return;
+    }
+    const lapIndex = lapNumber - 1;
 
     // Fill missing laps with 0
     while (this.laps.length < lapIndex) {
@@ -145,7 +155,7 @@ export class DriverHeatData {
   }
 
   get lapCount(): number {
-    if (this._adjustedLapCount > 0) {
+    if (this._adjustedLapCount !== 0) {
       return this._adjustedLapCount;
     }
     return (

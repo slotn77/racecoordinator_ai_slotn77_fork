@@ -77,7 +77,9 @@ public class DriverHeatData extends ServerToClientObject {
   private double penaltyLaps = 0;
   private double userLaps = 0;
   private double autoCalculatedLaps = 0;
+  private int falseStarts = 0;
   private boolean isRefueling = false;
+  private double remainingFalseStartTimePenalty = 0.0;
 
   public DriverHeatData(RaceParticipant driver, Driver actualDriver) {
     super();
@@ -153,7 +155,7 @@ public class DriverHeatData extends ServerToClientObject {
   }
 
   public double getAdjustedLapCount() {
-    return (double) getLapCount() + penaltyLaps + userLaps + autoCalculatedLaps;
+    return (double) getLapCount() - penaltyLaps + userLaps + autoCalculatedLaps;
   }
 
   public List<LapData> getLaps() {
@@ -225,6 +227,8 @@ public class DriverHeatData extends ServerToClientObject {
     pendingLapTime = 0.0f;
     gapLeader = 0.0;
     gapPosition = 0.0;
+    falseStarts = 0;
+    remainingFalseStartTimePenalty = 0.0;
   }
 
   public double getPendingLapTime() {
@@ -301,5 +305,25 @@ public class DriverHeatData extends ServerToClientObject {
 
   public void setAutoCalculatedLaps(double autoCalculatedLaps) {
     this.autoCalculatedLaps = autoCalculatedLaps;
+  }
+
+  public int getFalseStarts() {
+    return falseStarts;
+  }
+
+  public void setFalseStarts(int falseStarts) {
+    this.falseStarts = falseStarts;
+  }
+
+  public void incrementFalseStarts() {
+    this.falseStarts++;
+  }
+
+  public double getRemainingFalseStartTimePenalty() {
+    return remainingFalseStartTimePenalty;
+  }
+
+  public void setRemainingFalseStartTimePenalty(double remainingFalseStartTimePenalty) {
+    this.remainingFalseStartTimePenalty = remainingFalseStartTimePenalty;
   }
 }

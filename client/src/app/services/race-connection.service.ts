@@ -15,13 +15,19 @@ import {
   IOverallStandingsUpdate,
   IRace,
   IRaceTime,
-  IReactionTime,
   IRecordData,
   ISegment,
   IStandingsUpdate,
+  LapType,
   RaceFlag,
   RaceState,
 } from "@app/proto/antigravity";
+
+export interface IReactionTime {
+  objectId?: string | null;
+  reactionTime?: number | null;
+  interfaceId?: number | null;
+}
 
 import { LoggerService } from "./logger.service";
 import { RaceService } from "./race.service";
@@ -159,17 +165,32 @@ export class RaceConnectionService implements OnDestroy {
             (d) => d.objectId === lap.objectId,
           );
           if (driverData) {
-            driverData.addLapTime(
-              lap.lapNumber!,
-              lap.lapTime!,
-              lap.averageLapTime!,
-              lap.medianLapTime!,
-              lap.bestLapTime!,
-              lap.adjustedLapCount!,
-              lap.driverId!,
-              lap.isDrift!,
-            );
-            this.lapSubject.next(lap);
+            if (lap.type === LapType.REACTION_TIME) {
+              driverData.reactionTime = lap.lapTime!;
+              this.reactionTimeSubject.next({
+                objectId: lap.objectId,
+                reactionTime: lap.lapTime,
+                interfaceId: lap.interfaceId,
+              });
+            } else if (lap.type === LapType.MIN_LAP_TIME) {
+              this.logger.debug(
+                `Lap on lane ${driverData.laneIndex} was below min lap time: ${lap.lapTime}`,
+              );
+              this.lapSubject.next(lap);
+            } else {
+              driverData.addLapTime(
+                lap.lapNumber!,
+                lap.lapTime!,
+                lap.averageLapTime!,
+                lap.medianLapTime!,
+                lap.bestLapTime!,
+                lap.adjustedLapCount!,
+                lap.driverId!,
+                lap.isDrift!,
+                lap.type!,
+              );
+              this.lapSubject.next(lap);
+            }
           }
         }
       }),
@@ -199,21 +220,6 @@ export class RaceConnectionService implements OnDestroy {
             const segmentIndex = (segment.segmentNumber || 1) - 1;
             driverData.addSegmentTime(segmentIndex, segment.segmentTime!);
             this.segmentSubject.next(segment);
-          }
-        }
-      }),
-    );
-
-    this.subscriptions.push(
-      this.dataService.getReactionTimes().subscribe((rt) => {
-        const heat = this.raceService.getCurrentHeat();
-        if (heat && heat.heatDrivers && rt && rt.objectId) {
-          const driver = heat.heatDrivers.find(
-            (d) => d.objectId === rt.objectId,
-          );
-          if (driver) {
-            driver.reactionTime = rt.reactionTime!;
-            this.reactionTimeSubject.next(rt);
           }
         }
       }),

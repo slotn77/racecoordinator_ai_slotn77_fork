@@ -39,12 +39,27 @@ public class DriverConverter {
                     : "")
             .build();
 
+    AudioConfig penaltyAudio =
+        AudioConfig.newBuilder()
+            .setType(
+                driver.getPenaltyAudio() != null ? driver.getPenaltyAudio().getType() : "preset")
+            .setUrl(
+                driver.getPenaltyAudio() != null && driver.getPenaltyAudio().getUrl() != null
+                    ? driver.getPenaltyAudio().getUrl()
+                    : "")
+            .setText(
+                driver.getPenaltyAudio() != null && driver.getPenaltyAudio().getText() != null
+                    ? driver.getPenaltyAudio().getText()
+                    : "")
+            .build();
+
     return DriverModel.newBuilder()
         .setName(driver.getName())
         .setNickname(driver.getNickname() != null ? driver.getNickname() : "")
         .setAvatarUrl(driver.getAvatarUrl() != null ? driver.getAvatarUrl() : "")
         .setLapAudio(lapAudio)
         .setBestLapAudio(bestLapAudio)
+        .setPenaltyAudio(penaltyAudio)
         .setModel(
             Model.newBuilder()
                 .setEntityId(driver.getEntityId() != null ? driver.getEntityId() : "")

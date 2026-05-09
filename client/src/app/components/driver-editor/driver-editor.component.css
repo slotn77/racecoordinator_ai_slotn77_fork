@@ -215,14 +215,15 @@
   width: auto;
 }
 
-.audio-sections-row {
+.audio-grid {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   width: 100%;
 }
 
-.audio-sections-row .audio-section {
-  flex: 1;
+.audio-grid .audio-section {
+  width: calc(50% - 10px);
 }
 
 /* OVERLAYS */

@@ -105,6 +105,8 @@ module.exports = function (config) {
       reporters: [{ type: "html" }, { type: "text-summary" }],
     },
     port: 9876,
+    hostname: "localhost",
+    listenAddress: "localhost",
     colors: true,
     browserConsoleLogOptions: {
       level: "error",

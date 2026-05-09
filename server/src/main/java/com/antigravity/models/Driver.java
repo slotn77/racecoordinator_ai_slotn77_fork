@@ -15,6 +15,7 @@ public class Driver extends Model {
   private final String avatarUrl;
   private final AudioConfig lapAudio;
   private final AudioConfig bestLapAudio;
+  private final AudioConfig penaltyAudio;
 
   @BsonCreator
   public Driver(
@@ -23,12 +24,16 @@ public class Driver extends Model {
       @BsonProperty("avatarUrl") @JsonProperty("avatarUrl") String avatarUrl,
       @BsonProperty("lapAudio") @JsonProperty("lapAudio") AudioConfig lapAudio,
       @BsonProperty("bestLapAudio") @JsonProperty("bestLapAudio") AudioConfig bestLapAudio,
+      @BsonProperty("penaltyAudio") @JsonProperty("penaltyAudio") AudioConfig penaltyAudio,
       @BsonProperty("lapSoundUrl") @JsonProperty("lapSoundUrl") String lapSoundUrl,
       @BsonProperty("bestLapSoundUrl") @JsonProperty("bestLapSoundUrl") String bestLapSoundUrl,
+      @BsonProperty("penaltySoundUrl") @JsonProperty("penaltySoundUrl") String penaltySoundUrl,
       @BsonProperty("lapSoundType") @JsonProperty("lapSoundType") String lapSoundType,
       @BsonProperty("bestLapSoundType") @JsonProperty("bestLapSoundType") String bestLapSoundType,
+      @BsonProperty("penaltySoundType") @JsonProperty("penaltySoundType") String penaltySoundType,
       @BsonProperty("lapSoundText") @JsonProperty("lapSoundText") String lapSoundText,
       @BsonProperty("bestLapSoundText") @JsonProperty("bestLapSoundText") String bestLapSoundText,
+      @BsonProperty("penaltySoundText") @JsonProperty("penaltySoundText") String penaltySoundText,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
       @BsonId @BsonProperty("_id") @JsonProperty("_id") ObjectId id) {
     super(id, entityId);
@@ -51,18 +56,70 @@ public class Driver extends Model {
     } else {
       this.bestLapAudio = new AudioConfig();
     }
+
+    if (penaltyAudio != null) {
+      this.penaltyAudio = penaltyAudio;
+    } else if (penaltySoundUrl != null || penaltySoundType != null || penaltySoundText != null) {
+      String actualUrl = penaltySoundUrl;
+      if ("default_penalty".equals(actualUrl)) {
+        actualUrl = "/assets/default_penalty_penalty.wav";
+      }
+      this.penaltyAudio = new AudioConfig(penaltySoundType, actualUrl, penaltySoundText);
+    } else {
+      this.penaltyAudio = new AudioConfig("preset", "/assets/default_penalty_penalty.wav", "");
+    }
+  }
+
+  public Driver(
+      String name,
+      String nickname,
+      String avatarUrl,
+      AudioConfig lapAudio,
+      AudioConfig bestLapAudio,
+      String lapSoundUrl,
+      String bestLapSoundUrl,
+      String lapSoundType,
+      String bestLapSoundType,
+      String lapSoundText,
+      String bestLapSoundText,
+      String entityId,
+      ObjectId id) {
+    this(
+        name,
+        nickname,
+        avatarUrl,
+        lapAudio,
+        bestLapAudio,
+        null,
+        lapSoundUrl,
+        bestLapSoundUrl,
+        null,
+        lapSoundType,
+        bestLapSoundType,
+        null,
+        lapSoundText,
+        bestLapSoundText,
+        null,
+        entityId,
+        id);
   }
 
   public Driver(String name, String nickname, String entityId, ObjectId id) {
-    this(name, nickname, null, null, null, null, null, null, null, null, null, entityId, id);
+    this(
+        name, nickname, null, null, null, null, null, null, null, null, null, null, null, null,
+        null, entityId, id);
   }
 
   public Driver(String name) {
-    this(name, null, null, null, null, null, null, null, null, null, null, null, null);
+    this(
+        name, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+        null, null);
   }
 
   public Driver(String name, String nickname) {
-    this(name, nickname, null, null, null, null, null, null, null, null, null, null, null);
+    this(
+        name, nickname, null, null, null, null, null, null, null, null, null, null, null, null,
+        null, null, null);
   }
 
   public String getName() {
@@ -83,6 +140,10 @@ public class Driver extends Model {
 
   public AudioConfig getBestLapAudio() {
     return bestLapAudio;
+  }
+
+  public AudioConfig getPenaltyAudio() {
+    return penaltyAudio;
   }
 
   public boolean isEmpty() {

@@ -105,6 +105,10 @@ message RaceModel {
   string custom_rotation_asset_id = 23;
   int32 heat_times_through = 24;
   bool reverse_heats = 25;
+  bool hot_start = 26;
+  bool restart_on_false_start = 27;
+  double false_start_lap_penalty = 28;
+  double false_start_time_penalty = 29;
 }
 
 // CustomRotation and CustomHeat moved to rotation_model.proto

@@ -15,4 +15,5 @@ message DriverModel {
   string avatarUrl = 4;
   AudioConfig lapAudio = 5;
   AudioConfig bestLapAudio = 6;
+  AudioConfig penaltyAudio = 7;
 }

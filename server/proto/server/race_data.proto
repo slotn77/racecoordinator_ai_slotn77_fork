@@ -5,7 +5,6 @@ import "server/race_time.proto";
 import "server/lap.proto";
 import "server/race.proto";
 
-import "server/reaction_time.proto";
 import "server/standings_update.proto";
 import "server/overall_standings_update.proto";
 import "server/race_state.proto";
@@ -22,7 +21,6 @@ message RaceData {
   RaceTime race_time = 1;
   Lap lap = 2;
   Race race = 3;
-  ReactionTime reaction_time = 4;
   StandingsUpdate standings_update = 5;
   OverallStandingsUpdate overall_standings_update = 6;
   optional RaceState race_state = 7;

@@ -216,7 +216,6 @@
 .sections-wrapper {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden !important;
   padding-right: 15px;
 }
 
@@ -494,11 +493,6 @@
   border-radius: 3px;
 }
 
-/* Ensure dropdowns on the right don't overflow the container */
-.pin-grid .pin-item:nth-child(3n) .dropdown-menu {
-  left: auto;
-  right: 0;
-}
 
 /* Specific adjustments for LED selectors */
 .led-selector .dropdown-menu {

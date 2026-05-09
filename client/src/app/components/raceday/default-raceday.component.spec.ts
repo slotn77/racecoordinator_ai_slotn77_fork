@@ -81,6 +81,7 @@ import {
   IRaceTime,
   IRecordData,
   IStandingsUpdate,
+  LapType,
   RaceState,
 } from "@app/proto/antigravity";
 import { MOCK_HEATS } from "@app/testing/data/heats_data";
@@ -1197,6 +1198,54 @@ describe("DefaultRacedayComponent", () => {
 
       expect(component["highlightedDrivers"].has("hd1")).toBeFalse();
     }));
+  });
+
+  describe("False Start", () => {
+    let mockHd: any;
+
+    beforeEach(() => {
+      mockHd = {
+        objectId: "hd1",
+        laneIndex: 0,
+        driver: {
+          name: "Test Driver",
+          penaltyAudio: { type: "none" },
+          bestLapAudio: { type: "none" },
+          lapAudio: { type: "none" },
+        },
+      };
+      const mockHeat = { heatDrivers: [mockHd], heatNumber: 1 };
+      mockRaceService.getCurrentHeat.and.returnValue(mockHeat);
+      component["heat"] = mockHeat as any;
+      fixture.detectChanges();
+    });
+
+    it("should play themed penalty sound when FALSE_START received and no custom audio", () => {
+      spyOn(component as any, "playThemedSound");
+
+      lapsSubject.next({
+        objectId: "hd1",
+        type: LapType.FALSE_START,
+      });
+
+      expect((component as any).playThemedSound).toHaveBeenCalledWith(
+        THEME_SLOT_KEYS.AUDIO_PENALTY,
+      );
+    });
+
+    it("should play custom penalty audio when FALSE_START received", () => {
+      mockHd.driver.penaltyAudio = {
+        type: "preset",
+        url: "custom-penalty.wav",
+      };
+
+      lapsSubject.next({
+        objectId: "hd1",
+        type: LapType.FALSE_START,
+      });
+
+      expect(mockAudioInstance.play).toHaveBeenCalled();
+    });
   });
 
   describe("Lane Sorting", () => {

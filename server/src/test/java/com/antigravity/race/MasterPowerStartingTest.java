@@ -106,4 +106,73 @@ public class MasterPowerStartingTest {
     race.updatePowerForFlag(RaceFlag.YELLOW);
     assertFalse("Master power should be OFF when paused (YELLOW flag)", race.isMainPower());
   }
+
+  @Test
+  public void testMasterPowerDuringStartingStateWithHotStart() {
+    // Enable hot start in the model
+    Race modelWithHotStart =
+        new Race.Builder().from(race.getRaceModel()).withHotStart(true).build();
+
+    // Rebuild the race with the new model
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(modelWithHotStart)
+            .track(race.getTrack())
+            .drivers(new java.util.ArrayList<>())
+            .isDemoMode(true)
+            .build();
+
+    // Re-inject protocols
+    try {
+      java.lang.reflect.Field field = com.antigravity.race.Race.class.getDeclaredField("protocols");
+      field.setAccessible(true);
+      field.set(race, protocols);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    // Transition to Starting state
+    race.changeState(new Starting());
+
+    // Verify power is ON because hotStart is enabled
+    assertTrue(
+        "Master power should be ON during Starting state when hotStart is enabled",
+        race.isMainPower());
+  }
+
+  @Test
+  public void testMasterPowerDuringStartingStateWithHotStartAfterRestart() {
+    // Enable hot start in the model
+    Race modelWithHotStart =
+        new Race.Builder().from(race.getRaceModel()).withHotStart(true).build();
+
+    // Rebuild the race with the new model
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(modelWithHotStart)
+            .track(race.getTrack())
+            .drivers(new java.util.ArrayList<>())
+            .isDemoMode(true)
+            .build();
+
+    // Re-inject protocols
+    try {
+      java.lang.reflect.Field field = com.antigravity.race.Race.class.getDeclaredField("protocols");
+      field.setAccessible(true);
+      field.set(race, protocols);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    // Set that we HAVE raced in current heat (e.g. after a pause)
+    race.setHasRacedInCurrentHeat(true);
+
+    // Transition to Starting state
+    race.changeState(new Starting());
+
+    // Verify power is OFF because we've already raced
+    assertFalse(
+        "Master power should be OFF during Starting state even with hotStart if already raced",
+        race.isMainPower());
+  }
 }

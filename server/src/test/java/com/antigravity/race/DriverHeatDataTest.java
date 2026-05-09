@@ -22,8 +22,8 @@ public class DriverHeatDataTest {
     dhd.setUserLaps(0.25);
     dhd.setAutoCalculatedLaps(0.5);
 
-    // 5 - 1.0 + 0.25 + 0.5 = 4.75
-    assertEquals(4.75, dhd.getAdjustedLapCount(), 0.001);
+    // 5 - (-1.0) + 0.25 + 0.5 = 6.75
+    assertEquals(6.75, dhd.getAdjustedLapCount(), 0.001);
   }
 
   @Test
@@ -42,8 +42,8 @@ public class DriverHeatDataTest {
     dhd.setUserLaps(10.0);
     dhd.setAutoCalculatedLaps(15.0);
 
-    // Adjusted lap count is now 5 + 5 + 10 + 15 = 35
-    assertEquals(35.0, dhd.getAdjustedLapCount(), 0.001);
+    // Adjusted lap count is now 5 - 5 + 10 + 15 = 25
+    assertEquals(25.0, dhd.getAdjustedLapCount(), 0.001);
 
     // Average lap time should STILL be 10.0 (sum of 50.0 / 5 laps)
     // If it used adjusted count, it would be 50.0 / 35 = ~1.42

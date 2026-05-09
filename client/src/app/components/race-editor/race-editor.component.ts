@@ -69,6 +69,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
 
   sectionsExpanded = {
     general: true,
+    start_method: true,
     scoring: true,
     heats: true,
     fuel_analog: true,
@@ -336,6 +337,10 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
               race.custom_rotations || race.customRotations || [],
             heat_times_through: race.heat_times_through || 1,
             reverse_heats: race.reverse_heats || false,
+            hot_start: race.hot_start || false,
+            restart_on_false_start: race.restart_on_false_start || false,
+            false_start_lap_penalty: race.false_start_lap_penalty || 0,
+            false_start_time_penalty: race.false_start_time_penalty || 0,
           };
           if (!this.editingRace.heat_scoring) {
             this.editingRace.heat_scoring = {
@@ -576,6 +581,10 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
       },
       heat_times_through: 1,
       reverse_heats: false,
+      hot_start: false,
+      restart_on_false_start: false,
+      false_start_lap_penalty: 0,
+      false_start_time_penalty: 0,
     };
     this.originalRace = this.deepCopy(this.editingRace);
     this.undoManager.initialize(this.editingRace);
@@ -1607,6 +1616,10 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         : undefined,
       heat_times_through: race.heat_times_through,
       reverse_heats: race.reverse_heats,
+      hot_start: race.hot_start,
+      restart_on_false_start: race.restart_on_false_start,
+      false_start_lap_penalty: race.false_start_lap_penalty,
+      false_start_time_penalty: race.false_start_time_penalty,
     };
   }
 

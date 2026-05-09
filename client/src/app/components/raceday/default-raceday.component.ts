@@ -33,7 +33,7 @@ import { ColumnVisibility, Settings } from "@app/models/settings";
 import { THEME_SLOT_KEYS } from "@app/models/theme";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { RaceState } from "@app/proto/antigravity";
+import { LapType, RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { LoggerService } from "@app/services/logger.service";
@@ -478,6 +478,27 @@ export class DefaultRacedayComponent
               driver as any,
               driverData as any,
             );
+
+            if (lap.type === LapType.FALSE_START) {
+              if (
+                driver.penaltyAudio?.type &&
+                driver.penaltyAudio.type !== "none" &&
+                (driver.penaltyAudio.url ||
+                  (driver.penaltyAudio.type === "tts" &&
+                    driver.penaltyAudio.text))
+              ) {
+                playSound(
+                  driver.penaltyAudio.type,
+                  driver.penaltyAudio.url,
+                  driver.penaltyAudio.text,
+                  this.dataService.serverUrl,
+                  ttsContext,
+                  this.logger,
+                );
+              } else {
+                this.playThemedSound(THEME_SLOT_KEYS.AUDIO_PENALTY);
+              }
+            }
 
             // Halfway logic for lap-based races
             const scoring = this.race?.heat_scoring;
@@ -1994,9 +2015,13 @@ export class DefaultRacedayComponent
     const candidates = asset.images.filter(
       (img: any) => (img.percentage || 0) !== 0,
     );
+
     if (candidates.length === 0) {
+      // TODO(aufderheide): At very least log this, I suspect selecting the 0th
+      // image is about the worst thing we could do.
+
       // Fallback to any image if no non-zero ones exist
-      return this.getFullUrl(asset.images[0].url || "");
+      return this.getFullUrl(asset?.images?.[0]?.url || "");
     }
 
     // Find the image with percentage closest to current fuelPercentage
@@ -2297,7 +2322,8 @@ export class DefaultRacedayComponent
   }
 
   getDropdownArrowBg(hd: DriverHeatData): string {
-    const color = this.track.lanes[hd.laneIndex]?.foreground_color || "#ffffff";
+    const color =
+      this.track?.lanes?.[hd.laneIndex]?.foreground_color || "#ffffff";
     return this.getDropdownIcon(color);
   }
 
@@ -2660,6 +2686,16 @@ export class DefaultRacedayComponent
         config.type as any,
         playableUrl,
         config.text,
+        this.dataService.serverUrl,
+        undefined,
+        this.logger,
+      );
+    } else if (slotKey === THEME_SLOT_KEYS.AUDIO_PENALTY) {
+      // Global fallback for penalty sound if not in theme
+      playSound(
+        "preset",
+        "/assets/default_penalty_penalty.wav",
+        "",
         this.dataService.serverUrl,
         undefined,
         this.logger,

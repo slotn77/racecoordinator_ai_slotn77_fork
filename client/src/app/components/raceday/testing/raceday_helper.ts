@@ -5,13 +5,13 @@ import {
   ILap,
   InterfaceStatus,
   IRaceTime,
-  IReactionTime,
   IRecordData,
   ISegment,
   IStandingsUpdate,
   RaceFlag,
   RaceState,
 } from "@app/proto/antigravity";
+import { IReactionTime } from "@app/services/race-connection.service";
 
 import { MOCK_DRIVERS } from "../../../testing/data/drivers_data";
 import { MOCK_HEATS } from "../../../testing/data/heats_data";

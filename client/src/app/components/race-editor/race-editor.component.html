@@ -221,6 +221,21 @@
                     />
                   </div>
                 </div>
+              </div>
+            }
+          </div>
+          <!-- Start Method Section -->
+          <div id="start-method-section" class="config-section">
+            <div class="section-header" (click)="toggleSection('start_method')">
+              <span
+                class="expander-icon"
+                [class.collapsed]="!sectionsExpanded.start_method"
+                >▼</span
+              >
+              <h1>{{ "RE_START_METHOD_HEADER" | translate }}</h1>
+            </div>
+            @if (sectionsExpanded.start_method) {
+              <div class="section-content">
                 <div class="config-row">
                   <div class="editor-section">
                     <label>
@@ -282,6 +297,64 @@
                       placeholder="0.0"
                       class="restart-delay-input"
                       data-testid="restart-delay-input"
+                    />
+                  </div>
+                </div>
+                <div class="config-row">
+                  <div class="config-section checkbox-section">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="editingRace.hot_start"
+                        (ngModelChange)="captureState()"
+                      />
+                      <span class="checkmark"></span>
+                      <span class="checkbox-label">
+                        {{ "RE_HOT_START" | translate }}
+                      </span>
+                    </label>
+                  </div>
+                  <div class="config-section checkbox-section">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="editingRace.restart_on_false_start"
+                        (ngModelChange)="captureState()"
+                      />
+                      <span class="checkmark"></span>
+                      <span class="checkbox-label">
+                        {{ "RE_RESTART_ON_FALSE_START" | translate }}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="config-row">
+                  <div class="editor-section">
+                    <label>
+                      {{ "RE_FALSE_START_LAP_PENALTY" | translate }}
+                    </label>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingRace.false_start_lap_penalty"
+                      (ngModelChange)="captureState()"
+                      min="0"
+                      step="0.1"
+                      placeholder="0.0"
+                      class="false-start-lap-penalty-input"
+                    />
+                  </div>
+                  <div class="editor-section">
+                    <label>
+                      {{ "RE_FALSE_START_TIME_PENALTY" | translate }}
+                    </label>
+                    <input
+                      type="number"
+                      [(ngModel)]="editingRace.false_start_time_penalty"
+                      (ngModelChange)="captureState()"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      class="false-start-time-penalty-input"
                     />
                   </div>
                 </div>

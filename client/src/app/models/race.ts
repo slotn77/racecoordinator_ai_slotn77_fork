@@ -27,6 +27,10 @@ export class Race implements Model {
   readonly restart_delay: number;
   readonly heat_times_through: number;
   readonly reverse_heats: boolean;
+  readonly hot_start: boolean;
+  readonly restart_on_false_start: boolean;
+  readonly false_start_lap_penalty: number;
+  readonly false_start_time_penalty: number;
 
   readonly heat_rotation_type: string;
   readonly solo_lane_index: number;
@@ -63,6 +67,10 @@ export class Race implements Model {
     custom_rotations: any[] = [],
     heat_times_through: number = 1,
     reverse_heats: boolean = false,
+    hot_start: boolean = false,
+    restart_on_false_start: boolean = false,
+    false_start_lap_penalty: number = 0,
+    false_start_time_penalty: number = 0,
   ) {
     this.entity_id = entity_id;
     this.name = name;
@@ -89,6 +97,10 @@ export class Race implements Model {
     this.custom_rotations = custom_rotations;
     this.heat_times_through = heat_times_through;
     this.reverse_heats = reverse_heats;
+    this.hot_start = hot_start;
+    this.restart_on_false_start = restart_on_false_start;
+    this.false_start_lap_penalty = false_start_lap_penalty;
+    this.false_start_time_penalty = false_start_time_penalty;
   }
 
   get objectId(): string {

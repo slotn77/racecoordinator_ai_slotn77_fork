@@ -34,5 +34,6 @@ message DriverHeatData {
   bool is_refueling = 17;
   int32 current_location = 18;
   double initial_fuel_level = 19;
+  int32 false_starts = 20;
 }
 

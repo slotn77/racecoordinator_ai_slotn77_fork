@@ -10,7 +10,7 @@ SERVER_DIR="$PROJECT_ROOT/server"
 # Environment Setup for restricted environments
 # Only capture REAL_HOME if it hasn't been set yet (prevents double-sourcing from overwriting it)
 export REAL_HOME="${REAL_HOME:-$HOME}"
-BASE_TMP="/tmp/racecoordinator-client"
+BASE_TMP="/tmp/racecoordinator-client-$(id -u)"
 mkdir -p "$BASE_TMP"
 
 export TMPDIR="$BASE_TMP/browser-tmp"

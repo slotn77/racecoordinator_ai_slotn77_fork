@@ -324,6 +324,10 @@ public class DatabaseTaskHandler {
                 driver.getAvatarUrl(),
                 driver.getLapAudio(),
                 driver.getBestLapAudio(),
+                driver.getPenaltyAudio(),
+                null,
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -610,6 +614,10 @@ public class DatabaseTaskHandler {
               .withCustomRotations(race.getCustomRotations())
               .withHeatTimesThrough(race.getHeatTimesThrough())
               .withReverseHeats(race.isReverseHeats())
+              .withHotStart(race.isHotStart())
+              .withRestartOnFalseStart(race.isRestartOnFalseStart())
+              .withFalseStartLapPenalty(race.getFalseStartLapPenalty())
+              .withFalseStartTimePenalty(race.getFalseStartTimePenalty())
               .withEntityId(nextId)
               .build();
     }
@@ -676,6 +684,10 @@ public class DatabaseTaskHandler {
             .withCustomRotations(race.getCustomRotations())
             .withHeatTimesThrough(race.getHeatTimesThrough())
             .withReverseHeats(race.isReverseHeats())
+            .withHotStart(race.isHotStart())
+            .withRestartOnFalseStart(race.isRestartOnFalseStart())
+            .withFalseStartLapPenalty(race.getFalseStartLapPenalty())
+            .withFalseStartTimePenalty(race.getFalseStartTimePenalty())
             .withEntityId(id)
             .withId(race.getId())
             .build();
@@ -772,6 +784,10 @@ public class DatabaseTaskHandler {
       raceMap.put("custom_rotations", race.getCustomRotations());
       raceMap.put("heat_times_through", race.getHeatTimesThrough());
       raceMap.put("reverse_heats", race.isReverseHeats());
+      raceMap.put("hot_start", race.isHotStart());
+      raceMap.put("restart_on_false_start", race.isRestartOnFalseStart());
+      raceMap.put("false_start_lap_penalty", race.getFalseStartLapPenalty());
+      raceMap.put("false_start_time_penalty", race.getFalseStartTimePenalty());
       response.add(raceMap);
     }
     ctx.json(response);

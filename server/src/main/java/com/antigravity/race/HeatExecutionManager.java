@@ -11,7 +11,6 @@ import com.antigravity.models.TeamOptions;
 import com.antigravity.proto.CarData;
 import com.antigravity.proto.Lap;
 import com.antigravity.proto.RaceData;
-import com.antigravity.proto.ReactionTime;
 import com.antigravity.proto.Segment;
 import com.antigravity.proto.StandingsUpdate;
 import com.antigravity.protocols.CarLocation;
@@ -111,12 +110,14 @@ public class HeatExecutionManager {
     if (minLapTime > 0) {
       driverData.addPendingLapTime(lapTime);
       if (driverData.getPendingLapTime() < minLapTime) {
-        logger.debug(
-            "Lane {} lap time {} is below min {}. Accumulated: {}",
-            lane,
-            lapTime,
-            minLapTime,
-            driverData.getPendingLapTime());
+        Lap minLapMsg =
+            Lap.newBuilder()
+                .setObjectId(driverData.getObjectId())
+                .setLapTime(lapTime)
+                .setInterfaceId(interfaceId)
+                .setType(Lap.LapType.MIN_LAP_TIME)
+                .build();
+        race.broadcast(RaceData.newBuilder().setLap(minLapMsg).build());
         return false;
       }
       double finalLapTime = driverData.getPendingLapTime();
@@ -553,19 +554,22 @@ public class HeatExecutionManager {
   private boolean handleReactionTime(
       DriverHeatData driverData, double lapTime, int lane, int interfaceId) {
     if (driverData.getReactionTime() == 0.0f) {
-      driverData.setReactionTime(lapTime);
+      double totalReactionTime = lapTime + driverData.getPendingLapTime();
+      driverData.setPendingLapTime(0.0);
+      driverData.setReactionTime(totalReactionTime);
 
-      ReactionTime rtMsg =
-          ReactionTime.newBuilder()
+      Lap rtMsg =
+          Lap.newBuilder()
               .setObjectId(driverData.getObjectId())
-              .setReactionTime(lapTime)
+              .setLapTime(totalReactionTime)
               .setInterfaceId(interfaceId)
+              .setType(Lap.LapType.REACTION_TIME)
               .build();
 
-      RaceData rtDataMsg = RaceData.newBuilder().setReactionTime(rtMsg).build();
+      RaceData rtDataMsg = RaceData.newBuilder().setLap(rtMsg).build();
 
       this.race.broadcast(rtDataMsg);
-      logger.info("Broadcasted reaction time for lane {}: {}", lane, lapTime);
+      logger.info("Broadcasted reaction time for lane {}: {}", lane, totalReactionTime);
 
       StandingsUpdate standingsUpdate =
           this.race.getCurrentHeat().getHeatStandings().updateStandings();
@@ -635,6 +639,7 @@ public class HeatExecutionManager {
             .setFuelLevel(driverData.getDriver().getFuelLevel())
             .setIsDrift(isDrift)
             .setAdjustedLapCount(driverData.getAdjustedLapCount())
+            .setType(Lap.LapType.LAP)
             .build();
 
     RaceData lapDataMsg = RaceData.newBuilder().setLap(lapMsg).build();

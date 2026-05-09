@@ -827,7 +827,14 @@ public class Race implements ProtocolListener {
     switch (flag) {
       case RED:
       case YELLOW:
-        setMainPower(false);
+        if (flag == RaceFlag.RED
+            && state instanceof Starting
+            && model.isHotStart()
+            && !hasRacedInCurrentHeat) {
+          setMainPower(true);
+        } else {
+          setMainPower(false);
+        }
         break;
       case GREEN_YELLOW:
         setMainPower(true);
@@ -896,6 +903,7 @@ public class Race implements ProtocolListener {
   }
 
   public void prepareHeat() {
+    this.hasRacedInCurrentHeat = false;
     initializeHeatExecutionState();
     FuelOptions fuelOptions = null;
     if (track != null && track.hasDigitalFuel()) {

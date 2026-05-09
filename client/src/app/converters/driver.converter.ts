@@ -22,6 +22,7 @@ export class DriverConverter {
       undefined,
       { type: "preset" },
       { type: "preset" },
+      { type: "preset", url: "/assets/default_penalty_Penalty" },
     );
   }
 
@@ -56,9 +57,14 @@ export class DriverConverter {
           text: proto.lapAudio?.text || undefined,
         },
         {
-          type: proto.bestLapAudio?.type === "tts" ? "tts" : "preset",
+          type: (proto.bestLapAudio?.type as any) || "preset",
           url: proto.bestLapAudio?.url || undefined,
           text: proto.bestLapAudio?.text || undefined,
+        },
+        {
+          type: (proto.penaltyAudio?.type as any) || "preset",
+          url: proto.penaltyAudio?.url || undefined,
+          text: proto.penaltyAudio?.text || undefined,
         },
       );
     });
@@ -72,6 +78,7 @@ export class DriverConverter {
       json.avatarUrl,
       json.lapAudio,
       json.bestLapAudio,
+      json.penaltyAudio,
     );
     return d;
   }
@@ -87,6 +94,7 @@ export class DriverConverter {
       existing.avatarUrl = driver.avatarUrl;
       existing.lapAudio = driver.lapAudio;
       existing.bestLapAudio = driver.bestLapAudio;
+      existing.penaltyAudio = driver.penaltyAudio;
     } else {
       // Manually populate cache using process to ensure valid state
       // access private cache if possible, or use a workaround.

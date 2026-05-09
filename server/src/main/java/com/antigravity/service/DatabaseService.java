@@ -88,10 +88,15 @@ public class DatabaseService {
     AssetMessage drivebySound =
         allAssets.stream().filter(a -> a.getName().equals("Lap Driveby")).findFirst().orElse(null);
 
+    AssetMessage penaltySound =
+        allAssets.stream().filter(a -> a.getName().equals("Penalty")).findFirst().orElse(null);
+
     String lapSoundUrl = beepSound != null ? beepSound.getUrl() : null;
     String bestLapSoundUrl = drivebySound != null ? drivebySound.getUrl() : null;
+    String penaltySoundUrl = penaltySound != null ? penaltySound.getUrl() : null;
     AudioConfig lapAudio = new AudioConfig("preset", lapSoundUrl, null);
     AudioConfig bestLapAudio = new AudioConfig("preset", bestLapSoundUrl, null);
+    AudioConfig penaltyAudio = new AudioConfig("preset", penaltySoundUrl, null);
 
     List<Driver> initialDrivers = new ArrayList<>();
     initialDrivers.add(
@@ -102,6 +107,7 @@ public class DatabaseService {
             1,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -111,6 +117,7 @@ public class DatabaseService {
             2,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -120,6 +127,7 @@ public class DatabaseService {
             3,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -129,6 +137,7 @@ public class DatabaseService {
             4,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -138,6 +147,7 @@ public class DatabaseService {
             5,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -147,6 +157,7 @@ public class DatabaseService {
             6,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -156,6 +167,7 @@ public class DatabaseService {
             7,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
     initialDrivers.add(
         createDriver(
@@ -165,6 +177,7 @@ public class DatabaseService {
             8,
             lapAudio,
             bestLapAudio,
+            penaltyAudio,
             getNextSequence(database, "drivers")));
 
     driverCollection.insertMany(initialDrivers);
@@ -178,6 +191,7 @@ public class DatabaseService {
       int index,
       AudioConfig lapAudio,
       AudioConfig bestLapAudio,
+      AudioConfig penaltyAudio,
       String sequenceId) {
     String avatarUrl = null;
     if (!helmetAssets.isEmpty()) {
@@ -189,6 +203,10 @@ public class DatabaseService {
         avatarUrl,
         lapAudio,
         bestLapAudio,
+        penaltyAudio,
+        null,
+        null,
+        null,
         null,
         null,
         null,

@@ -138,6 +138,7 @@ public class Racing implements IRaceState {
     logger.info("Racing: Analog fuel enabled: {}", executionManager.isAnalogFuelEnabled());
 
     race.startProtocols();
+    initializeFalseStartTimePenalties();
     scheduler = Executors.newScheduledThreadPool(1);
     final Runnable ticker =
         new Runnable() {
@@ -163,6 +164,9 @@ public class Racing implements IRaceState {
               } else {
                 race.addRaceTime(delta);
               }
+
+              // Handle false start time penalties
+              processFalseStartTimePenalties(delta);
 
               // Handle refueling and fuel usage via the execution manager
               executionManager.processTicker(delta);
@@ -467,9 +471,44 @@ public class Racing implements IRaceState {
               .setDriverId(dhd.getActualDriver() != null ? dhd.getActualDriver().getEntityId() : "")
               .setFuelLevel(dhd.getDriver().getFuelLevel())
               .setAdjustedLapCount(dhd.getAdjustedLapCount())
+              .setType(Lap.LapType.LAP)
               .build();
 
       race.broadcast(RaceData.newBuilder().setLap(lapMsg).build());
+    }
+  }
+
+  private void initializeFalseStartTimePenalties() {
+    if (race == null || race.getCurrentHeat() == null) return;
+
+    List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    for (int i = 0; i < drivers.size(); i++) {
+      DriverHeatData dhd = drivers.get(i);
+      if (dhd.getRemainingFalseStartTimePenalty() > 0) {
+        logger.info(
+            "Racing: Lane {} has a false start penalty of {}s remaining. Turning power OFF.",
+            i,
+            dhd.getRemainingFalseStartTimePenalty());
+        race.setLanePower(false, i);
+      }
+    }
+  }
+
+  private void processFalseStartTimePenalties(float delta) {
+    if (race == null || race.getCurrentHeat() == null) return;
+
+    List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    for (int i = 0; i < drivers.size(); i++) {
+      DriverHeatData dhd = drivers.get(i);
+      double remaining = dhd.getRemainingFalseStartTimePenalty();
+      if (remaining > 0) {
+        double newRemaining = Math.max(0, remaining - delta);
+        dhd.setRemainingFalseStartTimePenalty(newRemaining);
+        if (newRemaining <= 0) {
+          logger.info("Racing: False start penalty for lane {} expired. Turning power ON.", i);
+          race.setLanePower(true, i);
+        }
+      }
     }
   }
 }

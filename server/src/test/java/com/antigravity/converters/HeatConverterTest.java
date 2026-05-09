@@ -104,6 +104,6 @@ public class HeatConverterTest {
     assertEquals(2.0, proto.getUserLaps(), 0.001);
     assertEquals(-1.0, proto.getPenaltyLaps(), 0.001);
     assertEquals(0.5, proto.getAutoCalculatedLaps(), 0.001);
-    assertEquals(4.5, proto.getAdjustedLapCount(), 0.001); // 3 (laps) + 2 - 1 + 0.5 = 4.5
+    assertEquals(6.5, proto.getAdjustedLapCount(), 0.001); // 3 (laps) + 2 - (-1) + 0.5 = 6.5
   }
 }

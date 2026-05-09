@@ -19,6 +19,7 @@ export class Driver implements Model {
   avatarUrl?: string;
   lapAudio: AudioConfig;
   bestLapAudio: AudioConfig;
+  penaltyAudio: AudioConfig;
 
   constructor(
     entity_id: string,
@@ -26,7 +27,8 @@ export class Driver implements Model {
     nickname: string,
     avatarUrl?: string,
     lapAudio?: AudioConfig,
-    bestLapAudio?: AudioConfig, // TODO(aufderheide): Optional for now? Or ensure always set?
+    bestLapAudio?: AudioConfig,
+    penaltyAudio?: AudioConfig,
   ) {
     this.entity_id = entity_id;
     this.name = name;
@@ -37,6 +39,10 @@ export class Driver implements Model {
     this.lapAudio = lapAudio && lapAudio.type ? lapAudio : { type: "preset" };
     this.bestLapAudio =
       bestLapAudio && bestLapAudio.type ? bestLapAudio : { type: "preset" };
+    this.penaltyAudio =
+      penaltyAudio && penaltyAudio.type
+        ? penaltyAudio
+        : { type: "preset", url: "/assets/default_penalty_penalty.wav" };
   }
 
   get objectId(): string {

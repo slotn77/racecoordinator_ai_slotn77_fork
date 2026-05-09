@@ -96,7 +96,7 @@
           </div>
           @if (sectionsExpanded.audio) {
             <div class="section-content">
-              <div class="audio-sections-row">
+              <div class="audio-grid">
                 <div class="audio-section">
                   @if (editingDriver.lapAudio) {
                     <app-audio-selector
@@ -138,6 +138,31 @@
                       (textChange)="
                         onInputChange();
                         editingDriver.bestLapAudio.text = $event
+                      "
+                      [backButtonRoute]="'/driver-editor'"
+                      [backButtonQueryParams]="{ id: editingDriver.entity_id }"
+                      [context]="ttsContext"
+                    >
+                    </app-audio-selector>
+                  }
+                </div>
+                <div class="audio-section">
+                  @if (editingDriver.penaltyAudio) {
+                    <app-audio-selector
+                      [label]="'DE_LABEL_PENALTY_SOUNDS' | translate"
+                      [assets]="soundAssets"
+                      [type]="editingDriver.penaltyAudio.type"
+                      (typeChange)="
+                        editingDriver.penaltyAudio.type = $event; captureState()
+                      "
+                      [url]="editingDriver.penaltyAudio.url"
+                      (urlChange)="
+                        onInputChange(); editingDriver.penaltyAudio.url = $event
+                      "
+                      [text]="editingDriver.penaltyAudio.text"
+                      (textChange)="
+                        onInputChange();
+                        editingDriver.penaltyAudio.text = $event
                       "
                       [backButtonRoute]="'/driver-editor'"
                       [backButtonQueryParams]="{ id: editingDriver.entity_id }"

@@ -178,6 +178,7 @@ public class AssetService {
     DEFAULT_AUDIO_ASSETS.add(new DefaultAsset("default_beep", "beep.wav", "Lap Beep"));
     DEFAULT_AUDIO_ASSETS.add(new DefaultAsset("default_chimes", "chimes.wav", "Lap Chimes"));
     DEFAULT_AUDIO_ASSETS.add(new DefaultAsset("default_driveby", "driveby.wav", "Lap Driveby"));
+    DEFAULT_AUDIO_ASSETS.add(new DefaultAsset("default_penalty", "penalty.wav", "Penalty"));
     DEFAULT_AUDIO_ASSETS.add(
         new DefaultAsset(
             "default_yellow_flag", "audio/english/woman/w_yellowflag.wav", "Yellow Flag"));

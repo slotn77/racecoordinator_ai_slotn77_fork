@@ -64,6 +64,7 @@ public class HeatConverter {
         .setCurrentLocation(
             data.getCurrentLocation() != null ? data.getCurrentLocation().getValue() : -1)
         .setInitialFuelLevel(data.getInitialFuelLevel())
+        .setFalseStarts(data.getFalseStarts())
         .build();
   }
 }

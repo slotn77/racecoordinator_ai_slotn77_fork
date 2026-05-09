@@ -22,7 +22,6 @@ import {
   IOverallStandingsUpdate,
   IRace,
   IRaceTime,
-  IReactionTime,
   IRecordData,
   IRgbLedState,
   ISaveAudioSetEntry,
@@ -990,7 +989,6 @@ export class DataService {
     time: 0,
   });
   private lapSubject = new Subject<ILap>();
-  private reactionTimeSubject = new Subject<IReactionTime>();
   private standingsSubject = new ReplaySubject<IStandingsUpdate>(1);
   private overallStandingsSubject = new ReplaySubject<IOverallStandingsUpdate>(
     1,
@@ -1080,9 +1078,6 @@ export class DataService {
           }
           if (raceData.lap) {
             this.lapSubject.next(raceData.lap);
-          }
-          if (raceData.reactionTime) {
-            this.reactionTimeSubject.next(raceData.reactionTime);
           }
           if (raceData.standingsUpdate) {
             this.standingsSubject.next(raceData.standingsUpdate);
@@ -1221,10 +1216,6 @@ export class DataService {
 
   public getLaps(): Observable<ILap> {
     return this.lapSubject.asObservable();
-  }
-
-  public getReactionTimes(): Observable<IReactionTime> {
-    return this.reactionTimeSubject.asObservable();
   }
 
   public getStandingsUpdate(): Observable<IStandingsUpdate> {

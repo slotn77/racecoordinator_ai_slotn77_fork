@@ -137,11 +137,36 @@ public class AssetTaskHandler {
       currentDbName = "Race Coordinator AI DB";
     }
     File file = new File(databaseContext.getDataRoot() + currentDbName + "/assets", filename);
+    if (!file.exists() || !file.isFile()) {
+      // Try fallback: Case-insensitive search or common misspellings for default assets
+      File dir = new File(databaseContext.getDataRoot() + currentDbName + "/assets");
+      if (dir.exists() && dir.isDirectory()) {
+        File[] matchingFiles =
+            dir.listFiles(
+                (d, name) -> {
+                  String target = filename.toLowerCase();
+                  String candidate = name.toLowerCase();
+                  if (candidate.equals(target)) return true;
+                  // Handle cases where extension was added/removed (e.g., penalty.wav vs Penalty)
+                  String targetBase =
+                      target.contains(".") ? target.substring(0, target.lastIndexOf('.')) : target;
+                  String candidateBase =
+                      candidate.contains(".")
+                          ? candidate.substring(0, candidate.lastIndexOf('.'))
+                          : candidate;
+                  return candidateBase.equals(targetBase);
+                });
+        if (matchingFiles != null && matchingFiles.length > 0) {
+          file = matchingFiles[0];
+        }
+      }
+    }
+
     if (file.exists() && file.isFile()) {
       try {
         setStream(ctx, new FileInputStream(file));
         // Simple content type mapping
-        String lowerName = filename.toLowerCase();
+        String lowerName = file.getName().toLowerCase();
         if (lowerName.endsWith(".png")) {
           setContentType(ctx, "image/png");
         } else if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {

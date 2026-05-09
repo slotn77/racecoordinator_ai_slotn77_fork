@@ -163,4 +163,128 @@ public class StartingStateTest {
     assertTrue("Duration should be at least 500ms, was " + duration, duration >= 500);
     assertTrue("Duration should be less than 3000ms, was " + duration, duration < 3000);
   }
+
+  @Test
+  public void testFalseStartDetection() throws Exception {
+    // Setup race with penalties
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .withFalseStartLapPenalty(1.0)
+            .withFalseStartTimePenalty(5.0)
+            .build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    Starting starting = new Starting();
+    starting.enter(race);
+
+    // Simulate a lap during Starting state (false start)
+    boolean result = starting.onLap(0, 0.5, 1, false);
+
+    // Verify
+    assertTrue("onLap should return false for false start", !result);
+    DriverHeatData dhd = race.getCurrentHeat().getDrivers().get(0);
+    assertTrue("False starts should be incremented", dhd.getFalseStarts() == 1);
+    assertTrue("Penalty laps should be set", dhd.getPenaltyLaps() == 1.0);
+    assertTrue("Time penalty should be set", dhd.getRemainingFalseStartTimePenalty() == 5.0);
+  }
+
+  @Test
+  public void testFalseStartRestart() throws Exception {
+    // Setup race with restart on false start
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder().withRestartOnFalseStart(true).build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    Starting starting = new Starting();
+    starting.enter(race);
+
+    // Simulate false start
+    starting.onLap(0, 0.5, 1, false);
+
+    // Verify state changed to NotStarted
+    assertTrue(
+        "Race should transition to NotStarted on false start if configured",
+        race.getState() instanceof com.antigravity.race.states.NotStarted);
+  }
+
+  @Test
+  public void testHotStart() throws Exception {
+    // Setup race with hot start
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .from(race.getRaceModel())
+            .withHotStart(true)
+            .withStartTime(0.5)
+            .build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    Starting starting = new Starting();
+    starting.enter(race);
+
+    // Verify power is ON immediately upon entering Starting state
+    assertTrue("Main power should be ON if hotStart is enabled", race.isMainPower());
+
+    // Wait for transition to Racing
+    long start = System.currentTimeMillis();
+    while (!(race.getState() instanceof Racing) && (System.currentTimeMillis() - start) < 2000) {
+      Thread.sleep(100);
+    }
+
+    assertTrue("Race should be in Racing state", race.getState() instanceof Racing);
+    assertTrue("Main power should still be ON in Racing state", race.isMainPower());
+  }
+
+  @Test
+  public void testFalseStartDuringHotStart() throws Exception {
+    // Setup race with hot start and penalties
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .from(race.getRaceModel())
+            .withHotStart(true)
+            .withFalseStartTimePenalty(5.0)
+            .build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    Starting starting = new Starting();
+    starting.enter(race);
+
+    // Verify power is ON
+    assertTrue("Main power should be ON if hotStart is enabled", race.isMainPower());
+
+    // Simulate false start on lane 0
+    starting.onLap(0, 0.5, 1, false);
+
+    // Verify penalty applied in DriverHeatData
+    DriverHeatData dhd = race.getCurrentHeat().getDrivers().get(0);
+    assertTrue("False starts should be 1", dhd.getFalseStarts() == 1);
+    assertTrue("Time penalty should be 5.0", dhd.getRemainingFalseStartTimePenalty() == 5.0);
+  }
 }

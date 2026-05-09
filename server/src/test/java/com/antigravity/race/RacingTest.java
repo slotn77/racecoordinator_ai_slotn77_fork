@@ -497,4 +497,41 @@ public class RacingTest {
 
     verify(mockRace).broadcastFlag(com.antigravity.proto.RaceFlag.GREEN);
   }
+
+  @Test
+  public void testFalseStartTimePenaltyProcessing() throws InterruptedException {
+    Racing racing = new Racing();
+    com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
+    when(mockRace.getStatistics()).thenReturn(new RaceStatistics());
+    com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
+    when(mockRace.getRaceModel()).thenReturn(mockModel);
+    when(mockModel.getHeatScoring()).thenReturn(new HeatScoring());
+
+    Heat mockHeat = mock(Heat.class);
+    when(mockRace.getCurrentHeat()).thenReturn(mockHeat);
+    when(mockHeat.getStatistics()).thenReturn(new RaceHeatStatistics());
+
+    DriverHeatData d1 = new DriverHeatData(participants.get(0));
+    // Set a 0.2s penalty
+    d1.setRemainingFalseStartTimePenalty(0.2);
+    when(mockHeat.getDrivers()).thenReturn(Collections.singletonList(d1));
+
+    HeatExecutionManager manager = new HeatExecutionManager(mockRace);
+    manager.initialize(1);
+    when(mockRace.getHeatExecutionManager()).thenReturn(manager);
+
+    racing.enter(mockRace);
+
+    // Initial check: Power should be OFF for lane 0
+    verify(mockRace).setLanePower(false, 0);
+
+    // Wait for penalty to expire (ticker runs every 100ms)
+    // 0.2s penalty should expire in ~2-3 ticks
+    Thread.sleep(500);
+
+    // After expiry, power should be ON
+    verify(mockRace).setLanePower(true, 0);
+
+    racing.exit(mockRace);
+  }
 }

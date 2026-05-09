@@ -304,7 +304,7 @@ public class RaceRecordTest {
     assertTrue(
         "Heat Lane summary header missing Team column",
         csv.contains(
-            "#Lane,Driver,Nickname,Team,Reaction Time,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Laps,Penalty Laps,User Laps,Auto Calculated Laps,Adjusted Laps"));
+            "#Lane,Driver,Nickname,Team,Reaction Time,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Laps,Penalty Laps,False Starts,User Laps,Auto Calculated Laps,Adjusted Laps"));
 
     // Verify data contains "Team Alpha"
     assertTrue("CSV data should contain Team Alpha", csv.contains("Team Alpha"));
