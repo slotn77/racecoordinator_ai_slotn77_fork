@@ -163,10 +163,38 @@ export function createRacedayMocks(overrides: any = {}) {
         "getFlagType",
         "getFlagColor",
         "getFlagNameKey",
+        "getFlagUrl",
       ]);
       spy.getFlagType.and.returnValue("red");
       spy.getFlagColor.and.returnValue("red");
       spy.getFlagNameKey.and.returnValue("RACE_FLAG_RED");
+      spy.getFlagUrl.and.callFake((flag: any) => {
+        const flagType = typeof flag === "string" ? flag : "red";
+        const enumMap: Record<number, string> = {
+          [RaceFlag.RED]: "red",
+          [RaceFlag.GREEN]: "green",
+          [RaceFlag.YELLOW]: "yellow",
+          [RaceFlag.WHITE]: "white",
+          [RaceFlag.CHECKERED]: "checkered",
+          [RaceFlag.GREEN_YELLOW]: "green_yellow",
+          [RaceFlag.BLACK]: "black",
+        };
+        const type =
+          typeof flag === "number" ? enumMap[flag] || "red" : flagType;
+
+        const nameMap: Record<string, string> = {
+          green: "green",
+          yellow: "yellow",
+          red: "red",
+          white: "white",
+          checkered: "checkered",
+          green_yellow: "yellow_green",
+          black: "black",
+        };
+        const name = nameMap[type] || "red";
+        const ext = name === "black" ? "svg" : "png";
+        return `/assets/images/flags/${name}.${ext}`;
+      });
       return spy;
     })(),
     interfaceEventsSubject,

@@ -1,6 +1,7 @@
 package com.antigravity.race;
 
 import com.antigravity.models.Driver;
+import com.antigravity.proto.RaceFlag;
 import com.antigravity.protocols.CarLocation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,6 +81,7 @@ public class DriverHeatData extends ServerToClientObject {
   private int falseStarts = 0;
   private boolean isRefueling = false;
   private double remainingFalseStartTimePenalty = 0.0;
+  private RaceFlag flag = RaceFlag.UNKNOWN_FLAG;
 
   public DriverHeatData(RaceParticipant driver, Driver actualDriver) {
     super();
@@ -325,5 +327,13 @@ public class DriverHeatData extends ServerToClientObject {
 
   public void setRemainingFalseStartTimePenalty(double remainingFalseStartTimePenalty) {
     this.remainingFalseStartTimePenalty = remainingFalseStartTimePenalty;
+  }
+
+  public RaceFlag getFlag() {
+    return flag;
+  }
+
+  public void setFlag(RaceFlag flag) {
+    this.flag = flag;
   }
 }

@@ -1,4 +1,5 @@
 import { TestBed } from "@angular/core/testing";
+import { AnchorPoint } from "@app/components/raceday/column_definition";
 import { Settings } from "@app/models/settings";
 import { LoggerService } from "@app/services/logger.service";
 
@@ -38,6 +39,12 @@ describe("SettingsService", () => {
     expect(settings.language).toBe("");
     expect(settings.serverIp).toBe("");
     expect(settings.highlightRowOnLap).toBeTrue();
+
+    // Verify new default for lapCount column
+    expect(settings.columnLayouts["lapCount"]).toBeDefined();
+    expect(settings.columnLayouts["lapCount"][AnchorPoint.BottomLeft]).toBe(
+      "flag",
+    );
   });
 
   it("should save and retrieve language setting", () => {
@@ -55,6 +62,72 @@ describe("SettingsService", () => {
     expect(retrieved.language).toBe("es");
     expect(retrieved.serverIp).toBe("1.2.3.4");
     expect(retrieved.highlightRowOnLap).toBeFalse();
+  });
+
+  it("should backfill driver state to lapCount column if missing in stored settings", () => {
+    const legacySettings = {
+      language: "en",
+      columnLayouts: {
+        lapCount: {
+          [AnchorPoint.CenterCenter]: "lapCount",
+        },
+      },
+    };
+    localStorage.setItem(
+      "racecoordinator_settings",
+      JSON.stringify(legacySettings),
+    );
+
+    const retrieved = service.getSettings();
+    expect(retrieved.columnLayouts["lapCount"][AnchorPoint.BottomLeft]).toBe(
+      "flag",
+    );
+    expect(retrieved.driverStateBackfilled).toBeTrue();
+  });
+
+  it("should NOT backfill driver state if bottom-left anchor is already set", () => {
+    const customSettings = {
+      language: "en",
+      driverStateBackfilled: false,
+      columnLayouts: {
+        lapCount: {
+          [AnchorPoint.CenterCenter]: "lapCount",
+          [AnchorPoint.BottomLeft]: "some_other_property",
+        },
+      },
+    };
+    localStorage.setItem(
+      "racecoordinator_settings",
+      JSON.stringify(customSettings),
+    );
+
+    const retrieved = service.getSettings();
+    expect(retrieved.columnLayouts["lapCount"][AnchorPoint.BottomLeft]).toBe(
+      "some_other_property",
+    );
+    expect(retrieved.driverStateBackfilled).toBeTrue();
+  });
+
+  it("should NOT backfill if driverStateBackfilled is true even if anchor is empty", () => {
+    const customSettings = {
+      language: "en",
+      driverStateBackfilled: true,
+      columnLayouts: {
+        lapCount: {
+          [AnchorPoint.CenterCenter]: "lapCount",
+        },
+      },
+    };
+    localStorage.setItem(
+      "racecoordinator_settings",
+      JSON.stringify(customSettings),
+    );
+
+    const retrieved = service.getSettings();
+    expect(
+      retrieved.columnLayouts["lapCount"][AnchorPoint.BottomLeft],
+    ).toBeUndefined();
+    expect(retrieved.driverStateBackfilled).toBeTrue();
   });
 
   it("should handle corrupt JSON in localStorage", () => {

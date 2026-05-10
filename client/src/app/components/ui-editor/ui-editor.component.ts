@@ -304,6 +304,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           { key: "kph", label: "RD_COL_KPH" },
           { key: "fph", label: "RD_COL_FPH" },
           { key: "segmentTime", label: "RD_COL_SEGMENT_TIME" },
+          { key: "flag", label: "RD_COL_DRIVER_STATE" },
           ...imageSetColumns,
         ];
 

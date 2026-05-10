@@ -34,13 +34,13 @@ import { ColumnVisibility, Settings } from "@app/models/settings";
 import { THEME_SLOT_KEYS } from "@app/models/theme";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { LapType, RaceState } from "@app/proto/antigravity";
+import { LapType, RaceFlag, RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
-import { FlagType, RaceFlagService } from "@app/services/race-flag.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
@@ -270,7 +270,8 @@ export class DefaultRacedayComponent
     return (
       base === "driver.avatarUrl" ||
       base.startsWith("imageset") ||
-      base === "fuel-gauge-builtin"
+      base === "fuel-gauge-builtin" ||
+      base === "flag"
     );
   }
 
@@ -576,15 +577,10 @@ export class DefaultRacedayComponent
 
     this.subscriptions.push(
       this.raceConnectionService.carData$.subscribe((carData) => {
-        if (
-          !this.isDestroyed &&
-          carData &&
-          carData.lane !== null &&
-          carData.lane !== undefined &&
-          carData.location !== null &&
-          carData.location !== undefined
-        ) {
-          this.carLocations.set(carData.lane, carData.location);
+        if (!this.isDestroyed && carData && carData.lane != null) {
+          if (carData.location != null) {
+            this.carLocations.set(carData.lane, carData.location);
+          }
           this.cdr.markForCheck();
         }
       }),
@@ -1624,85 +1620,12 @@ export class DefaultRacedayComponent
     return false;
   }
 
+  public getFlagUrl(flag: any): string {
+    return this.raceFlagService.getFlagUrl(flag);
+  }
+
   getCurrentFlagUrl(): string {
-    const flagType = this.raceFlagService.getFlagType();
-
-    // 1. Theme slot resolution (highest priority)
-    const themeSlotMap: Record<string, string> = {
-      green: "flag.green",
-      red: "flag.red",
-      yellow: "flag.yellow",
-      white: "flag.white",
-      checkered: "flag.checkered",
-      green_yellow: "flag.yellowgreen",
-    };
-    const slotKey = themeSlotMap[flagType];
-    if (slotKey) {
-      const themeUrl = this.resolveAssetUrlBySlot(slotKey);
-      if (themeUrl) return themeUrl;
-    }
-
-    // 2. Individual Settings override
-    const settings = this.settingsService.getSettings();
-
-    let url: string | undefined;
-    if (flagType === "green") url = settings.flagGreen;
-    if (flagType === "yellow") url = settings.flagYellow;
-    if (flagType === "red") url = settings.flagRed;
-    if (flagType === "white") url = settings.flagWhite;
-    if (flagType === "checkered") url = settings.flagCheckered;
-    if (flagType === "green_yellow") url = settings.flagYellowGreen;
-
-    if (url) {
-      // Check if it's a dead asset reference (e.g. after a DB reset)
-      if (url.startsWith("/api/") && !url.includes("filename=")) {
-        this.logger.warn(`Flag URL appears to be a dead reference: ${url}`);
-        return url; // Still return it, let the backend handle it
-      }
-      return url;
-    }
-
-    // 3. Built-in default asset (name-based lookup from assets list)
-    const _flagUrls: Record<FlagType, string> = {
-      red: "/assets/flags/red.png",
-      green: "/assets/flags/green.png",
-      yellow: "/assets/flags/yellow.png",
-      white: "/assets/flags/white.png",
-      checkered: "/assets/flags/checkered.png",
-      green_yellow: "/assets/flags/green_yellow.png",
-    };
-
-    const displayNames: Record<FlagType, string> = {
-      red: "Red Flag",
-      green: "Green Flag",
-      yellow: "Yellow Flag",
-      white: "White Flag",
-      checkered: "Checkered Flag",
-      green_yellow: "Yellow Green Flag",
-    };
-
-    const displayName =
-      displayNames[flagType as FlagType] || displayNames["red"];
-    const slug = displayName.replace(/\s+/g, "_");
-    // Strict match by name first, then by slugified name
-    const defaultAsset =
-      this.assets.find((a) => a.name === displayName) ||
-      this.assets.find((a) => a.name === slug) ||
-      this.assets.find((a) => a.url?.includes(slug));
-
-    if (defaultAsset) {
-      const finalUrl = this.getFullUrl(defaultAsset.url);
-      this.logger.debug(
-        `Flag resolution for ${flagType}: Using default asset: ${defaultAsset.name} -> ${finalUrl}`,
-      );
-      return finalUrl;
-    }
-
-    // 4. Ultimate fallback
-    this.logger.warn(
-      `Flag resolution for ${flagType}: No asset found, using ultimate fallback.`,
-    );
-    return "assets/images/crossed_racing_flags.png";
+    return this.raceFlagService.getFlagUrl(this.raceFlagService.getFlagType());
   }
 
   getFullUrl(url: string | undefined): string {
@@ -1825,6 +1748,7 @@ export class DefaultRacedayComponent
       kph: 330,
       fph: 330,
       segmentTime: 330,
+      flag: 120,
       imageset: 216,
     };
 
@@ -2196,6 +2120,12 @@ export class DefaultRacedayComponent
       if (this.isEmptyDriver(hd)) return "";
       const rank = hd.participant?.rank ?? (hd.driver as any)?.rank;
       return rank ? `(${rank})` : "--";
+    } else if (baseKey === "flag") {
+      const flag =
+        value === RaceFlag.UNKNOWN_FLAG || value === 0
+          ? this.raceFlagService.getFlagType()
+          : value;
+      return this.getFlagUrl(flag);
     } else if (baseKey === "segmentTime") {
       const parts = propertyName.split("_");
       const index = parts.length > 1 ? parseInt(parts[1], 10) : 0;
@@ -2732,7 +2662,7 @@ export class DefaultRacedayComponent
   }
 
   private getAssetUrl(name: string): string {
-    const asset = (this.assets || []).find((a) => a.name === name);
+    const asset = (this.assets || []).find((a: any) => a.name === name);
     return asset ? this.getFullUrl(asset.url) : "";
   }
 
@@ -2748,7 +2678,7 @@ export class DefaultRacedayComponent
 
     // Find the asset in the loaded assets list by entity ID
     const asset = (this.assets || []).find(
-      (a) =>
+      (a: any) =>
         a.model?.entityId === assetId ||
         a.entity_id === assetId ||
         a._id === assetId,

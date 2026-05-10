@@ -287,4 +287,55 @@ public class StartingStateTest {
     assertTrue("False starts should be 1", dhd.getFalseStarts() == 1);
     assertTrue("Time penalty should be 5.0", dhd.getRemainingFalseStartTimePenalty() == 5.0);
   }
+
+  @Test
+  public void testFlagTypeDuringStarting() throws Exception {
+    Starting starting = new Starting();
+
+    // 1) Initial start: should be RED
+    race.setHasRacedInCurrentHeat(false);
+    starting.enter(race);
+    assertTrue(
+        "Flag should be RED for initial start",
+        starting.getFlagType(race) == com.antigravity.proto.RaceFlag.RED);
+    starting.exit(race);
+
+    // 2) Restart: should be YELLOW
+    race.setHasRacedInCurrentHeat(true);
+    starting.enter(race);
+    assertTrue(
+        "Flag should be YELLOW for restart",
+        starting.getFlagType(race) == com.antigravity.proto.RaceFlag.YELLOW);
+    starting.exit(race);
+  }
+
+  @Test
+  public void testFalseStartLaneFlag() throws Exception {
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder().withFalseStartTimePenalty(5.0).build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    Starting starting = new Starting();
+    starting.enter(race);
+
+    // Initial lane flag should be base flag (RED)
+    assertTrue(
+        "Initial lane flag should be RED",
+        starting.getLaneFlagType(race, 0) == com.antigravity.proto.RaceFlag.RED);
+
+    // Simulate false start
+    starting.onLap(0, 0.5, 1, false);
+
+    // Lane flag should now be BLACK
+    assertTrue(
+        "Lane flag should be BLACK after false start penalty",
+        starting.getLaneFlagType(race, 0) == com.antigravity.proto.RaceFlag.BLACK);
+  }
 }

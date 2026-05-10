@@ -223,40 +223,41 @@ public class NotStarted implements IRaceState {
     double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
     double elapsed = autoStartTime - race.getAutoStartRemaining();
 
-    if (autoStartWarmupTime > 0 && elapsed <= autoStartWarmupTime) {
-      executionManager.handlePitDetection(carData);
-      if (executionManager.isDigitalFuelEnabled()) {
-        executionManager.handleDigitalFuelCarData(carData);
-      }
+    executionManager.handlePitDetection(carData);
+    if (executionManager.isDigitalFuelEnabled()) {
+      executionManager.handleDigitalFuelCarData(carData);
+    }
 
-      int lane = carData.getLane();
-      // Broadcast the CarData to clients
-      com.antigravity.proto.CarData.Builder dataBuilder = // fqn-collision
-          com.antigravity.proto.CarData.newBuilder() // fqn-collision
-              .setLane(carData.getLane())
-              .setControllerThrottlePct(carData.getControllerThrottlePCT())
-              .setCarThrottlePct(carData.getCarThrottlePCT())
-              .setLocation(carData.getLocation().getValue())
-              .setLocationId(carData.getLocationId())
-              .setIsRefueling(executionManager.getIsRefueling()[lane]);
+    int lane = carData.getLane();
+    // Broadcast the CarData to clients
+    com.antigravity.proto.CarData.Builder dataBuilder = // fqn-collision
+        com.antigravity.proto.CarData.newBuilder() // fqn-collision
+            .setLane(carData.getLane())
+            .setControllerThrottlePct(carData.getControllerThrottlePCT())
+            .setCarThrottlePct(carData.getCarThrottlePCT())
+            .setLocation(carData.getLocation().getValue())
+            .setLocationId(carData.getLocationId())
+            .setIsRefueling(executionManager.getIsRefueling()[lane]);
 
-      if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
-        if (lane >= 0 && lane < race.getCurrentHeat().getDrivers().size()) {
-          DriverHeatData driverData = race.getCurrentHeat().getDrivers().get(lane);
-          if (driverData != null) {
-            driverData.setCurrentLocation(carData.getLocation());
-            if (driverData.getDriver() != null) {
-              dataBuilder.setFuelLevel(driverData.getDriver().getFuelLevel());
-            }
+    if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
+      if (lane >= 0 && lane < race.getCurrentHeat().getDrivers().size()) {
+        DriverHeatData driverData = race.getCurrentHeat().getDrivers().get(lane);
+        if (driverData != null) {
+          driverData.setCurrentLocation(carData.getLocation());
+          if (driverData.getDriver() != null) {
+            dataBuilder.setFuelLevel(driverData.getDriver().getFuelLevel());
           }
+          RaceFlag laneFlag = getLaneFlagType(race, lane);
+          driverData.setFlag(laneFlag);
+          dataBuilder.setFlag(laneFlag);
         }
       }
-
-      com.antigravity.proto.CarData protoCarData = dataBuilder.build(); // fqn-collision
-      RaceData raceDataMsg = RaceData.newBuilder().setCarData(protoCarData).build();
-
-      race.broadcast(raceDataMsg);
     }
+
+    com.antigravity.proto.CarData protoCarData = dataBuilder.build(); // fqn-collision
+    RaceData raceDataMsg = RaceData.newBuilder().setCarData(protoCarData).build();
+
+    race.broadcast(raceDataMsg);
   }
 
   private void startAutoStartTimer(final Race race) {

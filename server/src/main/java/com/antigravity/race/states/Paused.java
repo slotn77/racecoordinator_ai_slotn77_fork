@@ -1,7 +1,9 @@
 package com.antigravity.race.states;
 
+import com.antigravity.proto.RaceData;
 import com.antigravity.proto.RaceFlag;
 import com.antigravity.protocols.CarData;
+import com.antigravity.race.DriverHeatData;
 import com.antigravity.race.Race;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +99,41 @@ public class Paused implements IRaceState {
   }
 
   @Override
-  public void onCarData(CarData carData) {}
+  public void onCarData(CarData carData) {
+    if (this.race == null) {
+      return;
+    }
+
+    int lane = carData.getLane();
+    // Broadcast the CarData to clients
+    com.antigravity.proto.CarData.Builder dataBuilder = // fqn-collision
+        com.antigravity.proto.CarData.newBuilder() // fqn-collision
+            .setLane(carData.getLane())
+            .setControllerThrottlePct(carData.getControllerThrottlePCT())
+            .setCarThrottlePct(carData.getCarThrottlePCT())
+            .setLocation(carData.getLocation().getValue())
+            .setLocationId(carData.getLocationId());
+
+    if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
+      if (lane >= 0 && lane < race.getCurrentHeat().getDrivers().size()) {
+        DriverHeatData driverData = race.getCurrentHeat().getDrivers().get(lane);
+        if (driverData != null) {
+          driverData.setCurrentLocation(carData.getLocation());
+          if (driverData.getDriver() != null) {
+            dataBuilder.setFuelLevel(driverData.getDriver().getFuelLevel());
+          }
+          RaceFlag laneFlag = getLaneFlagType(race, lane);
+          driverData.setFlag(laneFlag);
+          dataBuilder.setFlag(laneFlag);
+        }
+      }
+    }
+
+    com.antigravity.proto.CarData protoCarData = dataBuilder.build(); // fqn-collision
+    RaceData raceDataMsg = RaceData.newBuilder().setCarData(protoCarData).build();
+
+    race.broadcast(raceDataMsg);
+  }
 
   @Override
   public void onCallbutton(Race race, int lane) {

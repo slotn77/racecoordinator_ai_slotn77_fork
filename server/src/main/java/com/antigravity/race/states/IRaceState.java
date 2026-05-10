@@ -2,11 +2,40 @@ package com.antigravity.race.states;
 
 import com.antigravity.proto.RaceFlag;
 import com.antigravity.protocols.CarData;
+import com.antigravity.race.DriverHeatData;
 import com.antigravity.race.Race;
+import java.util.List;
 
 public interface IRaceState {
 
   RaceFlag getFlagType(Race race);
+
+  default RaceFlag getLaneFlagType(Race race, int lane) {
+    RaceFlag baseFlag = getFlagType(race);
+    if (race == null || race.getCurrentHeat() == null) return baseFlag;
+
+    List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    if (lane < 0 || lane >= drivers.size()) return baseFlag;
+
+    DriverHeatData dhd = drivers.get(lane);
+    if (dhd == null) return baseFlag;
+
+    // 1) Out of fuel
+    if (dhd.getDriver() != null && dhd.getDriver().getFuelLevel() <= 0) {
+      // Only if fuel is enabled
+      if (race.getHeatExecutionManager().isAnalogFuelEnabled()
+          || race.getHeatExecutionManager().isDigitalFuelEnabled()) {
+        return RaceFlag.BLACK;
+      }
+    }
+
+    // 2) False start penalty
+    if (dhd.getRemainingFalseStartTimePenalty() > 0) {
+      return RaceFlag.BLACK;
+    }
+
+    return baseFlag;
+  }
 
   void enter(Race race);
 

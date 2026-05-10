@@ -189,6 +189,9 @@ export class RaceConnectionService implements OnDestroy {
                 lap.isDrift!,
                 lap.type!,
               );
+              if (lap.flag !== undefined && lap.flag !== null) {
+                driverData.flag = lap.flag;
+              }
               this.lapSubject.next(lap);
             }
           }
@@ -201,8 +204,13 @@ export class RaceConnectionService implements OnDestroy {
         const heat = this.raceService.getCurrentHeat();
         if (heat && heat.heatDrivers && carData && carData.lane != null) {
           const driverData = heat.heatDrivers[carData.lane];
-          if (driverData && carData.fuelLevel != null) {
-            driverData.participant.fuelLevel = carData.fuelLevel as number;
+          if (driverData) {
+            if (carData.fuelLevel != null) {
+              driverData.participant.fuelLevel = carData.fuelLevel as number;
+            }
+            if (carData.flag !== undefined && carData.flag !== null) {
+              driverData.flag = carData.flag;
+            }
             this.carDataSubject.next(carData);
           }
         }

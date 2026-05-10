@@ -2,6 +2,7 @@ syntax = "proto3";
 package com.antigravity;
 
 import "server/race_participant.proto";
+import "server/race_state.proto";
 import "client/driver_model.proto";
 
 option java_package = "com.antigravity.proto";
@@ -35,5 +36,6 @@ message DriverHeatData {
   int32 current_location = 18;
   double initial_fuel_level = 19;
   int32 false_starts = 20;
+  RaceFlag flag = 21;
 }
 

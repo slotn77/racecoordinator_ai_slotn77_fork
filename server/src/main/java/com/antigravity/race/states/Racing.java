@@ -381,6 +381,9 @@ public class Racing implements IRaceState {
           if (driverData.getDriver() != null) {
             dataBuilder.setFuelLevel(driverData.getDriver().getFuelLevel());
           }
+          RaceFlag laneFlag = getLaneFlagType(race, lane);
+          driverData.setFlag(laneFlag);
+          dataBuilder.setFlag(laneFlag);
         }
       }
     }
@@ -472,6 +475,7 @@ public class Racing implements IRaceState {
               .setFuelLevel(dhd.getDriver().getFuelLevel())
               .setAdjustedLapCount(dhd.getAdjustedLapCount())
               .setType(Lap.LapType.LAP)
+              .setFlag(getLaneFlagType(race, i))
               .build();
 
       race.broadcast(RaceData.newBuilder().setLap(lapMsg).build());
@@ -507,6 +511,7 @@ public class Racing implements IRaceState {
         if (newRemaining <= 0) {
           logger.info("Racing: False start penalty for lane {} expired. Turning power ON.", i);
           race.setLanePower(true, i);
+          race.syncLaneFlags();
         }
       }
     }

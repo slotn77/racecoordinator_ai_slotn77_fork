@@ -61,6 +61,7 @@ export class Settings {
 
   sortByStandings: boolean = true;
   highlightRowOnLap: boolean = true;
+  driverStateBackfilled: boolean = false;
   racedayColumns: string[] = Settings.DEFAULT_COLUMNS;
   columnAnchors: { [key: string]: AnchorPoint } = {};
   columnLayouts: { [columnKey: string]: { [A in AnchorPoint]?: string } } = {
@@ -74,6 +75,7 @@ export class Settings {
     },
     lapCount: {
       [AnchorPoint.CenterCenter]: "lapCount",
+      [AnchorPoint.BottomLeft]: "flag",
     },
     lastLapTime: {
       [AnchorPoint.CenterCenter]: "lastLapTime",

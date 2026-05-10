@@ -23,4 +23,5 @@ enum RaceFlag {
    WHITE = 4;
    CHECKERED = 5;
    GREEN_YELLOW = 6;
+   BLACK = 7;
 }

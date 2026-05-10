@@ -65,7 +65,53 @@ public class RaceFlagTest {
 
     // Resuming
     when(race.hasRacedInCurrentHeat()).thenReturn(true);
-    assertEquals(RaceFlag.RED, state.getFlagType(race));
+    assertEquals(RaceFlag.YELLOW, state.getFlagType(race));
+  }
+
+  @Test
+  public void testLaneFlagBlackFuel() {
+    Racing state = new Racing();
+    Heat currentHeat = mock(Heat.class);
+    when(race.getCurrentHeat()).thenReturn(currentHeat);
+
+    List<DriverHeatData> activeDrivers = new ArrayList<>();
+    DriverHeatData dhd = mock(DriverHeatData.class);
+    RaceParticipant participant = mock(RaceParticipant.class);
+    when(dhd.getDriver()).thenReturn(participant);
+    activeDrivers.add(dhd);
+    when(currentHeat.getDrivers()).thenReturn(activeDrivers);
+
+    HeatExecutionManager hem = mock(HeatExecutionManager.class);
+    when(race.getHeatExecutionManager()).thenReturn(hem);
+    when(hem.isAnalogFuelEnabled()).thenReturn(true);
+
+    // Fuel > 0 -> Green
+    when(participant.getFuelLevel()).thenReturn(10.0);
+    assertEquals(RaceFlag.GREEN, state.getLaneFlagType(race, 0));
+
+    // Fuel <= 0 -> Black
+    when(participant.getFuelLevel()).thenReturn(0.0);
+    assertEquals(RaceFlag.BLACK, state.getLaneFlagType(race, 0));
+  }
+
+  @Test
+  public void testLaneFlagBlackFalseStart() {
+    Starting state = new Starting();
+    Heat currentHeat = mock(Heat.class);
+    when(race.getCurrentHeat()).thenReturn(currentHeat);
+
+    List<DriverHeatData> activeDrivers = new ArrayList<>();
+    DriverHeatData dhd = mock(DriverHeatData.class);
+    activeDrivers.add(dhd);
+    when(currentHeat.getDrivers()).thenReturn(activeDrivers);
+
+    // No penalty -> Red (base flag for Starting)
+    when(dhd.getRemainingFalseStartTimePenalty()).thenReturn(0.0);
+    assertEquals(RaceFlag.RED, state.getLaneFlagType(race, 0));
+
+    // Penalty > 0 -> Black
+    when(dhd.getRemainingFalseStartTimePenalty()).thenReturn(5.0);
+    assertEquals(RaceFlag.BLACK, state.getLaneFlagType(race, 0));
   }
 
   @Test

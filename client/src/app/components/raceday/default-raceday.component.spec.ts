@@ -74,6 +74,7 @@ import {
   IRecordData,
   IStandingsUpdate,
   LapType,
+  RaceFlag,
   RaceState,
 } from "@app/proto/antigravity";
 import { MOCK_HEATS } from "@app/testing/data/heats_data";
@@ -703,6 +704,35 @@ describe("DefaultRacedayComponent", () => {
       // No column provided, or column with only one segment
       const result = component.formatValue("segmentTime", 4.567, mockHd as any);
       expect(result).toBe("4.567");
+    });
+
+    it("should format flag column value via RaceFlagService", () => {
+      mockRaceFlagService.getFlagUrl.and.returnValue(
+        "http://localhost/green_flag.png",
+      );
+      const result = component.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd as any,
+      );
+      expect(result).toBe("http://localhost/green_flag.png");
+      expect(mockRaceFlagService.getFlagUrl).toHaveBeenCalledWith(
+        RaceFlag.GREEN,
+      );
+    });
+
+    it("should use global flag type if flag value is UNKNOWN in formatValue", () => {
+      mockRaceFlagService.getFlagType.and.returnValue("red");
+      mockRaceFlagService.getFlagUrl.and.returnValue(
+        "http://localhost/red_flag.png",
+      );
+      const result = component.formatValue(
+        "flag",
+        RaceFlag.UNKNOWN_FLAG,
+        mockHd as any,
+      );
+      expect(result).toBe("http://localhost/red_flag.png");
+      expect(mockRaceFlagService.getFlagType).toHaveBeenCalled();
     });
   });
 
@@ -1853,6 +1883,9 @@ describe("DefaultRacedayComponent", () => {
         return null;
       });
       mockRaceFlagService.getFlagType.and.returnValue("green");
+      mockRaceFlagService.getFlagUrl.and.returnValue(
+        "http://localhost/theme/green.png",
+      );
 
       const url = component.getCurrentFlagUrl();
       expect(url).toBe("http://localhost/theme/green.png");

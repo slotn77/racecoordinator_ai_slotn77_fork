@@ -1,9 +1,7 @@
 package com.antigravity.race;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.antigravity.models.Driver;
 import com.antigravity.models.HeatRotationType;
@@ -159,6 +157,9 @@ public class RacingTest {
     when(mockRace.getRaceModel()).thenReturn(mockModel);
     when(mockModel.getHeatScoring()).thenReturn(allowFinishScoring);
     when(mockRace.getStatistics()).thenReturn(new RaceStatistics());
+    when(mockRace.getState()).thenReturn(racing);
+    Track mockTrack = mock(Track.class);
+    when(mockRace.getTrack()).thenReturn(mockTrack);
 
     // Mock Heat and Drivers
     Heat mockHeat = mock(Heat.class);
@@ -220,6 +221,8 @@ public class RacingTest {
     com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
     when(mockRace.getRaceModel()).thenReturn(mockModel);
     when(mockModel.getHeatScoring()).thenReturn(new HeatScoring());
+    when(mockRace.getState()).thenReturn(racing);
+    when(mockRace.getTrack()).thenReturn(mock(Track.class));
 
     HeatExecutionManager manager = new HeatExecutionManager(mockRace);
     manager.initialize(2);
@@ -257,6 +260,8 @@ public class RacingTest {
     com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
     when(mockRace.getRaceModel()).thenReturn(mockModel);
     when(mockModel.getHeatScoring()).thenReturn(new HeatScoring());
+    when(mockRace.getState()).thenReturn(racing);
+    when(mockRace.getTrack()).thenReturn(mock(Track.class));
 
     // Analog fuel options with capacity 100
     com.antigravity.models.AnalogFuelOptions fuelOptions =
@@ -319,6 +324,8 @@ public class RacingTest {
 
     com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
     when(mockRace.getRaceModel()).thenReturn(mockModel);
+    when(mockRace.getState()).thenReturn(racing);
+    when(mockRace.getTrack()).thenReturn(mock(Track.class));
 
     // 3 lap race
     HeatScoring scoring =
@@ -484,6 +491,8 @@ public class RacingTest {
     com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
     when(mockRace.getRaceModel()).thenReturn(mockModel);
     when(mockModel.getHeatScoring()).thenReturn(new HeatScoring());
+    when(mockRace.getState()).thenReturn(racing);
+    when(mockRace.getTrack()).thenReturn(mock(Track.class));
 
     Heat mockHeat = mock(Heat.class);
     when(mockRace.getCurrentHeat()).thenReturn(mockHeat);
@@ -501,37 +510,133 @@ public class RacingTest {
   @Test
   public void testFalseStartTimePenaltyProcessing() throws InterruptedException {
     Racing racing = new Racing();
-    com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
-    when(mockRace.getStatistics()).thenReturn(new RaceStatistics());
-    com.antigravity.models.Race mockModel = mock(com.antigravity.models.Race.class);
-    when(mockRace.getRaceModel()).thenReturn(mockModel);
-    when(mockModel.getHeatScoring()).thenReturn(new HeatScoring());
 
-    Heat mockHeat = mock(Heat.class);
-    when(mockRace.getCurrentHeat()).thenReturn(mockHeat);
-    when(mockHeat.getStatistics()).thenReturn(new RaceHeatStatistics());
+    // Create a real race model
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .withEntityId("race1")
+            .withHeatScoring(new HeatScoring())
+            .build();
 
-    DriverHeatData d1 = new DriverHeatData(participants.get(0));
-    // Set a 0.2s penalty
+    // Create a real race object
+    com.antigravity.race.Race realRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(track)
+            .drivers(participants)
+            .isDemoMode(true)
+            .build();
+
+    // Setup DriverHeatData with penalty
+    DriverHeatData d1 = realRace.getCurrentHeat().getDrivers().get(0);
     d1.setRemainingFalseStartTimePenalty(0.2);
-    when(mockHeat.getDrivers()).thenReturn(Collections.singletonList(d1));
 
-    HeatExecutionManager manager = new HeatExecutionManager(mockRace);
-    manager.initialize(1);
-    when(mockRace.getHeatExecutionManager()).thenReturn(manager);
+    realRace.changeState(racing);
 
-    racing.enter(mockRace);
+    // Initial check: Power should be OFF for lane 0 (called during enter via
+    // initializeFalseStartTimePenalties)
+    assertTrue("Power should be OFF for lane 0 initially", !realRace.isLanePower(0));
 
-    // Initial check: Power should be OFF for lane 0
-    verify(mockRace).setLanePower(false, 0);
-
-    // Wait for penalty to expire (ticker runs every 100ms)
-    // 0.2s penalty should expire in ~2-3 ticks
-    Thread.sleep(500);
+    // Wait for penalty to expire (0.2s penalty should expire in ~3-4 ticks)
+    long start = System.currentTimeMillis();
+    while (d1.getRemainingFalseStartTimePenalty() > 0
+        && (System.currentTimeMillis() - start) < 5000) {
+      Thread.sleep(100);
+    }
 
     // After expiry, power should be ON
-    verify(mockRace).setLanePower(true, 0);
+    assertTrue("Power should be ON for lane 0 after penalty expires", realRace.isLanePower(0));
 
-    racing.exit(mockRace);
+    realRace.stop();
+  }
+
+  @Test
+  public void testLaneFlagDuringPenalty() throws InterruptedException {
+    Racing racing = new Racing();
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .withEntityId("race1")
+            .withHeatScoring(new HeatScoring())
+            .build();
+
+    com.antigravity.race.Race realRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(track)
+            .drivers(participants)
+            .isDemoMode(true)
+            .build();
+
+    DriverHeatData d1 = realRace.getCurrentHeat().getDrivers().get(0);
+    d1.setRemainingFalseStartTimePenalty(0.2);
+
+    realRace.changeState(racing);
+    racing.enter(realRace);
+
+    // Flag should be BLACK during penalty
+    assertTrue(
+        "Lane flag should be BLACK during penalty",
+        racing.getLaneFlagType(realRace, 0) == com.antigravity.proto.RaceFlag.BLACK);
+
+    // Wait for penalty to expire
+    long start = System.currentTimeMillis();
+    while (d1.getRemainingFalseStartTimePenalty() > 0
+        && (System.currentTimeMillis() - start) < 2000) {
+      Thread.sleep(100);
+    }
+
+    // Flag should be GREEN (base flag) after penalty
+    assertTrue(
+        "Lane flag should be GREEN after penalty expires",
+        racing.getLaneFlagType(realRace, 0) == com.antigravity.proto.RaceFlag.GREEN);
+
+    realRace.stop();
+  }
+
+  @Test
+  public void testLaneFlagDuringLowFuel() {
+    Racing racing = new Racing();
+
+    // Analog fuel options
+    com.antigravity.models.AnalogFuelOptions fuelOptions =
+        new com.antigravity.models.AnalogFuelOptions(
+            true, // enabled
+            false, false, 100.0, null, 4.0, 100.0, 10.0, 2.0, 6.0);
+
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder()
+            .withEntityId("race1")
+            .withHeatScoring(new HeatScoring())
+            .withFuelOptions(fuelOptions)
+            .build();
+
+    com.antigravity.race.Race realRace =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(track)
+            .drivers(participants)
+            .isDemoMode(true)
+            .build();
+
+    DriverHeatData d1 = realRace.getCurrentHeat().getDrivers().get(0);
+    d1.getDriver().setFuelLevel(0.0);
+
+    realRace.changeState(racing);
+    // Note: getLaneFlagType uses HeatExecutionManager to check if fuel is enabled
+    // The manager is initialized during enter() or set manually.
+    // IRaceState.getLaneFlagType checks:
+    // race.getHeatExecutionManager().isAnalogFuelEnabled()
+
+    assertTrue(
+        "Lane flag should be BLACK when fuel is 0",
+        racing.getLaneFlagType(realRace, 0) == com.antigravity.proto.RaceFlag.BLACK);
+
+    // Set fuel back
+    d1.getDriver().setFuelLevel(50.0);
+    assertTrue(
+        "Lane flag should be GREEN when fuel is recovered",
+        racing.getLaneFlagType(realRace, 0) == com.antigravity.proto.RaceFlag.GREEN);
+
+    realRace.stop();
   }
 }

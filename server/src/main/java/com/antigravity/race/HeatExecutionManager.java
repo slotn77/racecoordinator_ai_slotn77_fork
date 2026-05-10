@@ -116,7 +116,9 @@ public class HeatExecutionManager {
                 .setLapTime(lapTime)
                 .setInterfaceId(interfaceId)
                 .setType(Lap.LapType.MIN_LAP_TIME)
+                .setFlag(race.getState().getLaneFlagType(race, lane))
                 .build();
+        driverData.setFlag(minLapMsg.getFlag());
         race.broadcast(RaceData.newBuilder().setLap(minLapMsg).build());
         return false;
       }
@@ -267,7 +269,13 @@ public class HeatExecutionManager {
 
           // Broadcast fuel update using CarData instead of Lap
           CarData fuelMsg =
-              CarData.newBuilder().setLane(i).setFuelLevel(newFuel).setIsRefueling(true).build();
+              CarData.newBuilder()
+                  .setLane(i)
+                  .setFuelLevel(newFuel)
+                  .setIsRefueling(true)
+                  .setFlag(race.getState().getLaneFlagType(race, i))
+                  .build();
+          driverData.setFlag(fuelMsg.getFlag());
 
           RaceData fuelDataMsg = RaceData.newBuilder().setCarData(fuelMsg).build();
 
@@ -564,7 +572,9 @@ public class HeatExecutionManager {
               .setLapTime(totalReactionTime)
               .setInterfaceId(interfaceId)
               .setType(Lap.LapType.REACTION_TIME)
+              .setFlag(race.getState().getLaneFlagType(race, lane))
               .build();
+      driverData.setFlag(rtMsg.getFlag());
 
       RaceData rtDataMsg = RaceData.newBuilder().setLap(rtMsg).build();
 
@@ -640,7 +650,9 @@ public class HeatExecutionManager {
             .setIsDrift(isDrift)
             .setAdjustedLapCount(driverData.getAdjustedLapCount())
             .setType(Lap.LapType.LAP)
+            .setFlag(race.getState().getLaneFlagType(race, lane))
             .build();
+    driverData.setFlag(lapMsg.getFlag());
 
     RaceData lapDataMsg = RaceData.newBuilder().setLap(lapMsg).build();
 

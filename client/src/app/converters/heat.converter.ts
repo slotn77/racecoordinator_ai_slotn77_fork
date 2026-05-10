@@ -61,6 +61,7 @@ export class HeatConverter {
             hd.reactionTime = dProto.reactionTime || 0;
             hd.isRefueling = !!dProto.isRefueling;
             hd.currentLocation = dProto.currentLocation ?? -1;
+            hd.flag = dProto.flag || 0;
             if (dProto.segments) {
               dProto.segments.forEach((seg, i) => {
                 hd.addSegmentTime(i, seg);

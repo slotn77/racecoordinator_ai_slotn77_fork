@@ -1,6 +1,8 @@
 syntax = "proto3";
 package com.antigravity;
 
+import "server/race_state.proto";
+
 option java_package = "com.antigravity.proto";
 option java_multiple_files = true;
 option java_outer_classname = "LapProto";
@@ -25,4 +27,5 @@ message Lap {
   bool is_drift = 10;
   double adjusted_lap_count = 11;
   LapType type = 12;
+  RaceFlag flag = 13;
 }

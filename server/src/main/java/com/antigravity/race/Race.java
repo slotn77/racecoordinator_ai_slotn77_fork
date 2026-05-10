@@ -81,6 +81,7 @@ public class Race implements ProtocolListener {
   private double autoStartRemaining = 0;
   private double autoAdvanceRemaining = 0;
   private boolean mainPower = false;
+  private boolean[] lanePower;
 
   // Heat execution state
   private HeatExecutionManager executionManager;
@@ -173,6 +174,8 @@ public class Race implements ProtocolListener {
     }
 
     this.accumulatedRaceTime = builder.accumulatedRaceTime;
+    this.lanePower = new boolean[this.track.getLanes().size()];
+    java.util.Arrays.fill(this.lanePower, true); // Default to power ON
     this.hasRacedInCurrentHeat = builder.hasRacedInCurrentHeat;
     this.autoStartFired = builder.autoStartFired;
     this.autoAdvanceFired = builder.autoAdvanceFired;
@@ -671,6 +674,7 @@ public class Race implements ProtocolListener {
   public void broadcastFlag(RaceFlag flag) {
     RaceData raceDataMsg = RaceData.newBuilder().setFlag(flag).build();
     this.broadcast(raceDataMsg);
+    syncLaneFlags();
     updatePowerForFlag(flag);
     if (protocols != null) {
       protocols.setRaceState(getProtoState(state), flag, 0);
@@ -741,6 +745,7 @@ public class Race implements ProtocolListener {
 
     // Calculate and broadcast the new state and flag for UI responsiveness
     // This happens before the potentially slow exit() of the previous state
+    syncLaneFlags();
     RaceState protoState = getProtoState(state);
     RaceFlag protoFlag = state.getFlagType(this);
 
@@ -815,12 +820,25 @@ public class Race implements ProtocolListener {
     return mainPower;
   }
 
+  // TODO(aufderheide): Remove this, it's only used by the test suite
+  // and we shouldn't add production code for testing.
+  public boolean isLanePower(int lane) {
+    if (lanePower == null || lane < 0 || lane >= lanePower.length) return false;
+    return lanePower[lane];
+  }
+
   public void setLanePower(boolean on, int lane) {
     if (lane < 0) {
       for (int i = 0; i < this.track.getLanes().size(); i++) {
+        if (lanePower != null && i < lanePower.length) {
+          this.lanePower[i] = on;
+        }
         protocols.setLanePower(on, i);
       }
     } else {
+      if (lanePower != null && lane >= 0 && lane < lanePower.length) {
+        this.lanePower[lane] = on;
+      }
       protocols.setLanePower(on, lane);
     }
   }
@@ -1023,6 +1041,24 @@ public class Race implements ProtocolListener {
     broadcast(raceData);
   }
 
+  public void syncLaneFlags() {
+    if (currentHeat == null || state == null) return;
+    List<DriverHeatData> drivers = currentHeat.getDrivers();
+    for (int i = 0; i < drivers.size(); i++) {
+      DriverHeatData dhd = drivers.get(i);
+      RaceFlag flag = state.getLaneFlagType(this, i);
+      dhd.setFlag(flag);
+
+      // Broadcast the flag update to clients
+      com.antigravity.proto.CarData carData = // fqn-collision
+          com.antigravity.proto.CarData.newBuilder() // fqn-collision
+              .setLane(i)
+              .setFlag(flag)
+              .build();
+      broadcast(RaceData.newBuilder().setCarData(carData).build());
+    }
+  }
+
   public boolean isActive() {
     return !(state instanceof RaceOver);
   }
@@ -1130,7 +1166,8 @@ public class Race implements ProtocolListener {
     }
 
     // Lane records for the race - best score achieved by ANYONE while in that lane
-    // Note: currentScore is totalLaps, so we check who had the best total laps while
+    // Note: currentScore is totalLaps, so we check who had the best total laps
+    // while
     // finishing a heat in that lane.
     for (Heat heat : heats) {
       for (int i = 0; i < heat.getDrivers().size(); i++) {
