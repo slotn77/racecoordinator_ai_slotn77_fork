@@ -170,8 +170,26 @@ public class Starting implements IRaceState {
     logger.info("False start detected on lane {}", lane);
     dhd.incrementFalseStarts();
     dhd.setPenaltyLaps(dhd.getPenaltyLaps() + race.getRaceModel().getFalseStartLapPenalty());
-    dhd.setRemainingFalseStartTimePenalty(race.getRaceModel().getFalseStartTimePenalty());
-    dhd.addPendingLapTime(lapTime);
+    double timePenalty = race.getRaceModel().getFalseStartTimePenalty();
+    dhd.setRemainingFalseStartTimePenalty(timePenalty);
+
+    if (timePenalty > 0 && race.hasPerLaneRelays()) {
+      logger.info("False start recorded as 0.0 reaction time for lane {}", lane);
+      dhd.setReactionTime(0.0);
+      // Broadcast reaction time message
+      Lap rtMsg =
+          Lap.newBuilder()
+              .setObjectId(dhd.getObjectId())
+              .setLapTime(0.0)
+              .setDriverId(dhd.getActualDriver() != null ? dhd.getActualDriver().getEntityId() : "")
+              .setFuelLevel(dhd.getDriver().getFuelLevel())
+              .setType(Lap.LapType.REACTION_TIME)
+              .setFlag(getLaneFlagType(race, lane))
+              .build();
+      race.broadcast(RaceData.newBuilder().setLap(rtMsg).build());
+    } else {
+      dhd.addPendingLapTime(lapTime);
+    }
 
     // Broadcast update so UI sees the false start
     Lap lapMsg =

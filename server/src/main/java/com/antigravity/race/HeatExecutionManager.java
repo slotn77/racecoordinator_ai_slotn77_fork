@@ -188,7 +188,7 @@ public class HeatExecutionManager {
       return;
     }
 
-    if (driverData.getReactionTime() == 0.0f) {
+    if (driverData.getReactionTime() < 0) {
       logger.debug("Ignored onSegment - Driver on lane {} has not set reaction time", lane);
       return;
     }
@@ -561,7 +561,7 @@ public class HeatExecutionManager {
 
   private boolean handleReactionTime(
       DriverHeatData driverData, double lapTime, int lane, int interfaceId) {
-    if (driverData.getReactionTime() == 0.0f) {
+    if (driverData.getReactionTime() < 0) {
       double totalReactionTime = lapTime + driverData.getPendingLapTime();
       driverData.setPendingLapTime(0.0);
       driverData.setReactionTime(totalReactionTime);

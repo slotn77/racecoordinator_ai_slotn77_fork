@@ -1,5 +1,6 @@
 package com.antigravity.race;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -337,5 +338,66 @@ public class StartingStateTest {
     assertTrue(
         "Lane flag should be BLACK after false start penalty",
         starting.getLaneFlagType(race, 0) == com.antigravity.proto.RaceFlag.BLACK);
+  }
+
+  @Test
+  public void testFalseStartRecordedAsZeroReactionTime() throws Exception {
+    // Setup track with per-lane relays
+    com.antigravity.protocols.IProtocol mockProtocol =
+        mock(com.antigravity.protocols.IProtocol.class);
+    when(mockProtocol.hasPerLaneRelays()).thenReturn(true);
+    when(mockProtocol.getNumLanes()).thenReturn(1);
+
+    com.antigravity.protocols.ProtocolDelegate delegate =
+        new com.antigravity.protocols.ProtocolDelegate(Collections.singletonList(mockProtocol));
+
+    com.antigravity.models.Race raceModel =
+        new com.antigravity.models.Race.Builder().withFalseStartTimePenalty(5.0).build();
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(raceModel)
+            .track(race.getTrack())
+            .drivers(race.getDrivers())
+            .isDemoMode(true)
+            .build();
+
+    // Use reflection or a test-only setter to inject the delegate if needed,
+    // but Race constructor actually takes the track and creates the delegate.
+    // However, we can use a spy on the race or just use the new helper method we
+    // added.
+    // Wait, the Race.Builder creates the delegate.
+
+    // Let's use the helper we added to confirm it works with the mock
+    // Actually, we can't easily mock the protocols inside Race without more
+    // refactoring,
+    // but we can test the logic in Starting.onLap by mocking the Race object.
+
+    com.antigravity.race.Race spyRace = spy(race);
+    when(spyRace.hasPerLaneRelays()).thenReturn(true);
+
+    Starting starting = new Starting();
+    starting.enter(spyRace);
+
+    DriverHeatData dhd = spyRace.getCurrentHeat().getDrivers().get(0);
+    assertEquals(-1.0, dhd.getReactionTime(), 0.001);
+
+    // Simulate false start
+    starting.onLap(0, 0.5, 1, false);
+
+    // Verify reaction time is 0.0
+    assertEquals(0.0, dhd.getReactionTime(), 0.001);
+    assertEquals(0.0, dhd.getPendingLapTime(), 0.001);
+
+    // Now test without per-lane relays
+    dhd.reset();
+    assertEquals(-1.0, dhd.getReactionTime(), 0.001);
+    when(spyRace.hasPerLaneRelays()).thenReturn(false);
+
+    starting.onLap(0, 0.5, 1, false);
+
+    // Reaction time should STILL be -1.0, and lapTime should be in pending
+    assertEquals(-1.0, dhd.getReactionTime(), 0.001);
+    assertEquals(0.5, dhd.getPendingLapTime(), 0.001);
   }
 }

@@ -238,7 +238,7 @@ public class HeatExecutionManagerTest {
 
     // Segments are ignored before reaction time is set (via onLap)
     executionManager.onSegment(0, 1.2, 1);
-    assertEquals(0.0, driverData.getReactionTime(), 0.001);
+    assertEquals(-1.0, driverData.getReactionTime(), 0.001);
     assertEquals(0, driverData.getSegments().size());
 
     // First lap hit sets reaction time
@@ -537,5 +537,26 @@ public class HeatExecutionManagerTest {
     // Another lap resets time
     executionManager.onLap(0, 10.0, 1, false, true, false); // Lap 1
     assertEquals(0.0, executionManager.getTimeSinceLastLap()[0], 0.001);
+  }
+
+  @Test
+  public void testFalseStartReactionTimeHandling() {
+    executionManager.initialize(2);
+    DriverHeatData dhd = race.getCurrentHeat().getDrivers().get(0);
+
+    // Set reaction time to 0.0 (simulating false start recorded in Starting state)
+    dhd.setReactionTime(0.0);
+
+    // Subsequent lap hit should NOT be treated as reaction time, but as Lap 1
+    // In handleLapTime, effectiveLapTime = lapTime + reactionTime = 5.0 + 0.0 = 5.0
+    executionManager.onLap(0, 5.0, 1, false, true, false);
+
+    assertEquals(1, dhd.getLapCount());
+    assertEquals(5.0, dhd.getLaps().get(0).getLapTime(), 0.001);
+    assertEquals(0.0, dhd.getReactionTime(), 0.001); // Should still be 0.0
+
+    // Segments should be accepted now
+    executionManager.onSegment(0, 1.2, 1);
+    assertEquals(1, dhd.getSegments().size());
   }
 }

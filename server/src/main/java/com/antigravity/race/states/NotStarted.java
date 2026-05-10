@@ -219,10 +219,6 @@ public class NotStarted implements IRaceState {
       return;
     }
 
-    double autoStartTime = race.getRaceModel().getAutoStartTime();
-    double autoStartWarmupTime = race.getRaceModel().getAutoStartWarmupTime();
-    double elapsed = autoStartTime - race.getAutoStartRemaining();
-
     executionManager.handlePitDetection(carData);
     if (executionManager.isDigitalFuelEnabled()) {
       executionManager.handleDigitalFuelCarData(carData);

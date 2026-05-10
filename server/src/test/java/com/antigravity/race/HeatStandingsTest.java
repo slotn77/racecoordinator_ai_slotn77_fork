@@ -403,4 +403,46 @@ public class HeatStandingsTest {
     assertEquals(2.5, d2.getGapLeader(), 0.001);
     assertEquals(2.5, d2.getGapPosition(), 0.001);
   }
+
+  @Test
+  public void testFalseStartReactionTimeTiebreaker() {
+    RaceParticipant p1 = createDriver("p1");
+    RaceParticipant p2 = createDriver("p2");
+    RaceParticipant p3 = createDriver("p3");
+
+    // p1: real reaction 0.5s
+    DriverHeatData d1 = new DriverHeatData(p1);
+    d1.setReactionTime(0.5);
+
+    // p2: false start reaction 0.0s (should be worse than 0.5s)
+    DriverHeatData d2 = new DriverHeatData(p2);
+    d2.setReactionTime(0.0);
+
+    // p3: no reaction -1.0s (should be same as 0.0s or at least worse than 0.5s)
+    DriverHeatData d3 = new DriverHeatData(p3);
+    d3.setReactionTime(-1.0);
+
+    List<DriverHeatData> data = new ArrayList<>();
+    data.add(d2);
+    data.add(d3);
+    data.add(d1);
+
+    HeatStandings standings =
+        new HeatStandings(
+            data,
+            new HeatScoring(
+                HeatScoring.FinishMethod.Lap,
+                0,
+                HeatScoring.HeatRanking.LAP_COUNT,
+                HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME));
+
+    List<String> results = standings.getStandings();
+
+    // d1 should be first because 0.5 > 0.0 (or -1.0) in the tie-breaker logic
+    // where <= 0 becomes Double.MAX_VALUE
+    assertEquals(d1.getObjectId(), results.get(0));
+
+    // d2 and d3 are both Double.MAX_VALUE, so they maintain their relative order
+    // or sort by name/objectId.
+  }
 }

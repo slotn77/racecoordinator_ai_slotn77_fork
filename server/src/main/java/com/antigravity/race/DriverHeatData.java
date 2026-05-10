@@ -68,7 +68,7 @@ public class DriverHeatData extends ServerToClientObject {
 
   private final ArrayList<LapData> laps = new ArrayList<>();
   private double bestLapTime = 0.0f;
-  private double reactionTime = 0.0f;
+  private double reactionTime = -1.0;
   private double pendingLapTime = 0.0f;
   private double initialFuelLevel = 0.0;
   private double gapLeader = 0.0;
@@ -225,7 +225,7 @@ public class DriverHeatData extends ServerToClientObject {
     laps.clear();
     segments.clear();
     bestLapTime = 0.0f;
-    reactionTime = 0.0f;
+    reactionTime = -1.0;
     pendingLapTime = 0.0f;
     gapLeader = 0.0;
     gapPosition = 0.0;

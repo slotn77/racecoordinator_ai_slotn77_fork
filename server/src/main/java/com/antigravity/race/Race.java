@@ -812,6 +812,10 @@ public class Race implements ProtocolListener {
     protocols.setMainPower(on);
   }
 
+  public boolean hasPerLaneRelays() {
+    return protocols != null && protocols.hasPerLaneRelays();
+  }
+
   public void forceMainPowerSync() {
     protocols.setMainPower(this.mainPower);
   }

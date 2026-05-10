@@ -52,4 +52,22 @@ public class DriverHeatDataTest {
     // Total time should also be based on actual laps: 50.0
     assertEquals(50.0, dhd.getTotalTime(), 0.001);
   }
+
+  @Test
+  public void testReactionTimeDefaultAndReset() {
+    Driver driverModel = new Driver("Test", "Test");
+    RaceParticipant driver = new RaceParticipant(driverModel);
+    DriverHeatData dhd = new DriverHeatData(driver);
+
+    // Default should be -1.0 (not set)
+    assertEquals(-1.0, dhd.getReactionTime(), 0.001);
+
+    // Set it to 0.0 (e.g. false start)
+    dhd.setReactionTime(0.0);
+    assertEquals(0.0, dhd.getReactionTime(), 0.001);
+
+    // Reset should put it back to -1.0
+    dhd.reset();
+    assertEquals(-1.0, dhd.getReactionTime(), 0.001);
+  }
 }
