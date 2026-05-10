@@ -342,7 +342,9 @@
                     [class.leader-gold]="getLeaderboardPosition(entry) === 0"
                     [class.leader-white]="getLeaderboardPosition(entry) > 0"
                   >
-                    {{ entry.score | number: "1.0-2" }}
+                    {{
+                      entry.score | number: (entry.isTime ? "1.3-3" : "1.0-2")
+                    }}
                   </span>
                 </div>
               }

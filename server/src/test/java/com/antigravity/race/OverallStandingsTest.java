@@ -271,4 +271,32 @@ public class OverallStandingsTest {
 
     assertEquals(15.75, p1.getTotalLaps(), 0.001);
   }
+
+  @Test
+  public void testZeroTimeRanking() {
+    // Main criteria: TOTAL_TIME
+    HeatScoring heatScoring =
+        new HeatScoring(
+            FinishMethod.Timed, 10, HeatRanking.TOTAL_TIME, HeatRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallScoring overallScoring =
+        new OverallScoring(0, OverallRanking.TOTAL_TIME, OverallRankingTiebreaker.FASTEST_LAP_TIME);
+    OverallStandings os = new OverallStandings(heatScoring, overallScoring);
+
+    RaceParticipant p1 = createDriver("D1", "id1");
+    RaceParticipant p2 = createDriver("D2", "id2");
+    List<RaceParticipant> drivers = new ArrayList<>();
+    drivers.add(p1);
+    drivers.add(p2);
+
+    List<Heat> heats = new ArrayList<>();
+    // P1: 0 laps, 0s
+    // P2: 1 lap, 10s
+    // P2 should be #1 because 10s is an actual time, while 0s means no progress.
+    heats.add(createHeat(1, p1, 0, 0.0, p2, 1, 10.0));
+
+    os.recalculate(drivers, heats);
+
+    assertEquals(1, p2.getRank());
+    assertEquals(2, p1.getRank());
+  }
 }

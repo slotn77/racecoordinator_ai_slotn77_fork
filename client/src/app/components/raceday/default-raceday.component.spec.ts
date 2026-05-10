@@ -16,6 +16,7 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { DataService } from "@app/data.service";
 import { AllowFinish, FinishMethod } from "@app/models/heat_scoring";
+import { OverallRanking } from "@app/models/overall_scoring";
 import { ColumnVisibility, Settings } from "@app/models/settings";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceService } from "@app/services/race.service";
@@ -1010,6 +1011,85 @@ describe("DefaultRacedayComponent", () => {
       fixture.detectChanges();
       const entries = component["leaderboardEntries"];
       expect(entries[0].name).toBe("Team Elite");
+    });
+
+    it("should use rankValue and set isTime based on ranking method (Total Time)", () => {
+      (component["race"] as any).overall_scoring = {
+        rankingMethod: OverallRanking.OR_TOTAL_TIME,
+      } as any;
+      participantsSubject.next([
+        {
+          driver: mockDriver1,
+          totalLaps: 10,
+          rank: 1,
+          rankValue: 123.456,
+        } as any,
+      ]);
+      fixture.detectChanges();
+      const entries = component["leaderboardEntries"];
+      expect(entries[0].score).toBe(123.456);
+      expect(entries[0].isTime).toBeTrue();
+    });
+
+    it("should use rankValue and set isTime to false for LAP_COUNT", () => {
+      (component["race"] as any).overall_scoring = {
+        rankingMethod: OverallRanking.OR_LAP_COUNT,
+      } as any;
+      participantsSubject.next([
+        {
+          driver: mockDriver1,
+          totalLaps: 10.25,
+          rank: 1,
+          rankValue: 10.25,
+        } as any,
+      ]);
+      fixture.detectChanges();
+      const entries = component["leaderboardEntries"];
+      expect(entries[0].score).toBe(10.25);
+      expect(entries[0].isTime).toBeFalse();
+    });
+
+    it("should use rankValue and set isTime for AVERAGE_LAP", () => {
+      (component["race"] as any).overall_scoring = {
+        rankingMethod: OverallRanking.OR_AVERAGE_LAP,
+      } as any;
+      participantsSubject.next([
+        {
+          driver: mockDriver1,
+          totalLaps: 50,
+          rank: 1,
+          rankValue: 8.765,
+        } as any,
+      ]);
+      fixture.detectChanges();
+      const entries = component["leaderboardEntries"];
+      expect(entries[0].score).toBe(8.765);
+      expect(entries[0].isTime).toBeTrue();
+    });
+
+    it("should update isTime for all entries when ranking method changes", () => {
+      // Start with LAP_COUNT
+      (component["race"] as any).overall_scoring = {
+        rankingMethod: OverallRanking.OR_LAP_COUNT,
+      } as any;
+      participantsSubject.next([
+        {
+          driver: mockDriver1,
+          rank: 1,
+          rankValue: 10,
+        } as any,
+      ]);
+      fixture.detectChanges();
+      expect(component["leaderboardEntries"][0].isTime).toBeFalse();
+
+      // Switch to TOTAL_TIME
+      (component["race"] as any).overall_scoring = {
+        rankingMethod: OverallRanking.OR_TOTAL_TIME,
+      } as any;
+      // Trigger update
+      participantsSubject.next(component["participants"]);
+      fixture.detectChanges();
+      expect(component["leaderboardEntries"][0].isTime).toBeTrue();
     });
 
     it("should update transform when ranks change (animation check)", () => {

@@ -27,6 +27,7 @@ import { DataService } from "@app/data.service";
 import { CanComponentDeactivate } from "@app/guards/raceday.guard";
 import { Driver } from "@app/models/driver";
 import { FinishMethod, HeatScoring } from "@app/models/heat_scoring";
+import { OverallRanking } from "@app/models/overall_scoring";
 import { Race } from "@app/models/race";
 import { RaceParticipant } from "@app/models/race_participant";
 import { ColumnVisibility, Settings } from "@app/models/settings";
@@ -121,13 +122,18 @@ export class DefaultRacedayComponent
    * Existing entries are updated in-place; new ones are appended.
    */
   private updateLeaderboardEntries(): void {
+    const rankingMethod = this.race?.overall_scoring?.rankingMethod;
+    const isTime =
+      rankingMethod && rankingMethod !== OverallRanking.OR_LAP_COUNT;
+
     const incoming = (this.participants || [])
       .filter((p) => p && p.driver && !Driver.isEmpty(p.driver))
       .map((p) => ({
         name: p.team?.name || p.driver?.nickname || p.driver?.name || "Unknown",
-        score: p.totalLaps || 0,
+        score: p.rankValue || 0,
         rank: p.rank || 0,
         entityId: p.driver?.entity_id || p.driver?.name || "",
+        isTime: isTime,
       }));
 
     const existingIds = new Set(this.leaderboardEntries.map((e) => e.entityId));

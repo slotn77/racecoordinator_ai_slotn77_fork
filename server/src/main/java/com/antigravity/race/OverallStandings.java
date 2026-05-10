@@ -156,7 +156,9 @@ public class OverallStandings {
           break;
         case TOTAL_TIME:
           // Lower time = better
-          comparator = Comparator.comparingDouble(DriverHeatData::getTotalTime);
+          comparator =
+              Comparator.comparingDouble(
+                  d -> d.getTotalTime() == 0 ? Double.MAX_VALUE : d.getTotalTime());
           break;
         default:
           comparator = (a, b) -> 0;
@@ -189,7 +191,8 @@ public class OverallStandings {
       comparator =
           Comparator.comparingDouble(DriverHeatData::getAdjustedLapCount)
               .reversed()
-              .thenComparingDouble(DriverHeatData::getTotalTime);
+              .thenComparingDouble(
+                  d -> d.getTotalTime() == 0 ? Double.MAX_VALUE : d.getTotalTime());
     }
     return comparator;
   }
@@ -220,7 +223,9 @@ public class OverallStandings {
                   p -> p.getBestLapTime() == 0 ? Double.MAX_VALUE : p.getBestLapTime());
           break;
         case TOTAL_TIME:
-          comparator = Comparator.comparingDouble(RaceParticipant::getTotalTime);
+          comparator =
+              Comparator.comparingDouble(
+                  p -> p.getTotalTime() == 0 ? Double.MAX_VALUE : p.getTotalTime());
           break;
         case AVERAGE_LAP:
           comparator =
@@ -254,7 +259,8 @@ public class OverallStandings {
         return Comparator.comparingDouble(
             p -> p.getAverageLapTime() == 0 ? Double.MAX_VALUE : p.getAverageLapTime());
       case TOTAL_TIME:
-        return Comparator.comparingDouble(RaceParticipant::getTotalTime);
+        return Comparator.comparingDouble(
+            p -> p.getTotalTime() == 0 ? Double.MAX_VALUE : p.getTotalTime());
       default:
         return (a, b) -> 0;
     }
