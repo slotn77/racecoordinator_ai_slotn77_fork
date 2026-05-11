@@ -574,4 +574,48 @@ public class HeatExecutionManagerTest {
     DriverHeatData.LapData lapData = race.getCurrentHeat().getDrivers().get(0).getLaps().get(0);
     assertTrue(lapData.isDrift());
   }
+
+  @Test
+  public void testHeatEndsWithEmptyLane_AllowFinish() {
+    heatScoring =
+        new HeatScoring(
+            HeatScoring.FinishMethod.Lap,
+            1L, // 1 lap race for quick test
+            HeatScoring.HeatRanking.LAP_COUNT,
+            HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+            HeatScoring.AllowFinish.Allow);
+
+    List<RaceParticipant> mixedParticipants = new ArrayList<>();
+    mixedParticipants.add(
+        new RaceParticipant(new Driver("Driver 1", "D1", "d1", new ObjectId()), "p1"));
+    mixedParticipants.add(new RaceParticipant(Driver.EMPTY_DRIVER));
+
+    race =
+        new com.antigravity.race.Race.Builder()
+            .model(
+                new Race.Builder()
+                    .withName("Test Race")
+                    .withTrackEntityId("track1")
+                    .withHeatScoring(heatScoring)
+                    .withOverallScoring(new OverallScoring())
+                    .withEntityId("race1")
+                    .build())
+            .drivers(mixedParticipants)
+            .track(track)
+            .isDemoMode(true)
+            .build();
+    executionManager = race.getHeatExecutionManager();
+    executionManager.initialize(2);
+
+    // Heat starts in Racing state for this test setup usually, but let's force it if needed
+    // The executionManager.onLap will call race.changeState()
+
+    // Driver 1 completes 1 lap
+    executionManager.onLap(0, 1.0, 1, false, true, false); // Reaction
+    executionManager.onLap(0, 5.0, 1, false, true, false); // Lap 1 (Finished)
+
+    // With the fix, the heat should end because active driver count is 1
+    assertTrue(
+        "Heat should be over because only 1 driver is active", race.getState() instanceof HeatOver);
+  }
 }

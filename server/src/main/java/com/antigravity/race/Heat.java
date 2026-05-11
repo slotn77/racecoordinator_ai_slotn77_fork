@@ -78,7 +78,8 @@ public class Heat extends ServerToClientObject {
       if (driverData != null
           && driverData.getDriver() != null
           && driverData.getDriver().getDriver() != null
-          && driverData.getDriver().getDriver().getEntityId() != null) {
+          && driverData.getDriver().getDriver().getEntityId() != null
+          && !driverData.getDriver().getDriver().isEmpty()) {
         count++;
       }
     }

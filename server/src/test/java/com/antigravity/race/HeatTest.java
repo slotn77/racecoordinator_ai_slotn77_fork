@@ -53,6 +53,16 @@ public class HeatTest {
     assertEquals(0, heat.getActiveDriverCount());
   }
 
+  @Test
+  public void testGetActiveDriverCount_WithEmptyDriverId() {
+    List<DriverHeatData> drivers = new ArrayList<>();
+    drivers.add(createMockDriver("d1"));
+    drivers.add(createMockDriver(Driver.EMPTY_DRIVER_ID));
+
+    Heat heat = new Heat(1, drivers, new HeatScoring());
+    assertEquals(1, heat.getActiveDriverCount());
+  }
+
   private DriverHeatData createMockDriver(String entityId) {
     DriverHeatData mockData = mock(DriverHeatData.class);
     RaceParticipant mockParticipant = mock(RaceParticipant.class);
@@ -61,6 +71,7 @@ public class HeatTest {
     when(mockData.getDriver()).thenReturn(mockParticipant);
     when(mockParticipant.getDriver()).thenReturn(mockDriver);
     when(mockDriver.getEntityId()).thenReturn(entityId);
+    when(mockDriver.isEmpty()).thenReturn(Driver.EMPTY_DRIVER_ID.equals(entityId));
     when(mockData.getObjectId()).thenReturn("obj_" + entityId);
 
     return mockData;
