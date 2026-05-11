@@ -346,8 +346,6 @@ public class ArduinoProtocol extends DefaultProtocol {
             TimeUnit.MILLISECONDS);
   }
 
-
-
   public void updateConfig(ArduinoConfig newConfig) {
     boolean commPortChanged = !Objects.equals(this.config.commPort, newConfig.commPort);
     boolean debounceChanged = this.config.debounceUs != newConfig.debounceUs;

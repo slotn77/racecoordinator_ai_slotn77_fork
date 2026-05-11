@@ -793,7 +793,10 @@ public class DatabaseTaskHandler {
       raceMap.put("false_start_time_penalty", race.getFalseStartTimePenalty());
 
       // Fetch driver_ids directly from the document to avoid modifying the Race POJO
-      Document raceDoc = getRaceCollection().find(Filters.eq("entity_id", race.getEntityId()), Document.class).first();
+      Document raceDoc =
+          getRaceCollection()
+              .find(Filters.eq("entity_id", race.getEntityId()), Document.class)
+              .first();
       if (raceDoc != null && raceDoc.containsKey("driver_ids")) {
         raceMap.put("driver_ids", raceDoc.get("driver_ids"));
       }
@@ -1108,7 +1111,7 @@ public class DatabaseTaskHandler {
       System.out.println("Fetching race history list. Demo Mode: " + isDemo);
       DatabaseService dbService = DatabaseService.getInstance();
       List<RaceHistoryRecord> allHistory = new ArrayList<>();
-      
+
       List<String> dbs = databaseContext.listDatabases();
       System.out.println("Found databases: " + String.join(", ", dbs));
       for (String dbName : dbs) {
@@ -1345,10 +1348,13 @@ public class DatabaseTaskHandler {
       String id = ctx.pathParam("id");
       boolean isDemo = "true".equals(ctx.queryParam("demo"));
       String dbName = ctx.queryParam("database");
-      
-      MongoDatabase db = dbName != null ? databaseContext.getMongoClient().getDatabase(dbName) : databaseContext.getDatabase();
+
+      MongoDatabase db =
+          dbName != null
+              ? databaseContext.getMongoClient().getDatabase(dbName)
+              : databaseContext.getDatabase();
       DatabaseService dbService = DatabaseService.getInstance();
-      
+
       boolean deleted = dbService.deleteRaceHistoryById(db, id, isDemo);
       if (deleted) {
         ctx.status(204);

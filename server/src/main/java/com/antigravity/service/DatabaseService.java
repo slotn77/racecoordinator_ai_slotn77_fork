@@ -240,7 +240,8 @@ public class DatabaseService {
     List<ArduinoConfig> configs = new ArrayList<>();
     configs.add(config);
     Track track =
-        new Track("The Heights", 100, lanes, configs, null, getNextSequence(database, "tracks"), null);
+        new Track(
+            "The Heights", 100, lanes, configs, null, getNextSequence(database, "tracks"), null);
 
     trackCollection.insertOne(track);
     logger.info("Tracks reset.");
@@ -565,7 +566,8 @@ public class DatabaseService {
   public boolean deleteRaceHistoryById(MongoDatabase database, String id, boolean isDemo) {
     try {
       MongoCollection<RaceHistoryRecord> collection =
-          database.getCollection(getCollectionName("race_history", isDemo), RaceHistoryRecord.class);
+          database.getCollection(
+              getCollectionName("race_history", isDemo), RaceHistoryRecord.class);
       DeleteResult result = collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
       return result.getDeletedCount() > 0;
     } catch (Exception e) {
