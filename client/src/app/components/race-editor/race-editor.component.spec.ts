@@ -16,8 +16,8 @@ import { FuelUsageType } from "@app/models/fuel_options";
 import { Race } from "@app/models/race";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_RACE_INSTANCES, MOCK_RACES } from "@app/testing/data/races_data";
@@ -26,7 +26,7 @@ import {
   MOCK_TRACKS,
 } from "@app/testing/data/tracks_data";
 import {
-  mockAnalyticsService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -77,7 +77,7 @@ describe("RaceEditorComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],

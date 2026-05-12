@@ -95,8 +95,8 @@ data_v2
 data_v3
 build_cache
 
-# Analytics
-server/src/main/resources/analytics.properties
+# Reporting
+server/src/main/resources/Reporting.properties
 
 # Scratch folder for AI scripts
 /scratch/

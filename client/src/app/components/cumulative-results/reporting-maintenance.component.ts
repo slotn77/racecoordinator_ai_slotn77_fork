@@ -5,13 +5,13 @@ import { Router } from "@angular/router";
 import { DataService } from "@app/data.service";
 
 @Component({
-  selector: "app-analytics-maintenance",
-  templateUrl: "./analytics-maintenance.component.html",
-  styleUrls: ["./analytics-maintenance.component.css"],
+  selector: "app-reporting-maintenance",
+  templateUrl: "./reporting-maintenance.component.html",
+  styleUrls: ["./reporting-maintenance.component.css"],
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class AnalyticsMaintenanceComponent implements OnInit {
+export class ReportingMaintenanceComponent implements OnInit {
   history: any[] = [];
   selectedRaces: Set<string> = new Set();
   isDemoMode: boolean = false;

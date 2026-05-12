@@ -22,7 +22,7 @@ export class Settings {
   serverIp: string = "";
   serverPort: number = 7070;
   language: string = "";
-  shareAnalytics: boolean = true;
+  shareReporting: boolean = true;
   pageTransition: string = "slide";
   clientLogLevel: string = "INFO";
   serverLogLevel: string = "INFO";

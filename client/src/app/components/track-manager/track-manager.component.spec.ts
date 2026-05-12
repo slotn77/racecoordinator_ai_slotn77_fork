@@ -6,8 +6,8 @@ import { DataService } from "@app/data.service";
 import {} from "@app/models/settings";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -15,7 +15,7 @@ import {
   MOCK_TRACKS as _MOCK_TRACKS,
 } from "@app/testing/data/tracks_data";
 import {
-  mockAnalyticsService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -77,7 +77,7 @@ describe("TrackManagerComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
       ],
     }).compileComponents();
 

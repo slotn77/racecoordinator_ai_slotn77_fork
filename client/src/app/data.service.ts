@@ -1304,20 +1304,20 @@ export class DataService {
     });
   }
 
-  toggleServerAnalytics(enabled: boolean): Observable<string> {
+  toggleServerReporting(enabled: boolean): Observable<string> {
     return this.http.post(
-      `${this.baseUrl}/api/analytics/toggle`,
+      `${this.baseUrl}/api/reporting/toggle`,
       { enabled },
       { responseType: "text" },
     );
   }
 
-  getServerAnalyticsConfig(): Observable<{
+  getServerReportingConfig(): Observable<{
     clientId: string;
     measurementId: string;
   }> {
     return this.http.get<{ clientId: string; measurementId: string }>(
-      `${this.baseUrl}/api/analytics/config`,
+      `${this.baseUrl}/api/reporting/config`,
     );
   }
 

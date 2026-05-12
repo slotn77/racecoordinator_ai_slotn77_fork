@@ -1097,7 +1097,7 @@ export class TestSetupHelper {
       recentRaceIds?: string[];
       selectedDriverIds?: string[];
       racedaySetupWalkthroughSeen?: boolean;
-      shareAnalytics?: boolean;
+      shareReporting?: boolean;
       language?: string;
     } = {},
   ) {

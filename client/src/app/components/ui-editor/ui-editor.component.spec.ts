@@ -104,7 +104,7 @@ class MockToolbarComponent {
   disabledCopy = input<boolean>(false);
   showActivate = input<boolean>(false);
   disabledActivate = input<boolean>(false);
-  showAnalytics = input<boolean>(true);
+  showReporting = input<boolean>(true);
   undoManager = input<any>();
   add = output<void>();
   edit = output<void>();

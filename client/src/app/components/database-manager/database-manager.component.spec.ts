@@ -7,16 +7,16 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
 import { DataService } from "@app/data.service";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_DATABASES } from "@app/testing/data/databases_data";
 import {
-  mockAnalyticsService,
   mockDataService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -95,7 +95,7 @@ describe("DatabaseManagerComponent", () => {
         },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: LoggerService, useValue: mockLoggerService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         {
           provide: HelpService,

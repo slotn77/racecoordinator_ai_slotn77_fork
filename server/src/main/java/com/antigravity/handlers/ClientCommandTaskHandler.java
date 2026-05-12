@@ -100,8 +100,8 @@ public class ClientCommandTaskHandler {
     app.get("/api/saved-races", this::getSavedRaces);
     app.post("/api/delete-saved-race/{filename}", this::deleteSavedRace);
     app.post("/api/load-race", this::loadRace);
-    app.post("/api/analytics/toggle", this::toggleAnalytics);
-    app.get("/api/analytics/config", this::getAnalyticsConfig);
+    app.post("/api/reporting/toggle", this::toggleReporting);
+    app.get("/api/reporting/config", this::getReportingConfig);
   }
 
   private void initializeRace(Context ctx) {
@@ -1029,14 +1029,14 @@ public class ClientCommandTaskHandler {
     }
   }
 
-  void getAnalyticsConfig(Context ctx) {
+  void getReportingConfig(Context ctx) {
     Map<String, String> config = new HashMap<>();
     config.put("clientId", AnalyticsService.getInstance().getClientId());
     config.put("measurementId", AnalyticsService.getInstance().getMeasurementId());
     setJson(ctx, config);
   }
 
-  void toggleAnalytics(Context ctx) {
+  void toggleReporting(Context ctx) {
     String remoteAddr = getRemoteAddr(ctx);
     String remoteHost = getRemoteHost(ctx);
 
@@ -1046,7 +1046,7 @@ public class ClientCommandTaskHandler {
       setStatus(ctx, 403);
       setResult(
           ctx,
-          "Analytics settings can only be changed from a local connection. Detected: "
+          "Reporting settings can only be changed from a local connection. Detected: "
               + remoteAddr);
       return;
     }
@@ -1064,7 +1064,7 @@ public class ClientCommandTaskHandler {
       boolean enabled = request.isEnabled();
       AnalyticsService.getInstance().setUserEnabled(enabled);
       setStatus(ctx, 200);
-      setResult(ctx, "Analytics status updated to " + enabled);
+      setResult(ctx, "Reporting status updated to " + enabled);
     } catch (Exception e) {
       setStatus(ctx, 500);
       setResult(ctx, "Internal Error: " + e.getMessage());

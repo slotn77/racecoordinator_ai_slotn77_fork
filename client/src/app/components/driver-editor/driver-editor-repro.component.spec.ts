@@ -11,9 +11,9 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
 import { DataService } from "@app/data.service";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { DriverEditorComponent } from "./driver-editor.component";
@@ -153,7 +153,7 @@ describe("DriverEditorComponent Reproduction", () => {
   let mockRouter: any;
   let mockActivatedRoute: any;
   let mockHelpService: any;
-  let mockAnalyticsService: any;
+  let mockReportingService: any;
 
   beforeEach(async () => {
     mockDataService = jasmine.createSpyObj("DataService", [
@@ -195,11 +195,11 @@ describe("DriverEditorComponent Reproduction", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
+    mockReportingService = jasmine.createSpyObj("ReportingService", [
       "isEnabled",
       "trackClick",
     ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
+    mockReportingService.isEnabled.and.returnValue(true);
 
     mockDataService.getDrivers.and.returnValue(
       of([{ entity_id: "d1", name: "Original", nickname: "" }]),
@@ -229,7 +229,7 @@ describe("DriverEditorComponent Reproduction", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
       ],
     }).compileComponents();
   });

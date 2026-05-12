@@ -664,7 +664,7 @@ export class CumulativeResultsComponent implements OnInit {
       ].join(",");
     });
     const csvContent = metadata + [header, ...rows].join("\n");
-    this.downloadFile(csvContent, "analytics.csv", "text/csv");
+    this.downloadFile(csvContent, "Reporting.csv", "text/csv");
   }
 
   exportHtml() {
@@ -709,7 +709,7 @@ export class CumulativeResultsComponent implements OnInit {
     const htmlContent = `
       <html>
       <head>
-        <title>Analytics Report</title>
+        <title>Reporting Report</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #333; padding: 20px; }
           h1 { color: #1e1e2f; text-align: center; margin-bottom: 20px; }
@@ -740,7 +740,7 @@ export class CumulativeResultsComponent implements OnInit {
         </style>
       </head>
       <body>
-        <h1>Cumulative Analytics Report</h1>
+        <h1>Cumulative Reporting Report</h1>
         <div class="metadata-box">
           <div class="metadata-row"><span class="metadata-label">Date Range:</span> <span>${dateRange}</span></div>
           <div class="metadata-row"><span class="metadata-label">Races:</span> <span>${raceNames}</span></div>
@@ -752,7 +752,7 @@ export class CumulativeResultsComponent implements OnInit {
       </body>
       </html>
     `;
-    this.downloadFile(htmlContent, "analytics.html", "text/html");
+    this.downloadFile(htmlContent, "Reporting.html", "text/html");
   }
 
   exportPng() {
@@ -764,7 +764,7 @@ export class CumulativeResultsComponent implements OnInit {
           const imgData = canvas.toDataURL("image/png");
           const link = document.createElement("a");
           link.href = imgData;
-          link.download = "analytics.png";
+          link.download = "Reporting.png";
           link.click();
         });
       });

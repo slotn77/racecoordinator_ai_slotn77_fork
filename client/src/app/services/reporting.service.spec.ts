@@ -6,11 +6,11 @@ import { Settings } from "@app/models/settings";
 import { LoggerService } from "@app/services/logger.service";
 import { SettingsService } from "@app/services/settings.service";
 
-import { AnalyticsService } from "./analytics.service";
 import { DataService } from "./data.service";
+import { ReportingService } from "./reporting.service";
 
-describe("AnalyticsService", () => {
-  let service: AnalyticsService;
+describe("ReportingService", () => {
+  let service: ReportingService;
   let mockRouter: any;
   let mockSettingsService: any;
   let mockDocument: any;
@@ -30,7 +30,7 @@ describe("AnalyticsService", () => {
     };
 
     mockSettings = new Settings();
-    mockSettings.shareAnalytics = true; // Default to true
+    mockSettings.shareReporting = true; // Default to true
 
     mockSettingsService = {
       getSettings: jasmine
@@ -38,15 +38,15 @@ describe("AnalyticsService", () => {
         .and.callFake(() => mockSettings),
     };
 
-    const analyticsConfigSubject = new Subject<any>();
+    const ReportingConfigSubject = new Subject<any>();
     mockDataService = {
-      getServerAnalyticsConfig: jasmine
-        .createSpy("getServerAnalyticsConfig")
-        .and.returnValue(analyticsConfigSubject.asObservable()),
+      getServerReportingConfig: jasmine
+        .createSpy("getServerReportingConfig")
+        .and.returnValue(ReportingConfigSubject.asObservable()),
       getRecordData: jasmine
         .createSpy("getRecordData")
         .and.returnValue(of(null)),
-      _analyticsConfigSubject: analyticsConfigSubject, // Expose for testing control
+      _ReportingConfigSubject: ReportingConfigSubject, // Expose for testing control
     };
 
     mockLoggerService = {
@@ -78,7 +78,7 @@ describe("AnalyticsService", () => {
     };
     TestBed.configureTestingModule({
       providers: [
-        AnalyticsService,
+        ReportingService,
         { provide: Router, useValue: mockRouter },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: DataService, useValue: mockDataService },
@@ -87,7 +87,7 @@ describe("AnalyticsService", () => {
       ],
     });
 
-    service = TestBed.inject(AnalyticsService);
+    service = TestBed.inject(ReportingService);
   });
 
   afterEach(() => {
@@ -121,15 +121,15 @@ describe("AnalyticsService", () => {
   });
 
   describe("initTracking", () => {
-    it("should inject Google Analytics scripts and call config in correct order", () => {
-      mockSettings.shareAnalytics = true;
+    it("should inject Google Reporting scripts and call config in correct order", () => {
+      mockSettings.shareReporting = true;
       const window = mockDocument.defaultView;
       const gtagSpy = spyOn(window, "gtag").and.callThrough();
 
       service.initTracking();
 
       // Resolve config
-      mockDataService._analyticsConfigSubject.next({
+      mockDataService._ReportingConfigSubject.next({
         clientId: "test-client-id-123",
         measurementId: "G-TEST12345",
       });
@@ -155,12 +155,12 @@ describe("AnalyticsService", () => {
       expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(1);
     });
 
-    it("should NOT inject Google Analytics scripts if measurementId is completely missing/empty", () => {
-      mockSettings.shareAnalytics = true;
+    it("should NOT inject Google Reporting scripts if measurementId is completely missing/empty", () => {
+      mockSettings.shareReporting = true;
       service.initTracking();
 
       // Resolve config with empty ID
-      mockDataService._analyticsConfigSubject.next({
+      mockDataService._ReportingConfigSubject.next({
         clientId: "test-client-id-123",
         measurementId: "",
       });
@@ -169,8 +169,8 @@ describe("AnalyticsService", () => {
       expect(mockDocument.head.appendChild).not.toHaveBeenCalled();
     });
 
-    it("should NOT inject Google Analytics scripts into DOM when shareAnalytics is false", () => {
-      mockSettings.shareAnalytics = false;
+    it("should NOT inject Google Reporting scripts into DOM when shareReporting is false", () => {
+      mockSettings.shareReporting = false;
       service.initTracking();
 
       expect(mockDocument.createElement).not.toHaveBeenCalled();
@@ -178,9 +178,9 @@ describe("AnalyticsService", () => {
     });
 
     it("should only inject scripts once even if called multiple times", () => {
-      mockSettings.shareAnalytics = true;
+      mockSettings.shareReporting = true;
       service.initTracking();
-      mockDataService._analyticsConfigSubject.next({
+      mockDataService._ReportingConfigSubject.next({
         clientId: "test-client-id-123",
         measurementId: "G-TEST12345",
       });
@@ -190,7 +190,7 @@ describe("AnalyticsService", () => {
       // Even after 3 updates, it should only create/append 1 script total
       expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(1);
       expect(mockLoggerService.debug).toHaveBeenCalledWith(
-        jasmine.stringMatching("Analytics: updateOptOutStatus called"),
+        jasmine.stringMatching("Reporting: updateOptOutStatus called"),
         jasmine.any(Object),
       );
     });
@@ -198,7 +198,7 @@ describe("AnalyticsService", () => {
 
   describe("trackPageView", () => {
     it("should automatically dispatch page_view events when navigating router if enabled", () => {
-      mockSettings.shareAnalytics = true;
+      mockSettings.shareReporting = true;
       service.initTracking();
 
       // Once initTracking is called, gtag is guaranteed to exist via constructor
@@ -217,7 +217,7 @@ describe("AnalyticsService", () => {
       );
 
       // Resolve config
-      mockDataService._analyticsConfigSubject.next({
+      mockDataService._ReportingConfigSubject.next({
         clientId: "test-client-id-123",
         measurementId: "G-TEST12345",
       });
@@ -231,7 +231,7 @@ describe("AnalyticsService", () => {
     });
 
     it("should completely suppress page_view events if tracking is disabled", () => {
-      mockSettings.shareAnalytics = false;
+      mockSettings.shareReporting = false;
       service.initTracking();
 
       spyOn(window as any, "gtag").and.callThrough();
@@ -246,7 +246,7 @@ describe("AnalyticsService", () => {
 
   describe("trackClick", () => {
     it("should queue custom GA events until config is loaded", () => {
-      mockSettings.shareAnalytics = true;
+      mockSettings.shareReporting = true;
       service.initTracking();
 
       spyOn(window as any, "gtag").and.callThrough();
@@ -261,7 +261,7 @@ describe("AnalyticsService", () => {
       );
 
       // Resolve config
-      mockDataService._analyticsConfigSubject.next({
+      mockDataService._ReportingConfigSubject.next({
         clientId: "test-client-id-123",
         measurementId: "G-TEST12345",
       });
@@ -275,7 +275,7 @@ describe("AnalyticsService", () => {
     });
 
     it("should suppress custom GA events when tracking is disabled", () => {
-      mockSettings.shareAnalytics = false;
+      mockSettings.shareReporting = false;
       service.initTracking(); // Init to pull settings
 
       spyOn(window as any, "gtag").and.callThrough();

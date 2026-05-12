@@ -10,17 +10,17 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
 import { DataService } from "@app/data.service";
-import { AnalyticsService } from "@app/services/analytics.service";
 import {
   ConnectionMonitorService,
   ConnectionState,
 } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
-  mockAnalyticsService,
   mockDataService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -79,7 +79,7 @@ describe("AssetManagerComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],

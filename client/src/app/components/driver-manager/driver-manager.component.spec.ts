@@ -10,13 +10,13 @@ import { BehaviorSubject, of } from "rxjs";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { AvatarUrlPipe } from "@app/pipes/avatar-url.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import {
   ConnectionMonitorService,
   ConnectionState,
 } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -25,8 +25,8 @@ import {
 } from "@app/testing/data/drivers_data";
 import { MOCK_TEAMS as _MOCK_TEAMS } from "@app/testing/data/teams_data";
 import {
-  mockAnalyticsService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -89,7 +89,7 @@ describe("DriverManagerComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: LoggerService, useValue: mockLoggerService },
         ChangeDetectorRef,

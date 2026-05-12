@@ -12,8 +12,8 @@ import { AcknowledgementModalComponent } from "@app/components/shared/acknowledg
 import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
 import { Settings } from "@app/models/settings";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { createTestSettings } from "@app/testing/unit-test-mocks";
@@ -32,7 +32,7 @@ describe("ToolbarComponent", () => {
   let fixture: ComponentFixture<ToolbarComponent>;
   let harness: ToolbarHarness;
   let translationServiceSpy: jasmine.SpyObj<TranslationService>;
-  let AnalyticsServiceSpy: jasmine.SpyObj<AnalyticsService>;
+  let ReportingServiceSpy: jasmine.SpyObj<ReportingService>;
   let helpServiceSpy: jasmine.SpyObj<HelpService>;
   let settingsServiceSpy: jasmine.SpyObj<SettingsService>;
   let mockActivatedRoute: any;
@@ -44,13 +44,13 @@ describe("ToolbarComponent", () => {
     ]);
     translationServiceSpy.translate.and.callFake((key: string) => key);
 
-    AnalyticsServiceSpy = jasmine.createSpyObj("AnalyticsService", [
+    ReportingServiceSpy = jasmine.createSpyObj("ReportingService", [
       "isEnabled",
-      "toggleAnalytics",
+      "toggleReporting",
       "trackClick",
     ]);
-    AnalyticsServiceSpy.isEnabled.and.returnValue(true);
-    AnalyticsServiceSpy.toggleAnalytics.and.returnValue(of({ success: true }));
+    ReportingServiceSpy.isEnabled.and.returnValue(true);
+    ReportingServiceSpy.toggleReporting.and.returnValue(of({ success: true }));
 
     helpServiceSpy = jasmine.createSpyObj("HelpService", ["startGuide"]);
     helpServiceSpy.isVisible$ = of(false);
@@ -78,7 +78,7 @@ describe("ToolbarComponent", () => {
       ],
       providers: [
         { provide: TranslationService, useValue: translationServiceSpy },
-        { provide: AnalyticsService, useValue: AnalyticsServiceSpy },
+        { provide: ReportingService, useValue: ReportingServiceSpy },
         { provide: HelpService, useValue: helpServiceSpy },
         { provide: SettingsService, useValue: settingsServiceSpy },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -209,48 +209,48 @@ describe("ToolbarComponent", () => {
     expect(await harness.isDeleteDisabled()).toBeTrue();
   });
 
-  describe("Analytics", () => {
-    it("should show analytics icon", async () => {
-      expect(await harness.isAnalyticsVisible()).toBeTrue();
+  describe("Reporting", () => {
+    it("should show Reporting icon", async () => {
+      expect(await harness.isReportingVisible()).toBeTrue();
     });
 
     it("should NOT show modal on successful toggle (localhost or remote)", async () => {
-      AnalyticsServiceSpy.toggleAnalytics.and.returnValue(
+      ReportingServiceSpy.toggleReporting.and.returnValue(
         of({ success: true }),
       );
 
-      await harness.clickAnalytics();
+      await harness.clickReporting();
       fixture.detectChanges();
 
-      expect(AnalyticsServiceSpy.toggleAnalytics).toHaveBeenCalled();
-      expect(component.showAnalyticsModal).toBeFalse();
+      expect(ReportingServiceSpy.toggleReporting).toHaveBeenCalled();
+      expect(component.showReportingModal).toBeFalse();
     });
 
     it("should show error modal on synchronization failure (localhost)", async () => {
       const errorResult = {
         success: false,
-        titleKey: "RDS_ANALYTICS_ENABLED_TITLE",
-        messageKey: "RDS_ANALYTICS_SYNC_ERROR",
+        titleKey: "RDS_Reporting_ENABLED_TITLE",
+        messageKey: "RDS_Reporting_SYNC_ERROR",
       };
-      AnalyticsServiceSpy.toggleAnalytics.and.returnValue(of(errorResult));
+      ReportingServiceSpy.toggleReporting.and.returnValue(of(errorResult));
 
-      await harness.clickAnalytics();
+      await harness.clickReporting();
       fixture.detectChanges();
 
-      expect(AnalyticsServiceSpy.toggleAnalytics).toHaveBeenCalled();
-      expect(component.showAnalyticsModal).toBeTrue();
-      expect(component.analyticsModalTitle).toBe("RDS_ANALYTICS_ENABLED_TITLE");
-      expect(component.analyticsModalMessage).toBe("RDS_ANALYTICS_SYNC_ERROR");
+      expect(ReportingServiceSpy.toggleReporting).toHaveBeenCalled();
+      expect(component.showReportingModal).toBeTrue();
+      expect(component.ReportingModalTitle).toBe("RDS_Reporting_ENABLED_TITLE");
+      expect(component.ReportingModalMessage).toBe("RDS_Reporting_SYNC_ERROR");
     });
 
-    it("should close analytics modal on acknowledge", async () => {
-      component.showAnalyticsModal = true;
+    it("should close Reporting modal on acknowledge", async () => {
+      component.showReportingModal = true;
       fixture.detectChanges();
 
-      component.onAnalyticsModalAcknowledge();
+      component.onReportingModalAcknowledge();
       fixture.detectChanges();
 
-      expect(component.showAnalyticsModal).toBeFalse();
+      expect(component.showReportingModal).toBeFalse();
     });
   });
 

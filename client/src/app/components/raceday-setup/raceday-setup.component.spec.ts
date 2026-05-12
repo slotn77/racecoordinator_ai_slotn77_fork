@@ -10,7 +10,6 @@ import { BehaviorSubject, of } from "rxjs";
 import { DataService } from "@app/data.service";
 import { Settings } from "@app/models/settings";
 import { RaceFlag } from "@app/proto/antigravity";
-import { AnalyticsService } from "@app/services/analytics.service";
 import {
   ConnectionMonitorService,
   ConnectionState,
@@ -18,6 +17,7 @@ import {
 import { DynamicComponentService } from "@app/services/dynamic-component.service";
 import { FileSystemService } from "@app/services/file-system.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 
@@ -33,7 +33,7 @@ describe("RacedaySetupComponent", () => {
   let mockDynamicComponentService: jasmine.SpyObj<DynamicComponentService>;
   let mockTranslationService: jasmine.SpyObj<TranslationService>;
   let mockConnectionMonitor: jasmine.SpyObj<ConnectionMonitorService>;
-  let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
+  let mockReportingService: jasmine.SpyObj<ReportingService>;
   let mockLoggerService: jasmine.SpyObj<LoggerService>;
   let connectionStateSubject: BehaviorSubject<ConnectionState>;
 
@@ -73,7 +73,7 @@ describe("RacedaySetupComponent", () => {
       "getTranslationsLoaded",
       "translate",
     ]);
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
+    mockReportingService = jasmine.createSpyObj("ReportingService", [
       "initTracking",
       "updateOptOutStatus",
       "trackClick",
@@ -142,7 +142,7 @@ describe("RacedaySetupComponent", () => {
         },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: LoggerService, useValue: mockLoggerService },
       ],
       imports: [RacedaySetupComponent],

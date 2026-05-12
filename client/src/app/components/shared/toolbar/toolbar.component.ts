@@ -10,8 +10,8 @@ import { AcknowledgementModalComponent } from "@app/components/shared/acknowledg
 import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
 import { Settings } from "@app/models/settings";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { AnalyticsService } from "@app/services/analytics.service";
 import { GuideStep, HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 
@@ -31,7 +31,7 @@ export class ToolbarComponent implements OnInit {
   showUndo = input(false);
   showRedo = input(false);
   isSaving = input(false);
-  showAnalytics = input(true);
+  showReporting = input(true);
   disabledAdd = input(false);
   disabledEdit = input(false);
   disabledDelete = input(false);
@@ -49,12 +49,12 @@ export class ToolbarComponent implements OnInit {
   disabledExport = input(false);
   disabledReset = input(false);
 
-  showAnalyticsModal = false;
-  analyticsModalTitle = "";
-  analyticsModalMessage = "";
+  showReportingModal = false;
+  ReportingModalTitle = "";
+  ReportingModalMessage = "";
 
   constructor(
-    private analyticsService: AnalyticsService,
+    private reportingService: ReportingService,
     private translationService: TranslationService,
     private cdr: ChangeDetectorRef,
     private helpService: HelpService,
@@ -189,14 +189,14 @@ export class ToolbarComponent implements OnInit {
       });
     }
 
-    if (this.showAnalytics()) {
+    if (this.showReporting()) {
       defaultSteps.push({
-        targetId: "analytics-btn",
+        targetId: "reporting-btn",
         title: this.translationService.translate(
-          "TOOLBAR_HELP_ANALYTICS_TITLE",
+          "TOOLBAR_HELP_Reporting_TITLE",
         ),
         content: this.translationService.translate(
-          "TOOLBAR_HELP_ANALYTICS_CONTENT",
+          "TOOLBAR_HELP_Reporting_CONTENT",
         ),
         position: "bottom",
       });
@@ -261,27 +261,27 @@ export class ToolbarComponent implements OnInit {
     this.copy.emit();
   }
 
-  isAnalyticsEnabled(): boolean {
-    return this.analyticsService.isEnabled();
+  isReportingEnabled(): boolean {
+    return this.reportingService.isEnabled();
   }
 
-  onToggleAnalytics() {
-    this.analyticsService.toggleAnalytics().subscribe((result: any) => {
+  onToggleReporting() {
+    this.reportingService.toggleReporting().subscribe((result: any) => {
       if (!result.success && result.titleKey && result.messageKey) {
-        this.analyticsModalTitle = this.translationService.translate(
+        this.ReportingModalTitle = this.translationService.translate(
           result.titleKey,
         );
-        this.analyticsModalMessage = this.translationService.translate(
+        this.ReportingModalMessage = this.translationService.translate(
           result.messageKey,
         );
-        this.showAnalyticsModal = true;
+        this.showReportingModal = true;
       }
       this.cdr.detectChanges();
     });
   }
 
-  onAnalyticsModalAcknowledge() {
-    this.showAnalyticsModal = false;
+  onReportingModalAcknowledge() {
+    this.showReportingModal = false;
     this.cdr.detectChanges();
   }
 
