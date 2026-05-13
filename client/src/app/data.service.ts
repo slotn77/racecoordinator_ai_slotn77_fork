@@ -779,10 +779,15 @@ export class DataService {
       })
       .pipe(
         map((response) => {
-          const listResponse = ListAssetsResponse.decode(
-            new Uint8Array(response as any),
-          );
-          return listResponse.assets;
+          try {
+            const listResponse = ListAssetsResponse.decode(
+              new Uint8Array(response as any),
+            );
+            return listResponse.assets;
+          } catch (error) {
+            this.logger.error('Error decoding asset list protobuf', error);
+            return [];
+          }
         }),
       );
   }
