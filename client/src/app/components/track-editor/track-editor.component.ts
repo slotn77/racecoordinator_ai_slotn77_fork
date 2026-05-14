@@ -40,8 +40,6 @@ import { GuideStep, HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { TranslationService } from "@app/services/translation.service";
 
-import { ArduinoEditorComponent as ArduinoEditorComponent_1 } from "./arduino-editor/arduino-editor.component";
-
 @Component({
   standalone: true,
   selector: "app-track-editor",
@@ -53,7 +51,7 @@ import { ArduinoEditorComponent as ArduinoEditorComponent_1 } from "./arduino-ed
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
-    ArduinoEditorComponent_1,
+    ArduinoEditorComponent,
     InputDialogComponent,
     TranslatePipe,
   ],
@@ -178,8 +176,14 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions.push(
-      this.undoManager.stateCommitted$.subscribe(() => {
-        this.autoSaveTrack();
+      this.undoManager.stateCommitted$.subscribe((event) => {
+        if (
+          event.type === "push" ||
+          event.type === "undo" ||
+          event.type === "redo"
+        ) {
+          this.autoSaveTrack();
+        }
       }),
     );
 
@@ -733,9 +737,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
     this.undoManager.onInputFocus();
   }
   onInputChange() {
-    this.cdr.detectChanges();
     this.undoManager.onInputChange();
-    this.cdr.detectChanges();
   }
   onInputBlur() {
     this.undoManager.onInputBlur();
@@ -1230,26 +1232,34 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
 
           // Sync local UI state with server result to ensure clean state matches
           this.trackName = this.editingTrack.name;
-          // Ensure lanes are proper objects/arrays as expected
-          this.lanes = this.editingTrack.lanes.map(
-            (l) =>
-              new Lane(
-                l.entity_id,
-                l.foreground_color,
-                l.background_color,
-                l.length,
-              ),
-          );
+          // Only update lanes if they changed, to avoid triggering child effects unnecessarily
+          const newLanesJson = JSON.stringify(this.editingTrack.lanes);
+          if (newLanesJson !== JSON.stringify(this.lanes)) {
+            this.lanes = this.editingTrack.lanes.map(
+              (l) =>
+                new Lane(
+                  l.entity_id,
+                  l.foreground_color,
+                  l.background_color,
+                  l.length,
+                ),
+            );
+          }
 
           if (
             this.editingTrack.arduino_configs &&
             this.editingTrack.arduino_configs.length > 0
           ) {
-            this.arduinoConfigs = JSON.parse(
-              JSON.stringify(this.editingTrack.arduino_configs),
+            const newConfigsJson = JSON.stringify(
+              this.editingTrack.arduino_configs,
             );
+            if (newConfigsJson !== JSON.stringify(this.arduinoConfigs)) {
+              this.arduinoConfigs = JSON.parse(newConfigsJson);
+            }
           } else {
-            this.arduinoConfigs = [];
+            if (this.arduinoConfigs.length > 0) {
+              this.arduinoConfigs = [];
+            }
           }
 
           if (wasNew) {

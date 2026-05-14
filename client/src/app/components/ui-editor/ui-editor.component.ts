@@ -183,9 +183,10 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   ) {
     this.undoManager = new UndoManager<UIEditorState>(
       {
-        clonner: (s) => this.cloneState(s),
-        equalizer: (a, b) => this.areStatesEqual(a, b),
-        applier: (s) => {
+        clonner: (s: UIEditorState) => this.cloneState(s),
+        equalizer: (a: UIEditorState, b: UIEditorState) =>
+          this.areStatesEqual(a, b),
+        applier: (s: UIEditorState) => {
           this.editingState = s;
           this.refreshDisplayProperties();
         },
@@ -545,7 +546,12 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
   private autoSaveState(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.isLoading || this.isSaving || !this.hasChanges() || this.isAnyThemeNameInvalid()) {
+      if (
+        this.isLoading ||
+        this.isSaving ||
+        !this.hasChanges() ||
+        this.isAnyThemeNameInvalid()
+      ) {
         resolve();
         return;
       }
@@ -560,7 +566,9 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       const savePromises = [];
       for (const theme of this.displayThemes) {
         if (!theme.is_default) {
-          savePromises.push(this.dataService.updateTheme(theme.entity_id, theme));
+          savePromises.push(
+            this.dataService.updateTheme(theme.entity_id, theme),
+          );
         }
       }
 
@@ -570,7 +578,12 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         next: () => {
           this.undoManager.resetTracking(this.editingState);
           const activeTheme = this.themeService.getActiveTheme();
-          if (activeTheme && this.displayThemes.find(t => t.entity_id === activeTheme.entity_id)) {
+          if (
+            activeTheme &&
+            this.displayThemes.find(
+              (t) => t.entity_id === activeTheme.entity_id,
+            )
+          ) {
             this.themeService.refresh();
           }
 
@@ -594,7 +607,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
             this.cdr.markForCheck();
           }
           reject(err);
-        }
+        },
       });
     });
   }

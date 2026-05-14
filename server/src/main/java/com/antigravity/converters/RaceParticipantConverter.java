@@ -15,7 +15,8 @@ public class RaceParticipantConverter {
     }
 
     RaceParticipant.Builder builder =
-        RaceParticipant.newBuilder().setObjectId(participant.getObjectId());
+        RaceParticipant.newBuilder()
+            .setObjectId(participant.getObjectId() != null ? participant.getObjectId() : "");
 
     DriverModel driverProto = DriverConverter.toProto(participant.getDriver(), sentObjectIds);
     if (driverProto != null) {

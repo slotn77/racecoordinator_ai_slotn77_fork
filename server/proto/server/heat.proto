@@ -12,4 +12,5 @@ message Heat {
   int32 heat_number = 2;
   string object_id = 3;
   repeated string standings = 4;
+  bool started = 5;
 }

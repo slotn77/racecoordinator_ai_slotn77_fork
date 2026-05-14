@@ -13,9 +13,13 @@ import com.antigravity.proto.InitializeInterfaceRequest;
 import com.antigravity.proto.InitializeInterfaceResponse;
 import com.antigravity.proto.InitializeRaceRequest;
 import com.antigravity.proto.InitializeRaceResponse;
+import com.antigravity.proto.ModifyHeatsRequest;
+import com.antigravity.proto.ModifyHeatsResponse;
 import com.antigravity.proto.NextHeatResponse;
 import com.antigravity.proto.PauseRaceResponse;
 import com.antigravity.proto.RaceData;
+import com.antigravity.proto.RegenerateHeatsRequest;
+import com.antigravity.proto.RegenerateHeatsResponse;
 import com.antigravity.proto.RestartHeatResponse;
 import com.antigravity.proto.SetInterfacePinStateRequest;
 import com.antigravity.proto.SetInterfacePinStateResponse;
@@ -102,6 +106,8 @@ public class ClientCommandTaskHandler {
     app.post("/api/load-race", this::loadRace);
     app.post("/api/analytics/toggle", this::toggleAnalytics);
     app.get("/api/analytics/config", this::getAnalyticsConfig);
+    app.post("/api/modify-heats", this::modifyHeats);
+    app.post("/api/regenerate-heats", this::regenerateHeats);
   }
 
   private void initializeRace(Context ctx) {
@@ -1138,5 +1144,41 @@ public class ClientCommandTaskHandler {
 
   Map<String, Object> getBody(Context ctx) {
     return ctx.bodyAsClass(HashMap.class);
+  }
+
+  private void modifyHeats(Context ctx) {
+    try {
+      ModifyHeatsRequest request = ModifyHeatsRequest.parseFrom(ctx.bodyAsBytes());
+      com.antigravity.race.Race race = // fqn-collision
+          ClientSubscriptionManager.getInstance().getRace();
+      if (race == null) {
+        ctx.status(404).result("No active race found");
+        return;
+      }
+
+      ModifyHeatsResponse response = race.modifyHeats(request);
+      ctx.contentType("application/octet-stream").result(response.toByteArray());
+    } catch (Exception e) {
+      logger.error("Error modifying heats", e);
+      ctx.status(500).result("Internal Server Error: " + e.getMessage());
+    }
+  }
+
+  private void regenerateHeats(Context ctx) {
+    try {
+      RegenerateHeatsRequest request = RegenerateHeatsRequest.parseFrom(ctx.bodyAsBytes());
+      com.antigravity.race.Race race = // fqn-collision
+          ClientSubscriptionManager.getInstance().getRace();
+      if (race == null) {
+        ctx.status(404).result("No active race found");
+        return;
+      }
+
+      RegenerateHeatsResponse response = race.regenerateHeats(request);
+      ctx.contentType("application/octet-stream").result(response.toByteArray());
+    } catch (Exception e) {
+      logger.error("Error regenerating heats", e);
+      ctx.status(500).result("Internal Server Error: " + e.getMessage());
+    }
   }
 }

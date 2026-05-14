@@ -48,6 +48,8 @@ export class ToolbarComponent implements OnInit {
   disabledImport = input(false);
   disabledExport = input(false);
   disabledReset = input(false);
+  showRegenerate = input(false);
+  disabledRegenerate = input(false);
 
   showAnalyticsModal = false;
   analyticsModalTitle = "";
@@ -94,6 +96,7 @@ export class ToolbarComponent implements OnInit {
   import = output<void>();
   export = output<void>();
   reset = output<void>();
+  regenerate = output<void>();
 
   onActivate() {
     this.activate.emit();
@@ -109,6 +112,10 @@ export class ToolbarComponent implements OnInit {
 
   onReset() {
     this.reset.emit();
+  }
+
+  onRegenerate() {
+    this.regenerate.emit();
   }
 
   onAdd() {

@@ -33,6 +33,7 @@ import { IDemoConfig } from "@app/proto/antigravity";
 import { FileSystemService } from "@app/services/file-system.service";
 import { GuideStep, HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
@@ -67,6 +68,8 @@ export class DefaultRacedaySetupComponent implements OnInit {
   // Driver/Team State
   selectedParticipants: Participant[] = [];
   unselectedParticipants: Participant[] = [];
+  private allDrivers: Driver[] = [];
+  private allTeams: Team[] = [];
 
   imageErrors = new Set<string>();
 
@@ -149,6 +152,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
     private fileSystem: FileSystemService,
     private helpService: HelpService,
     private logger: LoggerService,
+    private validationService: ParticipantValidationService,
   ) {}
 
   ngOnInit() {
@@ -192,6 +196,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
               t.driverIds || [],
             ),
         );
+        this.allDrivers = drivers;
+        this.allTeams = teams;
+
         const races = result.races;
 
         // --- Race Setup ---
@@ -384,6 +391,31 @@ export class DefaultRacedaySetupComponent implements OnInit {
         ].sort((a, b) => this.naturalSortParticipants(a, b));
       } else {
         // Was unselected, now selecting
+        // Perform validation
+        const potentialParticipants = [
+          ...this.selectedParticipants,
+          participant,
+        ];
+        const validationResult = this.validationService.validate(
+          potentialParticipants,
+          this.allTeams,
+          this.allDrivers,
+        );
+
+        if (!validationResult.isValid) {
+          this.errorTitle = "RDS_ERR_VALIDATION_TITLE";
+          this.errorMessage = this.validationService.getErrorMessage(
+            validationResult,
+            this.translationService,
+          );
+          // RDS uses errorMessageParams but getErrorMessage already translates it.
+          // We clear errorMessageParams to avoid double translation if the component tries to translate again.
+          this.errorMessageParams = {};
+          this.showErrorModal = true;
+          this.cdr.detectChanges();
+          return;
+        }
+
         this.unselectedParticipants = this.unselectedParticipants.filter(
           (p) =>
             !(
@@ -397,6 +429,28 @@ export class DefaultRacedaySetupComponent implements OnInit {
   }
 
   addAllParticipants() {
+    const potentialParticipants = [
+      ...this.selectedParticipants,
+      ...this.unselectedParticipants,
+    ];
+    const validationResult = this.validationService.validate(
+      potentialParticipants,
+      this.allTeams,
+      this.allDrivers,
+    );
+
+    if (!validationResult.isValid) {
+      this.errorTitle = "RDS_ERR_VALIDATION_TITLE";
+      this.errorMessage = this.validationService.getErrorMessage(
+        validationResult,
+        this.translationService,
+      );
+      this.errorMessageParams = {};
+      this.showErrorModal = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.updateListWithRefresh(() => {
       this.selectedParticipants = [
         ...this.selectedParticipants,
@@ -637,6 +691,24 @@ export class DefaultRacedaySetupComponent implements OnInit {
   }
 
   private proceedWithStart(isDemo: boolean) {
+    const validationResult = this.validationService.validate(
+      this.selectedParticipants,
+      this.allTeams,
+      this.allDrivers,
+    );
+
+    if (!validationResult.isValid) {
+      this.errorTitle = "RDS_ERR_VALIDATION_TITLE";
+      this.errorMessage = this.validationService.getErrorMessage(
+        validationResult,
+        this.translationService,
+      );
+      this.errorMessageParams = {};
+      this.showErrorModal = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.saveSettings(true);
     const settings = this.settingsService.getSettings();
 

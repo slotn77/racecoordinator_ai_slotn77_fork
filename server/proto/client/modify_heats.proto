@@ -1,0 +1,29 @@
+syntax = "proto3";
+package com.antigravity;
+
+import "server/heat.proto";
+import "server/race_participant.proto";
+
+option java_package = "com.antigravity.proto";
+option java_multiple_files = true;
+option java_outer_classname = "ModifyHeatsProto";
+
+message ModifyHeatsRequest {
+  repeated Heat heats = 1;
+  repeated RaceParticipant participants = 2;
+}
+
+message ModifyHeatsResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message RegenerateHeatsRequest {
+  repeated RaceParticipant participants = 1;
+}
+
+message RegenerateHeatsResponse {
+  bool success = 1;
+  string error_message = 2;
+  repeated Heat heats = 3;
+}

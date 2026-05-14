@@ -271,7 +271,9 @@ public class ClientSubscriptionManager {
       dbService.upsertAutoSave(databaseContext.getDatabase(), saveData);
       logger.info("Auto-saved race to database: {}", filename);
     } catch (Exception e) {
-      logger.error("Error during auto-save", e);
+      if (!isShuttingDown) {
+        logger.error("Error during auto-save", e);
+      }
     }
   }
 
@@ -287,7 +289,9 @@ public class ClientSubscriptionManager {
         logger.info("Deleted auto-save from db (demo={}): {}", isDemo, filename);
       }
     } catch (Exception e) {
-      logger.error("Error deleting auto-save", e);
+      if (!isShuttingDown) {
+        logger.error("Error deleting auto-save", e);
+      }
     }
   }
 

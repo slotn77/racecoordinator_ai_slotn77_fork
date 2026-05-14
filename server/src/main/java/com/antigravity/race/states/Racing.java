@@ -95,10 +95,18 @@ public class Racing implements IRaceState {
       race.getStatistics().setStartTime(OffsetDateTime.now().toString());
       race.getStatistics().setStartMillis(System.currentTimeMillis());
     }
-    if (race.getCurrentHeat() != null
-        && race.getCurrentHeat().getStatistics().getStartTime() == null) {
-      race.getCurrentHeat().getStatistics().setStartTime(OffsetDateTime.now().toString());
-      race.getCurrentHeat().getStatistics().setStartMillis(System.currentTimeMillis());
+    if (race.getCurrentHeat() != null) {
+      if (race.getCurrentHeat().getStatistics().getStartTime() == null) {
+        race.getCurrentHeat().getStatistics().setStartTime(OffsetDateTime.now().toString());
+        race.getCurrentHeat().getStatistics().setStartMillis(System.currentTimeMillis());
+      }
+      race.getCurrentHeat().setStarted(true);
+      race.broadcast(
+          RaceData.newBuilder()
+              .setHeat(
+                  com.antigravity.converters.HeatConverter.toProto( // fqn-collision
+                      race.getCurrentHeat(), new java.util.HashSet<>()))
+              .build());
     }
 
     HeatScoring scoring = race.getRaceModel().getHeatScoring();
@@ -200,10 +208,12 @@ public class Racing implements IRaceState {
                   long limit = scoring.getFinishValue();
                   if (allowFinish == AllowFinish.None
                       || allowFinish == AllowFinish.NoneAutoSegments) {
-                    for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
-                      if (driver.getLapCount() >= limit) {
-                        allFinished = true;
-                        break;
+                    if (race.getCurrentHeat().getDrivers() != null) {
+                      for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
+                        if (driver.getLapCount() >= limit) {
+                          allFinished = true;
+                          break;
+                        }
                       }
                     }
                   } else {
@@ -225,8 +235,10 @@ public class Racing implements IRaceState {
                     currentProgress = Math.min(1.0, (limit - race.getRaceTime()) / (double) limit);
                   } else {
                     int maxLaps = 0;
-                    for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
-                      maxLaps = Math.max(maxLaps, driver.getLapCount());
+                    if (race.getCurrentHeat().getDrivers() != null) {
+                      for (DriverHeatData driver : race.getCurrentHeat().getDrivers()) {
+                        maxLaps = Math.max(maxLaps, driver.getLapCount());
+                      }
                     }
                     currentProgress = Math.min(1.0, (double) maxLaps / limit);
                   }
@@ -278,7 +290,7 @@ public class Racing implements IRaceState {
   @Override
   public void exit(Race race) {
     if (timerHandle != null) {
-      timerHandle.cancel(true);
+      timerHandle.cancel(false);
     }
     if (scheduler != null) {
       scheduler.shutdown();
@@ -398,12 +410,14 @@ public class Racing implements IRaceState {
       double capacity = fuelOptions.getCapacity();
       if (capacity > 0) {
         List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
-        for (int i = 0; i < Math.min(drivers.size(), previousFuelLevels.length); i++) {
-          double currentFuel = drivers.get(i).getDriver().getFuelLevel();
-          int currentPct = (int) ((currentFuel / capacity) * 100.0);
-          if (currentPct != previousFuelLevels[i]) {
-            race.setFuelLevel(i, currentPct);
-            previousFuelLevels[i] = currentPct;
+        if (drivers != null) {
+          for (int i = 0; i < Math.min(drivers.size(), previousFuelLevels.length); i++) {
+            double currentFuel = drivers.get(i).getDriver().getFuelLevel();
+            int currentPct = (int) ((currentFuel / capacity) * 100.0);
+            if (currentPct != previousFuelLevels[i]) {
+              race.setFuelLevel(i, currentPct);
+              previousFuelLevels[i] = currentPct;
+            }
           }
         }
       }
@@ -426,6 +440,7 @@ public class Racing implements IRaceState {
     long limit = scoring.getFinishValue();
     double[] times = executionManager.getTimeSinceLastLap();
     List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    if (drivers == null) return;
 
     for (int i = 0; i < drivers.size(); i++) {
       DriverHeatData dhd = drivers.get(i);
@@ -474,6 +489,7 @@ public class Racing implements IRaceState {
     if (race == null || race.getCurrentHeat() == null) return;
 
     List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    if (drivers == null) return;
     for (int i = 0; i < drivers.size(); i++) {
       DriverHeatData dhd = drivers.get(i);
       if (dhd.getRemainingFalseStartTimePenalty() > 0) {
@@ -490,6 +506,7 @@ public class Racing implements IRaceState {
     if (race == null || race.getCurrentHeat() == null) return;
 
     List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    if (drivers == null) return;
     for (int i = 0; i < drivers.size(); i++) {
       DriverHeatData dhd = drivers.get(i);
       double remaining = dhd.getRemainingFalseStartTimePenalty();

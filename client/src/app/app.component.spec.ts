@@ -1,5 +1,10 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ChildrenOutletContexts, NavigationEnd, Router } from "@angular/router";
 import { of, Subject } from "rxjs";
@@ -100,7 +105,7 @@ describe("AppComponent", () => {
     mockSettingsService.getSettings.and.returnValue({
       pageTransition: "slide",
     });
-    const data = component.getRouteAnimationData();
+    const data = component.calculateRouteAnimationData();
 
     // Format: {type}:{direction}:{path}:{counter}
     expect(data).toMatch(/^slide:forward:test-page:\d+$/);
@@ -108,46 +113,50 @@ describe("AppComponent", () => {
 
   it("should return null when transition is none", () => {
     mockSettingsService.getSettings.and.returnValue({ pageTransition: "none" });
-    const data = component.getRouteAnimationData();
+    const data = component.calculateRouteAnimationData();
     expect(data).toBeNull();
   });
 
-  it("should increment counter on NavigationEnd", () => {
+  it("should increment counter on NavigationEnd", fakeAsync(() => {
     mockSettingsService.getSettings.and.returnValue({
       pageTransition: "slide",
     });
-    const firstData = component.getRouteAnimationData();
+    const firstData = component.calculateRouteAnimationData();
     const firstCounter = parseInt(firstData!.split(":")[3]);
 
     routerEvents.next(new NavigationEnd(1, "/new-page", "/new-page"));
-    const secondData = component.getRouteAnimationData();
+    tick(); // Wait for setTimeout in ngOnInit
+
+    const secondData = component.calculateRouteAnimationData();
     const secondCounter = parseInt(secondData!.split(":")[3]);
 
     expect(secondCounter).toBe(firstCounter + 1);
-  });
+  }));
 
-  it("should handle random transition stably between navigations", () => {
+  it("should handle random transition stably between navigations", fakeAsync(() => {
     mockSettingsService.getSettings.and.returnValue({
       pageTransition: "random",
     });
 
-    const firstCall = component.getRouteAnimationData();
-    const secondCall = component.getRouteAnimationData();
+    const firstCall = component.calculateRouteAnimationData();
+    const secondCall = component.calculateRouteAnimationData();
 
     // Should be identical since it only changes on NavigationEnd
     expect(firstCall).toBe(secondCall);
 
     // Trigger navigation
     routerEvents.next(new NavigationEnd(1, "/next", "/next"));
-    const thirdCall = component.getRouteAnimationData();
+    tick(); // Wait for setTimeout in ngOnInit
+
+    const thirdCall = component.calculateRouteAnimationData();
 
     // Counter changes, and possibly type (though random could hit same type)
     expect(thirdCall).not.toBe(firstCall);
-  });
+  }));
 
   it("should include direction from NavigationService", () => {
     mockNavigationService.getDirection.and.returnValue("backward");
-    const data = component.getRouteAnimationData();
+    const data = component.calculateRouteAnimationData();
     expect(data).toContain(":backward:");
   });
 });

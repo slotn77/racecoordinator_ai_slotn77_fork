@@ -1,0 +1,261 @@
+<div
+  class="page-container"
+  [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'"
+>
+  <app-editor-title
+    titleKey="RD_MODIFY_HEATS"
+    [undoManager]="undoManager"
+    [showAdd]="true"
+    [showRegenerate]="true"
+    [disabledRegenerate]="isRegenerateDisabled"
+    [isSaving]="isSaving"
+    (add)="onAddHeat()"
+    (regenerate)="onRegenerateHeats()"
+    (back)="onBack()"
+  >
+  </app-editor-title>
+
+  <div class="content-split">
+    <!-- Left Panel: Drivers Pool -->
+    <div class="editor-panel">
+      <!-- Racing Drivers -->
+      <div class="driver-pool-section">
+        <div class="section-header">
+          <h3>{{ "RDS_SECTION_RACING" | translate }}</h3>
+          <span class="badge">{{ driverPool.length }}</span>
+        </div>
+        <div
+          id="driver-pool"
+          cdkDropList
+          [cdkDropListData]="driverPool"
+          [cdkDropListConnectedTo]="heatDropListIds"
+          class="driver-pool"
+          (cdkDropListDropped)="onDrop($event)"
+        >
+          @for (
+            participant of driverPool;
+            track participant.objectId;
+            let i = $index
+          ) {
+            <div class="driver-item" cdkDrag [cdkDragData]="participant">
+              <div class="driver-seed">({{ i + 1 }})</div>
+              <img
+                [src]="getParticipantAvatar(participant) | avatarUrl"
+                class="driver-avatar"
+              />
+              <div class="driver-details">
+                <div class="driver-name">
+                  {{ getParticipantName(participant) }}
+                </div>
+                <div class="driver-meta">
+                  {{ getParticipantMeta(participant) }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Available Drivers -->
+      <div class="driver-pool-section">
+        <div class="section-header">
+          <h3>{{ "RDS_SECTION_AVAILABLE" | translate }} [{{ instanceId }}]</h3>
+          <span class="badge">{{ databaseParticipants.length }}</span>
+        </div>
+        <div
+          id="database-drivers"
+          cdkDropList
+          [cdkDropListData]="databaseParticipants"
+          [cdkDropListConnectedTo]="connectedTo"
+          class="driver-pool"
+          (cdkDropListDropped)="onDrop($event)"
+        >
+          @for (
+            item of databaseParticipants;
+            track getDatabaseItemTrackId(item);
+            let i = $index
+          ) {
+            <div class="driver-item" cdkDrag [cdkDragData]="item">
+              <img [src]="item.avatarUrl | avatarUrl" class="driver-avatar" />
+              <div class="driver-details">
+                <div class="driver-name">{{ item.name }}</div>
+                <div class="driver-meta">
+                  @if (isDriver(item)) {
+                    {{ item.nickname || item.name }}
+                  } @else {
+                    {{ item.driverIds.length }}
+                    {{ "RDS_TEAM_DRIVERS" | translate }}
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Heats Grid -->
+    <div class="preview-panel">
+      <div
+        class="heats-grid"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        [cdkDropListData]="localHeats"
+        [cdkDropListAutoScrollDisabled]="true"
+        [cdkDropListSortingDisabled]="true"
+        (cdkDropListDropped)="onHeatDrop($event)"
+      >
+        @for (heat of localHeats; track heat.objectId; let hIdx = $index) {
+          <div
+            class="heat-card"
+            [class.started]="isHeatStarted(heat)"
+            [class.drop-target]="hoveredHeatIdx === hIdx"
+            cdkDrag
+            cdkDragBoundary=".preview-panel"
+            cdkDragPreviewContainer="parent"
+            [cdkDragData]="heat"
+            [cdkDragDisabled]="isHeatStarted(heat)"
+            (cdkDragStarted)="onHeatDragStarted()"
+            (mouseenter)="onHeatHover(hIdx)"
+            (mouseleave)="onHeatHover(-1)"
+          >
+            <!-- Highlight Overlay -->
+            @if (hoveredHeatIdx === hIdx && !isHeatStarted(heat)) {
+              <div class="swap-highlight">
+                <i class="fas fa-exchange-alt"></i>
+                <span>{{ "SWAP" | translate }}</span>
+              </div>
+            }
+
+            @if (isHeatStarted(heat)) {
+              <div class="locked-overlay">
+                <i class="fas fa-lock"></i>
+                <span>{{ "RD_HEAT_LOCKED" | translate }}</span>
+              </div>
+            }
+            <div class="heat-header">
+              <div class="header-title" cdkDragHandle>
+                <i class="fas fa-grip-vertical drag-handle-icon"></i>
+                <h4>{{ "RD_HEAT" | translate }} {{ heat.heatNumber }}</h4>
+              </div>
+              <div class="header-actions">
+                @if (isHeatStarted(heat)) {
+                  <span
+                    class="lock-icon"
+                    [title]="'RD_HEAT_LOCKED' | translate"
+                  >
+                    <i class="fas fa-lock"></i>
+                  </span>
+                } @else {
+                  <button
+                    class="btn-remove"
+                    (click)="onRemoveHeat(hIdx); $event.stopPropagation()"
+                    [title]="'REMOVE' | translate"
+                  >
+                    <span class="delete-x">X</span>
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="heat-lanes">
+              @for (lane of track().lanes; track $index; let lIdx = $index) {
+                <div class="lane-row">
+                  <div
+                    [id]="'heat-' + hIdx + '-lane-' + lIdx"
+                    cdkDropList
+                    [cdkDropListData]="{ heatIndex: hIdx, laneIndex: lIdx }"
+                    [cdkDropListConnectedTo]="connectedTo"
+                    [cdkDropListDisabled]="isHeatStarted(heat)"
+                    (cdkDropListDropped)="onDrop($event)"
+                    style="flex: 1; min-height: 40px"
+                  >
+                    @if (getDriverInLane(hIdx, lIdx); as participant) {
+                      <div
+                        class="driver-item populated"
+                        cdkDrag
+                        [cdkDragData]="participant"
+                        [cdkDragDisabled]="isHeatStarted(heat)"
+                        [style.background-color]="
+                          track().lanes[lIdx].background_color
+                        "
+                        [style.color]="track().lanes[lIdx].foreground_color"
+                      >
+                        <img
+                          [src]="getParticipantAvatar(participant) | avatarUrl"
+                          class="driver-avatar"
+                          [style.border-color]="
+                            track().lanes[lIdx].foreground_color
+                          "
+                        />
+                        <div class="driver-details">
+                          <div
+                            class="driver-name"
+                            [style.color]="track().lanes[lIdx].foreground_color"
+                          >
+                            {{ getParticipantName(participant) }}
+                          </div>
+                          <div
+                            class="driver-meta"
+                            [style.color]="track().lanes[lIdx].foreground_color"
+                            style="opacity: 0.8"
+                          >
+                            {{ getParticipantMeta(participant) }}
+                          </div>
+                        </div>
+                      </div>
+                    } @else {
+                      <div
+                        class="driver-item empty"
+                        [style.border-color]="
+                          track().lanes[lIdx].background_color
+                        "
+                        [style.color]="track().lanes[lIdx].background_color"
+                      >
+                        {{ "RD_EMPTY_LANE" | translate }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="heat-placeholder" *cdkDragPlaceholder></div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (errorMessage || currentValidationError) {
+    <div class="error-toast">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{
+        errorMessage || currentValidationError || "" | translate
+      }}</span>
+    </div>
+  }
+
+  <app-confirmation-modal
+    [visible]="showExitConfirmation"
+    [title]="'RDS_ERR_VALIDATION_TITLE' | translate"
+    [message]="'RD_ERR_UNSAVED_CHANGES' | translate"
+    [confirmText]="'RD_DISCARD' | translate"
+    [cancelText]="'RD_CANCEL' | translate"
+    (confirm)="onExitConfirm()"
+    (cancel)="onExitCancel()"
+  >
+  </app-confirmation-modal>
+
+  @if (isSaving) {
+    <div class="loader-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+
+  <app-acknowledgement-modal
+    [visible]="showAckModal"
+    [title]="ackModalTitle"
+    [message]="ackModalMessage"
+    (acknowledge)="onAckModalClose()"
+  >
+  </app-acknowledgement-modal>
+</div>

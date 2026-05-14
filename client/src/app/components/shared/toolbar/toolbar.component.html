@@ -131,6 +131,19 @@
     </button>
   }
 
+  <!-- Regenerate -->
+  @if (showRegenerate()) {
+    <button
+      id="regenerate-btn"
+      class="toolbar-btn info"
+      (click)="onRegenerate()"
+      [disabled]="isSaving() || disabledRegenerate()"
+      [title]="'RD_BTN_REGENERATE' | translate"
+    >
+      <span class="material-icons">sync</span>
+    </button>
+  }
+
   <div class="spacer"></div>
 
   <div class="toolbar-utility-group">

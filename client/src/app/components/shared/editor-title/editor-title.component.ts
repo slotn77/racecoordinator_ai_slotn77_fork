@@ -30,6 +30,8 @@ export class EditorTitleComponent {
   showCopy = input(false);
   showAdd = input(false);
   showDelete = input(false);
+  showRegenerate = input(false);
+  disabledRegenerate = input(false);
   isSaving = input(false);
   helpSteps = input<GuideStep[]>([]);
   helpTitle = input("");
@@ -40,6 +42,7 @@ export class EditorTitleComponent {
   copy = output<void>();
   add = output<void>();
   delete = output<void>();
+  regenerate = output<void>();
 
   constructor(private router: Router) {}
 
@@ -57,6 +60,10 @@ export class EditorTitleComponent {
 
   onDelete() {
     this.delete.emit();
+  }
+
+  onRegenerate() {
+    this.regenerate.emit();
   }
 
   onBack() {

@@ -334,7 +334,7 @@ public class Demo extends DefaultProtocol {
   @Override
   public List<PartialTime> stopTimer() {
     if (timerHandle != null) {
-      timerHandle.cancel(true);
+      timerHandle.cancel(false);
     }
     if (scheduler != null) {
       scheduler.shutdown();

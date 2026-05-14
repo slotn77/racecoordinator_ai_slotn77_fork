@@ -15,6 +15,7 @@ import com.antigravity.models.HeatScoring;
 import com.antigravity.models.HeatScoring.AllowFinish;
 import com.antigravity.models.Lane;
 import com.antigravity.models.OverallScoring.OverallRanking;
+import com.antigravity.models.Team;
 import com.antigravity.models.Track;
 import com.antigravity.proto.CallbuttonEvent;
 import com.antigravity.proto.CurrentRecords;
@@ -22,6 +23,8 @@ import com.antigravity.proto.DemoConfig;
 import com.antigravity.proto.InterfaceEvent;
 import com.antigravity.proto.InterfaceStatus;
 import com.antigravity.proto.InterfaceStatusEvent;
+import com.antigravity.proto.ModifyHeatsRequest;
+import com.antigravity.proto.ModifyHeatsResponse;
 import com.antigravity.proto.OverallRecords;
 import com.antigravity.proto.OverallStandingsUpdate;
 import com.antigravity.proto.RaceData;
@@ -30,6 +33,8 @@ import com.antigravity.proto.RaceState;
 import com.antigravity.proto.RaceTime;
 import com.antigravity.proto.RecordData;
 import com.antigravity.proto.RecordEntry;
+import com.antigravity.proto.RegenerateHeatsRequest;
+import com.antigravity.proto.RegenerateHeatsResponse;
 import com.antigravity.protocols.CarData;
 import com.antigravity.protocols.IProtocol;
 import com.antigravity.protocols.PartialTime;
@@ -1062,6 +1067,7 @@ public class Race implements ProtocolListener {
 
       // Reset standings to initial order
       currentHeat.getHeatStandings().reset();
+      currentHeat.setStarted(false);
 
       // Reset race time
       resetRaceTime();
@@ -2073,5 +2079,406 @@ public class Race implements ProtocolListener {
       return RaceState.RACE_OVER;
     }
     return RaceState.UNKNOWN_STATE;
+  }
+
+  public synchronized ModifyHeatsResponse modifyHeats(ModifyHeatsRequest request) {
+    logger.info("Race.modifyHeats() called");
+
+    if (this.state instanceof RaceOver) {
+      return ModifyHeatsResponse.newBuilder()
+          .setSuccess(false)
+          .setErrorMessage("Cannot modify heats when the race is over.")
+          .build();
+    }
+
+    // 1. Validation: Ensure no started heats are deleted
+    for (Heat existingHeat : this.heats) {
+      if (existingHeat.isStarted()) {
+        boolean found = false;
+        for (com.antigravity.proto.Heat protoHeat : request.getHeatsList()) { // fqn-collision
+          if (existingHeat.getObjectId().equals(protoHeat.getObjectId())) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          return ModifyHeatsResponse.newBuilder()
+              .setSuccess(false)
+              .setErrorMessage(
+                  "Cannot delete a heat that has already been started (Heat "
+                      + existingHeat.getHeatNumber()
+                      + ").")
+              .build();
+        }
+      }
+    }
+
+    // 1.5 Validate Participant Removal
+    Set<String> newParticipantIds = new HashSet<>();
+    for (com.antigravity.proto.RaceParticipant protoP : // fqn-collision
+        request.getParticipantsList()) {
+      newParticipantIds.add(protoP.getObjectId());
+    }
+
+    for (RaceParticipant p : this.drivers) {
+      // Skip empty drivers (synthetic entries to fill lanes)
+      if (p.getDriver() != null && p.getDriver().isEmpty()) {
+        continue;
+      }
+
+      if (!newParticipantIds.contains(p.getObjectId())) {
+        // Check if they are in any started heat
+        for (Heat h : this.heats) {
+          if (h.isStarted()) {
+            for (DriverHeatData dhd : h.getDrivers()) {
+              if (dhd.getDriver() != null
+                  && dhd.getDriver().getObjectId().equals(p.getObjectId())) {
+                return ModifyHeatsResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(
+                        "Participant "
+                            + (p.getDriver() != null ? p.getDriver().getName() : "Unknown")
+                            + " cannot be removed because they have already participated in a started heat.")
+                    .build();
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 1.6 Validate Duplicate Participants (Overlapping Drivers/Teams)
+    Set<String> usedDriverEntityIds = new HashSet<>();
+    Set<String> usedTeamEntityIds = new HashSet<>();
+    for (com.antigravity.proto.RaceParticipant protoP : // fqn-collision
+        request.getParticipantsList()) {
+      if (protoP.hasDriver()) {
+        String driverEntityId = protoP.getDriver().getModel().getEntityId();
+        if (driverEntityId != null
+            && !driverEntityId.isEmpty()
+            && !driverEntityId.equals(
+                com.antigravity.models.Driver.EMPTY_DRIVER_ID)) { // fqn-collision
+          if (!usedDriverEntityIds.add(driverEntityId)) {
+            return ModifyHeatsResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(
+                    "Duplicate participant: Driver "
+                        + protoP.getDriver().getName()
+                        + " is added more than once.")
+                .build();
+          }
+        }
+      }
+      if (protoP.hasTeam()) {
+        String teamEntityId = protoP.getTeam().getModel().getEntityId();
+        if (teamEntityId != null && !teamEntityId.isEmpty()) {
+          if (!usedTeamEntityIds.add(teamEntityId)) {
+            return ModifyHeatsResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(
+                    "Duplicate participant: Team "
+                        + protoP.getTeam().getName()
+                        + " is added more than once.")
+                .build();
+          }
+        }
+        // Check for driver overlaps within/across teams
+        for (String driverEntityId : protoP.getTeam().getDriverIdsList()) {
+          if (driverEntityId != null
+              && !driverEntityId.isEmpty()
+              && !driverEntityId.equals(
+                  com.antigravity.models.Driver.EMPTY_DRIVER_ID)) { // fqn-collision
+            if (!usedDriverEntityIds.add(driverEntityId)) {
+              return ModifyHeatsResponse.newBuilder()
+                  .setSuccess(false)
+                  .setErrorMessage(
+                      "Overlap detected: Driver in team "
+                          + protoP.getTeam().getName()
+                          + " is already a participant (either individually or in another team).")
+                  .build();
+            }
+          }
+        }
+      }
+    }
+
+    // 1.7 Validate No Duplicate Drivers in a Heat
+    for (com.antigravity.proto.Heat protoHeat : // fqn-collision
+        request.getHeatsList()) {
+      Set<String> driverObjectIds = new HashSet<>();
+      for (com.antigravity.proto.DriverHeatData protoDhd : // fqn-collision
+          protoHeat.getHeatDriversList()) {
+        String driverObjectId = protoDhd.getDriver().getObjectId();
+        if (driverObjectId != null && !driverObjectId.isEmpty()) {
+          if (!driverObjectIds.add(driverObjectId)) {
+            // Find participant name for better error message
+            RaceParticipant p = findParticipantByObjectId(driverObjectId);
+            if (p == null) {
+              p = findParticipantInProtoRequest(request, driverObjectId);
+            }
+            String name =
+                (p != null && p.getDriver() != null) ? p.getDriver().getName() : "Unknown";
+            return ModifyHeatsResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(
+                    "Driver "
+                        + name
+                        + " is assigned to multiple lanes in Heat "
+                        + protoHeat.getHeatNumber()
+                        + ".")
+                .build();
+          }
+        }
+      }
+    }
+
+    // 2. Update Participants
+    List<RaceParticipant> newDrivers = new ArrayList<>();
+    for (com.antigravity.proto.RaceParticipant protoP : // fqn-collision
+        request.getParticipantsList()) {
+      RaceParticipant p = findParticipantByObjectId(protoP.getObjectId());
+      if (p == null) {
+        logger.info("Adding new participant to race: {}", protoP.getObjectId());
+        p = findParticipantInProtoRequest(request, protoP.getObjectId());
+      }
+      if (p != null) {
+        newDrivers.add(p);
+      }
+    }
+    this.drivers.clear();
+    this.drivers.addAll(newDrivers);
+
+    // Ensure we have at least as many drivers as lanes (fill with empty)
+    int numLanes = this.track.getLanes().size();
+    while (this.drivers.size() < numLanes) {
+      this.drivers.add(new RaceParticipant(Driver.EMPTY_DRIVER));
+    }
+
+    // 3. Update Heats
+    List<Heat> newHeats = new ArrayList<>();
+    for (com.antigravity.proto.Heat protoHeat : request.getHeatsList()) { // fqn-collision
+      Heat oldHeat = null;
+      if (protoHeat.getObjectId() != null && !protoHeat.getObjectId().isEmpty()) {
+        oldHeat = findHeatByObjectId(protoHeat.getObjectId());
+      }
+
+      if (oldHeat != null && oldHeat.isStarted()) {
+        // Validation: Ensure drivers haven't changed in a started heat
+        if (protoHeat.getHeatDriversCount() != oldHeat.getDrivers().size()) {
+          return ModifyHeatsResponse.newBuilder()
+              .setSuccess(false)
+              .setErrorMessage(
+                  "Cannot change number of lanes in a started heat (Heat "
+                      + oldHeat.getHeatNumber()
+                      + ").")
+              .build();
+        }
+
+        for (int i = 0; i < protoHeat.getHeatDriversCount(); i++) {
+          com.antigravity.proto.DriverHeatData protoDhd = // fqn-collision
+              protoHeat.getHeatDrivers(i);
+          DriverHeatData oldDhd = oldHeat.getDrivers().get(i);
+
+          String protoDriverObjectId = protoDhd.getDriver().getObjectId();
+          String oldDriverObjectId =
+              (oldDhd.getDriver() != null) ? oldDhd.getDriver().getObjectId() : "";
+
+          boolean isProtoEmpty = protoDriverObjectId == null || protoDriverObjectId.isEmpty();
+          boolean isOldEmpty =
+              (oldDhd.getDriver() == null
+                  || oldDhd.getDriver().getDriver() == null
+                  || oldDhd.getDriver().getDriver().isEmpty());
+
+          if (!protoDriverObjectId.equals(oldDriverObjectId) && !(isProtoEmpty && isOldEmpty)) {
+            return ModifyHeatsResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage(
+                    "Cannot change participants in a started heat (Heat "
+                        + oldHeat.getHeatNumber()
+                        + ").")
+                .build();
+          }
+        }
+
+        // Preserve started heat as is
+        newHeats.add(oldHeat);
+      } else {
+        // Create or update heat
+        List<DriverHeatData> newHeatDrivers = new ArrayList<>();
+        for (com.antigravity.proto.DriverHeatData protoDhd : // fqn-collision
+            protoHeat.getHeatDriversList()) {
+          RaceParticipant p = findParticipantByObjectId(protoDhd.getDriver().getObjectId());
+          if (p == null) {
+            // This might be a newly added participant in this request
+            p = findParticipantInProtoRequest(request, protoDhd.getDriver().getObjectId());
+            if (p != null) {
+              // Double check they weren't added already in this loop or previous step
+              if (findParticipantByObjectId(p.getObjectId()) == null) {
+                this.drivers.add(p);
+              }
+            }
+          }
+          if (p == null) {
+            p = new RaceParticipant(Driver.EMPTY_DRIVER);
+          }
+          DriverHeatData dhd = new DriverHeatData(p);
+          dhd.setObjectId(protoDhd.getObjectId());
+          newHeatDrivers.add(dhd);
+        }
+        Heat newHeat = new Heat(protoHeat.getHeatNumber(), newHeatDrivers, model.getHeatScoring());
+        newHeat.setObjectId(protoHeat.getObjectId());
+        newHeat.setStarted(
+            protoHeat.getStarted()); // Trust client if not started on server? Or just keep false.
+        newHeats.add(newHeat);
+      }
+    }
+
+    this.heats = newHeats;
+
+    // 4. Update Current Heat if it was modified
+    if (currentHeat != null) {
+      int currentHeatNum = currentHeat.getHeatNumber();
+      if (currentHeatNum > 0 && currentHeatNum <= heats.size()) {
+        this.currentHeat = heats.get(currentHeatNum - 1);
+      }
+    }
+
+    updateAndBroadcastOverallStandings();
+    broadcast(createSnapshot());
+
+    return ModifyHeatsResponse.newBuilder().setSuccess(true).build();
+  }
+
+  private RaceParticipant findParticipantByObjectId(String objectId) {
+    for (RaceParticipant p : drivers) {
+      if (p.getObjectId().equals(objectId)) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  private Heat findHeatByObjectId(String objectId) {
+    if (objectId == null || objectId.isEmpty()) return null;
+    for (Heat h : heats) {
+      if (h.getObjectId().equals(objectId)) {
+        return h;
+      }
+    }
+    return null;
+  }
+
+  private RaceParticipant findParticipantInProtoRequest(
+      ModifyHeatsRequest request, String objectId) {
+    for (com.antigravity.proto.RaceParticipant protoP : // fqn-collision
+        request.getParticipantsList()) {
+      if (protoP.getObjectId().equals(objectId)) {
+        if (protoP.hasTeam()) {
+          Team t = new Team(protoP.getTeam());
+          RaceParticipant p = new RaceParticipant(t);
+          p.setObjectId(protoP.getObjectId());
+          p.setSeed(protoP.getSeed());
+          return p;
+        } else if (protoP.hasDriver()) {
+          // Convert proto to domain
+          Driver d =
+              new Driver(
+                  protoP.getDriver().getName(),
+                  protoP.getDriver().getNickname(),
+                  protoP.getDriver().getModel().getEntityId(),
+                  null);
+
+          RaceParticipant p = new RaceParticipant(d, protoP.getObjectId());
+          p.setSeed(protoP.getSeed());
+          return p;
+        }
+      }
+    }
+    return null;
+  }
+
+  public synchronized RegenerateHeatsResponse regenerateHeats(RegenerateHeatsRequest request) {
+    logger.info("Race.regenerateHeats() called");
+
+    if (this.state instanceof RaceOver) {
+      return RegenerateHeatsResponse.newBuilder()
+          .setSuccess(false)
+          .setErrorMessage("Cannot regenerate heats when the race is over.")
+          .build();
+    }
+
+    // Check if any heat has been started. If so, we cannot safely regenerate.
+    boolean anyHeatStarted = false;
+    for (Heat h : heats) {
+      if (h.isStarted()) {
+        anyHeatStarted = true;
+        break;
+      }
+    }
+
+    if (anyHeatStarted) {
+      return RegenerateHeatsResponse.newBuilder()
+          .setSuccess(false)
+          .setErrorMessage(
+              "One or more heats have already been started. Regeneration is only allowed before any heats have run.")
+          .build();
+    }
+
+    // Since no heats are started, we can proceed with full regeneration.
+    List<Heat> preservedHeats = new ArrayList<>();
+
+    // Use a local list of drivers for regeneration
+    List<RaceParticipant> driversToUse = new ArrayList<>(this.drivers);
+
+    // Update drivers from request if provided
+    if (request.getParticipantsCount() > 0) {
+      List<RaceParticipant> newDrivers = new ArrayList<>();
+      for (com.antigravity.proto.RaceParticipant protoP : // fqn-collision
+          request.getParticipantsList()) {
+        RaceParticipant p = findParticipantByObjectId(protoP.getObjectId());
+        if (p == null) {
+          // Convert from proto if new
+          Driver d =
+              new Driver(
+                  protoP.getDriver().getName(),
+                  protoP.getDriver().getNickname(),
+                  protoP.getDriver().getModel().getEntityId(),
+                  null);
+          p = new RaceParticipant(d, protoP.getObjectId());
+          p.setSeed(protoP.getSeed());
+        }
+        newDrivers.add(p);
+      }
+
+      driversToUse = newDrivers;
+
+      // Ensure we have at least as many drivers as lanes (fill with empty)
+      int numLanes = this.track.getLanes().size();
+      while (driversToUse.size() < numLanes) {
+        driversToUse.add(new RaceParticipant(Driver.EMPTY_DRIVER));
+      }
+    }
+
+    // Build new heats for all participants using the local list
+    List<Heat> regeneratedHeats = HeatBuilder.buildHeats(this, driversToUse, this.customRotations);
+
+    // Replace everything from preservedHeats.size() onwards
+    List<Heat> finalHeats = new ArrayList<>(preservedHeats);
+    for (int i = preservedHeats.size(); i < regeneratedHeats.size(); i++) {
+      Heat h = regeneratedHeats.get(i);
+      h.setHeatNumber(i + 1);
+      finalHeats.add(h);
+    }
+
+    // DO NOT update this.heats, this.drivers or this.currentHeat here.
+    // DO NOT broadcast updates.
+    // This allows "Cancel" to work on the client.
+
+    RegenerateHeatsResponse.Builder responseBuilder =
+        RegenerateHeatsResponse.newBuilder().setSuccess(true);
+    for (Heat h : finalHeats) {
+      responseBuilder.addHeats(HeatConverter.toProto(h, new HashSet<String>()));
+    }
+    return responseBuilder.build();
   }
 }

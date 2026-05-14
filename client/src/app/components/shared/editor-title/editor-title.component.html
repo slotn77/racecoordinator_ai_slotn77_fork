@@ -18,6 +18,8 @@
       [showAdd]="showAdd()"
       [showDelete]="showDelete()"
       [showCopy]="showCopy()"
+      [showRegenerate]="showRegenerate()"
+      [disabledRegenerate]="disabledRegenerate()"
       [isSaving]="isSaving()"
       [undoManager]="undoManager()"
       [helpSteps]="helpSteps()"
@@ -27,6 +29,7 @@
       (copy)="onCopy()"
       (add)="onAdd()"
       (delete)="onDelete()"
+      (regenerate)="onRegenerate()"
     >
     </app-toolbar>
   </div>

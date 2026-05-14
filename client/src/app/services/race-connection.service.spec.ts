@@ -43,6 +43,7 @@ describe("RaceConnectionService", () => {
       "disconnectFromInterfaceDataSocket",
       "updateRaceSubscription",
       "getRecordData",
+      "getHeats",
     ]);
 
     mockDataService.getInterfaceEvents.and.returnValue(
@@ -62,10 +63,12 @@ describe("RaceConnectionService", () => {
     mockDataService.getDrivers.and.returnValue(of([]));
     mockDataService.getRaceFlag.and.returnValue(of(RaceFlag.RED));
     mockDataService.getRecordData.and.returnValue(of(null));
+    mockDataService.getHeats.and.returnValue(of({}));
 
     mockRaceService = jasmine.createSpyObj("RaceService", [
       "getRace",
       "getCurrentHeat",
+      "setCurrentHeat",
     ]);
     mockRaceService.getCurrentHeat.and.returnValue({
       heatDrivers: [

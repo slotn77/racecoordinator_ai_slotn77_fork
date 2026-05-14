@@ -277,6 +277,12 @@ export class RaceConnectionService implements OnDestroy {
         this.recordDataSubject.next(records);
       }),
     );
+    this.subscriptions.push(
+      this.dataService.getHeats().subscribe((heatProto) => {
+        const heat = HeatConverter.fromProto(heatProto);
+        this.raceService.setCurrentHeat(heat);
+      }),
+    );
 
     this.dataService.connectToInterfaceDataSocket();
     this.resetWatchdog();

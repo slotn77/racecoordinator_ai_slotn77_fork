@@ -48,6 +48,7 @@ import { createTTSContext, playSound } from "@app/utils/audio";
 
 import { ColumnDefinition } from "./column_definition";
 import { AnchorPoint } from "./column_definition";
+import { ModifyHeatsModalComponent } from "./modify-heats-modal/modify-heats-modal.component";
 
 /**
  * The raceday component is the main component for the raceday screen.
@@ -60,6 +61,7 @@ import { AnchorPoint } from "./column_definition";
   imports: [
     AcknowledgementModalComponent,
     ConfirmationModalComponent,
+    ModifyHeatsModalComponent,
     CdkDropList,
     CdkDrag,
     FormsModule,
@@ -98,6 +100,8 @@ export class DefaultRacedayComponent
   showCountdownOverlay: boolean = false;
   countdownLamps: any[] = [];
   countdownText: string = "";
+  protected showModifyHeatsModal: boolean = false;
+  protected heats: Heat[] = [];
   countdownColor: string = "";
   countdownTotalLamps: number = 0;
   private lastPlayedCountdownSecond: number = -1;
@@ -388,6 +392,15 @@ export class DefaultRacedayComponent
       this.raceService.participants$.subscribe((participants) => {
         this.participants = participants || [];
         this.updateLeaderboardEntries();
+        if (!this.isDestroyed) {
+          this.cdr.markForCheck();
+        }
+      }),
+    );
+
+    this.subscriptions.push(
+      this.raceService.heats$.subscribe((heats) => {
+        this.heats = heats || [];
         if (!this.isDestroyed) {
           this.cdr.markForCheck();
         }
@@ -1247,7 +1260,6 @@ export class DefaultRacedayComponent
     if (action === "SKIP_RACE" && this.isSkipRaceDisabled) return;
     if (action === "MODIFY" && this.isModifyDisabled) return;
     if (action === "ADD_LAP" && this.isAddLapDisabled) return;
-    if (action === "EDIT_LAPS" && this.isEditLapsDisabled) return;
 
     this.isMenuOpen = false;
     this.logger.debug("Menu Action Selected:", action);
@@ -1346,6 +1358,8 @@ export class DefaultRacedayComponent
           this.logger.error("Error deferring heat:", error);
         },
       );
+    } else if (action === "MODIFY") {
+      this.showModifyHeatsModal = true;
     }
     this.isMenuOpen = false;
   }
@@ -1695,11 +1709,7 @@ export class DefaultRacedayComponent
   }
 
   public get isModifyDisabled(): boolean {
-    return true;
-  }
-
-  public get isEditLapsDisabled(): boolean {
-    return true;
+    return this.raceState === RaceState.RACE_OVER;
   }
 
   private loadColumns() {
@@ -2690,5 +2700,12 @@ export class DefaultRacedayComponent
         a._id === assetId,
     );
     return asset ? this.getFullUrl(asset.url) : "";
+  }
+
+  protected onModifyHeatsClose(saved: boolean) {
+    this.showModifyHeatsModal = false;
+    if (saved) {
+      this.logger.info("Heats modified and saved.");
+    }
   }
 }

@@ -9,6 +9,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  untracked,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Subject, Subscription, timer } from "rxjs";
@@ -79,7 +80,6 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
   openPinDropdown: string | null = null;
   dropdownOpenUp: { [key: string]: boolean } = {};
   groupsCollapsed: { [key: string]: boolean } = {}; // key is PinGroup.key
-
   private interfaceEventsSubscription?: Subscription;
   private portPollingSubscription?: Subscription;
   private pinActivityTimers: { [key: string]: any } = {};
@@ -99,7 +99,12 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
     effect(() => {
       // Re-run refreshLanes when lanes change
       this.lanes();
-      this.refreshLanes();
+      untracked(() => {
+        const config = this.config();
+        if (config) {
+          this.refreshLanes();
+        }
+      });
     });
 
     effect(() => {
@@ -1446,12 +1451,12 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
   }
 
   private refreshLanes() {
-    this.updatePinActions();
-    this.updateLedBehaviors();
-
     const config = this.config();
     const lanes = this.lanes();
     if (!config || !lanes) return;
+
+    this.updatePinActions();
+    this.updateLedBehaviors();
 
     const laneCount = lanes.length;
     let changed = false;

@@ -29,7 +29,11 @@ public class OverallStandings {
     // 1. Strings heats to drivers
     for (Heat heat : heats) {
       for (DriverHeatData dhd : heat.getDrivers()) {
-        driverHeats.computeIfAbsent(dhd.getDriver().getStableId(), k -> new ArrayList<>()).add(dhd);
+        if (dhd.getDriver() != null) {
+          driverHeats
+              .computeIfAbsent(dhd.getDriver().getStableId(), k -> new ArrayList<>())
+              .add(dhd);
+        }
       }
     }
 

@@ -328,7 +328,7 @@ public class NotStarted implements IRaceState {
 
   private void stopTimer() {
     if (timerHandle != null) {
-      timerHandle.cancel(true);
+      timerHandle.cancel(false);
     }
     if (scheduler != null) {
       scheduler.shutdown();

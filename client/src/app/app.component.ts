@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import {
   ChildrenOutletContexts,
   NavigationEnd,
@@ -21,10 +21,7 @@ import { ThemeService } from "./services/theme.service";
   standalone: true,
   selector: "app-root",
   template: `
-    <div
-      class="app-route-container"
-      [@routeAnimations]="getRouteAnimationData()"
-    >
+    <div class="app-route-container" [@routeAnimations]="routeAnimationData">
       <router-outlet></router-outlet>
     </div>
     <app-help-overlay></app-help-overlay>
@@ -45,6 +42,7 @@ import { ThemeService } from "./services/theme.service";
 export class AppComponent implements OnInit {
   private navigationCounter = 0;
   private currentRandomType: string = "slide";
+  protected routeAnimationData: string | null = null;
 
   constructor(
     private contexts: ChildrenOutletContexts,
@@ -56,6 +54,7 @@ export class AppComponent implements OnInit {
     private themeService: ThemeService,
     private logger: LoggerService,
     private fileSystemService: FileSystemService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -95,25 +94,31 @@ export class AppComponent implements OnInit {
       // Removed forced navigation to /raceday to allow other components to handle updates
     });
 
+    // Initial random selection and animation state
+    this.selectRandomTransition();
+    this.routeAnimationData = this.calculateRouteAnimationData();
+
     // Pick a random transition once per navigation to stabilize the animation
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
-        this.navigationCounter++;
-        this.selectRandomTransition();
+        // Defer state update to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+        // during query param only navigations (like saveAsNew in race-editor)
+        setTimeout(() => {
+          this.navigationCounter++;
+          this.selectRandomTransition();
+          this.routeAnimationData = this.calculateRouteAnimationData();
+          this.cdr.detectChanges();
+        });
       });
-
-    // Initial random selection
-    this.selectRandomTransition();
   }
-
   private selectRandomTransition() {
     const transitions = ["slide", "zoom", "blur", "fade"];
     const randomIndex = Math.floor(Math.random() * transitions.length);
     this.currentRandomType = transitions[randomIndex];
   }
 
-  getRouteAnimationData() {
+  public calculateRouteAnimationData() {
     const settings = this.settingsService.getSettings();
     const transition = settings.pageTransition || "slide";
 

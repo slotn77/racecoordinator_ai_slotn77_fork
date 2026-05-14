@@ -1,10 +1,22 @@
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject, Subscription } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 export interface UndoConfig<T> {
   clonner: (item: T) => T; // Returns a deep copy of the item
   equalizer: (a: T, b: T) => boolean; // Returns true if items are equal
   applier: (item: T) => void; // Applies the state to the consumer
+}
+
+export type UndoEventType =
+  | "push"
+  | "undo"
+  | "redo"
+  | "clear"
+  | "initialize"
+  | "reset";
+
+export interface UndoEvent {
+  type: UndoEventType;
 }
 
 export class UndoManager<T> {
@@ -15,23 +27,21 @@ export class UndoManager<T> {
   private snapshotGetter: () => T | undefined;
 
   private textChange$ = new Subject<void>();
-  public stateCommitted$ = new Subject<void>();
+  public stateCommitted$ = new Subject<UndoEvent>();
   private subscriptions: Subscription[] = [];
 
   constructor(
     private config: UndoConfig<T>,
     snapshotGetter: () => T | undefined, // Function to get current state from consumer
-    debounceMs: number = 100
+    debounceMs: number = 100,
   ) {
     this.snapshotGetter = snapshotGetter;
 
     // Setup debounce
     this.subscriptions.push(
-      this.textChange$.pipe(
-        debounceTime(debounceMs)
-      ).subscribe(() => {
+      this.textChange$.pipe(debounceTime(debounceMs)).subscribe(() => {
         this.commitChange();
-      })
+      }),
     );
   }
 
@@ -40,6 +50,7 @@ export class UndoManager<T> {
     this.undoStack = [];
     this.redoStack = [];
     this._snapshot = this.config.clonner(initialState);
+    this.stateCommitted$.next({ type: "initialize" });
   }
 
   public isInitialized(): boolean {
@@ -50,11 +61,12 @@ export class UndoManager<T> {
   public resetTracking(newState: T) {
     this.initialState = this.config.clonner(newState);
     this._snapshot = this.config.clonner(newState);
+    this.stateCommitted$.next({ type: "reset" });
     // Stacks are preserved
   }
 
   public destroy() {
-    this.subscriptions.forEach(s => s.unsubscribe());
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   // --- Actions ---
@@ -72,7 +84,7 @@ export class UndoManager<T> {
     if (previousState) {
       this.config.applier(this.config.clonner(previousState));
       this._snapshot = this.config.clonner(previousState);
-      this.stateCommitted$.next();
+      this.stateCommitted$.next({ type: "undo" });
     }
   }
 
@@ -89,7 +101,7 @@ export class UndoManager<T> {
     if (nextState) {
       this.config.applier(this.config.clonner(nextState));
       this._snapshot = this.config.clonner(nextState);
-      this.stateCommitted$.next();
+      this.stateCommitted$.next({ type: "redo" });
     }
   }
 
@@ -161,13 +173,16 @@ export class UndoManager<T> {
   private pushToUndo(state: T) {
     // Avoid identical consecutive entries in the stack
     const lastIndex = this.undoStack.length - 1;
-    if (lastIndex >= 0 && this.config.equalizer(state, this.undoStack[lastIndex])) {
+    if (
+      lastIndex >= 0 &&
+      this.config.equalizer(state, this.undoStack[lastIndex])
+    ) {
       return;
     }
 
     this.undoStack.push(state);
     this.redoStack = [];
-    this.stateCommitted$.next();
+    this.stateCommitted$.next({ type: "push" });
   }
 
   // Transform all items in history and the current snapshot/initial state
@@ -179,10 +194,33 @@ export class UndoManager<T> {
   }
 
   // Expose stacks for debugging/testing if needed, or stick to public API
-  public get undoStackCount() { return this.undoStack.length; }
-  public get redoStackCount() { return this.redoStack.length; }
+  public get undoStackCount() {
+    return this.undoStack.length;
+  }
+  public get redoStackCount() {
+    return this.redoStack.length;
+  }
+
+  public popUndo() {
+    this.undoStack.pop();
+    this.stateCommitted$.next({ type: "clear" });
+  }
+
+  public popRedo() {
+    this.redoStack.pop();
+    this.stateCommitted$.next({ type: "clear" });
+  }
+
+  public clearRedo() {
+    this.redoStack = [];
+    this.stateCommitted$.next({ type: "clear" });
+  }
 
   // Snapshot for testing
-  public get undoStackItems() { return [...this.undoStack]; }
-  public get redoStackItems() { return [...this.redoStack]; }
+  public get undoStackItems() {
+    return [...this.undoStack];
+  }
+  public get redoStackItems() {
+    return [...this.redoStack];
+  }
 }

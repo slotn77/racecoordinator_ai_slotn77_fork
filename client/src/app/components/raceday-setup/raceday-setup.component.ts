@@ -24,6 +24,7 @@ import { DynamicComponentService } from "@app/services/dynamic-component.service
 import { FileSystemService } from "@app/services/file-system.service";
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
@@ -41,6 +42,8 @@ class CustomUiBaseComponent extends DefaultRacedaySetupComponent {
     @Inject(FileSystemService) fileSystem: FileSystemService,
     @Inject(HelpService) helpService: HelpService,
     @Inject(LoggerService) logger: LoggerService,
+    @Inject(ParticipantValidationService)
+    validationService: ParticipantValidationService,
   ) {
     super(
       dataService,
@@ -52,6 +55,7 @@ class CustomUiBaseComponent extends DefaultRacedaySetupComponent {
       fileSystem,
       helpService,
       logger,
+      validationService,
     );
   }
 }

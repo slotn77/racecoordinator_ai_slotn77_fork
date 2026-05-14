@@ -20,6 +20,7 @@ import { InitializeRaceResponse, Race } from "@app/proto/antigravity";
 import { FileSystemService } from "@app/services/file-system.service";
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
+import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
@@ -163,6 +164,16 @@ describe("DefaultRacedaySetupComponent", () => {
         { provide: HelpService, useValue: mockHelpService },
         { provide: AnalyticsService, useValue: mockAnalyticsService },
         { provide: LoggerService, useValue: mockLoggerService },
+        {
+          provide: ParticipantValidationService,
+          useValue: {
+            validate: jasmine.createSpy("validate").and.returnValue({
+              isValid: true,
+              conflicts: [],
+            }),
+            getErrorMessage: jasmine.createSpy("getErrorMessage"),
+          },
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();

@@ -4,6 +4,9 @@ import com.antigravity.proto.DriverHeatData;
 import com.antigravity.proto.DriverModel;
 import com.antigravity.proto.Heat;
 import com.antigravity.proto.LapData;
+import com.antigravity.proto.RaceFlag;
+import com.antigravity.proto.RaceParticipant;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,43 +16,65 @@ public class HeatConverter {
 
   public static Heat toProto(
       com.antigravity.race.Heat heat, Set<String> sentObjectIds) { // fqn-collision
-    return Heat.newBuilder()
-        .setObjectId(heat.getObjectId())
-        .addAllHeatDrivers(
-            heat.getDrivers().stream()
-                .map(d -> toProto(d, sentObjectIds))
-                .collect(Collectors.toList()))
-        .setHeatNumber(heat.getHeatNumber())
-        .addAllStandings(heat.getStandings())
-        .build();
+    Heat.Builder builder =
+        Heat.newBuilder()
+            .setObjectId(heat.getObjectId() != null ? heat.getObjectId() : "")
+            .setHeatNumber(heat.getHeatNumber())
+            .addAllStandings(
+                heat.getStandings() != null ? heat.getStandings() : Collections.emptyList())
+            .setStarted(heat.isStarted());
+
+    if (heat.getDrivers() != null) {
+      builder.addAllHeatDrivers(
+          heat.getDrivers().stream()
+              .map(d -> toProto(d, sentObjectIds))
+              .collect(Collectors.toList()));
+    }
+    return builder.build();
   }
 
   public static DriverHeatData toProto(
       com.antigravity.race.DriverHeatData data, Set<String> sentObjectIds) { // fqn-collision
-    return DriverHeatData.newBuilder()
-        .setObjectId(data.getObjectId())
-        .setDriver(RaceParticipantConverter.toProto(data.getDriver(), sentObjectIds))
-        .setDriverId(
-            data.getActualDriver() != null && data.getActualDriver().getEntityId() != null
-                ? data.getActualDriver().getEntityId()
-                : "")
+    DriverHeatData.Builder builder =
+        DriverHeatData.newBuilder()
+            .setObjectId(data.getObjectId() != null ? data.getObjectId() : "")
+            .setDriverId(
+                data.getActualDriver() != null && data.getActualDriver().getEntityId() != null
+                    ? data.getActualDriver().getEntityId()
+                    : "");
+
+    RaceParticipant participantProto =
+        RaceParticipantConverter.toProto(data.getDriver(), sentObjectIds);
+    if (participantProto != null) {
+      builder.setDriver(participantProto);
+    }
+
+    builder
         .setActualDriver(
             data.getActualDriver() != null
                 ? DriverConverter.toProto(data.getActualDriver(), sentObjectIds)
                 : DriverModel.getDefaultInstance())
         .setGapLeader(data.getGapLeader())
-        .setGapPosition(data.getGapPosition())
-        .addAllSegments(data.getSegments())
-        .addAllLaps(
-            data.getLaps().stream()
-                .map(
-                    l ->
-                        LapData.newBuilder()
-                            .setLapTime(l.getLapTime())
-                            .setDriverId(l.getDriverId())
-                            .setIsDrift(l.isDrift())
-                            .build())
-                .collect(Collectors.toList()))
+        .setGapPosition(data.getGapPosition());
+
+    if (data.getSegments() != null) {
+      builder.addAllSegments(data.getSegments());
+    }
+
+    if (data.getLaps() != null) {
+      builder.addAllLaps(
+          data.getLaps().stream()
+              .map(
+                  l ->
+                      LapData.newBuilder()
+                          .setLapTime(l.getLapTime())
+                          .setDriverId(l.getDriverId() != null ? l.getDriverId() : "")
+                          .setIsDrift(l.isDrift())
+                          .build())
+              .collect(Collectors.toList()));
+    }
+
+    return builder
         .setPenaltyLaps(data.getPenaltyLaps())
         .setUserLaps(data.getUserLaps())
         .setAutoCalculatedLaps(data.getAutoCalculatedLaps())
@@ -65,7 +90,7 @@ public class HeatConverter {
             data.getCurrentLocation() != null ? data.getCurrentLocation().getValue() : -1)
         .setInitialFuelLevel(data.getInitialFuelLevel())
         .setFalseStarts(data.getFalseStarts())
-        .setFlag(data.getFlag())
+        .setFlag(data.getFlag() != null ? data.getFlag() : RaceFlag.UNKNOWN_FLAG)
         .build();
   }
 }

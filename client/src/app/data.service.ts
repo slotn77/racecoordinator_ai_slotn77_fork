@@ -13,6 +13,7 @@ import {
   ICarData,
   ICustomRotation,
   IDemoConfig,
+  IHeat,
   IInterfaceEvent,
   ILap,
   InitializeInterfaceRequest,
@@ -22,6 +23,7 @@ import {
   InterfaceEvent,
   IOverallStandingsUpdate,
   IRace,
+  IRaceParticipant,
   IRaceTime,
   IRecordData,
   IRgbLedState,
@@ -32,6 +34,8 @@ import {
   ITeamModel,
   LedString as ProtoLedString,
   ListAssetsResponse,
+  ModifyHeatsRequest,
+  ModifyHeatsResponse,
   NextHeatRequest,
   NextHeatResponse,
   PauseRaceRequest,
@@ -40,6 +44,8 @@ import {
   RaceFlag,
   RaceState,
   RaceSubscriptionRequest,
+  RegenerateHeatsRequest,
+  RegenerateHeatsResponse,
   RenameAssetRequest,
   RenameAssetResponse,
   RestartHeatRequest,
@@ -668,6 +674,60 @@ export class DataService {
       );
   }
 
+  modifyHeats(
+    heats: IHeat[],
+    participants: IRaceParticipant[],
+  ): Observable<ModifyHeatsResponse> {
+    const request = ModifyHeatsRequest.create({
+      heats,
+      participants,
+    });
+    const buffer = ModifyHeatsRequest.encode(request).finish();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/octet-stream",
+      Accept: "application/octet-stream",
+    });
+
+    return this.http
+      .post(`${this.baseUrl}/api/modify-heats`, new Blob([buffer as any]), {
+        headers,
+        responseType: "arraybuffer",
+      })
+      .pipe(
+        map((response) => {
+          return ModifyHeatsResponse.decode(new Uint8Array(response as any));
+        }),
+      );
+  }
+
+  regenerateHeats(
+    participants: IRaceParticipant[] = [],
+  ): Observable<RegenerateHeatsResponse> {
+    const request = RegenerateHeatsRequest.create({
+      participants,
+    });
+    const buffer = RegenerateHeatsRequest.encode(request).finish();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/octet-stream",
+      Accept: "application/octet-stream",
+    });
+
+    return this.http
+      .post(`${this.baseUrl}/api/regenerate-heats`, new Blob([buffer as any]), {
+        headers,
+        responseType: "arraybuffer",
+      })
+      .pipe(
+        map((response) => {
+          return RegenerateHeatsResponse.decode(
+            new Uint8Array(response as any),
+          );
+        }),
+      );
+  }
+
   // --- Database Management ---
 
   getTeams(): Observable<ITeamModel[]> {
@@ -785,7 +845,7 @@ export class DataService {
             );
             return listResponse.assets;
           } catch (error) {
-            this.logger.error('Error decoding asset list protobuf', error);
+            this.logger.error("Error decoding asset list protobuf", error);
             return [];
           }
         }),
@@ -1026,6 +1086,7 @@ export class DataService {
   );
   private flagSubject = new BehaviorSubject<RaceFlag>(RaceFlag.UNKNOWN_FLAG);
   private recordDataSubject = new ReplaySubject<IRecordData>(1);
+  private heatSubject = new Subject<IHeat>();
 
   private shouldSubscribeToRaceData = false;
 
@@ -1135,6 +1196,10 @@ export class DataService {
           }
           if (raceData.recordData) {
             this.recordDataSubject.next(raceData.recordData);
+          }
+          if (raceData.heat) {
+            this.logger.debug("WS: Received Heat", raceData.heat);
+            this.heatSubject.next(raceData.heat);
           }
         } catch (e) {
           this.logger.error("Error parsing race data message", e);
@@ -1276,6 +1341,10 @@ export class DataService {
 
   public getRecordData(): Observable<IRecordData> {
     return this.recordDataSubject.asObservable();
+  }
+
+  public getHeats(): Observable<IHeat> {
+    return this.heatSubject.asObservable();
   }
 
   public changeActualDriver(

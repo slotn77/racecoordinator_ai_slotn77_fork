@@ -110,6 +110,7 @@ export class HeatConverter {
         heatNumber !== -1 ? heatNumber : proto.heatNumber || 0,
         validHeatDrivers,
         proto.standings || [],
+        !!proto.started,
       );
     });
   }

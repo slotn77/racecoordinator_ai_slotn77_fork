@@ -7,15 +7,23 @@ import { DriverHeatData } from "./driver_heat_data";
  * configured.
  */
 export class Heat {
-    readonly objectId: string;
-    readonly heatNumber: number;
-    readonly heatDrivers: DriverHeatData[];
-    readonly standings: string[];
+  readonly objectId: string;
+  heatNumber: number;
+  heatDrivers: DriverHeatData[];
+  readonly standings: string[];
+  started: boolean = false;
 
-    constructor(objectId: string, heatNumber: number, heatDrivers: DriverHeatData[], standings: string[] = []) {
-        this.objectId = objectId;
-        this.heatNumber = heatNumber;
-        this.heatDrivers = heatDrivers;
-        this.standings = standings;
-    }
+  constructor(
+    objectId: string,
+    heatNumber: number,
+    heatDrivers: DriverHeatData[],
+    standings: string[] = [],
+    started: boolean = false,
+  ) {
+    this.objectId = objectId;
+    this.heatNumber = heatNumber;
+    this.heatDrivers = heatDrivers;
+    this.standings = standings;
+    this.started = started;
+  }
 }

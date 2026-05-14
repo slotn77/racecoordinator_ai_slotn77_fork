@@ -137,10 +137,23 @@ public class App {
                       }
                     }
                     if (mongoClient != null) {
+                      Thread closeThread =
+                          new Thread(
+                              () -> {
+                                try {
+                                  mongoClient.close();
+                                } catch (Exception e) {
+                                  logger.error("Error closing MongoClient: " + e.getMessage());
+                                }
+                              });
+                      closeThread.start();
                       try {
-                        mongoClient.close();
-                      } catch (Exception e) {
-                        logger.error("Error closing MongoClient: " + e.getMessage());
+                        closeThread.join(2000); // Wait up to 2 seconds
+                        if (closeThread.isAlive()) {
+                          logger.warn("MongoClient.close() timed out. Proceeding with shutdown.");
+                        }
+                      } catch (InterruptedException e) {
+                        logger.warn("Interrupted while waiting for MongoClient to close.");
                       }
                     }
                     if (mongodProcess != null) {

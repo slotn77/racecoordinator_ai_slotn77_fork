@@ -11,6 +11,7 @@ public class Heat extends ServerToClientObject {
   private List<DriverHeatData> drivers;
   private RaceHeatStatistics statistics = new RaceHeatStatistics();
   @org.bson.codecs.pojo.annotations.BsonIgnore private HeatStandings heatStandings;
+  private boolean started = false;
 
   public Heat(int heatNumber, List<DriverHeatData> drivers, HeatScoring scoring) {
     super();
@@ -84,5 +85,13 @@ public class Heat extends ServerToClientObject {
       }
     }
     return count;
+  }
+
+  public boolean isStarted() {
+    return started;
+  }
+
+  public void setStarted(boolean started) {
+    this.started = started;
   }
 }
