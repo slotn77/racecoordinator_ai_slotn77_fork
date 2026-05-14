@@ -19,7 +19,6 @@ public class Starting implements IRaceState {
   private static final Logger logger = LoggerFactory.getLogger(Starting.class);
 
   private final boolean isHotStart;
-  private Race race;
   private ScheduledExecutorService scheduler;
   private ScheduledFuture<?> timerHandle;
 
@@ -33,7 +32,6 @@ public class Starting implements IRaceState {
 
   @Override
   public void enter(Race race) {
-    this.race = race;
     logger.info("Starting state entered. Countdown initiating.");
     race.broadcastFlag(getFlagType(race));
 

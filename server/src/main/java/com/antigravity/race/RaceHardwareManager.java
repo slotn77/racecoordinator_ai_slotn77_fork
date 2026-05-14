@@ -10,11 +10,8 @@ import com.antigravity.protocols.arduino.ArduinoProtocol;
 import com.antigravity.protocols.demo.Demo;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RaceHardwareManager {
-  private static final Logger logger = LoggerFactory.getLogger(RaceHardwareManager.class);
 
   private final Race race;
   private ProtocolDelegate protocols;
