@@ -105,14 +105,6 @@
               <span>{{ "RD_MENU_PAUSE" | translate }}</span>
               <span class="menu-shortcut">{{ pauseShortcut }}</span>
             </div>
-            <div class="menu-separator"></div>
-            <div
-              class="menu-item"
-              [class.disabled]="isAddLapDisabled"
-              (click)="onMenuSelect('ADD_LAP')"
-            >
-              {{ "RD_MENU_ADD_LAP" | translate }}
-            </div>
             <div
               class="menu-item"
               [class.disabled]="isNextHeatDisabled"
@@ -154,6 +146,13 @@
               {{ "RD_MENU_SKIP_RACE" | translate }}
             </div>
             <div class="menu-separator"></div>
+            <div
+              class="menu-item"
+              [class.disabled]="isAddLapDisabled"
+              (click)="onMenuSelect('ADD_LAP')"
+            >
+              {{ "RD_MENU_ADD_LAP" | translate }}
+            </div>
             <div
               class="menu-item"
               [class.disabled]="isModifyDisabled"
