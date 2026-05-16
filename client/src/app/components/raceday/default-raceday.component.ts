@@ -1505,7 +1505,11 @@ export class DefaultRacedayComponent
         if (!this.isNextHeatDisabled) {
           this.onMenuSelect("NEXT_HEAT");
         }
-      } else if (s === RS.NOT_STARTED || s === RS.PAUSED) {
+      } else if (
+        s === RS.NOT_STARTED ||
+        s === RS.PAUSED ||
+        s === RS.UNKNOWN_STATE
+      ) {
         if (!this.isStartResumeDisabled) {
           this.onMenuSelect("START_RESUME");
         }
@@ -1591,7 +1595,9 @@ export class DefaultRacedayComponent
     // NOT_STARTED: Enabled.
     const s = this.raceState;
     return (
-      !this.isInterfaceConnected ||
+      (!this.isInterfaceConnected &&
+        s !== RaceState.NOT_STARTED &&
+        s !== RaceState.UNKNOWN_STATE) ||
       s === RaceState.STARTING ||
       s === RaceState.RACING ||
       s === RaceState.HEAT_OVER ||

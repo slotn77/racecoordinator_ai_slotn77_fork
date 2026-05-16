@@ -750,13 +750,22 @@ public class Race implements ProtocolListener {
 
   public RaceData createSnapshot() {
     Set<String> sentIds = new HashSet<>();
-    return RaceData.newBuilder()
-        .setRace(RaceConverter.toProto(this, sentIds))
-        .setRaceTime(
-            com.antigravity.proto.RaceTime.newBuilder() // fqn-collision
-                .setTime(accumulatedRaceTime)
-                .build())
-        .build();
+    RaceData.Builder builder =
+        RaceData.newBuilder()
+            .setRace(RaceConverter.toProto(this, sentIds))
+            .setRaceTime(
+                com.antigravity.proto.RaceTime.newBuilder() // fqn-collision
+                    .setTime(accumulatedRaceTime)
+                    .setAutoStartRemaining(getAutoStartRemaining())
+                    .setAutoAdvanceRemaining(getAutoAdvanceRemaining())
+                    .build());
+
+    if (state != null) {
+      builder.setRaceState(getProtoState(state));
+      builder.setFlag(state.getFlagType(this));
+    }
+
+    return builder.build();
   }
 
   public boolean isActive() {

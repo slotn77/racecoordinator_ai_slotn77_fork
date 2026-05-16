@@ -437,6 +437,32 @@ describe("DefaultRacedayComponent", () => {
     });
   });
 
+  describe("isStartResumeDisabled", () => {
+    it("should be enabled in NOT_STARTED even if interface is disconnected", () => {
+      component["isInterfaceConnected"] = false;
+      component["raceState"] = RaceState.NOT_STARTED;
+      expect(component.isStartResumeDisabled).toBeFalse();
+    });
+
+    it("should be enabled in UNKNOWN_STATE even if interface is disconnected", () => {
+      component["isInterfaceConnected"] = false;
+      component["raceState"] = RaceState.UNKNOWN_STATE;
+      expect(component.isStartResumeDisabled).toBeFalse();
+    });
+
+    it("should be disabled in STARTING when connected", () => {
+      component["isInterfaceConnected"] = true;
+      component["raceState"] = RaceState.STARTING;
+      expect(component.isStartResumeDisabled).toBeTrue();
+    });
+
+    it("should be disabled when disconnected and in RACING", () => {
+      component["isInterfaceConnected"] = false;
+      component["raceState"] = RaceState.RACING;
+      expect(component.isStartResumeDisabled).toBeTrue();
+    });
+  });
+
   describe("handleKeyUpEvent (Spacebar)", () => {
     let mockEvent: KeyboardEvent;
 
@@ -476,6 +502,14 @@ describe("DefaultRacedayComponent", () => {
 
     it("should trigger START_RESUME when state is PAUSED", () => {
       component["raceState"] = RaceState.PAUSED;
+
+      component.handleKeyUpEvent(mockEvent);
+
+      expect(component.onMenuSelect).toHaveBeenCalledWith("START_RESUME");
+    });
+
+    it("should trigger START_RESUME when state is UNKNOWN_STATE", () => {
+      component["raceState"] = RaceState.UNKNOWN_STATE;
 
       component.handleKeyUpEvent(mockEvent);
 

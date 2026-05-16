@@ -345,6 +345,19 @@ public class RaceStateTest {
   }
 
   @Test
+  public void testCreateSnapshotIncludesStateAndAutoTimers() throws Exception {
+    race.setAutoStartRemaining(5.5);
+    race.setAutoAdvanceRemaining(3.3);
+
+    RaceData snapshot = race.createSnapshot();
+
+    assertTrue(snapshot.hasRaceState());
+    assertEquals(RaceState.NOT_STARTED, snapshot.getRaceState());
+    assertEquals(5.5, snapshot.getRaceTime().getAutoStartRemaining(), 0.001);
+    assertEquals(3.3, snapshot.getRaceTime().getAutoAdvanceRemaining(), 0.001);
+  }
+
+  @Test
   public void testAutoStartRunsOnSecondHeat() throws Exception {
     // 1. Setup race with auto-start time
     injectAutoStartTime(10.0);
