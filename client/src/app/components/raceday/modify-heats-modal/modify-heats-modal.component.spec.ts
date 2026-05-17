@@ -21,6 +21,7 @@ import { RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { ParticipantValidationService } from "@app/services/participant-validation.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { ModifyHeatsModalComponent } from "./modify-heats-modal.component";
@@ -31,6 +32,7 @@ describe("ModifyHeatsModalComponent", () => {
   let mockDataService: any;
   let mockTranslationService: any;
   let mockValidationService: any;
+  let mockRaceConnectionService: any;
 
   beforeEach(async () => {
     mockDataService = jasmine.createSpyObj("DataService", [
@@ -57,6 +59,12 @@ describe("ModifyHeatsModalComponent", () => {
       "ParticipantValidationService",
       ["validate", "getErrorMessage"],
     );
+
+    mockRaceConnectionService = jasmine.createSpyObj("RaceConnectionService", [
+      "connect",
+      "disconnect",
+    ]);
+    mockRaceConnectionService.raceState$ = of(RaceState.NOT_STARTED);
 
     const mockActivatedRoute = {
       queryParams: of({}),
@@ -89,6 +97,7 @@ describe("ModifyHeatsModalComponent", () => {
         },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: Router, useValue: mockRouter },
+        { provide: RaceConnectionService, useValue: mockRaceConnectionService },
       ],
     }).compileComponents();
 
@@ -97,8 +106,8 @@ describe("ModifyHeatsModalComponent", () => {
 
     // Provide required inputs to prevent NG0950 errors
     const track = createMockTrack();
-    fixture.componentRef.setInput("track", track);
-    fixture.componentRef.setInput("race", createMockRace(track, true));
+    fixture.componentRef.setInput("trackInput", track);
+    fixture.componentRef.setInput("raceInput", createMockRace(track, true));
   });
 
   const createMockRace = (track: Track, groupEnabled: boolean = false) => {
@@ -147,11 +156,11 @@ describe("ModifyHeatsModalComponent", () => {
     ]);
 
     const track = createMockTrack();
-    fixture.componentRef.setInput("race", createMockRace(track));
-    fixture.componentRef.setInput("track", track);
-    fixture.componentRef.setInput("participants", [participant]);
-    fixture.componentRef.setInput("heats", [heat]);
-    fixture.componentRef.setInput("raceState", RaceState.NOT_STARTED);
+    fixture.componentRef.setInput("raceInput", createMockRace(track));
+    fixture.componentRef.setInput("trackInput", track);
+    fixture.componentRef.setInput("participantsInput", [participant]);
+    fixture.componentRef.setInput("heatsInput", [heat]);
+    fixture.componentRef.setInput("raceStateInput", RaceState.NOT_STARTED);
 
     fixture.detectChanges();
 
@@ -181,10 +190,10 @@ describe("ModifyHeatsModalComponent", () => {
     ]);
 
     const track = createMockTrack();
-    fixture.componentRef.setInput("race", createMockRace(track));
-    fixture.componentRef.setInput("track", track);
-    fixture.componentRef.setInput("participants", [participant]);
-    fixture.componentRef.setInput("heats", [heat]);
+    fixture.componentRef.setInput("raceInput", createMockRace(track));
+    fixture.componentRef.setInput("trackInput", track);
+    fixture.componentRef.setInput("participantsInput", [participant]);
+    fixture.componentRef.setInput("heatsInput", [heat]);
 
     fixture.detectChanges();
 
@@ -208,10 +217,10 @@ describe("ModifyHeatsModalComponent", () => {
     );
 
     const track = createMockTrack();
-    fixture.componentRef.setInput("race", createMockRace(track));
-    fixture.componentRef.setInput("track", track);
-    fixture.componentRef.setInput("participants", [placeholder]);
-    fixture.componentRef.setInput("heats", []);
+    fixture.componentRef.setInput("raceInput", createMockRace(track));
+    fixture.componentRef.setInput("trackInput", track);
+    fixture.componentRef.setInput("participantsInput", [placeholder]);
+    fixture.componentRef.setInput("heatsInput", []);
 
     fixture.detectChanges();
 
@@ -305,27 +314,27 @@ describe("ModifyHeatsModalComponent", () => {
     });
 
     it("should consider heat started if heat number is less than current heat number", () => {
-      fixture.componentRef.setInput("currentHeatNumber", 2);
+      fixture.componentRef.setInput("currentHeatNumberInput", 2);
       const heat = new Heat("h1", 1, [], [], false);
       expect(component["isHeatStarted"](heat)).toBeTrue();
     });
 
     it("should consider heat started if race state is RACE_OVER", () => {
-      fixture.componentRef.setInput("raceState", RaceState.RACE_OVER);
+      fixture.componentRef.setInput("raceStateInput", RaceState.RACE_OVER);
       const heat = new Heat("h1", 1, [], [], false);
       expect(component["isHeatStarted"](heat)).toBeTrue();
     });
 
     it("should consider current heat started if race is in active state", () => {
-      fixture.componentRef.setInput("currentHeatNumber", 1);
-      fixture.componentRef.setInput("raceState", RaceState.RACING);
+      fixture.componentRef.setInput("currentHeatNumberInput", 1);
+      fixture.componentRef.setInput("raceStateInput", RaceState.RACING);
       const heat = new Heat("h1", 1, [], [], false);
       expect(component["isHeatStarted"](heat)).toBeTrue();
     });
 
     it("should NOT consider current heat started if race is NOT_STARTED", () => {
-      fixture.componentRef.setInput("currentHeatNumber", 1);
-      fixture.componentRef.setInput("raceState", RaceState.NOT_STARTED);
+      fixture.componentRef.setInput("currentHeatNumberInput", 1);
+      fixture.componentRef.setInput("raceStateInput", RaceState.NOT_STARTED);
       const heat = new Heat("h1", 1, [], [], false);
       expect(component["isHeatStarted"](heat)).toBeFalse();
     });
@@ -399,7 +408,7 @@ describe("ModifyHeatsModalComponent", () => {
         true,
       );
 
-      fixture.componentRef.setInput("heats", [originalHeat]);
+      fixture.componentRef.setInput("heatsInput", [originalHeat]);
       component["localHeats"] = [
         new Heat("h1", 1, [new DriverHeatData("dhd1", p2, 0)], [], true),
       ];
@@ -430,8 +439,8 @@ describe("ModifyHeatsModalComponent", () => {
         true,
       );
 
-      fixture.componentRef.setInput("heats", [originalHeat]);
-      fixture.componentRef.setInput("participants", [p1]);
+      fixture.componentRef.setInput("heatsInput", [originalHeat]);
+      fixture.componentRef.setInput("participantsInput", [p1]);
       component["localParticipants"] = []; // p1 removed
 
       const error = component["getValidationError"]();
@@ -460,8 +469,8 @@ describe("ModifyHeatsModalComponent", () => {
         false,
       ); // not started
 
-      fixture.componentRef.setInput("heats", [originalHeat]);
-      fixture.componentRef.setInput("participants", [p1]);
+      fixture.componentRef.setInput("heatsInput", [originalHeat]);
+      fixture.componentRef.setInput("participantsInput", [p1]);
       component["localHeats"] = [new Heat("h1", 1, [], [], false)]; // modified but unstarted
       component["localParticipants"] = [p1];
 
@@ -494,9 +503,9 @@ describe("ModifyHeatsModalComponent", () => {
       const race = createMockRace(track);
       race.group_options.enabled = true;
 
-      fixture.componentRef.setInput("race", race);
-      fixture.componentRef.setInput("heats", [heat1, heat2]);
-      fixture.componentRef.setInput("participants", [p1]);
+      fixture.componentRef.setInput("raceInput", race);
+      fixture.componentRef.setInput("heatsInput", [heat1, heat2]);
+      fixture.componentRef.setInput("participantsInput", [p1]);
       fixture.detectChanges();
 
       // Mock event for dropping p1 into heat 2 lane 0
@@ -549,9 +558,9 @@ describe("ModifyHeatsModalComponent", () => {
         },
       };
 
-      fixture.componentRef.setInput("race", race as any);
-      fixture.componentRef.setInput("track", track);
-      fixture.componentRef.setInput("heats", [heat1, heat2]);
+      fixture.componentRef.setInput("raceInput", race as any);
+      fixture.componentRef.setInput("trackInput", track);
+      fixture.componentRef.setInput("heatsInput", [heat1, heat2]);
 
       component["undoManager"].initialize({
         heats: [heat1, heat2],

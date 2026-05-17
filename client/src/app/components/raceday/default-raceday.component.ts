@@ -50,7 +50,6 @@ import { createTTSContext, playSound } from "@app/utils/audio";
 
 import { ColumnDefinition } from "./column_definition";
 import { AnchorPoint } from "./column_definition";
-import { ModifyHeatsModalComponent } from "./modify-heats-modal/modify-heats-modal.component";
 
 /**
  * The raceday component is the main component for the raceday screen.
@@ -63,7 +62,6 @@ import { ModifyHeatsModalComponent } from "./modify-heats-modal/modify-heats-mod
   imports: [
     AcknowledgementModalComponent,
     ConfirmationModalComponent,
-    ModifyHeatsModalComponent,
     CdkDropList,
     CdkDrag,
     FormsModule,
@@ -640,9 +638,10 @@ export class DefaultRacedayComponent
     this.subscriptions.push(
       this.route.queryParams.subscribe((params: any) => {
         if (params["modifyHeats"] === "true") {
-          setTimeout(() => {
-            this.showModifyHeatsModal = true;
-            this.cdr.detectChanges();
+          const returnUrl = this.router.url.split("?")[0];
+          this.router.navigate(["/modify-heats"], {
+            queryParams: { returnUrl },
+            replaceUrl: true,
           });
         }
       }),
@@ -788,8 +787,9 @@ export class DefaultRacedayComponent
   canDeactivate(
     nextState?: RouterStateSnapshot,
   ): Observable<boolean> | Promise<boolean> | boolean {
-    if (this.showModifyHeatsModal && nextState) {
+    if (nextState) {
       if (
+        nextState.url.includes("/modify-heats") ||
         nextState.url.includes("/team-manager") ||
         nextState.url.includes("/driver-manager")
       ) {
@@ -1384,7 +1384,10 @@ export class DefaultRacedayComponent
         },
       );
     } else if (action === "MODIFY") {
-      this.showModifyHeatsModal = true;
+      const returnUrl = this.router.url.split("?")[0];
+      this.router.navigate(["/modify-heats"], {
+        queryParams: { returnUrl },
+      });
     }
     this.isMenuOpen = false;
   }

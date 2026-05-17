@@ -30,15 +30,14 @@ else
 fi
 
 # Dynamically update the Karma port to avoid conflicts/EPERM
-KARMA_PORT=$((9876 + $(id -u) % 100))
-sed -i '' "s/port: 9876/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js" 2>/dev/null || sed -i "s/port: 9876/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js"
+KARMA_PORT=${KARMA_PORT:-$((9876 + $(id -u) % 100))}
+sed -i '' "s/port: [0-9]*/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js" 2>/dev/null || sed -i "s/port: [0-9]*/port: $KARMA_PORT, hostname: '127.0.0.1'/" "$ISOLATED_DIR/karma.conf.js"
 
 cd "$ISOLATED_DIR" || exit
 
-# Ensure dependencies are installed in isolated directory
-if [ ! -d "node_modules" ] || [ package.json -nt node_modules ] || [ package-lock.json -nt node_modules ] || [ ! -x "./node_modules/.bin/ng" ]; then
-    echo "Installing/Updating dependencies in $ISOLATED_DIR..."
-    npm ci --legacy-peer-deps --cache "$ISOLATED_DIR/npm-cache" --loglevel error || echo "Warning: npm ci failed, trying to proceed anyway..."
+# Ensure dependencies are linked in isolated directory
+if [ ! -e "node_modules" ]; then
+    ln -s "$PROJECT_ROOT/client/node_modules" node_modules
 fi
 
 # Use a shared browsers path to avoid re-downloading

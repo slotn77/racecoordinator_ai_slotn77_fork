@@ -417,13 +417,21 @@ export class TeamEditorComponent implements OnInit, OnDestroy {
           if (isAutoSave) {
             const url = this.router.serializeUrl(
               this.router.createUrlTree(["/team-editor"], {
-                queryParams: { id: newId },
+                queryParams: {
+                  id: newId,
+                  from: this.route.snapshot.queryParamMap.get("from"),
+                  returnUrl: this.route.snapshot.queryParamMap.get("returnUrl"),
+                },
               }),
             );
             this.location.replaceState(url);
           } else {
             this.router.navigate(["/team-editor"], {
-              queryParams: { id: newId },
+              queryParams: {
+                id: newId,
+                from: this.route.snapshot.queryParamMap.get("from"),
+                returnUrl: this.route.snapshot.queryParamMap.get("returnUrl"),
+              },
             });
           }
         }

@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   input,
   OnDestroy,
@@ -12,7 +13,7 @@ import {
 } from "@angular/core";
 import { HostListener } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { finalize, forkJoin, Subscription } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
@@ -34,6 +35,8 @@ import { IHeat, IRaceParticipant, RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { LoggerService } from "@app/services/logger.service";
+import { RaceService } from "@app/services/race.service";
+import { RaceConnectionService } from "@app/services/race-connection.service";
 import { TranslationService } from "@app/services/translation.service";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
@@ -70,13 +73,47 @@ import {
   ],
 })
 export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
-  race = input.required<Race>();
-  track = input.required<Track>();
-  participants = input<RaceParticipant[]>([]);
-  heats = input<Heat[]>([]);
-  currentHeatNumber = input<number>(0);
-  raceState = input<RaceState>(RaceState.NOT_STARTED);
+  private raceService = inject(RaceService);
+  private raceConnectionService = inject(RaceConnectionService);
+  private route = inject(ActivatedRoute);
+
+  raceInput = input<Race | undefined>(undefined);
+  trackInput = input<Track | undefined>(undefined);
+  participantsInput = input<RaceParticipant[]>([]);
+  heatsInput = input<Heat[]>([]);
+  currentHeatNumberInput = input<number | undefined>(undefined);
+  raceStateInput = input<RaceState | undefined>(undefined);
   close = output<boolean>();
+
+  private localRaceState = signal<RaceState>(RaceState.NOT_STARTED);
+
+  race = computed(() => this.raceInput() || this.raceService.getRace()!);
+  track = computed(
+    () =>
+      this.trackInput() ||
+      this.raceInput()?.track ||
+      this.raceService.getRace()?.track!,
+  );
+  participants = computed(() =>
+    this.participantsInput().length > 0
+      ? this.participantsInput()
+      : this.raceService.getParticipants(),
+  );
+  heats = computed(() =>
+    this.heatsInput().length > 0
+      ? this.heatsInput()
+      : this.raceService.getHeats(),
+  );
+  currentHeatNumber = computed(() =>
+    this.currentHeatNumberInput() !== undefined
+      ? this.currentHeatNumberInput()!
+      : this.raceService.getCurrentHeat()?.heatNumber || 0,
+  );
+  raceState = computed(() =>
+    this.raceStateInput() !== undefined
+      ? this.raceStateInput()!
+      : this.localRaceState(),
+  );
 
   protected localHeats: Heat[] = [];
   protected localParticipants: RaceParticipant[] = [];
@@ -207,6 +244,15 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
     (window as any).tempModifyHeats = this;
     this.updateScale();
 
+    // Ensure we are connected to the websocket to maintain race persistence
+    this.raceConnectionService.connect();
+
+    this.subscriptions.push(
+      this.raceConnectionService.raceState$.subscribe((state) => {
+        this.localRaceState.set(state);
+      }),
+    );
+
     this.isLoading = true;
     this.localHeats = this.heats().map((h) => cloneHeat(h));
     this.localParticipants = [...this.participants()];
@@ -298,6 +344,7 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach((s) => s.unsubscribe());
+    this.raceConnectionService.disconnect();
   }
 
   protected getParticipantName = getParticipantName;
@@ -620,12 +667,17 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
       this.showExitConfirmation = true;
     } else {
       this.close.emit(true);
+      const returnUrl =
+        this.route.snapshot.queryParamMap.get("returnUrl") || "/raceday";
+      this.router.navigateByUrl(returnUrl);
     }
   }
 
   onManageTeams() {
     this.modifyHeatsService.saveState(this.localHeats, this.localParticipants);
-    const returnUrl = this.router.url.split("?")[0];
+    const returnUrl =
+      this.route.snapshot.queryParamMap.get("returnUrl") ||
+      this.router.url.split("?")[0];
     this.router.navigate(["/team-manager"], {
       queryParams: { from: "modify-heats", returnUrl },
     });
@@ -633,7 +685,9 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
 
   onManageDrivers() {
     this.modifyHeatsService.saveState(this.localHeats, this.localParticipants);
-    const returnUrl = this.router.url.split("?")[0];
+    const returnUrl =
+      this.route.snapshot.queryParamMap.get("returnUrl") ||
+      this.router.url.split("?")[0];
     this.router.navigate(["/driver-manager"], {
       queryParams: { from: "modify-heats", returnUrl },
     });
@@ -642,6 +696,9 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   protected onExitConfirm() {
     this.showExitConfirmation = false;
     this.close.emit(false); // Discard changes (don't force a final save)
+    const returnUrl =
+      this.route.snapshot.queryParamMap.get("returnUrl") || "/raceday";
+    this.router.navigateByUrl(returnUrl);
   }
 
   protected onExitCancel() {

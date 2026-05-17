@@ -918,8 +918,9 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
                 queryParams: {
                   id: created.entity_id,
                   driverCount: this.driverCount,
+                  from: this.route.snapshot.queryParamMap.get("from"),
+                  returnUrl: this.route.snapshot.queryParamMap.get("returnUrl"),
                 },
-                queryParamsHandling: "merge",
               }),
             );
             this.location.replaceState(url);

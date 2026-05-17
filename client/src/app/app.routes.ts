@@ -8,6 +8,7 @@ import { HeatResultsComponent } from "@app/components/heat-results/heat-results.
 import { RaceEditorComponent } from "@app/components/race-editor/race-editor.component";
 import { RaceManagerComponent } from "@app/components/race-manager/race-manager.component";
 import { DefaultRacedayComponent } from "@app/components/raceday/default-raceday.component";
+import { ModifyHeatsModalComponent } from "@app/components/raceday/modify-heats-modal/modify-heats-modal.component";
 import { RacedayComponent } from "@app/components/raceday/raceday.component";
 import { RacedaySetupComponent } from "@app/components/raceday-setup/raceday-setup.component";
 import { TeamEditorComponent } from "@app/components/team-editor/team-editor.component";
@@ -102,6 +103,11 @@ export const routes: Routes = [
     path: "heat-results",
     component: HeatResultsComponent,
     data: { animation: "HeatResultsPage" },
+  },
+  {
+    path: "modify-heats",
+    component: ModifyHeatsModalComponent,
+    data: { animation: "ModifyHeatsPage" },
   },
   { path: "**", redirectTo: "" },
 ];

@@ -1334,13 +1334,22 @@ export class TrackEditorComponent implements OnInit, OnDestroy {
             if (isAutoSave) {
               const url = this.router.serializeUrl(
                 this.router.createUrlTree(["/track-editor"], {
-                  queryParams: { id: result.entity_id },
+                  queryParams: {
+                    id: result.entity_id,
+                    from: this.route.snapshot.queryParamMap.get("from"),
+                    returnUrl:
+                      this.route.snapshot.queryParamMap.get("returnUrl"),
+                  },
                 }),
               );
               this.location.replaceState(url);
             } else {
               this.router.navigate(["/track-editor"], {
-                queryParams: { id: result.entity_id },
+                queryParams: {
+                  id: result.entity_id,
+                  from: this.route.snapshot.queryParamMap.get("from"),
+                  returnUrl: this.route.snapshot.queryParamMap.get("returnUrl"),
+                },
               });
             }
           } else {

@@ -19,19 +19,6 @@
   >
   </app-confirmation-modal>
 
-  @if (showModifyHeatsModal) {
-    <app-modify-heats-modal
-      [race]="race"
-      [track]="track"
-      [participants]="participants"
-      [heats]="heats"
-      [currentHeatNumber]="heat?.heatNumber || 0"
-      [raceState]="raceState"
-      (close)="onModifyHeatsClose($event)"
-    >
-    </app-modify-heats-modal>
-  }
-
   @if (showCountdownOverlay) {
     <div class="countdown-overlay">
       @if (race) {
