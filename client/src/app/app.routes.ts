@@ -121,8 +121,8 @@ export const routes: Routes = [
     component: CumulativeResultsComponent,
     data: { animation: "ReportingPage" },
   },
-  { path: "reporting", redirectTo: "history" },
-  { path: "reporting/maintenance", redirectTo: "history/maintenance" },
-  { path: "reporting/race/:id", redirectTo: "history/race/:id" },
+  { path: "reporting", redirectTo: "history", pathMatch: "full" },
+  { path: "reporting/maintenance", redirectTo: "history/maintenance", pathMatch: "full" },
+  { path: "reporting/race/:id", redirectTo: "history/race/:id", pathMatch: "full" },
   { path: "**", redirectTo: "" },
 ];

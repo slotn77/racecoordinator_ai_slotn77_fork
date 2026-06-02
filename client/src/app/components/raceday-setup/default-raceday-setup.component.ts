@@ -1005,7 +1005,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   openCumulativeResults() {
     this.saveSettings();
-    this.router.navigate(["/Reporting"]);
+    this.router.navigate(["/reporting"]);
   }
 
   onSearchChange() {
