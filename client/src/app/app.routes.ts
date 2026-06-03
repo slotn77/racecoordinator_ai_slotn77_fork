@@ -1,5 +1,8 @@
 import { Routes } from "@angular/router";
 import { AssetManagerComponent } from "@app/components/asset-manager/asset-manager.component";
+import { CumulativeResultsComponent } from "@app/components/cumulative-results/cumulative-results.component";
+import { RaceDetailComponent } from "@app/components/cumulative-results/race-detail.component";
+import { ReportingMaintenanceComponent } from "@app/components/cumulative-results/reporting-maintenance.component";
 import { DatabaseManagerComponent } from "@app/components/database-manager/database-manager.component";
 import { DriverEditorComponent } from "@app/components/driver-editor/driver-editor.component";
 import { DriverManagerComponent } from "@app/components/driver-manager/driver-manager.component";
@@ -109,5 +112,23 @@ export const routes: Routes = [
     component: ModifyHeatsModalComponent,
     data: { animation: "ModifyHeatsPage" },
   },
+  {
+    path: "history/maintenance",
+    component: ReportingMaintenanceComponent,
+    data: { animation: "ReportingMaintenancePage" },
+  },
+  {
+    path: "history/race/:id",
+    component: RaceDetailComponent,
+    data: { animation: "RaceDetailPage" },
+  },
+  {
+    path: "history",
+    component: CumulativeResultsComponent,
+    data: { animation: "ReportingPage" },
+  },
+  { path: "reporting", redirectTo: "history" },
+  { path: "reporting/maintenance", redirectTo: "history/maintenance" },
+  { path: "reporting/race/:id", redirectTo: "history/race/:id" },
   { path: "**", redirectTo: "" },
 ];

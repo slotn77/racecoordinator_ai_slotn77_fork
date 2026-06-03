@@ -3,9 +3,9 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { ManagerHeaderComponent } from "./manager-header.component";
@@ -17,7 +17,7 @@ describe("ManagerHeaderComponent", () => {
   let harness: ManagerHeaderHarness;
   let translationServiceSpy: jasmine.SpyObj<TranslationService>;
   let helpServiceSpy: jasmine.SpyObj<HelpService>;
-  let analyticsServiceSpy: jasmine.SpyObj<AnalyticsService>;
+  let ReportingServiceSpy: jasmine.SpyObj<ReportingService>;
 
   beforeEach(async () => {
     translationServiceSpy = jasmine.createSpyObj("TranslationService", [
@@ -31,19 +31,19 @@ describe("ManagerHeaderComponent", () => {
     helpServiceSpy.hasNext$ = of(false);
     helpServiceSpy.hasPrevious$ = of(false);
 
-    analyticsServiceSpy = jasmine.createSpyObj("AnalyticsService", [
+    ReportingServiceSpy = jasmine.createSpyObj("ReportingService", [
       "isEnabled",
-      "toggleAnalytics",
+      "toggleReporting",
     ]);
-    analyticsServiceSpy.toggleAnalytics.and.returnValue(of({ success: true }));
-    analyticsServiceSpy.isEnabled.and.returnValue(true);
+    ReportingServiceSpy.toggleReporting.and.returnValue(of({ success: true }));
+    ReportingServiceSpy.isEnabled.and.returnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [ManagerHeaderComponent, TranslatePipe],
       providers: [
         { provide: TranslationService, useValue: translationServiceSpy },
         { provide: HelpService, useValue: helpServiceSpy },
-        { provide: AnalyticsService, useValue: analyticsServiceSpy },
+        { provide: ReportingService, useValue: ReportingServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {

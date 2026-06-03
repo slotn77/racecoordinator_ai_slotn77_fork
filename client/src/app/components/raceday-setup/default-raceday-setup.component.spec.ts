@@ -11,7 +11,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject as _BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { HelpOverlayComponent } from "@app/components/shared/help-overlay/help-overlay.component";
 import { DataService } from "@app/data.service";
 import { Settings as _Settings } from "@app/models/settings";
@@ -22,6 +21,7 @@ import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_DRIVERS as _MOCK_DRIVERS } from "@app/testing/data/drivers_data";
@@ -29,8 +29,8 @@ import { MOCK_RACES as _MOCK_RACES } from "@app/testing/data/races_data";
 import { createDefaultSettings } from "@app/testing/data/settings_data";
 import { MOCK_TEAMS as _MOCK_TEAMS } from "@app/testing/data/teams_data";
 import {
-  mockAnalyticsService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -162,7 +162,7 @@ describe("DefaultRacedaySetupComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: FileSystemService, useValue: mockFileSystemService },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: LoggerService, useValue: mockLoggerService },
         {
           provide: ParticipantValidationService,

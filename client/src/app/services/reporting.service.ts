@@ -3,10 +3,9 @@ import { Inject, Injectable } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { Observable, of } from "rxjs";
 import { catchError, filter, map } from "rxjs/operators";
+import { DataService } from "@app/data.service";
 import { LoggerService } from "@app/services/logger.service";
 import { SettingsService } from "@app/services/settings.service";
-
-import { DataService } from "./data.service";
 
 // Declare standard gtag function
 declare const gtag: Function;
@@ -14,7 +13,7 @@ declare const gtag: Function;
 @Injectable({
   providedIn: "root",
 })
-export class AnalyticsService {
+export class ReportingService {
   private metricsEnabled: boolean = false;
   private measurementId: string = "";
   private scriptLoaded: boolean = false;
@@ -34,7 +33,7 @@ export class AnalyticsService {
   private ensureGtagFallback() {
     const window = this.document.defaultView as any;
     if (window && typeof window.gtag === "undefined") {
-      this.logger.info("Analytics: Defining global gtag fallback function.");
+      this.logger.info("Reporting: Defining global gtag fallback function.");
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () {
         window.dataLayer.push(arguments);
@@ -43,17 +42,17 @@ export class AnalyticsService {
   }
 
   public isEnabled(): boolean {
-    return this.settingsService.getSettings().shareAnalytics;
+    return this.settingsService.getSettings().shareReporting;
   }
 
-  public toggleAnalytics(): Observable<{
+  public toggleReporting(): Observable<{
     success: boolean;
     titleKey?: string;
     messageKey?: string;
   }> {
     const settings = this.settingsService.getSettings();
-    const newValue = !settings.shareAnalytics;
-    settings.shareAnalytics = newValue;
+    const newValue = !settings.shareReporting;
+    settings.shareReporting = newValue;
     this.settingsService.saveSettings(settings);
     this.updateOptOutStatus();
 
@@ -67,19 +66,19 @@ export class AnalyticsService {
       !serverIp;
 
     if (isLocal) {
-      return this.dataService.toggleServerAnalytics(newValue).pipe(
+      return this.dataService.toggleServerReporting(newValue).pipe(
         map(() => ({ success: true })),
         catchError((err) => {
           this.logger.error(
-            "Failed to synchronize server analytics setting",
+            "Failed to synchronize server Reporting setting",
             err,
           );
           return of({
             success: false,
             titleKey: newValue
-              ? "RDS_ANALYTICS_ENABLED_TITLE"
-              : "RDS_ANALYTICS_DISABLED_TITLE",
-            messageKey: "RDS_ANALYTICS_SYNC_ERROR",
+              ? "RDS_Reporting_ENABLED_TITLE"
+              : "RDS_Reporting_DISABLED_TITLE",
+            messageKey: "RDS_Reporting_SYNC_ERROR",
           });
         }),
       );
@@ -101,24 +100,24 @@ export class AnalyticsService {
 
   public updateOptOutStatus() {
     const settings = this.settingsService.getSettings();
-    this.metricsEnabled = settings.shareAnalytics;
-    this.logger.debug("Analytics: updateOptOutStatus called", {
+    this.metricsEnabled = settings.shareReporting;
+    this.logger.debug("Reporting: updateOptOutStatus called", {
       metricsEnabled: this.metricsEnabled,
       scriptLoaded: this.scriptLoaded,
     });
 
     if (this.metricsEnabled && !this.scriptLoaded) {
-      this.loadGoogleAnalyticsScript();
+      this.loadGoogleReportingScript();
     }
   }
 
-  private loadGoogleAnalyticsScript() {
-    this.logger.info("Analytics: loadGoogleAnalyticsScript called");
+  private loadGoogleReportingScript() {
+    this.logger.info("Reporting: loadGoogleReportingScript called");
     this.scriptLoaded = true;
 
-    this.dataService.getServerAnalyticsConfig().subscribe({
-      next: (config) => {
-        this.logger.info("Analytics: Received config from server", {
+    this.dataService.getServerReportingConfig().subscribe({
+      next: (config: any) => {
+        this.logger.info("Reporting: Received config from server", {
           measurementId: !!config.measurementId,
           clientId: !!config.clientId,
         });
@@ -128,21 +127,21 @@ export class AnalyticsService {
 
         if (!this.measurementId) {
           this.logger.warn(
-            "Analytics enabled but no Measurement ID is configured on the server. Aborting script injection.",
+            "Reporting enabled but no Measurement ID is configured on the server. Aborting script injection.",
           );
           return;
         }
 
         const clientId = config.clientId;
         this.logger.info(
-          "Analytics: Configuring GTAG for ID",
+          "Reporting: Configuring GTAG for ID",
           this.measurementId,
         );
 
         // Push config to dataLayer immediately via fallback
         const window = this.document.defaultView as any;
         if (window && typeof window.gtag === "function") {
-          this.logger.info("Analytics: Pushing initial config to dataLayer");
+          this.logger.info("Reporting: Pushing initial config to dataLayer");
           window.gtag("js", new Date());
           window.gtag("config", this.measurementId, {
             send_page_view: false,
@@ -155,11 +154,11 @@ export class AnalyticsService {
         script1.src = `https://www.googletagmanager.com/gtag/js?id=${this.measurementId}`;
         script1.onload = () =>
           this.logger.info(
-            "Analytics: GTAG library script loaded successfully.",
+            "Reporting: GTAG library script loaded successfully.",
           );
         script1.onerror = (e) =>
           this.logger.error(
-            "Analytics: GTAG library script failed to load.",
+            "Reporting: GTAG library script failed to load.",
             e,
           );
         this.document.head.appendChild(script1);
@@ -167,7 +166,7 @@ export class AnalyticsService {
         this.configLoaded = true;
         this.processQueue();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.logger.warn(
           "Failed to fetch server tracking ID, falling back to local.",
           err,
@@ -195,13 +194,13 @@ export class AnalyticsService {
 
   private trackPageView(url: string) {
     if (!this.metricsEnabled) {
-      this.logger.debug("Analytics: Page view skipped (metrics disabled)");
+      this.logger.debug("Reporting: Page view skipped (metrics disabled)");
       return;
     }
 
     if (!this.configLoaded) {
       this.logger.info(
-        "Analytics: Queueing page view event until config is loaded",
+        "Reporting: Queueing page view event until config is loaded",
         { url },
       );
       this.eventQueue.push({ type: "page_view", url });
@@ -213,7 +212,7 @@ export class AnalyticsService {
       const title = this.document.title || "Race Coordinator AI";
       const fullUrl = window ? window.location.origin + url : url;
 
-      this.logger.info("Analytics: Tracking page view", {
+      this.logger.info("Reporting: Tracking page view", {
         url,
         title,
         measurementId: this.measurementId,
@@ -225,7 +224,7 @@ export class AnalyticsService {
         send_to: this.measurementId, // Explicitly send to our measurement ID
       });
     } catch (e) {
-      this.logger.warn("Analytics: Error in trackPageView", e);
+      this.logger.warn("Reporting: Error in trackPageView", e);
     }
   }
 
@@ -235,7 +234,7 @@ export class AnalyticsService {
 
     if (!this.configLoaded) {
       this.logger.info(
-        "Analytics: Queueing click event until config is loaded",
+        "Reporting: Queueing click event until config is loaded",
         {
           eventName,
         },
@@ -252,14 +251,14 @@ export class AnalyticsService {
         send_to: this.measurementId,
       });
     } catch (e) {
-      this.logger.warn("Analytics: Error in trackClick", e);
+      this.logger.warn("Reporting: Error in trackClick", e);
     }
   }
 
   private processQueue() {
     if (this.eventQueue.length === 0) return;
     this.logger.info(
-      `Analytics: Processing ${this.eventQueue.length} queued events`,
+      `Reporting: Processing ${this.eventQueue.length} queued events`,
     );
     const queue = [...this.eventQueue];
     this.eventQueue = [];

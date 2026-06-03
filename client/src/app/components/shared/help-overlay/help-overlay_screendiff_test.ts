@@ -13,7 +13,7 @@ test.describe("Help Overlay Visuals", () => {
     // Ensure we don't auto-trigger help from "first run" logic by presetting settings
     await TestSetupHelper.setupLocalStorage(page, {
       racedaySetupWalkthroughSeen: true,
-      shareAnalytics: true, // Ensure analytics button is in a known state (enabled)
+      shareReporting: true, // Ensure analytics button is in a known state (enabled)
     });
 
     // Skip splash screen

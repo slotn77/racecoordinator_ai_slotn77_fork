@@ -35,8 +35,8 @@ export const mockDataService = {
     .createSpy("getServerVersion")
     .and.returnValue(of("1.0.0")),
   connectToRaceDataSocket: jasmine.createSpy("connectToRaceDataSocket"),
-  getServerAnalyticsConfig: jasmine
-    .createSpy("getServerAnalyticsConfig")
+  getServerReportingConfig: jasmine
+    .createSpy("getServerReportingConfig")
     .and.returnValue(of({ measurementId: "G-TEST", clientId: "test-client" })),
   getDatabases: jasmine.createSpy("getDatabases").and.returnValue(of([])),
   switchDatabase: jasmine
@@ -130,10 +130,10 @@ export const mockRouter = {
   createUrlTree: jasmine.createSpy("createUrlTree").and.returnValue({}),
 };
 
-export const mockAnalyticsService = {
+export const mockReportingService = {
   isEnabled: jasmine.createSpy("isEnabled").and.returnValue(true),
-  toggleAnalytics: jasmine
-    .createSpy("toggleAnalytics")
+  toggleReporting: jasmine
+    .createSpy("toggleReporting")
     .and.returnValue(of({ success: true })),
   initTracking: jasmine.createSpy("initTracking"),
   updateOptOutStatus: jasmine.createSpy("updateOptOutStatus"),
@@ -171,7 +171,7 @@ export function resetMocks() {
     mockDataService,
     mockTranslationService,
     mockRouter,
-    mockAnalyticsService,
+    mockReportingService,
     mockSettingsService,
     mockLoggerService,
   ];
@@ -230,13 +230,13 @@ export function resetMocks() {
   mockRouter.serializeUrl.and.returnValue("mock-url");
   mockRouter.createUrlTree.and.returnValue({});
 
-  // Restore default behaviors for mockAnalyticsService
-  mockAnalyticsService.isEnabled.and.returnValue(true);
-  mockAnalyticsService.toggleAnalytics.and.returnValue(of({ success: true }));
-  mockAnalyticsService.initTracking.and.stub();
-  mockAnalyticsService.updateOptOutStatus.and.stub();
-  mockAnalyticsService.trackClick.and.stub();
-  mockAnalyticsService.trackPageView.and.stub();
+  // Restore default behaviors for mockReportingService
+  mockReportingService.isEnabled.and.returnValue(true);
+  mockReportingService.toggleReporting.and.returnValue(of({ success: true }));
+  mockReportingService.initTracking.and.stub();
+  mockReportingService.updateOptOutStatus.and.stub();
+  mockReportingService.trackClick.and.stub();
+  mockReportingService.trackPageView.and.stub();
 
   // Restore default behaviors for mockSettingsService
   mockSettingsService.getSettings.and.callFake(() => createDefaultSettings());

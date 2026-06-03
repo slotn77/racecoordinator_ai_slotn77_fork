@@ -24,8 +24,8 @@ export class ToolbarHarnessE2e implements ToolbarHarnessBase {
   private get deleteButton() {
     return this.locator.locator(this.base.selectors.delete);
   }
-  private get analyticsButton() {
-    return this.locator.locator(this.base.selectors.analytics);
+  private get ReportingButton() {
+    return this.locator.locator(this.base.selectors.Reporting);
   }
   private get addButton() {
     return this.locator.locator(this.base.selectors.add);
@@ -46,8 +46,8 @@ export class ToolbarHarnessE2e implements ToolbarHarnessBase {
   async isDeleteVisible(): Promise<boolean> {
     return await this.deleteButton.isVisible();
   }
-  async isAnalyticsVisible(): Promise<boolean> {
-    return await this.analyticsButton.isVisible();
+  async isReportingVisible(): Promise<boolean> {
+    return await this.ReportingButton.isVisible();
   }
   async isAddVisible(): Promise<boolean> {
     return await this.addButton.isVisible();
@@ -84,8 +84,8 @@ export class ToolbarHarnessE2e implements ToolbarHarnessBase {
   async clickDelete(): Promise<void> {
     return await this.deleteButton.click();
   }
-  async clickAnalytics(): Promise<void> {
-    await this.analyticsButton.click();
+  async clickReporting(): Promise<void> {
+    await this.ReportingButton.click();
   }
   async clickAdd(): Promise<void> {
     await this.addButton.click();

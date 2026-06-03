@@ -9,7 +9,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import {
   ConnectionMonitorService,
@@ -17,11 +16,12 @@ import {
 } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
-  mockAnalyticsService,
   mockDataService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -30,7 +30,7 @@ import {
 
 import { AssetManagerComponent } from "./asset-manager.component";
 
-@Pipe({ name: "translate" })
+@Pipe({ standalone: true,name: "translate" })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
     return value;
@@ -94,7 +94,7 @@ describe("AssetManagerComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },

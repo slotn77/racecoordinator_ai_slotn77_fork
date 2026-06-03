@@ -11,7 +11,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { BehaviorSubject, of, throwError } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { Lane } from "@app/models/lane";
 import { Settings } from "@app/models/settings";
@@ -21,6 +20,7 @@ import { ConnectionMonitorService } from "@app/services/connection-monitor.servi
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -28,8 +28,8 @@ import {
   MOCK_TRACKS as _MOCK_TRACKS,
 } from "@app/testing/data/tracks_data";
 import {
-  mockAnalyticsService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -170,7 +170,7 @@ describe("TrackEditorComponent", () => {
             };
           },
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: LoggerService, useValue: mockLoggerService },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },

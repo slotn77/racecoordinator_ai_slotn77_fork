@@ -11,7 +11,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { FuelUsageType } from "@app/models/fuel_options";
 import { Race } from "@app/models/race";
@@ -20,6 +19,7 @@ import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_RACE_INSTANCES, MOCK_RACES } from "@app/testing/data/races_data";
@@ -28,7 +28,7 @@ import {
   MOCK_TRACKS,
 } from "@app/testing/data/tracks_data";
 import {
-  mockAnalyticsService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -91,7 +91,7 @@ describe("RaceEditorComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },

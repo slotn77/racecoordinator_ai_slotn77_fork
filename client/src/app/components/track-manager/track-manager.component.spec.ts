@@ -2,7 +2,6 @@ import { Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import {} from "@app/models/settings";
 import { Track } from "@app/models/track";
@@ -10,6 +9,7 @@ import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -17,7 +17,7 @@ import {
   MOCK_TRACKS as _MOCK_TRACKS,
 } from "@app/testing/data/tracks_data";
 import {
-  mockAnalyticsService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -93,7 +93,7 @@ describe("TrackManagerComponent", () => {
         },
         { provide: ConnectionMonitorService, useValue: mockConnectionMonitor },
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
       ],
     }).compileComponents();
 

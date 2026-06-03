@@ -178,6 +178,7 @@ public class CsvExporter {
     if (track != null) {
       sb.append("#Property,Value\n");
       sb.append("Name,").append(escape(track.getName())).append("\n");
+      sb.append("Geolocation,").append(escape(track.getGeolocation())).append("\n");
       sb.append("Lanes,").append(track.getLanes().size()).append("\n");
       sb.append("\n");
 
@@ -201,6 +202,7 @@ public class CsvExporter {
     sb.append("#Property,Value\n");
     if (race.getRaceModel() != null) {
       sb.append("Name,").append(escape(race.getRaceModel().getName())).append("\n");
+      sb.append("Car Class,").append(escape(race.getRaceModel().getCarClass())).append("\n");
 
       AnalogFuelOptions fuel = race.getRaceModel().getFuelOptions();
       if (fuel != null && fuel.isEnabled()) {
@@ -238,7 +240,7 @@ public class CsvExporter {
     // Section 3: Overall Standings
     sb.append("#Section,Overall Standings\n");
     sb.append(
-        "#Rank,Seed,Driver,Nickname,Team,Total Laps,Total Time,Rank Value,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap\n");
+        "#Rank,Seed,Driver,Nickname,Team,Total Laps,Rank Value,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Total Time\n");
     List<RaceParticipant> drivers = race.getDrivers(); // Usually sorted after standings recalculate
     for (int i = 0; i < drivers.size(); i++) {
       RaceParticipant p = drivers.get(i);
@@ -266,8 +268,6 @@ public class CsvExporter {
           .append(",")
           .append(p.getTotalLaps())
           .append(",")
-          .append(p.getTotalTime())
-          .append(",")
           .append(p.getRankValue())
           .append(",")
           .append(gapLeader)
@@ -279,6 +279,8 @@ public class CsvExporter {
           .append(p.getAverageLapTime())
           .append(",")
           .append(p.getMedianLapTime())
+          .append(",")
+          .append(p.getTotalTime())
           .append("\n");
     }
     sb.append("\n");
@@ -312,7 +314,7 @@ public class CsvExporter {
             .append(hDuration)
             .append("\n\n");
         sb.append(
-            "#Lane,Driver,Nickname,Team,Reaction Time,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Laps,Penalty Laps,False Starts,User Laps,Auto Calculated Laps,Adjusted Laps\n");
+            "#Lane,Driver,Nickname,Team,Reaction Time,Gap Leader,Gap Position,Best Lap,Avg Lap,Median Lap,Laps,Penalty Laps,False Starts,User Laps,Auto Calculated Laps,Adjusted Laps,Total Time\n");
         for (int lIdx = 0; lIdx < heat.getDrivers().size(); lIdx++) {
           DriverHeatData dhd = heat.getDrivers().get(lIdx);
           String driverName = "N/A";
@@ -366,6 +368,8 @@ public class CsvExporter {
               .append(dhd.getAutoCalculatedLaps())
               .append(",")
               .append(dhd.getAdjustedLapCount())
+              .append(",")
+              .append(dhd.getTotalTime())
               .append("\n");
 
           // Lap Data

@@ -1400,20 +1400,20 @@ export class DataService {
     });
   }
 
-  toggleServerAnalytics(enabled: boolean): Observable<string> {
+  toggleServerReporting(enabled: boolean): Observable<string> {
     return this.http.post(
-      `${this.baseUrl}/api/analytics/toggle`,
+      `${this.baseUrl}/api/reporting/toggle`,
       { enabled },
       { responseType: "text" },
     );
   }
 
-  getServerAnalyticsConfig(): Observable<{
+  getServerReportingConfig(): Observable<{
     clientId: string;
     measurementId: string;
   }> {
     return this.http.get<{ clientId: string; measurementId: string }>(
-      `${this.baseUrl}/api/analytics/config`,
+      `${this.baseUrl}/api/reporting/config`,
     );
   }
 
@@ -1421,6 +1421,30 @@ export class DataService {
     return this.http.post<any>(
       `${this.baseUrl}/api/races/current-heat/drivers/${lane}/user-laps`,
       { userLaps },
+    );
+  }
+
+  getRaceHistory(isDemo: boolean = false): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.baseUrl}/api/history/races?demo=${isDemo}`,
+    );
+  }
+
+  getRaceHistoryById(id: string, isDemo: boolean = false): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/history/races/${id}?demo=${isDemo}`);
+  }
+
+  deleteRaceHistory(id: string, isDemo: boolean = false, database?: string): Observable<any> {
+    let url = `${this.baseUrl}/api/history/races/${id}?demo=${isDemo}`;
+    if (database) {
+      url += `&database=${database}`;
+    }
+    return this.http.delete<any>(url);
+  }
+
+  getGlobalStatistics(isDemo: boolean = false): Observable<any> {
+    return this.http.get<any>(
+      `${this.baseUrl}/api/history/races/statistics?demo=${isDemo}`,
     );
   }
 }

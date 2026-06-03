@@ -19,7 +19,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -346,25 +345,6 @@ public class ArduinoProtocol extends DefaultProtocol {
             0,
             50,
             TimeUnit.MILLISECONDS);
-  }
-
-  @Override
-  public void startTimer() {
-    sendTimeReset();
-    for (int i = 0; i < numLanes; i++) {
-      hwLapTime[i].reset();
-      hwSegmentTime[i].reset();
-    }
-    hwReset = 1;
-  }
-
-  @Override
-  public List<PartialTime> stopTimer() {
-    List<PartialTime> partialTimes = new ArrayList<>();
-    for (int i = 0; i < numLanes; i++) {
-      partialTimes.add(new PartialTime(i, hwLapTime[i].time(), hwSegmentTime[i].time()));
-    }
-    return partialTimes;
   }
 
   public void updateConfig(ArduinoConfig newConfig) {
@@ -969,6 +949,26 @@ public class ArduinoProtocol extends DefaultProtocol {
       }
     }
     lastCallButtonState.put(interfaceId, state);
+  }
+
+  @Override
+  public void startTimer(List<PartialTime> partials) {
+    sendTimeReset();
+    for (int i = 0; i < numLanes; i++) {
+      hwLapTime[i].reset();
+      hwSegmentTime[i].reset();
+    }
+    hwReset = 1;
+
+    if (partials == null) {
+      return;
+    }
+    for (PartialTime pt : partials) {
+      if (pt.getLaneIndex() >= 0 && pt.getLaneIndex() < numLanes) {
+        hwLapTime[pt.getLaneIndex()].add((long) (pt.getLapTime() * 1000 * 1000));
+        hwSegmentTime[pt.getLaneIndex()].add((long) (pt.getSegmentTime() * 1000 * 1000));
+      }
+    }
   }
 
   private boolean hasPitInConfigured(int laneIndex) {

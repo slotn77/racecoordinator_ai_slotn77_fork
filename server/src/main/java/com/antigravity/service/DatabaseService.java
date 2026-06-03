@@ -241,7 +241,8 @@ public class DatabaseService {
     List<ArduinoConfig> configs = new ArrayList<>();
     configs.add(config);
     Track track =
-        new Track("The Heights", 100, lanes, configs, getNextSequence(database, "tracks"), null);
+        new Track(
+            "The Heights", 100, lanes, configs, null, getNextSequence(database, "tracks"), null);
 
     trackCollection.insertOne(track);
     logger.info("Tracks reset.");
@@ -421,7 +422,7 @@ public class DatabaseService {
     ArduinoConfig config = new ArduinoConfig();
     List<ArduinoConfig> configs = new ArrayList<>();
     configs.add(config);
-    return new Track("New Track", 100, lanes, configs, null, null);
+    return new Track("New Track", 100, lanes, configs, null, null, null);
   }
 
   public void saveRaceHistory(
@@ -444,6 +445,12 @@ public class DatabaseService {
       record.setHeats(runtimeRace.getHeats());
       record.setAccumulatedRaceTime(runtimeRace.getRaceTime());
       record.setStatistics(runtimeRace.getStatistics());
+      if (runtimeRace.getRaceModel() != null) {
+        record.setCarClass(runtimeRace.getRaceModel().getCarClass());
+      }
+      if (runtimeRace.getTrack() != null) {
+        record.setGeolocation(runtimeRace.getTrack().getGeolocation());
+      }
 
       collection.insertOne(record);
       logger.info("Race successfully saved to {}", collection.getNamespace().getCollectionName());
@@ -585,6 +592,19 @@ public class DatabaseService {
     MongoCollection<RaceHistoryRecord> collection =
         database.getCollection(getCollectionName("race_history", isDemo), RaceHistoryRecord.class);
     return collection.find(Filters.eq("_id", new ObjectId(id))).first();
+  }
+
+  public boolean deleteRaceHistoryById(MongoDatabase database, String id, boolean isDemo) {
+    try {
+      MongoCollection<RaceHistoryRecord> collection =
+          database.getCollection(
+              getCollectionName("race_history", isDemo), RaceHistoryRecord.class);
+      DeleteResult result = collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+      return result.getDeletedCount() > 0;
+    } catch (Exception e) {
+      System.err.println("Failed to delete race history record " + id + ": " + e.getMessage());
+      return false;
+    }
   }
 
   public void upsertAutoSave(MongoDatabase database, RaceSaveData data) {

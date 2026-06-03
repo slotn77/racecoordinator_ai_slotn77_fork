@@ -137,6 +137,10 @@ public class Race extends Model {
   @JsonAlias("groupOptions")
   private final GroupOptions groupOptions;
 
+  @BsonProperty("car_class")
+  @JsonProperty("car_class")
+  private final String carClass;
+
   @BsonCreator
   @JsonCreator
   public Race(
@@ -221,6 +225,7 @@ public class Race extends Model {
           Double falseStartTimePenalty,
       @BsonProperty("group_options") @JsonProperty("group_options") @JsonAlias("groupOptions")
           GroupOptions groupOptions,
+      @BsonProperty("car_class") @JsonProperty("car_class") String carClass,
       @BsonProperty("entity_id") @JsonProperty("entity_id") String entityId,
       @BsonId @JsonProperty("_id") ObjectId id) {
     super(id, entityId);
@@ -258,6 +263,7 @@ public class Race extends Model {
     this.falseStartLapPenalty = falseStartLapPenalty != null ? falseStartLapPenalty : 0.0;
     this.falseStartTimePenalty = falseStartTimePenalty != null ? falseStartTimePenalty : 0.0;
     this.groupOptions = groupOptions != null ? groupOptions : new GroupOptions();
+    this.carClass = carClass;
   }
 
   public static class Builder {
@@ -291,6 +297,7 @@ public class Race extends Model {
     private double falseStartLapPenalty = 0.0;
     private double falseStartTimePenalty = 0.0;
     private GroupOptions groupOptions = new GroupOptions();
+    private String carClass;
     private String entityId;
     private ObjectId id;
 
@@ -324,6 +331,7 @@ public class Race extends Model {
       this.falseStartLapPenalty = other.getFalseStartLapPenalty();
       this.falseStartTimePenalty = other.getFalseStartTimePenalty();
       this.groupOptions = other.getGroupOptions();
+      this.carClass = other.getCarClass();
       this.entityId = other.getEntityId();
       this.id = other.getId();
       return this;
@@ -474,6 +482,11 @@ public class Race extends Model {
       return this;
     }
 
+    public Builder withCarClass(String carClass) {
+      this.carClass = carClass;
+      return this;
+    }
+
     public Builder withEntityId(String entityId) {
       this.entityId = entityId;
       return this;
@@ -516,6 +529,7 @@ public class Race extends Model {
           falseStartLapPenalty,
           falseStartTimePenalty,
           groupOptions,
+          carClass,
           entityId,
           id);
     }
@@ -645,5 +659,9 @@ public class Race extends Model {
   @BsonProperty("group_options")
   public GroupOptions getGroupOptions() {
     return groupOptions;
+  }
+
+  public String getCarClass() {
+    return carClass;
   }
 }

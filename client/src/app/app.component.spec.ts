@@ -10,9 +10,9 @@ import { ChildrenOutletContexts, NavigationEnd, Router } from "@angular/router";
 import { of, Subject } from "rxjs";
 import { RaceFlag } from "@app/proto/antigravity";
 
-import { AnalyticsService } from "./analytics.service";
 import { AppComponent } from "./app.component";
 import { DataService } from "./data.service";
+import { ReportingService } from "./services/reporting.service";
 import { NavigationService } from "./services/navigation.service";
 import { SettingsService } from "./services/settings.service";
 import { ThemeService } from "./services/theme.service";
@@ -22,7 +22,7 @@ describe("AppComponent", () => {
   let component: AppComponent;
   let mockRouter: any;
   let mockDataService: any;
-  let mockAnalyticsService: any;
+  let mockReportingService: any;
   let mockNavigationService: any;
   let mockSettingsService: any;
   let routerEvents: Subject<any>;
@@ -56,7 +56,7 @@ describe("AppComponent", () => {
     mockDataService.disconnectFromInterfaceDataSocket.and.stub();
     mockDataService.getHeats.and.returnValue(new Subject().asObservable());
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
+    mockReportingService = jasmine.createSpyObj("ReportingService", [
       "initTracking",
       "updateOptOutStatus",
       "trackClick",
@@ -90,7 +90,7 @@ describe("AppComponent", () => {
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: DataService, useValue: mockDataService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: NavigationService, useValue: mockNavigationService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ChildrenOutletContexts, useValue: mockContexts },

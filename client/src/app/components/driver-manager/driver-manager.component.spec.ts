@@ -7,7 +7,6 @@ import {
 } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of, Subject } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { AvatarUrlPipe } from "@app/pipes/avatar-url.pipe";
@@ -18,6 +17,7 @@ import {
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -26,8 +26,8 @@ import {
 } from "@app/testing/data/drivers_data";
 import { MOCK_TEAMS as _MOCK_TEAMS } from "@app/testing/data/teams_data";
 import {
-  mockAnalyticsService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -115,7 +115,7 @@ describe("DriverManagerComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: LoggerService, useValue: mockLoggerService },
         ChangeDetectorRef,

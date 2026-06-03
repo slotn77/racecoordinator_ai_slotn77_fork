@@ -5,20 +5,20 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_DATABASES } from "@app/testing/data/databases_data";
 import {
-  mockAnalyticsService,
   mockDataService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -110,7 +110,7 @@ describe("DatabaseManagerComponent", () => {
         },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: LoggerService, useValue: mockLoggerService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         {
           provide: HelpService,

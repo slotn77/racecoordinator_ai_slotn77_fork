@@ -11,7 +11,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of, Subject } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { Team } from "@app/models/team";
@@ -19,6 +18,7 @@ import { ConnectionMonitorService } from "@app/services/connection-monitor.servi
 import { HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import {
@@ -30,8 +30,8 @@ import {
   MOCK_TEAMS as _MOCK_TEAMS,
 } from "@app/testing/data/teams_data";
 import {
-  mockAnalyticsService,
   mockLoggerService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -126,14 +126,14 @@ class MockEditorTitleComponent {
 })
 class MockHelpOverlayComponent {}
 
-@Pipe({ name: "translate" })
+@Pipe({ standalone: true,name: "translate" })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
     return value;
   }
 }
 
-@Pipe({ name: "avatarUrl" })
+@Pipe({ standalone: true,name: "avatarUrl" })
 class MockAvatarUrlPipe implements PipeTransform {
   transform(value: string): string {
     return value;
@@ -223,7 +223,7 @@ describe("TeamEditorComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: LoggerService, useValue: mockLoggerService },
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },

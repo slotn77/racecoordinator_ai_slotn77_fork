@@ -98,11 +98,12 @@ data_v2
 data_v3
 build_cache
 
-# Analytics
-server/src/main/resources/analytics.properties
+# Reporting
+server/src/main/resources/Reporting.properties
 
 # Scratch folder for AI scripts
 /scratch/
+scratch/
 
 # IDE and Maven temporary files
 .classpath
@@ -123,3 +124,9 @@ client/pw-result.json
 server/checkstyle_report.txt
 server/checkstyle_report_final.txt
 
+# Local Tools and Exports
+tools/
+cumulative_standings*
+*.log
+cp.txt
+__pycache__/

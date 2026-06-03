@@ -10,10 +10,10 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { createDriverManagerDataServiceMock } from "../driver-manager/testing/driver-manager_helper";
@@ -131,14 +131,14 @@ class MockHelpOverlayComponent {
   helpClosed = output<void>();
 }
 
-@Pipe({ name: "translate" })
+@Pipe({ standalone: true,name: "translate" })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
     return value;
   }
 }
 
-@Pipe({ name: "avatarUrl" })
+@Pipe({ standalone: true,name: "avatarUrl" })
 class MockAvatarUrlPipe implements PipeTransform {
   transform(value: string): string {
     return value;
@@ -154,7 +154,7 @@ describe("DriverEditorComponent Reproduction", () => {
   let mockRouter: any;
   let mockActivatedRoute: any;
   let mockHelpService: any;
-  let mockAnalyticsService: any;
+  let mockReportingService: any;
 
   beforeEach(async () => {
     mockDataService = createDriverManagerDataServiceMock();
@@ -189,11 +189,11 @@ describe("DriverEditorComponent Reproduction", () => {
     mockHelpService.hasNext$ = of(false);
     mockHelpService.hasPrevious$ = of(false);
 
-    mockAnalyticsService = jasmine.createSpyObj("AnalyticsService", [
+    mockReportingService = jasmine.createSpyObj("ReportingService", [
       "isEnabled",
       "trackClick",
     ]);
-    mockAnalyticsService.isEnabled.and.returnValue(true);
+    mockReportingService.isEnabled.and.returnValue(true);
 
     mockDataService.getDrivers.and.returnValue(
       of([{ entity_id: "d1", name: "Original", nickname: "" }]),
@@ -223,7 +223,7 @@ describe("DriverEditorComponent Reproduction", () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: HelpService, useValue: mockHelpService },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
       ],
     }).compileComponents();
   });

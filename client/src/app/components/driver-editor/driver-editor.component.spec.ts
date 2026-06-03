@@ -9,11 +9,11 @@ import {
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of, throwError } from "rxjs";
-import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
 import { HelpService } from "@app/services/help.service";
+import { ReportingService } from "@app/services/reporting.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 
@@ -135,7 +135,7 @@ import {
   MOCK_DRIVERS as _MOCK_DRIVERS,
 } from "@app/testing/data/drivers_data";
 import {
-  mockAnalyticsService,
+  mockReportingService,
   mockRouter,
   mockSettingsService,
   mockTranslationService,
@@ -145,14 +145,14 @@ import {
 import { createDriverManagerDataServiceMock } from "../driver-manager/testing/driver-manager_helper";
 import { DriverEditorComponent } from "./driver-editor.component";
 
-@Pipe({ name: "translate" })
+@Pipe({ standalone: true,name: "translate" })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
     return value;
   }
 }
 
-@Pipe({ name: "avatarUrl" })
+@Pipe({ standalone: true,name: "avatarUrl" })
 class MockAvatarUrlPipe implements PipeTransform {
   transform(value: string): string {
     return value;
@@ -219,7 +219,7 @@ describe("DriverEditorComponent", () => {
             hasPrevious$: of(false),
           }),
         },
-        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: ReportingService, useValue: mockReportingService },
         { provide: SettingsService, useValue: mockSettingsService },
       ],
     }).compileComponents();

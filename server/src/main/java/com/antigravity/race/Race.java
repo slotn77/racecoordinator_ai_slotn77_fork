@@ -63,6 +63,7 @@ public class Race implements ProtocolListener {
   private final RaceRecords recordsManager;
   private final RaceHeatManager heatManager;
 
+  private List<PartialTime> partialTimes;
   private boolean isDemoMode;
   private DemoConfig demoConfig;
   private DatabaseContext databaseContext;
@@ -606,13 +607,17 @@ public class Race implements ProtocolListener {
   }
 
   public void startProtocols() {
-    if (hardwareManager.getProtocols() != null) hardwareManager.getProtocols().startTimer();
+    if (hardwareManager.getProtocols() != null) {
+      hardwareManager.getProtocols().startTimer(this.partialTimes);
+    }
+    this.partialTimes = null;
   }
 
   public List<PartialTime> stopProtocols() {
-    return hardwareManager.getProtocols() != null
+    this.partialTimes = hardwareManager.getProtocols() != null
         ? hardwareManager.getProtocols().stopTimer()
         : new ArrayList<>();
+    return this.partialTimes;
   }
 
   public void setHeatStandings(List<Integer> rankings) {
@@ -668,15 +673,26 @@ public class Race implements ProtocolListener {
       currentHeat.setStarted(false);
       resetRaceTime();
       initializeHeatExecutionState();
+      this.partialTimes = null;
+
       for (DriverHeatData heatData : currentHeat.getDrivers())
-        heatData.getDriver().setFuelLevel(heatData.getInitialFuelLevel());
-      broadcast(
-          RaceData.newBuilder()
-              .setRace(
-                  com.antigravity.proto.Race.newBuilder() // fqn-collision
-                      .setCurrentHeat(HeatConverter.toProto(currentHeat, new HashSet<>()))
-                      .build())
-              .build());
+        if(heatData.getDriver() != null)
+          heatData.getDriver().setFuelLevel(heatData.getInitialFuelLevel());
+
+      // Broadcast update to client
+      Set<String> sentObjectIds = new HashSet<>();
+      for (RaceParticipant p : getDrivers()) {
+        sentObjectIds.add(HeatConverter.PARTICIPANT_PREFIX + p.getObjectId());
+      }
+
+      com.antigravity.proto.Race raceProto = // fqn-collision
+          com.antigravity.proto.Race.newBuilder() // fqn-collision
+              .setCurrentHeat(HeatConverter.toProto(currentHeat, sentObjectIds))
+              .build();
+
+      broadcast(RaceData.newBuilder().setRace(raceProto).build());
+
+      // Reset heat records and broadcast them
       resetHeatRecords();
       broadcastRecords();
       broadcastTime();

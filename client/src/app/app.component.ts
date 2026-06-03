@@ -8,12 +8,12 @@ import {
 import { filter } from "rxjs/operators";
 import { slideInAnimation } from "@app/utils/animations";
 
-import { AnalyticsService } from "./analytics.service";
 import { HelpOverlayComponent } from "./components/shared/help-overlay/help-overlay.component";
 import { DataService } from "./data.service";
 import { FileSystemService } from "./services/file-system.service";
 import { LoggerService } from "./services/logger.service";
 import { NavigationService } from "./services/navigation.service";
+import { ReportingService } from "./services/reporting.service";
 import { SettingsService } from "./services/settings.service";
 import { ThemeService } from "./services/theme.service";
 
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     private contexts: ChildrenOutletContexts,
     private dataService: DataService,
     private router: Router,
-    private analyticsService: AnalyticsService,
+    private ReportingService: ReportingService,
     private settingsService: SettingsService,
     private navigationService: NavigationService,
     private themeService: ThemeService,
@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
       });
     }
 
-    this.analyticsService.initTracking();
+    this.ReportingService.initTracking();
     this.dataService.connectToRaceDataSocket();
 
     // Initialize log levels from settings

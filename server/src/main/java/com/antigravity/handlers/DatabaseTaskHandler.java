@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
@@ -89,9 +90,9 @@ public class DatabaseTaskHandler {
     app.get("/api/databases/{name}/export", this::exportDatabase);
     app.post("/api/databases/import", this::importDatabase);
 
-    // History Data Endpoints
     app.get("/api/history/races", this::getRaceHistoryList);
     app.get("/api/history/races/{id}", this::getRaceHistoryById);
+    app.delete("/api/history/races/{id}", this::handleDeleteRaceHistory);
     app.get("/api/history/races/{id}/export", this::exportRaceHistoryCsv);
     app.get("/api/history/stats", this::getGlobalStatistics);
   }
@@ -499,6 +500,7 @@ public class DatabaseTaskHandler {
                 track.getNumTrackSections(),
                 track.getLanes(),
                 track.getArduinoConfigs(),
+                track.getGeolocation(),
                 nextId,
                 null);
       }
@@ -531,6 +533,7 @@ public class DatabaseTaskHandler {
               track.getNumTrackSections(),
               track.getLanes(),
               track.getArduinoConfigs(),
+              track.getGeolocation(),
               id,
               track.getId());
 
@@ -760,6 +763,15 @@ public class DatabaseTaskHandler {
       raceMap.put("false_start_lap_penalty", race.getFalseStartLapPenalty());
       raceMap.put("false_start_time_penalty", race.getFalseStartTimePenalty());
       raceMap.put("group_options", race.getGroupOptions());
+
+      // Fetch driver_ids directly from the document to avoid modifying the Race POJO
+      Document raceDoc =
+          getRaceCollection()
+              .find(Filters.eq("entity_id", race.getEntityId()), Document.class)
+              .first();
+      if (raceDoc != null && raceDoc.containsKey("driver_ids")) {
+        raceMap.put("driver_ids", raceDoc.get("driver_ids"));
+      }
       response.add(raceMap);
     }
     ctx.json(response);
@@ -791,18 +803,27 @@ public class DatabaseTaskHandler {
       return;
     }
 
-    // Create mock RaceParticipant list
-    List<RaceParticipant> mockDrivers = new ArrayList<>();
+    // Get real drivers from the database
+    List<Driver> realDrivers = new ArrayList<>();
+    getDriverCollection().find().forEach(realDrivers::add);
+
+    // Create RaceParticipant list using real drivers
+    List<RaceParticipant> participants = new ArrayList<>();
     for (int i = 0; i < driverCount; i++) {
-      Driver mockDriver = new Driver("Driver " + (i + 1), "Driver " + (i + 1));
-      mockDrivers.add(new RaceParticipant(mockDriver));
+      Driver driver;
+      if (i < realDrivers.size()) {
+        driver = realDrivers.get(i);
+      } else {
+        driver = new Driver("Driver " + (i + 1), "Driver " + (i + 1));
+      }
+      participants.add(new RaceParticipant(driver));
     }
 
     // Create a temporary Race object for heat building
     com.antigravity.race.Race tempRace = // fqn-collision
         new com.antigravity.race.Race.Builder() // fqn-collision
             .model(race)
-            .drivers(mockDrivers)
+            .drivers(participants)
             .track(track)
             .isDemoMode(true) // Use demo mode to avoid protocol initialization
             .build();
@@ -1099,10 +1120,24 @@ public class DatabaseTaskHandler {
   private void getRaceHistoryList(Context ctx) {
     try {
       boolean isDemo = "true".equals(ctx.queryParam("demo"));
+      System.out.println("Fetching race history list. Demo Mode: " + isDemo);
       DatabaseService dbService = DatabaseService.getInstance();
-      List<RaceHistoryRecord> history =
-          dbService.getRaceHistory(databaseContext.getDatabase(), isDemo);
-      ctx.json(history);
+      List<RaceHistoryRecord> allHistory = new ArrayList<>();
+
+      List<String> dbs = databaseContext.listDatabases();
+      System.out.println("Found databases: " + String.join(", ", dbs));
+      for (String dbName : dbs) {
+        if ("admin".equals(dbName) || "local".equals(dbName) || "config".equals(dbName)) {
+          continue;
+        }
+        MongoDatabase db = databaseContext.getMongoClient().getDatabase(dbName);
+        List<RaceHistoryRecord> history = dbService.getRaceHistory(db, isDemo);
+        for (RaceHistoryRecord record : history) {
+          record.setDatabaseName(dbName);
+        }
+        allHistory.addAll(history);
+      }
+      ctx.json(allHistory);
     } catch (Exception e) {
       e.printStackTrace();
       ctx.status(500).result("Error fetching race history list: " + e.getMessage());
@@ -1318,5 +1353,29 @@ public class DatabaseTaskHandler {
       result.add(new CustomRotation(numDrivers, heats));
     }
     return result;
+  }
+
+  private void handleDeleteRaceHistory(Context ctx) {
+    try {
+      String id = ctx.pathParam("id");
+      boolean isDemo = "true".equals(ctx.queryParam("demo"));
+      String dbName = ctx.queryParam("database");
+
+      MongoDatabase db =
+          dbName != null
+              ? databaseContext.getMongoClient().getDatabase(dbName)
+              : databaseContext.getDatabase();
+      DatabaseService dbService = DatabaseService.getInstance();
+
+      boolean deleted = dbService.deleteRaceHistoryById(db, id, isDemo);
+      if (deleted) {
+        ctx.status(204);
+      } else {
+        ctx.status(404).result("Race history not found");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      ctx.status(500).result("Error deleting race history: " + e.getMessage());
+    }
   }
 }

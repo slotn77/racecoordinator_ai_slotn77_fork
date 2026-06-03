@@ -42,6 +42,7 @@ export class Race implements Model {
   readonly customRotationAssetId?: string;
   readonly custom_rotations: any[];
   readonly customRotations?: any[];
+  readonly car_class?: string;
 
   constructor(
     entity_id: string,
@@ -74,6 +75,7 @@ export class Race implements Model {
     false_start_lap_penalty: number = 0,
     false_start_time_penalty: number = 0,
     group_options: GroupOptions = new GroupOptions(),
+    car_class?: string,
   ) {
     this.entity_id = entity_id;
     this.name = name;
@@ -105,6 +107,7 @@ export class Race implements Model {
     this.false_start_lap_penalty = false_start_lap_penalty;
     this.false_start_time_penalty = false_start_time_penalty;
     this.group_options = group_options;
+    this.car_class = car_class;
   }
 
   get objectId(): string {
